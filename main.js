@@ -144,6 +144,146 @@ client.on("message", async message => {
     message.channel.send({ embed: generateLeaderboardEmbed(1) });
   }
 
+  if(command == "buy"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    var parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.")
+    }
+    if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "UK"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 100000){
+        parsedData[index].money -= 100000;
+        item = "UK";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully invaded the UK.");
+      }
+    }
+    else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "AE"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 250000){
+        parsedData[index].money -= 250000;
+        item = "AE";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully bought Advanced Equipement.");
+      }
+    }
+    else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "RU"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 500000){
+        parsedData[index].money -= 500000;
+        item = "RU";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully invaded Russia.");
+      }
+    }
+    else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "EC"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 1000000){
+        parsedData[index].money -= 1000000;
+        item = "EC";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully expandecd your city.");
+      }
+    }
+    else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "MS"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 10000000){
+        parsedData[index].money -= 10000000;
+        item = "MS";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully recruited more soldiers.");
+      }
+    }
+    else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "US"){
+          message.reply("you already bought that item!");
+          return;
+        }
+      }
+      if(parsedData[index].money >= 50000000){
+        parsedData[index].money -= 50000000;
+        item = "US";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully expandecd your city.");
+      }
+    }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
+  if(command == "use"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    var parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.")
+    }
+    if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
+      for(var i = 0; i < parsedData[index].inventory.length; i++){
+        if(parsedData[index].inventory[i] == "UK"){
+          message.reply("you succesfully used your item!");
+          parsedData[index].inventory.slice(i, 1);
+          parsedData[index].upgrades.UK = true;
+          if(guild.roles.find("name", "UK")){
+            //TBA
+          }
+          return;
+        }
+      }
+      message.reply("you don't own that item.")
+    }
+    else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
+    }
+    else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
+    }
+    else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
+    }
+    else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
+    }
+    else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
+    }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
   if(command === "me" || command === "stats"){
     var user = searchUser(message);
     var alliance = user.alliance;
@@ -260,7 +400,7 @@ client.on("message", async message => {
             message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
           }
           else{
-            message.reply("".concat("You were unsuccesfull and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
+            message.reply("".concat("You were unsuccesful and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
           }
           if(parsedData[i].autoping == true){
             reminder(message, "c");
@@ -309,12 +449,15 @@ function createUser(msg){
         population: {
           VIP: false,
           UK: false,
-          Advanced: false,
-          Russia: false,
-          Expanded: false,
-          Soldiers: false,
+          AE: false,
+          RU: false,
+          EC: false,
+          MS: false,
           US: false
         }
+      },
+      inventory: {
+
       }
   }
   
