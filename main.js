@@ -136,6 +136,14 @@ client.on("message", async message => {
     createUser(message);
   }
 
+  if(command == "leaderboard" || command == "lb"){
+    
+    if(args[0] == "2"){
+      generateLeaderboardEmbed(2);
+    }
+    message.channel.send({ embed: generateLeaderboardEmbed(1) });
+  }
+
   if(command === "me" || command === "stats"){
     var user = searchUser(message);
     var alliance = user.alliance;
@@ -392,9 +400,8 @@ function createStoreEmbed(message, type){
           value: user.money.commafy(),
         },
         {
-          name: 'Access to VIP giveaways',
-          value: "Price: 50,000",
-          inline: false,
+          name: '\u200b',
+			    value: '\u200b'
         },
         {
           name: 'Invade the UK',
@@ -418,7 +425,7 @@ function createStoreEmbed(message, type){
         },
         {
           name: 'Recruit more Soldiers',
-          value: '+500,000 population every 4h \n Price: 10,000,000',
+          value: '+500,000 population every 4h \u200b \u200b \n Price: 10,000,000',
           inline: true,
         },
         {
@@ -481,31 +488,86 @@ async function payoutLoop(){
   let rawdataConfig = fs.readFileSync("config.json");
   let parsedConfigData = JSON.parse(rawdataConfig);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
-
-  if(Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout < 14400){
-    await Sleep((Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout) * 1000);
+  while(true){
+    if(Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout < 14400){
+      await Sleep((Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout) * 1000);
+    }
+    payoutChannel.send("Payouts are being processed....");
+    for(var i = 0; i < parsedData.length; i++){
+      if(parsedData[i].upgrades.population.UK){
+        parsedData[i].money += 5000;
+      }
+      if(parsedData[i].upgrades.population.Advanced){
+        parsedData[i].money += 5000;
+      }
+      if(parsedData[i].upgrades.population.Russia){
+        parsedData[i].money += 10000;
+      }
+      if(parsedData[i].upgrades.population.Expanded){
+        parsedData[i].money += 25000;
+      }
+      if(parsedData[i].upgrades.population.Soldiers){
+        parsedData[i].money += 500000;
+      }
+      if(parsedData[i].upgrades.population.US){
+        parsedData[i].money += 2000000;
+      }
+    } 
+    payoutChannel.send("Payouts have been given out!");
+    parsedConfigData.lastPayout = Math.floor(Date.now() / 1000);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+    fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
+    await Sleep(14400000);
   }
-  payoutChannel.send("Payouts are being processed....");
-  for(var i = 0; i < parsedData.length; i++){
-    if(parsedData[i].upgrades.population.UK){
-      parsedData[i].money += 5000;
-    }
-    if(parsedData[i].upgrades.population.Advanced){
-      parsedData[i].money += 5000;
-    }
-    if(parsedData[i].upgrades.population.Russia){
-      parsedData[i].money += 10000;
-    }
-    if(parsedData[i].upgrades.population.Expanded){
-      parsedData[i].money += 25000;
-    }
-    if(parsedData[i].upgrades.population.Soldiers){
-      parsedData[i].money += 500000;
-    }
-    if(parsedData[i].upgrades.population.US){
-      parsedData[i].money += 2000000;
-    }
-  } 
-  payoutChannel.send("Payouts have been given out!");
-  await Sleep(14400000);
 }
+
+function getLeaderboardList(){
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  sortedData = parsedData.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
+  return sortedData;
+}
+
+function generateLeaderboardEmbed(page){
+  p = page - 1;
+  var lb = getLeaderboardList();
+  const lbEmbed = {
+    color: 0x2222EE,
+    title: "".concat("Leaderboard page ", page),
+    fields: leaderBoardEmbedFields(p, lb),
+    timestamp: new Date(),
+    footer: {
+      text: 'Developed by Zero#0659',
+      icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
+    },
+  };
+  return lbEmbed;
+}
+
+function leaderBoardEmbedFields(p, lb){
+  var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
+  var fields = [];
+  for(var i = p * 10; i < h; i++){
+    field = {
+      name: "#".concat(i + 1),
+      value: "".concat(lb[i + p * 10].tag, " - ", lb[i + p * 10].money.commafy(), " coins")
+    }
+    fields.push(field);
+  }
+  return fields;
+}
+
+/*
+ {
+        name: "#1",
+        value: "".concat(lb[0 + p * 10].tag, " - ", lb[0 + p * 10].money.commafy(), " coins"),
+      },
+      {
+        name: "#2",
+        value: "".concat(lb[1 + p * 10].tag, " - ", lb[1 + p * 10].money.commafy(), " coins"),
+      },
+      {
+        name: "#3",
+        value: "".concat(lb[2 + p * 10].tag, " - ", lb[2 + p * 10].money.commafy(), " coins"),
+      },
+*/
