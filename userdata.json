@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Celine",
+    "tag": "Celine#8155",
+    "id": "594812957653991424",
+    "money": 1000,
+    "lastWorked": false,
+    "lastCrime": false,
+    "autoping": true,
+    "ressources": {
+      "food": 1000
+    }
+  },
+  {
+    "name": "Zero",
+    "tag": "Zero#0659",
+    "id": "393137628083388430",
+    "money": 5267,
+    "lastWorked": false,
+    "lastCrime": false,
+    "autoping": true,
+    "ressources": {
+      "food": 1000
+    }
+  }
+]
