@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const editJsonFile = require("edit-json-file")
 const config = require("./config.json");
-const fs = require("fs")
+const fs = require("fs");
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -135,37 +135,32 @@ client.on("message", async message => {
     createUser(message);
   }
 
-  if(command === "me"){
-    user = searchUser(message);
+  if(command === "me" || command === "stats"){
+    var user = searchUser(message);
+    var alliance = user.alliance;
+    if(alliance == null){
+      alliance = "You haven't joined an alliance yet."
+    }
     const meEmbed = {
       color: 0x2222ee,
       title: `Data for ${message.author.tag}`,
-      description: 'Some description here',
       thumbnail: {
         url: `${message.author.avatarURL}`,
       },
       fields: [
         {
-          name: 'Regular field title',
-          value: 'Some value here',
-        },
-        {
-          name: '\u200b',
-          value: '\u200b',
-        },
-        {
-          name: 'Inline field title',
-          value: 'Some value here',
+          name: 'Money:',
+          value: user.money.commafy(),
           inline: true,
         },
         {
-          name: 'Inline field title',
-          value: 'Some value here',
+          name: 'Food:',
+          value: user.ressources.food.commafy(),
           inline: true,
         },
         {
-          name: 'Inline field title',
-          value: 'Some value here',
+          name: 'Alliance',
+          value: alliance,
           inline: true,
         },
       ],
@@ -182,13 +177,32 @@ client.on("message", async message => {
     message.reply("*TBA*");
   }
 
+  if(command === "store"){
+    storeEmbed = createStoreEmbed(message);
+    message.channel.send({ embed: storeEmbed });
+  }
+
+
+  if(command == "disableping"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        parsedData[i].autoping = false;
+        message.reply("you successfully disabled autopings.")
+        break;
+      }
+    }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
   if(command === "work"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
-        if(parsedData[i].lastWorked == true){
-          message.reply("You cant work right now, please wait a little longer!");
+        if(Math.floor(Date.now() / 1000) - parsedData[i].lastWorked < 1800){
+          message.reply("".concat("You can work again in ", new Date(Math.floor(Date.now() / 1000) * 1000).toISOString().substr(11, 8)));
         }
         else {
           let oldBalance = parseInt(parsedData[i].money);
@@ -216,11 +230,16 @@ client.login(config.token);
 function createUser(msg){
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
-  for(var i = 0; i < parsedData.length; i++){
-    if(msg.author.id == parsedData[i].id){
-      msg.reply("you already have an registered account!");
-      return;
+  try{
+    for(var i = 0; i < parsedData.length; i++){
+      if(msg.author.id == parsedData[i].id){
+        msg.reply("you already have an registered account!");
+        return;
+      }
     }
+  }
+  catch {
+
   }
   
   let data = {
@@ -228,11 +247,14 @@ function createUser(msg){
       tag: msg.author.tag,
       id: msg.author.id,
       money: 1000,
-      lastWorked: false,
-      lastCrime: false,
+      lastWorked: 0,
+      lastCrime: 0,
       autoping: true,
+      alliance: null,
       ressources: {
         food: 1000
+      },
+      upgrades: {
       }
   }
   
@@ -252,7 +274,7 @@ async function reminder(msg, type){
     msg.reply("Reminder: Work again");
     for(var i = 0; i < parsedData.length; i++){
       if(msg.author.id == parsedData[i].id){
-        parsedData[i].lastWorked = false;
+        parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
         break;
       }
     }
@@ -263,7 +285,7 @@ async function reminder(msg, type){
     msg.reply("Reminder: Commit a crime.");
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
-        parsedData[i].lastCrime = false;
+        parsedData[i].lastCrime = Math.floor(Date.now() / 1000);
         break;
       }
     }
@@ -286,4 +308,56 @@ function searchUser(msg){
       return parsedData[i];
     }
   }
+}
+
+Number.prototype.commafy = function () {
+  return String(this).commafy();
+};
+
+String.prototype.commafy = function () {
+  return this.replace(/(^|[^\w.])(\d{4,})/g, function($0, $1, $2) {
+      return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
+  });
+};
+
+function createStoreEmbed(message){
+  var user = searchUser(message);
+  const newEmbed = {
+    color: 0x2222EE,
+    title: 'Store',
+    description: 'These items are currently avialable in the store!',
+    thumbnail: {
+      url: `${message.author.avatarURL}`,
+    },
+    fields: [
+      {
+        name: 'Your balance',
+        value: user.money.commafy(),
+      },
+      {
+        name: 'Access to VIP giveaways',
+        value: "Price: 50,000",
+        inline: true,
+      },
+      {
+        name: 'Invade the UK (+5000/every 4 hours)',
+        value: 'Price: 100,000',
+        inline: true,
+      },
+      {
+        name: 'Inline field title',
+        value: 'Some value here',
+        inline: true,
+      },
+    ],
+    image: {
+      url: 'https://i.imgur.com/wSTFkRM.png',
+    },
+    timestamp: new Date(),
+    footer: {
+      text: 'Developed by Zero#0659',
+      icon_url: `${message.author.avatarURL}`,
+    },
+  };
+  return newEmbed;
 }
