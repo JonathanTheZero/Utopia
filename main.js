@@ -167,7 +167,7 @@ client.on("message", async message => {
       timestamp: new Date(),
       footer: {
         text: 'Developed by Zero#0659',
-        icon_url: `${message.author.avatarURL}`,
+        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
       },
     }; 
     message.channel.send({ embed: meEmbed });
@@ -202,8 +202,7 @@ client.on("message", async message => {
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
         if(Math.floor(Date.now() / 1000) - parsedData[i].lastWorked < 1800){
-          message.reply("".concat("You can work again in ", new Date(Math.floor(Date.now() / 1000) * 1000).toISOString().substr(11, 8)));
-        }
+          message.reply("".concat("You can work again in ", new Date(((Math.floor(Date.now() / 1000) - parsedData[i].lastWorked) / 1000)) * 1000).toISOString().substr(11, 8));       }
         else {
           let oldBalance = parseInt(parsedData[i].money);
           var produced = Math.floor(Math.random() * 10000);
@@ -219,6 +218,31 @@ client.on("message", async message => {
         }
       }
     }
+  }
+
+  if(command === "crime"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        if(Math.floor(Date.now() / 1000) - parsedData[i].lastCrime < 14400){
+          message.reply("".concat("You can commit a crime again in ", new Date(((Math.floor(Date.now() / 1000) - parsedData[i].lastCrime) / 1000)) * 1000).toISOString().substr(11, 8));
+        }
+        else {
+          let oldBalance = parseInt(parsedData[i].money);
+          var produced = Math.floor(Math.random() * 10000);
+          var newBalance = oldBalance + produced;
+          parsedData[i].money = newBalance;
+          parsedData[i].lastWorked = true;
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+          if(parsedData[i].autoping == true){
+            reminder(message, "w");
+          }
+          break;
+        }
+      }
+    }    
   }
   
 
@@ -252,7 +276,8 @@ function createUser(msg){
       autoping: true,
       alliance: null,
       ressources: {
-        food: 1000
+        food: 1000,
+        population: 1000
       },
       upgrades: {
       }
@@ -356,8 +381,12 @@ function createStoreEmbed(message){
     timestamp: new Date(),
     footer: {
       text: 'Developed by Zero#0659',
-      icon_url: `${message.author.avatarURL}`,
+      icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
     },
   };
   return newEmbed;
+}
+
+async function payoutLoop(){
+  
 }
