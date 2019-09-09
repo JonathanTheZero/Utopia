@@ -17,6 +17,7 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
+  payoutLoop();
 });
 
 
@@ -178,10 +179,15 @@ client.on("message", async message => {
   }
 
   if(command === "store"){
-    storeEmbed = createStoreEmbed(message);
-    message.channel.send({ embed: storeEmbed });
+    var storeEmbed = null;
+    if(args[0] == "population" || args[0] == "p"){
+      storeEmbed = createStoreEmbed(message, "p");
+    }
+    else {
+      storeEmbed = createStoreEmbed(message, "s");
+    }
+    if(storeEmbed != null) message.channel.send({ embed: storeEmbed });
   }
-
 
   if(command == "disableping"){
     let rawdataUser = fs.readFileSync('userdata.json');
@@ -202,13 +208,14 @@ client.on("message", async message => {
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
         if(Math.floor(Date.now() / 1000) - parsedData[i].lastWorked < 1800){
-          message.reply("".concat("You can work again in ", new Date(((Math.floor(Date.now() / 1000) - parsedData[i].lastWorked) / 1000)) * 1000).toISOString().substr(11, 8));       }
+          message.reply("".concat("You can work again in ", new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
+        }
         else {
           let oldBalance = parseInt(parsedData[i].money);
           var produced = Math.floor(Math.random() * 10000);
           var newBalance = oldBalance + produced;
           parsedData[i].money = newBalance;
-          parsedData[i].lastWorked = true;
+          parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
           message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
           if(parsedData[i].autoping == true){
@@ -226,18 +233,29 @@ client.on("message", async message => {
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
         if(Math.floor(Date.now() / 1000) - parsedData[i].lastCrime < 14400){
-          message.reply("".concat("You can commit a crime again in ", new Date(((Math.floor(Date.now() / 1000) - parsedData[i].lastCrime) / 1000)) * 1000).toISOString().substr(11, 8));
+          message.reply("".concat("You can commit a crime again in ", new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8)));
         }
         else {
           let oldBalance = parseInt(parsedData[i].money);
-          var produced = Math.floor(Math.random() * 10000);
+          var produced;
+          if(Math.floor(Math.random() * 99) < 5){
+            produced = 50000;
+          }
+          else {
+            produced = Math.floor(-1 * (20000 * Math.random() * 0.02));
+          }
           var newBalance = oldBalance + produced;
           parsedData[i].money = newBalance;
-          parsedData[i].lastWorked = true;
+          parsedData[i].lastCrime = Math.floor(Date.now() / 1000);
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-          message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+          if(produced > 1){
+            message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+          }
+          else{
+            message.reply("".concat("You were unsuccesfull and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
+          }
           if(parsedData[i].autoping == true){
-            reminder(message, "w");
+            reminder(message, "c");
           }
           break;
         }
@@ -280,6 +298,15 @@ function createUser(msg){
         population: 1000
       },
       upgrades: {
+        population: {
+          VIP: false,
+          UK: false,
+          Advanced: false,
+          Russia: false,
+          Expanded: false,
+          Soldiers: false,
+          US: false
+        }
       }
   }
   
@@ -345,48 +372,140 @@ String.prototype.commafy = function () {
   });
 };
 
-function createStoreEmbed(message){
-  var user = searchUser(message);
-  const newEmbed = {
-    color: 0x2222EE,
-    title: 'Store',
-    description: 'These items are currently avialable in the store!',
-    thumbnail: {
-      url: `${message.author.avatarURL}`,
-    },
-    fields: [
-      {
-        name: 'Your balance',
-        value: user.money.commafy(),
+function createStoreEmbed(message, type){
+  /* p = populations
+  *  s = store (defualt)
+  *
+  */
+  if(type == "p"){
+    var user = searchUser(message);
+    const newEmbed = {
+      color: 0x2222EE,
+      title: 'Population store',
+      description: 'These items are currently avialable in the population store!',
+      thumbnail: {
+        url: `${message.author.avatarURL}`,
       },
-      {
-        name: 'Access to VIP giveaways',
-        value: "Price: 50,000",
-        inline: true,
+      fields: [
+        {
+          name: 'Your balance',
+          value: user.money.commafy(),
+        },
+        {
+          name: 'Access to VIP giveaways',
+          value: "Price: 50,000",
+          inline: false,
+        },
+        {
+          name: 'Invade the UK',
+          value: '+5000 population every 4h \n Price: 100,000',
+          inline: true,
+        },
+        {
+          name: 'Advanced Equipement',
+          value: '+5000 population every 4h \n Price: 250,000',
+          inline: true,
+        },
+        {
+          name: 'Invade Russia',
+          value: '+10,000 population every 4h \n Price: 500,000',
+          inline: true,
+        },
+        {
+          name: 'Expand your City',
+          value: '+25,000 population every 4h \n Price: 1,000,000',
+          inline: true,
+        },
+        {
+          name: 'Recruit more Soldiers',
+          value: '+500,000 population every 4h \n Price: 10,000,000',
+          inline: true,
+        },
+        {
+          name: 'Invade the US',
+          value: '+2,000,000 population every 4h \n Price: 50,000,000',
+          inline: true,
+        },
+      ],
+      timestamp: new Date(),
+      footer: {
+        text: 'Developed by Zero#0659',
+        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
       },
-      {
-        name: 'Invade the UK (+5000/every 4 hours)',
-        value: 'Price: 100,000',
-        inline: true,
+    };
+    return newEmbed;
+  }
+  else if(type == "s"){
+    var user = searchUser(message);
+    const newEmbed = {
+      color: 0x2222EE,
+      title: 'Store',
+      description: 'Welcome to the store!',
+      thumbnail: {
+        url: `${message.author.avatarURL}`,
       },
-      {
-        name: 'Inline field title',
-        value: 'Some value here',
-        inline: true,
+      fields: [
+        {
+          name: 'Population store',
+          value: "".concat('Type `', config.prefix, "store population` to view the population store"),
+        },
+        {
+          name: 'Food store',
+          value: 'Some value here',
+          inline: true,
+        },
+        {
+          name: 'Inline field title',
+          value: 'Some value here',
+          inline: true,
+        },
+        {
+          name: 'Inline field title',
+          value: 'Some value here',
+          inline: true,
+        },
+      ],
+      timestamp: new Date(),
+      footer: {
+        text: 'Developed by Zero#0659',
+        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
       },
-    ],
-    image: {
-      url: 'https://i.imgur.com/wSTFkRM.png',
-    },
-    timestamp: new Date(),
-    footer: {
-      text: 'Developed by Zero#0659',
-      icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
-    },
-  };
-  return newEmbed;
+    };
+    return newEmbed;
+  }
 }
 
 async function payoutLoop(){
-  
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  let rawdataConfig = fs.readFileSync("config.json");
+  let parsedConfigData = JSON.parse(rawdataConfig);
+  var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
+
+  if(Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout < 14400){
+    await Sleep((Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout) * 1000);
+  }
+  payoutChannel.send("Payouts are being processed....");
+  for(var i = 0; i < parsedData.length; i++){
+    if(parsedData[i].upgrades.population.UK){
+      parsedData[i].money += 5000;
+    }
+    if(parsedData[i].upgrades.population.Advanced){
+      parsedData[i].money += 5000;
+    }
+    if(parsedData[i].upgrades.population.Russia){
+      parsedData[i].money += 10000;
+    }
+    if(parsedData[i].upgrades.population.Expanded){
+      parsedData[i].money += 25000;
+    }
+    if(parsedData[i].upgrades.population.Soldiers){
+      parsedData[i].money += 500000;
+    }
+    if(parsedData[i].upgrades.population.US){
+      parsedData[i].money += 2000000;
+    }
+  } 
+  payoutChannel.send("Payouts have been given out!");
+  await Sleep(14400000);
 }
