@@ -1,5 +1,4 @@
 const Discord = require('discord.js');
-const editJsonFile = require("edit-json-file")
 const config = require("./config.json");
 const fs = require("fs");
 const client = new Discord.Client();
@@ -27,6 +26,45 @@ client.on("guildCreate", guild => {
   // This event triggers when the bot joins a guild.
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
+  
+  
+  const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
+  const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipement") == null) ? false : true;
+  const roleRUexists = (guild.roles.find(role => role.name === "Russia") == null) ? false : true;
+  const roleECexists = (guild.roles.find(role => role.name === "Expanded City") == null) ? false : true;
+  const roleMSexists = (guild.roles.find(role => role.name === "More Soldiers") == null) ? false : true;
+  const roleUSexists = (guild.roles.find(role => role.name === "US") == null) ? false : true;
+ 
+ if(!roleUKexists) {
+  guild.createRole({name: 'UK',})
+    .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+    .catch(console.error)
+  }
+  if(!roleAEexists) {
+    guild.createRole({name: 'Advanced Equipement',})
+      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+      .catch(console.error)
+  }
+  if(!roleRUexists) {
+    guild.createRole({name: 'Russia',})
+      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+      .catch(console.error)
+  }
+  if(!roleECexists) {
+    guild.createRole({name: 'Expanded City',})
+      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+      .catch(console.error)
+  }
+  if(!roleMSexists) {
+    guild.createRole({name: 'More Soldiers',})
+      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+      .catch(console.error)
+  }
+  if(!roleUSexists) {
+    guild.createRole({name: 'US',})
+      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
+      .catch(console.error)
+  }
 });
 
 client.on("guildDelete", guild => {
@@ -144,6 +182,10 @@ client.on("message", async message => {
     message.channel.send({ embed: generateLeaderboardEmbed(1) });
   }
 
+  if(command === "invite"){
+    message.reply("".concat("Add me to your server using this link: ", config.properties.inviteLink));
+  }
+
   if(command == "buy"){
     let rawdataUser = fs.readFileSync('userdata.json');
     var parsedData = JSON.parse(rawdataUser);
@@ -155,90 +197,113 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.")
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
     }
     if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "UK"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("UK")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 100000){
         parsedData[index].money -= 100000;
         item = "UK";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully invaded the UK.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "AE"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("AE")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 250000){
         parsedData[index].money -= 250000;
         item = "AE";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully bought Advanced Equipement.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "RU"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("RU")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 500000){
         parsedData[index].money -= 500000;
         item = "RU";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully invaded Russia.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "EC"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("EC")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 1000000){
         parsedData[index].money -= 1000000;
         item = "EC";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully expandecd your city.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "MS"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("MS")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 10000000){
         parsedData[index].money -= 10000000;
         item = "MS";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully recruited more soldiers.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "US"){
-          message.reply("you already bought that item!");
-          return;
-        }
+      if(parsedData[index].inventory.includes("US")){
+        message.reply("you already own that item!");
+        return;
       }
       if(parsedData[index].money >= 50000000){
         parsedData[index].money -= 50000000;
         item = "US";
         parsedData[index].inventory.push(item);
-        message.reply("you successfully expandecd your city.");
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
+      }
+    }
+
+    else if(args[0] == "VIP"){
+      if(parsedData[index].inventory.includes("VIP")){
+        message.reply("you already own that item!");
+        return;
+      }
+      if(parsedData[index].money >= 50000){
+        parsedData[index].money -= 50000;
+        item = "VIP";
+        parsedData[index].inventory.push(item);
+        message.reply("you successfully bought the item.");
+      }
+      else {
+        message.reply("You don't have enough money to buy that item.")
       }
     }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
@@ -255,31 +320,72 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.")
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
     }
     if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
-      for(var i = 0; i < parsedData[index].inventory.length; i++){
-        if(parsedData[index].inventory[i] == "UK"){
-          message.reply("you succesfully used your item!");
-          parsedData[index].inventory.slice(i, 1);
-          parsedData[index].upgrades.UK = true;
-          if(guild.roles.find("name", "UK")){
-            //TBA
-          }
-          return;
-        }
+      if(!parsedData[index].inventory.includes("UK")){
+        message.reply("you don't own that item.")
+        return;
       }
-      message.reply("you don't own that item.")
+      let role = message.guild.roles.find(r => r.name === "UK");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully invaded the UK.");
     }
     else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
+      if(!parsedData[index].inventory.includes("AE")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "AE");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully bought Advanced Equipement.");
     }
     else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
+      if(!parsedData[index].inventory.includes("RU")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "RU");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully invaded Russia.");
     }
     else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
+      if(!parsedData[index].inventory.includes("EC")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "EC");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully expandecd your city.");
     }
     else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
+      if(!parsedData[index].inventory.includes("MS")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "MS");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully recruited more soldiers.");
     }
     else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
+      if(!parsedData[index].inventory.includes("US")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "US");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully invaded the US.");
+    }
+
+    else if(args[0] == "VIP"){
+      if(!parsedData[index].inventory.includes("VIP")){
+        message.reply("you don't own that item.")
+        return;
+      }
+      let role = message.guild.roles.find(r => r.name === "VIP");
+      message.member.addRole(role).catch(console.error);
+      message.reply("you successfully gained access to VIP giveaways.");
     }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
@@ -314,10 +420,7 @@ client.on("message", async message => {
         },
       ],
       timestamp: new Date(),
-      footer: {
-        text: 'Developed by Zero#0659',
-        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
-      },
+      footer: config.properties.footer,
     }; 
     message.channel.send({ embed: meEmbed });
   }
@@ -326,7 +429,7 @@ client.on("message", async message => {
     message.reply("*TBA*");
   }
 
-  if(command === "store"){
+  if(command === "store" || command == "shop"){
     var storeEmbed = null;
     if(args[0] == "population" || args[0] == "p"){
       storeEmbed = createStoreEmbed(message, "p");
@@ -337,7 +440,7 @@ client.on("message", async message => {
     if(storeEmbed != null) message.channel.send({ embed: storeEmbed });
   }
 
-  if(command == "disableping"){
+  if(command == "autoping"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     for(var i = 0; i < parsedData.length; i++){
@@ -353,24 +456,30 @@ client.on("message", async message => {
   if(command === "work"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
-        if(Math.floor(Date.now() / 1000) - parsedData[i].lastWorked < 1800){
-          message.reply("".concat("You can work again in ", new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
-        }
-        else {
-          let oldBalance = parseInt(parsedData[i].money);
-          var produced = Math.floor(Math.random() * 10000);
-          var newBalance = oldBalance + produced;
-          parsedData[i].money = newBalance;
-          parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-          message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
-          if(parsedData[i].autoping == true){
-            reminder(message, "w");
-          }
-          break;
-        }
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(Math.floor(Date.now() / 1000) - parsedData[index].lastWorked < 1800){
+      message.reply("".concat("You can work again in ", new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
+    }
+    else {
+      let oldBalance = parseInt(parsedData[index].money);
+      var produced = Math.floor(Math.random() * 10000);
+      var newBalance = oldBalance + produced;
+      parsedData[index].money = newBalance;
+      parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
+      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+      message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+      if(parsedData[index].autoping == true){
+        reminder(message, "w");
       }
     }
   }
@@ -378,37 +487,43 @@ client.on("message", async message => {
   if(command === "crime"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
-        if(Math.floor(Date.now() / 1000) - parsedData[i].lastCrime < 14400){
-          message.reply("".concat("You can commit a crime again in ", new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8)));
-        }
-        else {
-          let oldBalance = parseInt(parsedData[i].money);
-          var produced;
-          if(Math.floor(Math.random() * 99) < 5){
-            produced = 50000;
-          }
-          else {
-            produced = Math.floor(-1 * (20000 * Math.random() * 0.02));
-          }
-          var newBalance = oldBalance + produced;
-          parsedData[i].money = newBalance;
-          parsedData[i].lastCrime = Math.floor(Date.now() / 1000);
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-          if(produced > 1){
-            message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
-          }
-          else{
-            message.reply("".concat("You were unsuccesful and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
-          }
-          if(parsedData[i].autoping == true){
-            reminder(message, "c");
-          }
-          break;
-        }
+        index = i;
+        break;
       }
-    }    
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(Math.floor(Date.now() / 1000) - parsedData[index].lastCrime < 14400){
+      message.reply("".concat("You can commit a crime again in ", new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8)));
+    }
+    else {
+      let oldBalance = parseInt(parsedData[i].money);
+      var produced;
+      if(Math.floor(Math.random() * 99) < 5){
+        produced = 50000;
+      }
+      else {
+        produced = Math.floor(-1 * (20000 * Math.random() * 0.02));
+      }
+      var newBalance = oldBalance + produced;
+      parsedData[index].money = newBalance;
+      parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
+      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+      if(produced > 1){
+        message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+      }
+      else{
+        message.reply("".concat("You were unsuccesful and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
+      }
+      if(parsedData[index].autoping == true){
+        reminder(message, "c");
+      }
+    }   
   }
   
 
@@ -433,7 +548,6 @@ function createUser(msg){
   }
   
   let data = {
-      name: msg.author.username,
       tag: msg.author.tag,
       id: msg.author.id,
       money: 1000,
@@ -446,19 +560,9 @@ function createUser(msg){
         population: 1000
       },
       upgrades: {
-        population: {
-          VIP: false,
-          UK: false,
-          AE: false,
-          RU: false,
-          EC: false,
-          MS: false,
-          US: false
-        }
+        population: []
       },
-      inventory: {
-
-      }
+      inventory: []
   }
   
   parsedData.push(data);
@@ -473,30 +577,32 @@ async function reminder(msg, type){
   var parsedData = JSON.parse(rawdataUser);
   if(type == "w"){
     msg.channel.send("I'll remind you in 30 minutes that you can work again.");
-    await Sleep(1800000);
-    msg.reply("Reminder: Work again");
     for(var i = 0; i < parsedData.length; i++){
       if(msg.author.id == parsedData[i].id){
         parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
         break;
       }
+      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+      await Sleep(1800000);
+      msg.reply("Reminder: Work again");
     }
   }
   else if(type == "c"){
     msg.channel.send("I'll remind you in 4h to commit a crime again.");
-    await Sleep(14400000);
-    msg.reply("Reminder: Commit a crime.");
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
         parsedData[i].lastCrime = Math.floor(Date.now() / 1000);
         break;
       }
     }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    await Sleep(14400000);
+    msg.reply("Reminder: Commit a crime.");
   }
   else {
     console.log("Error, no valid parameter for the reminder function.");
   }
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  
 }
 
 function Sleep(milliseconds) {
@@ -548,40 +654,37 @@ function createStoreEmbed(message, type){
         },
         {
           name: 'Invade the UK',
-          value: '+5000 population every 4h \n Price: 100,000',
+          value: '+5k population every 4h \n Price: 100,000',
           inline: true,
         },
         {
           name: 'Advanced Equipement',
-          value: '+5000 population every 4h \n Price: 250,000',
+          value: '+5k population every 4h \n Price: 250,000',
           inline: true,
         },
         {
           name: 'Invade Russia',
-          value: '+10,000 population every 4h \n Price: 500,000',
+          value: '+10k population every 4h \n Price: 500,000',
           inline: true,
         },
         {
           name: 'Expand your City',
-          value: '+25,000 population every 4h \n Price: 1,000,000',
+          value: '+25k population every 4h \n Price: 1,000,000',
           inline: true,
         },
         {
           name: 'Recruit more Soldiers',
-          value: '+500,000 population every 4h \u200b \u200b \n Price: 10,000,000',
+          value: '+500k population every 4h \n Price: 10,000,000',
           inline: true,
         },
         {
           name: 'Invade the US',
-          value: '+2,000,000 population every 4h \n Price: 50,000,000',
+          value: '+2M population every 4h \n Price: 50,000,000',
           inline: true,
         },
       ],
       timestamp: new Date(),
-      footer: {
-        text: 'Developed by Zero#0659',
-        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
-      },
+      footer: config.properties.footer,
     };
     return newEmbed;
   }
@@ -605,8 +708,8 @@ function createStoreEmbed(message, type){
           inline: true,
         },
         {
-          name: 'Inline field title',
-          value: 'Some value here',
+          name: 'VIP Giveaways',
+          value: 'This will give you access to VIP giveaways \n Price: 50,000',
           inline: true,
         },
         {
@@ -616,10 +719,7 @@ function createStoreEmbed(message, type){
         },
       ],
       timestamp: new Date(),
-      footer: {
-        text: 'Developed by Zero#0659',
-        icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
-      },
+      footer: config.properties.footer,
     };
     return newEmbed;
   }
@@ -637,23 +737,23 @@ async function payoutLoop(){
     }
     payoutChannel.send("Payouts are being processed....");
     for(var i = 0; i < parsedData.length; i++){
-      if(parsedData[i].upgrades.population.UK){
-        parsedData[i].money += 5000;
+      if(parsedData[i].upgrades.population.includes("UK")){
+        parsedData[i].ressources.population += 5000;
       }
-      if(parsedData[i].upgrades.population.Advanced){
-        parsedData[i].money += 5000;
+      if(parsedData[i].upgrades.population.includes("AE")){
+        parsedData[i].ressources.population += 5000;
       }
-      if(parsedData[i].upgrades.population.Russia){
-        parsedData[i].money += 10000;
+      if(parsedData[i].upgrades.population.includes("RU")){
+        parsedData[i].ressources.population += 10000;
       }
-      if(parsedData[i].upgrades.population.Expanded){
-        parsedData[i].money += 25000;
+      if(parsedData[i].upgrades.population.includes("EC")){
+        parsedData[i].ressources.population += 25000;
       }
-      if(parsedData[i].upgrades.population.Soldiers){
-        parsedData[i].money += 500000;
+      if(parsedData[i].upgrades.population.includes("MS")){
+        parsedData[i].ressources.population += 500000;
       }
-      if(parsedData[i].upgrades.population.US){
-        parsedData[i].money += 2000000;
+      if(parsedData[i].upgrades.population.includes("US")){
+        parsedData[i].ressources.population += 2000000;
       }
     } 
     payoutChannel.send("Payouts have been given out!");
@@ -679,10 +779,7 @@ function generateLeaderboardEmbed(page){
     title: "".concat("Leaderboard page ", page),
     fields: leaderBoardEmbedFields(p, lb),
     timestamp: new Date(),
-    footer: {
-      text: 'Developed by Zero#0659',
-      icon_url: "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512",
-    },
+    footer: config.properties.footer,
   };
   return lbEmbed;
 }
@@ -699,18 +796,3 @@ function leaderBoardEmbedFields(p, lb){
   }
   return fields;
 }
-
-/*
- {
-        name: "#1",
-        value: "".concat(lb[0 + p * 10].tag, " - ", lb[0 + p * 10].money.commafy(), " coins"),
-      },
-      {
-        name: "#2",
-        value: "".concat(lb[1 + p * 10].tag, " - ", lb[1 + p * 10].money.commafy(), " coins"),
-      },
-      {
-        name: "#3",
-        value: "".concat(lb[2 + p * 10].tag, " - ", lb[2 + p * 10].money.commafy(), " coins"),
-      },
-*/
