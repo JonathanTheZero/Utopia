@@ -1,26 +1,87 @@
 [
   {
-    "name": "Celine",
-    "tag": "Celine#8155",
-    "id": "594812957653991424",
-    "money": 1000,
-    "lastWorked": false,
-    "lastCrime": false,
+    "tag": "victoriaisahuman#1808",
+    "id": "595752455409762304",
+    "money": 25776,
+    "lastWorked": 1568198139,
+    "lastCrime": 1568198147,
     "autoping": true,
+    "alliance": null,
     "ressources": {
-      "food": 1000
-    }
+      "food": 1000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": []
+    },
+    "inventory": []
   },
   {
-    "name": "Zero",
+    "tag": "Hyp3r#0329",
+    "id": "253912048944021508",
+    "money": 1302,
+    "lastWorked": 1568134918,
+    "lastCrime": 0,
+    "autoping": true,
+    "alliance": null,
+    "ressources": {
+      "food": 1000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": []
+    },
+    "inventory": []
+  },
+  {
+    "tag": "Sixkestrel#4139",
+    "id": "369134296230920202",
+    "money": 9057,
+    "lastWorked": 1568141490,
+    "lastCrime": 1568139137,
+    "autoping": true,
+    "alliance": null,
+    "ressources": {
+      "food": 1000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": []
+    },
+    "inventory": []
+  },
+  {
     "tag": "Zero#0659",
     "id": "393137628083388430",
-    "money": 5267,
-    "lastWorked": false,
-    "lastCrime": false,
+    "money": 6534,
+    "lastWorked": 1568198127,
+    "lastCrime": 1568198135,
     "autoping": true,
+    "alliance": null,
     "ressources": {
-      "food": 1000
-    }
+      "food": 1000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": []
+    },
+    "inventory": []
+  },
+  {
+    "tag": "Sordyr#3345",
+    "id": "399565348136812544",
+    "money": 5523,
+    "lastWorked": 1568198149,
+    "lastCrime": 1568198142,
+    "autoping": true,
+    "alliance": null,
+    "ressources": {
+      "food": 1000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": []
+    },
+    "inventory": []
   }
 ]
