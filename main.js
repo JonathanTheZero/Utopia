@@ -17,7 +17,7 @@ client.on("ready", () => {
   // docs refer to as the "ClientUser".
   client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
   payoutLoop();
-  //populationWorkLoop();
+  populationWorkLoop();
 });
 
 
@@ -185,7 +185,7 @@ client.on("message", async message => {
     var lbEmbed;
     if(args[0] == "p" || args[0] == "population"){
       try {
-        lbEmbed = generateLeaderboardEmbed("p", args[1]);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1) : generateLeaderboardEmbed("p", args[1]);
       }
       catch {
         message.reply("that isn't a valid page numbers!")
@@ -193,10 +193,10 @@ client.on("message", async message => {
     }
     else {
       try {
-        lbEmbed = generateLeaderboardEmbed("m", args[1]);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
       }
       catch {
-        message.reply("that isn't a valid page numbers!")
+        message.reply("that isn't a valid page number!")
       }
     }
     
@@ -418,7 +418,7 @@ client.on("message", async message => {
       alliance = "You haven't joined an alliance yet."
     }
     const meEmbed = {
-      color: config.properties.embedColor,
+      color: parseInt(config.properties.embedColor),
       title: `Data for ${message.author.tag}`,
       thumbnail: {
         url: `${message.author.avatarURL}`,
@@ -665,7 +665,7 @@ function createStoreEmbed(message, type){
   if(type == "p"){
     var user = searchUser(message);
     const newEmbed = {
-      color: config.properties.embedColor,
+      color: parseInt(config.properties.embedColor),
       title: 'Population store',
       description: 'These items are currently avialable in the population store!',
       thumbnail: {
@@ -719,7 +719,7 @@ function createStoreEmbed(message, type){
   else if(type == "s"){
     var user = searchUser(message);
     const newEmbed = {
-      color: config.properties.embedColor,
+      color: parseInt(config.properties.embedColor),
       title: 'Store',
       description: 'Welcome to the store!',
       thumbnail: {
@@ -806,7 +806,7 @@ async function populationWorkLoop(){
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
-      parsedData[i].money += parsedData[i].population.ressources / 100;
+      parsedData[i].money += parsedData[i].ressources.population / 100;
     } 
     payoutChannel.send("You have succesfully gained money through the work of your population!");
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
@@ -828,12 +828,12 @@ function getLeaderboardList(type){
 }
 
 function generateLeaderboardEmbed(type, page){
-  p = (typeof page == undefined) ? 0: page - 1;
+  var p = page - 1;
   var lbEmbed;
   if(type == "p"){
     var lb = getLeaderboardList("p");
     lbEmbed = {
-      color: 0x2222EE,
+      color: parseInt(config.properties.embedColor),
       title: "".concat("Leaderboard sorted by population, page ", page),
       fields: leaderBoardEmbedFields(p, lb, "p"),
       timestamp: new Date(),
@@ -843,7 +843,7 @@ function generateLeaderboardEmbed(type, page){
   else {
     var lb = getLeaderboardList("m");
     lbEmbed = {
-      color: config.properties.embedColor,
+      color: parseInt(config.properties.embedColor),
       title: "".concat("Leaderboard sorted by money, page ", page),
       fields: leaderBoardEmbedFields(p, lb, "m"),
       timestamp: new Date(),
