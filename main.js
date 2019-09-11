@@ -411,6 +411,10 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
+  if(command == "createalliance"){
+    
+  }
+
   if(command === "me" || command === "stats"){
     var user = searchUser(message);
     var alliance = user.alliance;
