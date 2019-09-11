@@ -358,7 +358,7 @@ client.on("message", async message => {
         message.reply("you don't own that item.")
         return;
       }
-      let role = message.guild.roles.find(r => r.name === "AE");
+      let role = message.guild.roles.find(r => r.name === "Advanced Equipement");
       message.member.addRole(role).catch(console.error);
       message.reply("you successfully bought Advanced Equipement.");
     }
@@ -367,7 +367,7 @@ client.on("message", async message => {
         message.reply("you don't own that item.")
         return;
       }
-      let role = message.guild.roles.find(r => r.name === "RU");
+      let role = message.guild.roles.find(r => r.name === "Russia");
       message.member.addRole(role).catch(console.error);
       message.reply("you successfully invaded Russia.");
     }
@@ -376,7 +376,7 @@ client.on("message", async message => {
         message.reply("you don't own that item.")
         return;
       }
-      let role = message.guild.roles.find(r => r.name === "EC");
+      let role = message.guild.roles.find(r => r.name === "Expanded City");
       message.member.addRole(role).catch(console.error);
       message.reply("you successfully expandecd your city.");
     }
@@ -385,7 +385,7 @@ client.on("message", async message => {
         message.reply("you don't own that item.")
         return;
       }
-      let role = message.guild.roles.find(r => r.name === "MS");
+      let role = message.guild.roles.find(r => r.name === "More Soldiers");
       message.member.addRole(role).catch(console.error);
       message.reply("you successfully recruited more soldiers.");
     }
@@ -412,7 +412,27 @@ client.on("message", async message => {
   }
 
   if(command == "createalliance"){
-    
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    else if(parsedData[i].alliance != null){
+      message.reply("you can't create your own alliance, because you already joined one. Leave your alliance with `.leavealliance` first.")
+      return;
+    }
+    if(parsedData[index].alliance == null){
+      const allianceName = args.join(" ");
+      message.reply(createAliiance(message, allianceName));
+    }
   }
 
   if(command === "me" || command === "stats"){
@@ -420,6 +440,15 @@ client.on("message", async message => {
     var alliance = user.alliance;
     if(alliance == null){
       alliance = "You haven't joined an alliance yet."
+    }
+    if(user.allainceRank == "M"){
+      alliance = "".concat("You are a member of ", alliance);
+    }
+    else if(user.allainceRank == "C"){
+      alliance = "".concat("You are a co-leader of ", alliance);
+    }
+    else if(user.allainceRank == "L"){
+      alliance = "".concat("You are the leader of ", alliance);
     }
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -449,6 +478,30 @@ client.on("message", async message => {
     }; 
     message.channel.send({ embed: meEmbed });
   }
+
+  if(command == "leavealliance"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    else if(parsedData[i].alliance != null){
+      message.reply(leaveAlliance(message));
+    }
+    if(parsedData[index].alliance == null){
+      message.reply("you are not part of any alliance.")
+      return;
+    }
+  }
+
 
   if(command === "help"){
     message.reply("*TBA*");
@@ -587,6 +640,7 @@ function createUser(msg){
       lastCrime: 0,
       autoping: true,
       alliance: null,
+      allianceRank: null,
       ressources: {
         food: 1000,
         population: 1000
@@ -879,4 +933,97 @@ function leaderBoardEmbedFields(p, lb, type){
     }
   }
   return fields;
+}
+
+function createAliiance(message, allianceName){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  var index = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(message.author.id == parsedData[i].id){
+      index = i;
+      break;
+    }
+  }
+  if(parsedData[index].money < 250000){
+    return "you don't have enough money to create a new alliance. Creating an alliance costs 250,000 coins."
+  }
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == allianceName){
+      return "there already exists an alliance with this name.";
+    }
+  }
+  let data = {
+    name: allianceName,
+    level: 1,
+    leader: {
+      tag: message.author.tag,
+      id: message.author.id,
+    },
+    coLeaders: [],
+    members: [],
+    upgrades: []
+  }
+  parsedDataAlliances.push(data);
+  parsedData[index].alliance = allianceName;
+  parsedData[index].allianceRank = "L";
+  parsedData[index].money -= 250000;
+  fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+  return "".concat("you are now the leader of ", allianceName);
+}
+
+function leaveAlliance(message){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  var index = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(message.author.id == parsedData[i].id){
+      index = i;
+      break;
+    }
+  }
+  memberRank = parsedData[index].allianceRank;
+  if(memberRank == "M"){
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedDataAlliances[i].members.includes(message.author.id)){
+        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != message.author.id);
+        parsedData[index].alliance = null;
+        parsedData[index].allianceRank = null;
+        break;
+      }
+    }
+  }
+  else if(memberRank == "C"){
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedDataAlliances[i].coLeaders.includes(message.author.id)){
+        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != message.author.id);
+        parsedData[index].alliance = null;
+        parsedData[index].allianceRank = null;
+        break;
+      }
+    }
+  }
+  else if(memberRank == "L"){
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedDataAlliances[i].leader.id == message.author.id){
+        if(parsedDataAlliances[i].coLeaders.length <= 0 && parsedDataAlliances[i].members.length <= 0){
+          parsedData[index].alliance = null;
+          parsedData[index].allianceRank = null;
+          parsedDataAlliances.splice(i, 1);
+          break;
+        }
+        else {
+          return "".concat("You are the leader of ", parsedData[index].alliance, ". You have to promote one of the co-leaders to the new leader via `.promote <mention>` first.");
+        }
+      }
+    }
+  }
+  fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+  return "you have left your alliance";
 }
