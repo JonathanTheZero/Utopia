@@ -222,112 +222,26 @@ client.on("message", async message => {
       return;
     }
     if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
-      if(parsedData[index].inventory.includes("UK")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 100000){
-        parsedData[index].money -= 100000;
-        item = "UK";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("UK", index, 100000));
     }
     else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
-      if(parsedData[index].inventory.includes("AE")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 250000){
-        parsedData[index].money -= 250000;
-        item = "AE";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("AE", index, 250000));
     }
     else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
-      if(parsedData[index].inventory.includes("RU")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 500000){
-        parsedData[index].money -= 500000;
-        item = "RU";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("RU", index, 500000));
     }
     else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
-      if(parsedData[index].inventory.includes("EC")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 1000000){
-        parsedData[index].money -= 1000000;
-        item = "EC";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("EC", index, 1000000));
     }
     else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
-      if(parsedData[index].inventory.includes("MS")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 10000000){
-        parsedData[index].money -= 10000000;
-        item = "MS";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("MS", index, 10000000));
     }
     else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
-      if(parsedData[index].inventory.includes("US")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 50000000){
-        parsedData[index].money -= 50000000;
-        item = "US";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("US", index, 5000000));
     }
-
     else if(args[0] == "VIP"){
-      if(parsedData[index].inventory.includes("VIP")){
-        message.reply("you already own that item!");
-        return;
-      }
-      if(parsedData[index].money >= 50000){
-        parsedData[index].money -= 50000;
-        item = "VIP";
-        parsedData[index].inventory.push(item);
-        message.reply("you successfully bought the item.");
-      }
-      else {
-        message.reply("You don't have enough money to buy that item.")
-      }
+      message.reply(buyItem("VIP", index, 50000));
     }
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
   if(command == "use"){
@@ -345,73 +259,111 @@ client.on("message", async message => {
       return;
     }
     if(args[0] == "UK"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "UK"){
-      if(!parsedData[index].inventory.includes("UK")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "UK");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully invaded the UK.");
+      message.reply(useItem("UK", index, message));
     }
     else if(args[0] == "Equipement"|| (args[0] == "Advanced") && args[1] == "Equipement"){
-      if(!parsedData[index].inventory.includes("AE")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "Advanced Equipement");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully bought Advanced Equipement.");
+      message.reply(useItem("AE", index, message));
     }
     else if(args[0] == "Russia"|| (args[0] == "Invade") && args[1] == "Russia"){
-      if(!parsedData[index].inventory.includes("RU")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "Russia");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully invaded Russia.");
+      message.reply(useItem("RU", index, message));
     }
     else if(args[0] == "City"|| (args[0] == "Expand") && args[1] == "your" && args[2] == "City"){
-      if(!parsedData[index].inventory.includes("EC")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "Expanded City");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully expandecd your city.");
+      message.reply(useItem("EC", index, message));
     }
     else if(args[0] == "Soldiers"|| (args[0] == "Recruit") && args[1] == "more" && args[2] == "Soldiers"){
-      if(!parsedData[index].inventory.includes("MS")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "More Soldiers");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully recruited more soldiers.");
+      message.reply(useItem("MS", index, message));
     }
     else if(args[0] == "US"|| (args[0] == "Invade") && args[1] == "the" && args[2] == "US"){
-      if(!parsedData[index].inventory.includes("US")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "US");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully invaded the US.");
+      message.reply(useItem("US", index, message));
     }
-
     else if(args[0] == "VIP"){
-      if(!parsedData[index].inventory.includes("VIP")){
-        message.reply("you don't own that item.")
-        return;
-      }
-      let role = message.guild.roles.find(r => r.name === "VIP");
-      message.member.addRole(role).catch(console.error);
-      message.reply("you successfully gained access to VIP giveaways.");
+      message.reply(useItem("VIP", index, message));
     }
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
-  if(command == "createalliance"){
+  if(command === "me" || command === "stats"){
+    var user;
+    var url;
+    if(typeof args[0] === "undefined"){
+      user = searchUser(message);
+      url = `${message.author.avatarURL}`;
+    }
+    else {
+      user = searchUserByID(message.mentions.users.first().id);
+      url = `${message.mentions.users.first().avatarURL}`;
+    }
+    var alliance = user.alliance;
+
+    if(alliance == null){
+      alliance = "You haven't joined an alliance yet."
+    }
+    if(user.allainceRank == "M"){
+      alliance = "".concat("You are a member of ", alliance);
+    }
+    else if(user.allianceRank == "C"){
+      alliance = "".concat("You are a co-leader of ", alliance);
+    }
+    else if(user.allianceRank == "L"){
+      alliance = "".concat("You are the leader of ", alliance);
+    }
+    const meEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: `Data for ${message.author.tag}`,
+      thumbnail: {
+        url: url,
+      },
+      fields: [
+        {
+          name: 'Money:',
+          value: user.money.commafy(),
+          inline: true,
+        },
+        {
+          name: 'Food:',
+          value: user.ressources.food.commafy(),
+          inline: true,
+        },
+        {
+          name: "Population",
+          value: user.ressources.population.commafy(),
+          inline: true,
+        },
+        {
+          name: 'Alliance',
+          value: alliance,
+        },
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }; 
+    message.channel.send({ embed: meEmbed });
+  }
+
+  if(command === "joinalliance" || command === "join"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    else if(parsedData[i].alliance != null){
+      message.reply("you can't join another alliance, because you already joined one. Leave your alliance with `.leavealliance` first.")
+      return;
+    }
+    if(parsedData[index].alliance == null){
+      const allianceName = args.join(" ");
+      message.reply(joinAliiance(message, allianceName, index));
+    }
+  }
+
+  if(command == "createalliance" || command === "create"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -431,55 +383,11 @@ client.on("message", async message => {
     }
     if(parsedData[index].alliance == null){
       const allianceName = args.join(" ");
-      message.reply(createAliiance(message, allianceName));
+      message.reply(createAliiance(message, allianceName, index));
     }
   }
 
-  if(command === "me" || command === "stats"){
-    var user = searchUser(message);
-    var alliance = user.alliance;
-    if(alliance == null){
-      alliance = "You haven't joined an alliance yet."
-    }
-    if(user.allainceRank == "M"){
-      alliance = "".concat("You are a member of ", alliance);
-    }
-    else if(user.allainceRank == "C"){
-      alliance = "".concat("You are a co-leader of ", alliance);
-    }
-    else if(user.allainceRank == "L"){
-      alliance = "".concat("You are the leader of ", alliance);
-    }
-    const meEmbed = {
-      color: parseInt(config.properties.embedColor),
-      title: `Data for ${message.author.tag}`,
-      thumbnail: {
-        url: `${message.author.avatarURL}`,
-      },
-      fields: [
-        {
-          name: 'Money:',
-          value: user.money.commafy(),
-          inline: true,
-        },
-        {
-          name: 'Food:',
-          value: user.ressources.food.commafy(),
-          inline: true,
-        },
-        {
-          name: 'Alliance',
-          value: alliance,
-          inline: true,
-        },
-      ],
-      timestamp: new Date(),
-      footer: config.properties.footer,
-    }; 
-    message.channel.send({ embed: meEmbed });
-  }
-
-  if(command == "leavealliance"){
+  if(command == "leavealliance" || command == "leave"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -562,7 +470,7 @@ client.on("message", async message => {
       parsedData[index].money = newBalance;
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-      message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+      message.reply("".concat("You successfully worked and gained ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
       if(parsedData[index].autoping == true){
         reminder(message, "w");
       }
@@ -600,10 +508,10 @@ client.on("message", async message => {
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
       if(produced > 1){
-        message.reply("".concat("You successfully worked and gained ", produced, " coins. Your new balance is ", newBalance, " coins."));
+        message.reply("".concat("You successfully worked and gained ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
       }
       else{
-        message.reply("".concat("You were unsuccesful and lost ", produced, " coins. Your new balance is ", newBalance, " coins."));
+        message.reply("".concat("You were unsuccesful and lost ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
       }
       if(parsedData[index].autoping == true){
         reminder(message, "c");
@@ -646,7 +554,8 @@ function createUser(msg){
         population: 1000
       },
       upgrades: {
-        population: []
+        population: [],
+        misc: []
       },
       inventory: []
   }
@@ -704,6 +613,16 @@ function searchUser(msg){
     }
   }
 }
+function searchUserByID(id){
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(var i = 0; i < parsedData.length; i++){
+    if(id == parsedData[i].id){
+      return parsedData[i];
+    }
+  }
+}
+
 
 Number.prototype.commafy = function () {
   return String(this).commafy();
@@ -818,8 +737,9 @@ async function payoutLoop(){
   let parsedConfigData = JSON.parse(rawdataConfig);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   while(true){
-    if(Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout < 14400){
-      await Sleep((Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout) * 1000);
+    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout;
+    if(tdiff < 14400){
+      await Sleep((14400 - tdiff) * 1000);
     }
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
@@ -858,8 +778,9 @@ async function populationWorkLoop(){
   let parsedConfigData = JSON.parse(rawdataConfig);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   while(true){
-    if(Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout < 43200){
-      await Sleep((Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout) * 1000);
+    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
+    if(tdiff < 43200){
+      await Sleep((43200 - tdiff) * 1000);
     }
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
@@ -935,18 +856,11 @@ function leaderBoardEmbedFields(p, lb, type){
   return fields;
 }
 
-function createAliiance(message, allianceName){
+function createAliiance(message, allianceName, index){
   let rawdataAlliances = fs.readFileSync('alliances.json');
   let parsedDataAlliances = JSON.parse(rawdataAlliances);
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
-  var index = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(message.author.id == parsedData[i].id){
-      index = i;
-      break;
-    }
-  }
   if(parsedData[index].money < 250000){
     return "you don't have enough money to create a new alliance. Creating an alliance costs 250,000 coins."
   }
@@ -958,6 +872,7 @@ function createAliiance(message, allianceName){
   let data = {
     name: allianceName,
     level: 1,
+    public: true,
     leader: {
       tag: message.author.tag,
       id: message.author.id,
@@ -973,6 +888,29 @@ function createAliiance(message, allianceName){
   fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   return "".concat("you are now the leader of ", allianceName);
+}
+
+function joinAliiance(message, allianceName, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == allianceName){
+      if(parsedDataAlliances[i].public){
+        parsedData[index].alliance = allianceName;
+        parsedData[index].allianceRank = "M";
+        parsedDataAlliances[i].members.push(message.author.id);
+        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+        return "".concat("you are now a member of ", allianceName);
+      }
+      else {
+        return "You can't join this alliance because it's set to private."
+      }
+    }
+  }
+  return "".concat("this alliance doesn't exist, you can form it with `.createalliance ", allianceName, "`.");
 }
 
 function leaveAlliance(message){
@@ -1026,4 +964,68 @@ function leaveAlliance(message){
   fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   return "you have left your alliance";
+}
+
+function promote(message){
+
+}
+
+function demote(message){
+
+}
+
+function kick(message){
+  
+}
+
+function useItem(item, index, message){
+  let rawdataUser = fs.readFileSync('userdata.json');
+  var parsedData = JSON.parse(rawdataUser);
+  if(!parsedData[index].inventory.includes(item)){
+    return "you don't own that item.";
+  }
+  let role = message.guild.roles.find(r => r.name === item);
+  message.member.addRole(role).catch(console.error);
+  populationUpgrades = ["UK", "AE", "RU", "EC", "MS", "US"];
+  parsedData[index].inventory = parsedData[index].inventory.filter(i => i !== item);
+  if(populationUpgrades.includes(item)){
+    parsedData[index].upgrades.population.push(item);
+  }
+  else {
+    parsedData[index].upgrades.misc.push(item);
+  }
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  switch(item){
+    case "VIP":
+      return "you successfully gained access to VIP giveaways.";
+    case "UK":
+      return "you succesfully invaded the UK.";
+    case "AE":
+      return "you succesfully used the Advanced Equipement.";
+    case "RU":
+      return "you succesfully invaded Russia.";
+    case "EC":
+      return "you succesfully expanded your city.";
+    case "MS":
+      return "you succesfully recruited more soldiers.";
+    case "US":
+      return "you succesfully invaded the US";
+    default:
+      return "Error";
+  }
+}
+
+function buyItem(item, index, price){
+  let rawdataUser = fs.readFileSync('userdata.json');
+  var parsedData = JSON.parse(rawdataUser);
+  if(parsedData[index].inventory.includes(item)){
+      return "you already own that item!";
+  }
+  if(parsedData[index].money >= price){
+    parsedData[index].money -= price;
+    parsedData[index].inventory.push(item);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "you successfully bought the item.";
+  }
+  return "You don't have enough money to buy that item.";
 }
