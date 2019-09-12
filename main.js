@@ -105,7 +105,7 @@ client.on("message", async message => {
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
   }
   
-  if(command === "say") {
+  else if(command === "say") {
     // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
     // To get the "message" itself we join the `args` back into a string with spaces: 
     const sayMessage = args.join(" ");
@@ -115,7 +115,7 @@ client.on("message", async message => {
     message.channel.send(sayMessage);
   }
   
-  if(command === "kick" || command === "yeet" || command == "YEET") {
+  else if(command === "kick" || command === "yeet" || command == "YEET") {
     // This command must be limited to mods and admins. In this example we just hardcode the role names.
     if(!message.member.roles.some(r=>["Administrator", "Moderator"].includes(r.name)) )
       return message.reply("Sorry, you don't have permissions to use this!");
@@ -141,7 +141,7 @@ client.on("message", async message => {
 
   }
   
-  if(command === "ban") {
+  else if(command === "ban") {
     // Most of this command is identical to kick, except that here we'll only let admins do it.
     // In the real world mods could ban too, but this is just an example, right? ;)
     if(!message.member.roles.some(r=>["Administrator"].includes(r.name)) )
@@ -177,11 +177,11 @@ client.on("message", async message => {
       .catch(error => message.reply(`Couldn't delete messages because of: ${error}`));
   }
 
-  if(command === "create"){
+  else if(command === "create"){
     createUser(message);
   }
 
-  if(command == "leaderboard" || command == "lb"){
+  else if(command == "leaderboard" || command == "lb"){
     var lbEmbed;
     if(args[0] == "p" || args[0] == "population"){
       try {
@@ -203,11 +203,11 @@ client.on("message", async message => {
     message.channel.send({ embed: lbEmbed });
   }
 
-  if(command === "invite"){
+  else if(command === "invite"){
     message.reply("".concat("Add me to your server using this link: ", config.properties.inviteLink));
   }
 
-  if(command == "buy"){
+  else if(command == "buy"){
     let rawdataUser = fs.readFileSync('userdata.json');
     var parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -244,7 +244,7 @@ client.on("message", async message => {
     }
   }
 
-  if(command == "use"){
+  else if(command == "use"){
     let rawdataUser = fs.readFileSync('userdata.json');
     var parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -281,7 +281,7 @@ client.on("message", async message => {
     }
   }
 
-  if(command === "me" || command === "stats"){
+  else if(command === "me" || command === "stats"){
     var user;
     var url;
     if(typeof args[0] === "undefined"){
@@ -298,13 +298,13 @@ client.on("message", async message => {
       alliance = "You haven't joined an alliance yet."
     }
     if(user.allainceRank == "M"){
-      alliance = "".concat("You are a member of ", alliance);
+      alliance = "".concat("Member of ", alliance);
     }
     else if(user.allianceRank == "C"){
-      alliance = "".concat("You are a co-leader of ", alliance);
+      alliance = "".concat("Co-leader of ", alliance);
     }
     else if(user.allianceRank == "L"){
-      alliance = "".concat("You are the leader of ", alliance);
+      alliance = "".concat("Leader of ", alliance);
     }
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -339,7 +339,7 @@ client.on("message", async message => {
     message.channel.send({ embed: meEmbed });
   }
 
-  if(command === "joinalliance" || command === "join"){
+  else if(command === "joinalliance" || command === "join"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -363,7 +363,7 @@ client.on("message", async message => {
     }
   }
 
-  if(command == "createalliance" || command === "create"){
+  else if(command == "createalliance" || command === "create"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -387,7 +387,7 @@ client.on("message", async message => {
     }
   }
 
-  if(command == "leavealliance" || command == "leave"){
+  else if(command == "leavealliance" || command == "leave"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -410,12 +410,92 @@ client.on("message", async message => {
     }
   }
 
+  else if(command === "promote"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(typeof args[0] === 'undefined'){
+      message.reply("please supply a username with `.promote <mention>`.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "L"){
+      message.reply("only the leader can promote members.");
+      return;
+    }
+    else {
+      message.reply(promote(message, index));
+    }
+  }
 
-  if(command === "help"){
+  else if(command === "demote"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(typeof args[0] === 'undefined'){
+      message.reply("please supply a username with `.demote <mention>`.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "L"){
+      message.reply("only the leader can demote members.");
+      return;
+    }
+    else {
+      message.reply(demote(message, index));
+    }
+  }
+  
+  else if(command === "fire"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(typeof args[0] === 'undefined'){
+      message.reply("please supply a username with `.fire <mention>`.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "L"){
+      message.reply("only the leader can fire members.");
+      return;
+    }
+    else {
+      message.reply(fire(message, index));
+    }
+  }
+
+  else if(command === "help"){
     message.reply("*TBA*");
   }
 
-  if(command === "store" || command == "shop"){
+  else if(command === "store" || command == "shop"){
     var storeEmbed = null;
     if(args[0] == "population" || args[0] == "p"){
       storeEmbed = createStoreEmbed(message, "p");
@@ -426,7 +506,7 @@ client.on("message", async message => {
     if(storeEmbed != null) message.channel.send({ embed: storeEmbed });
   }
 
-  if(command == "autoping"){
+  else if(command == "autoping"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -446,7 +526,7 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
-  if(command === "work"){
+  else if(command === "work"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -477,7 +557,7 @@ client.on("message", async message => {
     }
   }
 
-  if(command === "crime"){
+  else if(command === "crime"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -966,16 +1046,110 @@ function leaveAlliance(message){
   return "you have left your alliance";
 }
 
-function promote(message){
-
+function promote(message, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  let member = message.mentions.members.first();
+  var memberIndex = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(parsedData[i].id === member.id){
+      memberIndex = i;
+      break;
+    }
+  }
+  if(memberIndex == -1){
+    return "sorry, I couldn't find his user.";
+  }
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == parsedData[index].alliance){
+      if(parsedData[memberIndex].allianceRank == "M"){
+        parsedData[memberIndex].allianceRank = "C";
+        parsedDataAlliances[i].coLeaders.push(member.id);
+        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
+        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+        return `Succesfully promoted ${message.mentions.members.first()} from Member to **Co-Leader**`;
+      }
+      else {
+        parsedData[memberIndex].allianceRank = "L";
+        parsedDataAlliances[i].leader.tag = member.tag;
+        parsedDataAlliances[i].leader.id = member.id;
+        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
+        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+        return `Succesfully promoted ${message.mentions.members.first()} from Co-Leader to **Leader**`;
+      }
+    }
+  }
 }
 
-function demote(message){
-
+function demote(message, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  let member = message.mentions.members.first();
+  var memberIndex = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(parsedData[i].id === member.id){
+      memberIndex = i;
+      break;
+    }
+  }
+  if(memberIndex == -1){
+    return "sorry, I couldn't find his user.";
+  }
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == parsedData[index].alliance){
+      if(parsedData[memberIndex].allianceRank == "M"){
+        return `you can't demote ${message.mentions.members.first()} since he is only a member. Use \`.fire <mention>\` to fire a member from your alliance. `;
+      }
+      else {
+        parsedData[memberIndex].allianceRank = "M";
+        parsedDataAlliances[i].members.push(member.id);
+        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
+        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+        return `Succesfully demoted ${message.mentions.members.first()} from Co-Leader to **Member**`;
+      }
+    }
+  }
 }
 
-function kick(message){
-  
+function fire(message, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  let member = message.mentions.members.first();
+  var memberIndex = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(parsedData[i].id === member.id){
+      memberIndex = i;
+      break;
+    }
+  }
+  if(memberIndex == -1){
+    return "sorry, I couldn't find his user.";
+  }
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == parsedData[index].alliance){
+      parsedData[memberIndex].allianceRank = null;
+      if(parsedData[memberIndex].allianceRank == "M"){
+        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
+      }
+      else {
+        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
+      }
+      parsedData[memberIndex].alliance = null;
+      parsedData[memberIndex].allianceRank = null;
+      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+      return `Succesfully fired ${message.mentions.members.first()} from your alliance`;
+    }
+  }
 }
 
 function useItem(item, index, message){
