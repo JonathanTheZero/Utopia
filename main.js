@@ -203,7 +203,7 @@ client.on("message", async message => {
     message.channel.send({ embed: lbEmbed });
   }
 
-  else if(command === "invite"){
+  else if(command === "invitelink"){
     message.reply("".concat("Add me to your server using this link: ", config.properties.inviteLink));
   }
 
@@ -363,7 +363,7 @@ client.on("message", async message => {
     }
   }
 
-  else if(command == "createalliance" || command === "create"){
+  else if(command == "createalliance"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -461,6 +461,79 @@ client.on("message", async message => {
     }
     else {
       message.reply(demote(message, index));
+    }
+  }
+
+  else if(command === "setprivate"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "M"){
+      message.reply(setAllianceStatus(false, index));
+      return;
+    }
+    else {
+      message.reply("Only the Leader and the Co-Leaders can set the alliance status");
+    }
+  }
+
+  else if(command === "setpublic"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "M"){
+      message.reply(setAllianceStatus(true, index));
+      return;
+    }
+    else {
+      message.reply("Only the Leader and the Co-Leaders can set the alliance status");
+    }
+  }
+
+  else if(command === "invite"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(typeof args[0] === 'undefined'){
+      message.reply("please supply a username with `.invite <mention>`.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "M"){
+      message.reply(inviteToAlliance(message, index));
+      return;
+    }
+    else {
+      message.reply("only the leader and the co-leaders can send out invites.");
     }
   }
   
@@ -959,7 +1032,8 @@ function createAliiance(message, allianceName, index){
     },
     coLeaders: [],
     members: [],
-    upgrades: []
+    upgrades: [],
+    invitedUsers: []
   }
   parsedDataAlliances.push(data);
   parsedData[index].alliance = allianceName;
@@ -977,7 +1051,10 @@ function joinAliiance(message, allianceName, index){
   let parsedData = JSON.parse(rawdataUser);
   for(var i = 0; i < parsedDataAlliances.length; i++){
     if(parsedDataAlliances[i].name == allianceName){
-      if(parsedDataAlliances[i].public){
+      if(parsedDataAlliances[i].public ||parsedDataAlliances[i].invitedUsers.includes(message.author.id)){
+        if(parsedDataAlliances[i].invitedUsers.includes(message.author.id)){
+          parsedDataAlliances[i].invitedUsers = parsedDataAlliances[i].invitedUsers.filter(item => item != message.author.id);
+        }
         parsedData[index].alliance = allianceName;
         parsedData[index].allianceRank = "M";
         parsedDataAlliances[i].members.push(message.author.id);
@@ -986,7 +1063,7 @@ function joinAliiance(message, allianceName, index){
         return "".concat("you are now a member of ", allianceName);
       }
       else {
-        return "You can't join this alliance because it's set to private."
+        return "You can't join this alliance because it's set to private. Ask the Leader or a Co-Leader to invite you."
       }
     }
   }
@@ -1065,15 +1142,19 @@ function promote(message, index){
   for(var i = 0; i < parsedDataAlliances.length; i++){
     if(parsedDataAlliances[i].name == parsedData[index].alliance){
       if(parsedData[memberIndex].allianceRank == "M"){
-        parsedData[memberIndex].allianceRank = "C";
-        parsedDataAlliances[i].coLeaders.push(member.id);
-        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
-        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-        return `Succesfully promoted ${message.mentions.members.first()} from Member to **Co-Leader**`;
+        if(parsedDataAlliances[i].coLeaders.length < 2){
+          parsedData[memberIndex].allianceRank = "C";
+          parsedDataAlliances[i].coLeaders.push(member.id);
+          parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return `Succesfully promoted ${message.mentions.members.first()} from Member to **Co-Leader**`;
+        }
+        return "an alliance can't have more than two Co-Leaders at the same time."
       }
       else {
         parsedData[memberIndex].allianceRank = "L";
+        parsedData[index].allianceRank = "C";
         parsedDataAlliances[i].leader.tag = member.tag;
         parsedDataAlliances[i].leader.id = member.id;
         parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
@@ -1148,6 +1229,51 @@ function fire(message, index){
       fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
       return `Succesfully fired ${message.mentions.members.first()} from your alliance`;
+    }
+  }
+}
+
+function setAllianceStatus(mode, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(let i = 0; i < parsedDataAlliances.length;i++){
+    if(parsedDataAlliances[i].name == parsedData[index].alliance){
+      parsedDataAlliances[i].public = mode;
+      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+      if(mode){
+        return "the alliance is now set to public."
+      }
+      return "the alliance was set to invite-only."
+    }
+  }
+}
+
+function inviteToAlliance(message, index){
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  let member = message.mentions.members.first();
+  var memberIndex = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(parsedData[i].id === member.id){
+      memberIndex = i;
+      break;
+    }
+  }
+  if(memberIndex == -1){
+    return "sorry, I couldn't find his user.";
+  }
+  if(parsedData[memberIndex].alliance != null){
+    return "sorry, this User already joined another alliance.";
+  }
+  for(var i = 0; i < parsedDataAlliances.length; i++){
+    if(parsedDataAlliances[i].name == parsedData[index].alliance){
+      parsedDataAlliances[i].invitedUsers.push(member.id);
+      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+      return `Succesfully invited ${message.mentions.members.first()} to join your alliance`;
     }
   }
 }
