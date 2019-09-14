@@ -29,7 +29,7 @@ client.on("guildCreate", guild => {
   client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
   
   
-  const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
+  /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
   const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipement") == null) ? false : true;
   const roleRUexists = (guild.roles.find(role => role.name === "Russia") == null) ? false : true;
   const roleECexists = (guild.roles.find(role => role.name === "Expanded City") == null) ? false : true;
@@ -71,7 +71,7 @@ client.on("guildCreate", guild => {
     guild.createRole({name: 'VIP',})
       .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
       .catch(console.error)
-  }
+  }*/
 });
 
 client.on("guildDelete", guild => {
@@ -191,6 +191,14 @@ client.on("message", async message => {
         message.reply("that isn't a valid page numbers!")
       }
     }
+    else if(args[0] == "allainces" || args[0] == "allaince" || args[0] == "a"){
+      try {
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
+      }
+      catch {
+        message.reply("that isn't a valid page number!")
+      }
+    }
     else {
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
@@ -241,6 +249,16 @@ client.on("message", async message => {
     }
     else if(args[0] == "VIP"){
       message.reply(buyItem("VIP", index, 50000));
+    }
+    else if(args[0] == "Food" || args[0] == "A" && args[1] == "pack" && args[2] == "of" && args[3] == "food"){
+      if(parsedData[index].money >= 20000){
+        parsedData[index].money -= 20000;
+        parsedData[index].resources.food += 50000;
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+        message.reply("you successfully bought 50,000 food for your population.");
+        return;
+      }
+      message.reply("You don't have enough money to buy that item.");
     }
   }
 
@@ -295,7 +313,7 @@ client.on("message", async message => {
     var alliance = user.alliance;
 
     if(alliance == null){
-      alliance = "You haven't joined an alliance yet."
+      alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet`;
     }
     if(user.allainceRank == "M"){
       alliance = "".concat("Member of ", alliance);
@@ -320,12 +338,12 @@ client.on("message", async message => {
         },
         {
           name: 'Food:',
-          value: user.ressources.food.commafy(),
+          value: user.resources.food.commafy(),
           inline: true,
         },
         {
           name: "Population",
-          value: user.ressources.population.commafy(),
+          value: user.resources.population.commafy(),
           inline: true,
         },
         {
@@ -337,6 +355,52 @@ client.on("message", async message => {
       footer: config.properties.footer,
     }; 
     message.channel.send({ embed: meEmbed });
+  }
+
+  else if(command === "add"){
+    if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'], false, true, true)) {
+      message.reply("this command can only be used by Members who have Kick and Ban permissions");
+      return;
+    }
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined"){
+      message.reply("please supply valid parameters following the `.add <type> <mention> <amount>`.");
+      return;
+    }
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.mentions.users.first().id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("this user hasn't created an account yet.");
+      return;
+    }
+    var m = ["money", "m"];
+    var f = ["food", "f"];
+    var p = ["population", "p"]
+    const a = parseInt(args[2])
+    if(a == null){
+      message.reply("this isn't a valid amount.");
+      return;
+    }
+    if(m.includes(args[0])){
+      parsedData[index].money += a;
+      message.reply("Succesfully added " + a + " " + `money to ${message.mentions.users.first()} balance.`);
+    }
+    else if(f.includes(args[0])){
+      parsedData[index].resources.food += a;
+      message.reply("Succesfully added " + a + " " + `food to ${message.mentions.users.first()} balance.`);
+    }
+    else if(p.includes(args[0])){
+      parsedData[index].resources.population += a;
+      message.reply("Succesfully added " + a + " " + `population to ${message.mentions.users.first()} balance.`);
+    }
+   
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
   else if(command === "joinalliance" || command === "join"){
@@ -564,8 +628,186 @@ client.on("message", async message => {
     }
   }
 
+  else if(command == "alliance"){
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    var user;
+    var url;
+    if(typeof args[0] === "undefined"){
+      user = searchUser(message);
+      url = `${message.author.avatarURL}`;
+    }
+    else {
+      user = searchUserByID(message.mentions.users.first().id);
+      url = `${message.mentions.users.first().avatarURL}`;
+    }
+    var alliance = user.alliance;
+
+    if(alliance == null){
+      if(typeof args[0] === "undefined"){
+        message.reply("you haven't joined an alliance yet.");
+        return;
+      }
+      else{
+        message.reply(`${message.mentions.users.first()} hasn't joined an alliance yet.`);
+        return;
+      }
+    }
+
+    var ind = -1;
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedDataAlliances[i].name == user.alliance){
+        ind = i;
+        break;
+      }
+    }
+    var coLeaders = "This alliance doesn't have any Co-Leaders";
+    const cl = parsedDataAlliances[ind].coLeaders;
+    if(cl.length == 1){
+      coLeaders = "The Co-Leader of this alliance is <@" + cl[0] + ">";
+    }
+    else if(cl.length == 2){
+      coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
+    }
+    const allianceEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "".concat("Data for ", alliance),
+      thumbnail: {
+        url: url,
+      },
+      fields: [
+        {
+          name: 'Leader:',
+          value: "".concat("<@",parsedDataAlliances[ind].leader.id,">"),
+        },
+        {
+          name: 'Co-Leaders:',
+          value: coLeaders,
+        },
+        {
+          name: "Membercount:",
+          value: parsedDataAlliances[ind].members.length,
+          inline: true,
+        },
+        {
+          name: 'Upgrades',
+          value: "*coming soon*",
+          inline: true,
+        },
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }; 
+    message.channel.send({ embed: allianceEmbed });
+  }
+
   else if(command === "help"){
-    message.reply("*TBA*");
+    var helpEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "Welcome to the help menu. Please choose a category",
+      thumbnail: {
+        url: message.author.avatarURL,
+      },
+      fields: [
+        {
+          name: 'General help:',
+          value: "type `.help general` to view the help menu for the general comamnds",
+        },
+        {
+          name: 'Alliance help:',
+          value: "type `.help alliance` to view the alliance help menu",
+        },
+        {
+          name: "Miscellaneous help:",
+          value: "type `.help misc` to view the help menu for everything else",
+        },
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }; 
+    var a = ["alliance", "alliances", "a"]
+    var g = ["general", "g"]
+    if(g.includes(args[0])){
+      helpEmbed.fields[2].name = "`.work`";
+      helpEmbed.fields[2].value = "You gain up to 10,000 coins from working. You can work every 30 minutes.";
+      helpEmbed.fields[0].name = "`.create`"
+      helpEmbed.fields[0].value ="Create an account and start to conquer the world!"
+      helpEmbed.fields[1].name = "`.me` or `.stats <mention>`"
+      helpEmbed.fields[1].value = "View your stats or these of other players."
+      field3 = {
+        name: "`.crime`",
+        value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
+      }
+      field4 = {
+        name: "`.lb` or `.leaderboard [type] [page]`",
+        value: "View the global leaderboard. Allowed types are 'allaince', 'money' and 'population'.",
+      }
+      field5 = {
+        name: "`.shop` or `.store [category]`",
+        value: "View the shop (you'll find further information there).",
+      }
+      field6 = {
+        name: "`.buy [item]`",
+        value: "Buy an item from the shop."
+      },
+      field7 = {
+        name: "`.use [item]`",
+        value: "Use on of your purchased items."
+      }
+      field8 = {
+        name: "`.alliance [mention]`",
+        value: "View the stats of your alliance or of the alliance of another user."
+      }
+      helpEmbed.fields.push(field3);
+      helpEmbed.fields.push(field4);
+      helpEmbed.fields.push(field5);
+      helpEmbed.fields.push(field6);
+      helpEmbed.fields.push(field7);
+      helpEmbed.fields.push(field8);
+    }
+    else if(a.includes(args[0])){
+      helpEmbed.fields[2].name = "`.createalliance <name>`";
+      helpEmbed.fields[2].value = "Create your own alliance.";
+      helpEmbed.fields[0].name = "`.leavealliance`";
+      helpEmbed.fields[0].value ="Leave your current alliance";
+      helpEmbed.fields[1].name = "`.joinalliance <name>`";
+      helpEmbed.fields[1].value = "Join an alliance";
+      field3 = {
+        name: "`.promote <mention>` (Leader only)",
+        value: "Promote a member or Co-Leader of your alliance (there is a maximum of two co-leaders)",
+      }
+      field4 = {
+        name: "`.demote <mention>` (Leader only)",
+        value: "Demote a member of your alliance.",
+      }
+      field5 = {
+        name: "`.fire <mention>` (Leader only)",
+        value: "Fire a member of your alliance.",
+      }
+      field6 = {
+        name: "`setpublic` and `.setprivate` (Leader and Co-Leaders only)",
+        value: "Change the setting of your alliance. Public: Everyone can join, Private: Only invited users can join."
+      },
+      field7 = {
+        name: "`.invite <mention>` (Leader and Co-Leaders only)",
+        value: "Invite a member to your alliance."
+      }
+      field8 = {
+        name: "`.alliance [mention}`",
+        value: "View the stats of your alliance or of the alliance of another user."
+      }
+      helpEmbed.fields.push(field3);
+      helpEmbed.fields.push(field4);
+      helpEmbed.fields.push(field5);
+      helpEmbed.fields.push(field6);
+      helpEmbed.fields.push(field7);
+      helpEmbed.fields.push(field8);
+    }
+    else if(args[0] == "misc"){
+      message.reply("coming soon");
+      return;
+    }
+    message.channel.send({ embed: helpEmbed });
   }
 
   else if(command === "store" || command == "shop"){
@@ -651,10 +893,11 @@ client.on("message", async message => {
       let oldBalance = parseInt(parsedData[i].money);
       var produced;
       if(Math.floor(Math.random() * 99) < 5){
-        produced = 50000;
+        var p = Math.floor(oldBalance * Math.random() * 0.02);
+        produced = (p > 50000) ? p : 50000;
       }
       else {
-        produced = Math.floor(-1 * (20000 * Math.random() * 0.02));
+        produced = Math.floor(-1 * (oldBalance * Math.random() * 0.02));
       }
       var newBalance = oldBalance + produced;
       parsedData[index].money = newBalance;
@@ -702,8 +945,8 @@ function createUser(msg){
       autoping: true,
       alliance: null,
       allianceRank: null,
-      ressources: {
-        food: 1000,
+      resources: {
+        food: 10000,
         population: 1000
       },
       upgrades: {
@@ -787,9 +1030,13 @@ String.prototype.commafy = function () {
   });
 };
 
+function randInt(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 function createStoreEmbed(message, type){
   /* p = populations
-  *  s = store (defualt)
+  *  s = store (default)
   *
   */
   if(type == "p"){
@@ -832,7 +1079,7 @@ function createStoreEmbed(message, type){
         },
         {
           name: 'Recruit more Soldiers',
-          value: '+500k population every 4h \n Price: 10,000,000',
+          value: '+500k population every 4h\n Price: 10,000,000',
           inline: true,
         },
         {
@@ -861,8 +1108,8 @@ function createStoreEmbed(message, type){
           value: "".concat('Type `', config.prefix, "store population` to view the population store"),
         },
         {
-          name: 'Food store',
-          value: 'Some value here',
+          name: 'A pack of food',
+          value: 'Contains 50k food (added to your account immediately) \n Price: 20,000',
           inline: true,
         },
         {
@@ -898,22 +1145,22 @@ async function payoutLoop(){
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
       if(parsedData[i].upgrades.population.includes("UK")){
-        parsedData[i].ressources.population += 5000;
+        parsedData[i].resources.population += 5000;
       }
       if(parsedData[i].upgrades.population.includes("AE")){
-        parsedData[i].ressources.population += 5000;
+        parsedData[i].resources.population += 5000;
       }
       if(parsedData[i].upgrades.population.includes("RU")){
-        parsedData[i].ressources.population += 10000;
+        parsedData[i].resources.population += 10000;
       }
       if(parsedData[i].upgrades.population.includes("EC")){
-        parsedData[i].ressources.population += 25000;
+        parsedData[i].resources.population += 25000;
       }
       if(parsedData[i].upgrades.population.includes("MS")){
-        parsedData[i].ressources.population += 500000;
+        parsedData[i].resources.population += 500000;
       }
       if(parsedData[i].upgrades.population.includes("US")){
-        parsedData[i].ressources.population += 2000000;
+        parsedData[i].resources.population += 2000000;
       }
     } 
     payoutChannel.send("You have succesfully gained population from your upgrades!");
@@ -938,7 +1185,10 @@ async function populationWorkLoop(){
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
-      parsedData[i].money += parsedData[i].ressources.population / 100;
+      parsedData[i].money += parsedData[i].resources.population / 100;
+      pop = parsedData[i].resources.population;
+      parsedData[i].resources.food -= Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+      console.log("Factor: " + (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
     } 
     payoutChannel.send("You have succesfully gained money through the work of your population!");
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
@@ -948,15 +1198,37 @@ async function populationWorkLoop(){
   }
 }
 
+function getBaseLog(x, y) {
+  return Math.log(y) / Math.log(x);
+}
+
 function getLeaderboardList(type){
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
+  let rawdataAlliances = fs.readFileSync('alliances.json');
+  let parsedDataAlliances = JSON.parse(rawdataAlliances);
   if(type == "p"){
-    return parsedData.sort((a, b) => parseFloat(b.ressources.population) - parseFloat(a.ressources.population));
+    return parsedData.sort((a, b) => parseFloat(b.resources.population) - parseFloat(a.resources.population));
+  }
+  else if(type == "a"){
+    return parsedDataAlliances.sort(sort_by('name', false, function(a){return a.toUpperCase()}));
   }
   else {
     return parsedData.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
+}
+
+var sort_by = function(field, reverse, primer){
+
+  var key = primer ? 
+      function(x) {return primer(x[field])} : 
+      function(x) {return x[field]};
+
+  reverse = !reverse ? 1 : -1;
+
+  return function (a, b) {
+      return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+    } 
 }
 
 function generateLeaderboardEmbed(type, page){
@@ -968,6 +1240,16 @@ function generateLeaderboardEmbed(type, page){
       color: parseInt(config.properties.embedColor),
       title: "".concat("Leaderboard sorted by population, page ", page),
       fields: leaderBoardEmbedFields(p, lb, "p"),
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+  }
+  else if(type == "a"){
+    var lb = getLeaderboardList("a");
+    lbEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "".concat("Alliance leaderboard sorted by name, page ", page),
+      fields: leaderBoardEmbedFields(p, lb, "a"),
       timestamp: new Date(),
       footer: config.properties.footer,
     };
@@ -992,7 +1274,16 @@ function leaderBoardEmbedFields(p, lb, type){
     for(var i = p * 10; i < h; i++){
       field = {
         name: "#".concat(i + 1),
-        value: "".concat(lb[i + p * 10].tag, " - ", lb[i + p * 10].ressources.population.commafy(), " population")
+        value: "".concat(lb[i + p * 10].tag, " - ", lb[i + p * 10].resources.population.commafy(), " population")
+      }
+      fields.push(field);
+    }
+  }
+  if(type == "a"){
+    for(var i = p * 10; i < h; i++){
+      field = {
+        name: "#".concat(i + 1),
+        value: lb[i + p *10].name,
       }
       fields.push(field);
     }
@@ -1284,8 +1575,8 @@ function useItem(item, index, message){
   if(!parsedData[index].inventory.includes(item)){
     return "you don't own that item.";
   }
-  let role = message.guild.roles.find(r => r.name === item);
-  message.member.addRole(role).catch(console.error);
+  //let role = message.guild.roles.find(r => r.name === item);
+  //message.member.addRole(role).catch(console.error);
   populationUpgrades = ["UK", "AE", "RU", "EC", "MS", "US"];
   parsedData[index].inventory = parsedData[index].inventory.filter(i => i !== item);
   if(populationUpgrades.includes(item)){
