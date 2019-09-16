@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const config = require("./config.json");
 const fs = require("fs");
+require("./alliances.js")();
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -606,6 +607,29 @@ client.on("message", async message => {
     }
   }
 
+  else if(command === "upgradealliance" || command == "upalliance"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(parsedData[index].allianceRank != "M"){
+      message.reply(upgradeAlliance(index));
+      return;
+    }
+    else {
+      message.reply("Only the Leader and the Co-Leaders can upgrade the alliance status");
+    }
+  }
+
   else if(command === "invite"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
@@ -704,7 +728,7 @@ client.on("message", async message => {
     if(parsedDataAlliances[i].upgrades.includes("SF")){
       auText = "This alliance owns a small farm"
     }
-      const allianceEmbed = {
+    const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Data for ", alliance),
       thumbnail: {
@@ -714,6 +738,12 @@ client.on("message", async message => {
         {
           name: 'Leader:',
           value: "".concat("<@",parsedDataAlliances[ind].leader.id,">"),
+          inline: true,
+        },
+        {
+          name: "Level",
+          value: "This alliance is level " + parsedDataAlliances[ind].level,
+          inline: true,
         },
         {
           name: 'Co-Leaders:',
@@ -1428,275 +1458,6 @@ function leaderBoardEmbedFields(p, lb, type){
     }
   }
   return fields;
-}
-
-function createAliiance(message, allianceName, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  if(parsedData[index].money < 250000){
-    return "you don't have enough money to create a new alliance. Creating an alliance costs 250,000 coins."
-  }
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == allianceName){
-      return "there already exists an alliance with this name.";
-    }
-  }
-  let data = {
-    name: allianceName,
-    level: 1,
-    public: true,
-    leader: {
-      tag: message.author.tag,
-      id: message.author.id,
-    },
-    coLeaders: [],
-    members: [],
-    upgrades: [],
-    invitedUsers: []
-  }
-  parsedDataAlliances.push(data);
-  parsedData[index].alliance = allianceName;
-  parsedData[index].allianceRank = "L";
-  parsedData[index].money -= 250000;
-  fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-  return "".concat("you are now the leader of ", allianceName);
-}
-
-function joinAliiance(message, allianceName, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == allianceName){
-      if(parsedDataAlliances[i].public ||parsedDataAlliances[i].invitedUsers.includes(message.author.id)){
-        if(parsedDataAlliances[i].invitedUsers.includes(message.author.id)){
-          parsedDataAlliances[i].invitedUsers = parsedDataAlliances[i].invitedUsers.filter(item => item != message.author.id);
-        }
-        parsedData[index].alliance = allianceName;
-        parsedData[index].allianceRank = "M";
-        parsedDataAlliances[i].members.push(message.author.id);
-        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
-        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-        return "".concat("you are now a member of ", allianceName);
-      }
-      else {
-        return "You can't join this alliance because it's set to private. Ask the Leader or a Co-Leader to invite you."
-      }
-    }
-  }
-  return "".concat("this alliance doesn't exist, you can form it with `.createalliance ", allianceName, "`.");
-}
-
-function leaveAlliance(message){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  var index = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(message.author.id == parsedData[i].id){
-      index = i;
-      break;
-    }
-  }
-  memberRank = parsedData[index].allianceRank;
-  if(memberRank == "M"){
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].members.includes(message.author.id)){
-        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != message.author.id);
-        parsedData[index].alliance = null;
-        parsedData[index].allianceRank = null;
-        break;
-      }
-    }
-  }
-  else if(memberRank == "C"){
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].coLeaders.includes(message.author.id)){
-        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != message.author.id);
-        parsedData[index].alliance = null;
-        parsedData[index].allianceRank = null;
-        break;
-      }
-    }
-  }
-  else if(memberRank == "L"){
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].leader.id == message.author.id){
-        if(parsedDataAlliances[i].coLeaders.length <= 0 && parsedDataAlliances[i].members.length <= 0){
-          parsedData[index].alliance = null;
-          parsedData[index].allianceRank = null;
-          parsedDataAlliances.splice(i, 1);
-          break;
-        }
-        else {
-          return "".concat("You are the leader of ", parsedData[index].alliance, ". You have to promote one of the co-leaders to the new leader via `.promote <mention>` first.");
-        }
-      }
-    }
-  }
-  fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-  return "you have left your alliance";
-}
-
-function promote(message, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let member = message.mentions.members.first();
-  var memberIndex = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(parsedData[i].id === member.id){
-      memberIndex = i;
-      break;
-    }
-  }
-  if(memberIndex == -1){
-    return "sorry, I couldn't find his user.";
-  }
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == parsedData[index].alliance){
-      if(parsedData[memberIndex].allianceRank == "M"){
-        if(parsedDataAlliances[i].coLeaders.length < 2){
-          parsedData[memberIndex].allianceRank = "C";
-          parsedDataAlliances[i].coLeaders.push(member.id);
-          parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
-          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-          return `Succesfully promoted ${message.mentions.members.first()} from Member to **Co-Leader**`;
-        }
-        return "an alliance can't have more than two Co-Leaders at the same time."
-      }
-      else {
-        parsedData[memberIndex].allianceRank = "L";
-        parsedData[index].allianceRank = "C";
-        parsedDataAlliances[i].leader.tag = member.tag;
-        parsedDataAlliances[i].leader.id = member.id;
-        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
-        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-        return `Succesfully promoted ${message.mentions.members.first()} from Co-Leader to **Leader**`;
-      }
-    }
-  }
-}
-
-function demote(message, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let member = message.mentions.members.first();
-  var memberIndex = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(parsedData[i].id === member.id){
-      memberIndex = i;
-      break;
-    }
-  }
-  if(memberIndex == -1){
-    return "sorry, I couldn't find his user.";
-  }
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == parsedData[index].alliance){
-      if(parsedData[memberIndex].allianceRank == "M"){
-        return `you can't demote ${message.mentions.members.first()} since he is only a member. Use \`.fire <mention>\` to fire a member from your alliance. `;
-      }
-      else {
-        parsedData[memberIndex].allianceRank = "M";
-        parsedDataAlliances[i].members.push(member.id);
-        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
-        fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-        return `Succesfully demoted ${message.mentions.members.first()} from Co-Leader to **Member**`;
-      }
-    }
-  }
-}
-
-function fire(message, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let member = message.mentions.members.first();
-  var memberIndex = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(parsedData[i].id === member.id){
-      memberIndex = i;
-      break;
-    }
-  }
-  if(memberIndex == -1){
-    return "sorry, I couldn't find his user.";
-  }
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == parsedData[index].alliance){
-      parsedData[memberIndex].allianceRank = null;
-      if(parsedData[memberIndex].allianceRank == "M"){
-        parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
-      }
-      else {
-        parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
-      }
-      parsedData[memberIndex].alliance = null;
-      parsedData[memberIndex].allianceRank = null;
-      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-      return `Succesfully fired ${message.mentions.members.first()} from your alliance`;
-    }
-  }
-}
-
-function setAllianceStatus(mode, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  for(let i = 0; i < parsedDataAlliances.length;i++){
-    if(parsedDataAlliances[i].name == parsedData[index].alliance){
-      parsedDataAlliances[i].public = mode;
-      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-      if(mode){
-        return "the alliance is now set to public."
-      }
-      return "the alliance was set to invite-only."
-    }
-  }
-}
-
-function inviteToAlliance(message, index){
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let member = message.mentions.members.first();
-  var memberIndex = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(parsedData[i].id === member.id){
-      memberIndex = i;
-      break;
-    }
-  }
-  if(memberIndex == -1){
-    return "sorry, I couldn't find his user.";
-  }
-  if(parsedData[memberIndex].alliance != null){
-    return "sorry, this User already joined another alliance.";
-  }
-  for(var i = 0; i < parsedDataAlliances.length; i++){
-    if(parsedDataAlliances[i].name == parsedData[index].alliance){
-      parsedDataAlliances[i].invitedUsers.push(member.id);
-      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-      return `Succesfully invited ${message.mentions.members.first()} to join your alliance`;
-    }
-  }
 }
 
 function useItem(item, index, message){
