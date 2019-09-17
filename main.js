@@ -16,7 +16,7 @@ client.on("ready", () => {
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
-  client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
   payoutLoop();
   populationWorkLoop();
 });
@@ -27,8 +27,8 @@ client.on("ready", () => {
 client.on("guildCreate", guild => {
   // This event triggers when the bot joins a guild.
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
-  client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
-  
+  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
+ 
   
   /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
   const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipement") == null) ? false : true;
@@ -78,7 +78,7 @@ client.on("guildCreate", guild => {
 client.on("guildDelete", guild => {
   // this event triggers when the bot is removed from a guild.
   console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
-  client.user.setActivity(`Serving ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
 });
 
 
@@ -389,6 +389,30 @@ client.on("message", async message => {
       footer: config.properties.footer,
     }; 
     message.channel.send({ embed: meEmbed });
+  }
+
+  else if(command == "inventory" || command == "inv"){
+    var user = searchUser(message);
+    const inventoryEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: `Your inventory`,
+      thumbnail: {
+        url: `${message.author.avatarURL}`,
+      },
+      fields: [
+        {
+          name: "Your items (shortenings)",
+          value: ((user.inventory.length == 0) ? "You don't have any items in your inventory" : user.inventory.join(", ")),
+        }
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+    message.channel.send({ embed: inventoryEmbed });
+  }
+
+  else if(command == "server"){
+    message.reply("join the official LGI server here: "+ config.serverInvite);
   }
 
   else if(command === "add"){
@@ -885,6 +909,13 @@ client.on("message", async message => {
       helpEmbed.fields[0].value ="Enable/Disable autopings when you can work or commit a crime again. (Enabled by default)";
       helpEmbed.fields[1].name = "`.payoutdms`";
       helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
+      helpEmbed.fields[2].name = "`.invitelink`";
+      helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
+      filed3 = {
+        name: "`.server`",
+        value: "Join the official LGI server!"
+      }
+      helpEmbed.fields.push(field3);
     }
     message.channel.send({ embed: helpEmbed });
   }
