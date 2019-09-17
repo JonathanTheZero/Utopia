@@ -321,5 +321,27 @@ module.exports = function(){
             return `Succesfully invited ${message.mentions.members.first()} to join your alliance`;
           }
         }
-      }   
+      }
+      
+      buyItemAlliance = function(itemShort, index, price, minLevel){
+        if(parsedData[index].allianceRank == "M"){
+          return "sorry, you can't buy this upgrade.";
+        }
+        if(parsedData[index].money >= price){
+          for(var i = 0; i < parsedDataAlliances.length; i++){
+            if(parsedDataAlliances[i].name == parsedData[index].alliance){
+              if(parsedData[i].level < minLevel){
+                return "only level " + minLevel +"+ alliances can buy this upgrade.";
+              }
+              parsedData[index].money -= price;
+              parsedDataAlliances[i].upgrades.push(itemShort);
+              break;
+            }
+          }
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "you successfully bought the small farm upgrade for your alliance.";
+        }
+      return "You don't have enough money to buy that item.";
+      }
 };
