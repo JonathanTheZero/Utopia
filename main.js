@@ -3,17 +3,9 @@ const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
 const client = new Discord.Client();
-const http = require('http');
-const express = require('express');
-const app = express();
-app.get("/", (request, response) => {
-  console.log(Date.now() + " Ping Received");
-  response.sendStatus(200);
-});
-app.listen(process.env.PORT);
-setInterval(() => {
-  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
+
+
+
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -1328,11 +1320,6 @@ function createStoreEmbed(message, type){
         {
           name: 'VIP Giveaways',
           value: 'This will give you access to VIP giveaways \n Price: 50,000',
-          inline: true,
-        },
-        {
-          name: 'Inline field title',
-          value: 'Some value here',
           inline: true,
         },
       ],
