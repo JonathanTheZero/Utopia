@@ -914,7 +914,7 @@ client.on("message", async message => {
       helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
       helpEmbed.fields[2].name = "`.invitelink`";
       helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
-      filed3 = {
+      field3 = {
         name: "`.server`",
         value: "Join the official LGI server!"
       }
@@ -1111,10 +1111,10 @@ async function reminder(msg, type){
         parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
         break;
       }
-      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-      await Sleep(1800000);
-      msg.reply("Reminder: Work again");
     }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    await Sleep(1800000);
+    msg.reply("Reminder: Work again");
   }
   else if(type == "c"){
     msg.channel.send("I'll remind you in 4h to commit a crime again.");
