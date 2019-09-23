@@ -324,6 +324,10 @@ module.exports = function(){
       }
       
       buyItemAlliance = function(itemShort, index, price, minLevel){
+        let rawdataAlliances = fs.readFileSync('alliances.json');
+        let parsedDataAlliances = JSON.parse(rawdataAlliances);
+        let rawdataUser = fs.readFileSync('userdata.json');
+        let parsedData = JSON.parse(rawdataUser);
         if(parsedData[index].allianceRank == "M"){
           return "sorry, you can't buy this upgrade.";
         }

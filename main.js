@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
+require("./utils.js")();
 const client = new Discord.Client();
 
 
@@ -865,7 +866,7 @@ client.on("message", async message => {
     }
     else if(a.includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
-      helpEmbed.fields[2].value = "Create your own alliance.";
+      helpEmbed.fields[2].value = "Create your own alliance. (Price: 250,000)";
       helpEmbed.fields[0].name = "`.leavealliance`";
       helpEmbed.fields[0].value ="Leave your current alliance";
       helpEmbed.fields[1].name = "`.joinalliance <name>`";
@@ -1134,9 +1135,7 @@ async function reminder(msg, type){
   
 }
 
-function Sleep(milliseconds) {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
+
 
 function searchUser(msg){
   let rawdataUser = fs.readFileSync('userdata.json');
@@ -1155,21 +1154,6 @@ function searchUserByID(id){
       return parsedData[i];
     }
   }
-}
-
-
-Number.prototype.commafy = function () {
-  return String(this).commafy();
-};
-
-String.prototype.commafy = function () {
-  return this.replace(/(^|[^\w.])(\d{4,})/g, function($0, $1, $2) {
-      return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
-  });
-};
-
-function randInt(min, max) { // min and max included 
-  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function createStoreEmbed(message, type){
@@ -1339,10 +1323,14 @@ async function payoutLoop(){
   let parsedDataAlliances = JSON.parse(rawdataAlliances);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   while(true){
-    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPayout;
-    if(tdiff < 14400){
-      await Sleep((14400 - tdiff) * 1000);
+    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
+    if(tdiff < 43200){
+      await Sleep((43200 - tdiff) * 1000);
     }
+    rawdataUser = fs.readFileSync('userdata.json');
+    parsedData = JSON.parse(rawdataUser);
+    rawdataAlliances = fs.readFileSync('alliances.json');
+    parsedDataAlliances = JSON.parse(rawdataAlliances);
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
@@ -1431,11 +1419,13 @@ async function populationWorkLoop(){
     if(tdiff < 43200){
       await Sleep((43200 - tdiff) * 1000);
     }
+    rawdataUser = fs.readFileSync('userdata.json');
+    parsedData = JSON.parse(rawdataUser);
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
-      parsedData[i].money += parsedData[i].resources.population / 100;
       pop = parsedData[i].resources.population;
+      parsedData[i].money += (pop / 100);
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
@@ -1465,10 +1455,6 @@ async function populationWorkLoop(){
   }
 }
 
-function getBaseLog(x, y) {
-  return Math.log(y) / Math.log(x);
-}
-
 function getLeaderboardList(type){
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
@@ -1483,19 +1469,6 @@ function getLeaderboardList(type){
   else {
     return parsedData.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
-}
-
-var sort_by = function(field, reverse, primer){
-
-  var key = primer ? 
-      function(x) {return primer(x[field])} : 
-      function(x) {return x[field]};
-
-  reverse = !reverse ? 1 : -1;
-
-  return function (a, b) {
-      return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-    } 
 }
 
 function generateLeaderboardEmbed(type, page){
