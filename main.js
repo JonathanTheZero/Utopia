@@ -4,7 +4,17 @@ const fs = require("fs");
 require("./alliances.js")();
 require("./utils.js")();
 const client = new Discord.Client();
+const express = require('express');
+const app = express();
+app.use(express.static('public'));
 
+app.get('/', function(request, response) {
+  response.sendFile(__dirname + '/views/index.html');
+});
+
+const listener = app.listen(process.env.PORT, function() {
+  console.log('Your app is listening on port ' + listener.address().port);
+});
 
 
 
@@ -20,7 +30,7 @@ client.on("ready", () => {
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
-  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
   payoutLoop();
   populationWorkLoop();
 });
@@ -31,7 +41,7 @@ client.on("ready", () => {
 client.on("guildCreate", guild => {
   // This event triggers when the bot joins a guild.
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
-  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
  
   
   /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
@@ -82,7 +92,7 @@ client.on("guildCreate", guild => {
 client.on("guildDelete", guild => {
   // this event triggers when the bot is removed from a guild.
   console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
-  client.user.setActivity(`. help | ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 });
 
 
@@ -337,7 +347,7 @@ client.on("message", async message => {
     if(alliance == null){
       alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet.`;
     }
-    if(user.allainceRank == "M"){
+    if(user.allianceRank == "M"){
       alliance = "".concat("Member of ", alliance);
     }
     else if(user.allianceRank == "C"){
@@ -758,8 +768,12 @@ client.on("message", async message => {
       coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
     var auText = "This alliance hasn't purchased any upgrades yet";
-    if(parsedDataAlliances[i].upgrades.includes("SF")){
-      auText = "This alliance owns a small farm"
+    const u = parsedDataAlliances[ind].upgrades;
+    if(u.length != 0){
+      auText = "This alliance owns: ";
+      if(u.includes("AF"))auText = "Arable Farming";
+      if(u.includes("PF")) auText += ", Pastoral Farming";
+      if(u.includes("MF")) auText += ", Mixed Farming";
     }
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -787,6 +801,11 @@ client.on("message", async message => {
           value: parsedDataAlliances[ind].members.length + parsedDataAlliances[ind].coLeaders.length + 1,
           inline: true,
         },
+        {
+          name: "Privaty settings",
+          value: (parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private",
+          inline: true
+        }
         {
           name: 'Upgrades',
           value: auText,
@@ -1218,19 +1237,18 @@ function createStoreEmbed(message, type){
   else if(type == "a"){
     var user = searchUser(message);
     var alliance = user.alliance;
-    var alField;
+
     if(alliance == null){
-      alliance= "You haven't joined an alliance yet.";
-      alField = alliance;
+      alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet.`;
     }
-    if(user.allainceRank == "M"){
-      alField = user.alliance + " , Member";
+    if(user.allianceRank == "M"){
+      alliance = "".concat("Member of ", alliance);
     }
     else if(user.allianceRank == "C"){
-      alField = user.alliance + " , Co-Leader";
+      alliance = "".concat("Co-leader of ", alliance);
     }
     else if(user.allianceRank == "L"){
-      alField = user.alliance + " , Leader";
+      alliance = "".concat("Leader of ", alliance);
     }
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -1249,7 +1267,7 @@ function createStoreEmbed(message, type){
         },
         {
           name: "Your alliance, your rank:",
-          value: alField,
+          value: alliance,
           inline: true,
         },
         {

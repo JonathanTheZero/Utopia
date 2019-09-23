@@ -344,8 +344,14 @@ module.exports = function(){
           }
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
           fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
-          return "you successfully bought the small farm upgrade for your alliance.";
-        }
+          switch (itemShort){
+            case "AF":
+              return "you successfully bought the arable farming upgrade for your alliance.";
+            case "PF":
+              return "you successfully bought the pastoral farming upgrade for your alliance.";
+            case "MF":
+              return "you successfully bought the mixed farming upgrade for your alliance.";            }
+          }
       return "You don't have enough money to buy that item.";
       }
 };
