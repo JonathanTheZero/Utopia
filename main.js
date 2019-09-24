@@ -45,7 +45,7 @@ client.on("guildCreate", guild => {
  
   
   /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
-  const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipement") == null) ? false : true;
+  const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipment") == null) ? false : true;
   const roleRUexists = (guild.roles.find(role => role.name === "Russia") == null) ? false : true;
   const roleECexists = (guild.roles.find(role => role.name === "Expanded City") == null) ? false : true;
   const roleMSexists = (guild.roles.find(role => role.name === "More Soldiers") == null) ? false : true;
@@ -58,7 +58,7 @@ client.on("guildCreate", guild => {
     .catch(console.error)
   }
   if(!roleAEexists) {
-    guild.createRole({name: 'Advanced Equipement',})
+    guild.createRole({name: 'Advanced Equipment',})
       .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
       .catch(console.error)
   }
@@ -252,7 +252,7 @@ client.on("message", async message => {
     if(args[0] == "uk"|| (args[0] == "invade") && args[1] == "the" && args[2] == "uk"){
       message.reply(buyItem("UK", index, 100000));
     }
-    else if(args[0] == "equipement"|| (args[0] == "advanced") && args[1] == "equipement"){
+    else if(args[0] == "equipment"|| (args[0] == "advanced") && args[1] == "equipment"){
       message.reply(buyItem("AE", index, 250000));
     }
     else if(args[0] == "russia"|| (args[0] == "invade") && args[1] == "russia"){
@@ -311,7 +311,7 @@ client.on("message", async message => {
     if(args[0] == "uk"|| (args[0] == "invade") && args[1] == "the" && args[2] == "uk"){
       message.reply(useItem("UK", index, message));
     }
-    else if(args[0] == "equipement"|| (args[0] == "advanced") && args[1] == "equipement"){
+    else if(args[0] == "equipment"|| (args[0] == "advanced") && args[1] == "equipment"){
       message.reply(useItem("AE", index, message));
     }
     else if(args[0] == "russia"|| (args[0] == "invade") && args[1] == "russia"){
@@ -360,7 +360,7 @@ client.on("message", async message => {
     if(user.upgrades.population.length != 0){
       upgrades = "\u200b";
       if(user.upgrades.population.includes("UK")) upgrades += "UK"
-      if(user.upgrades.population.includes("AE")) upgrades += ", Equipement"
+      if(user.upgrades.population.includes("AE")) upgrades += ", Equipment"
       if(user.upgrades.population.includes("RU")) upgrades += ", Russia"
       if(user.upgrades.population.includes("EC")) upgrades += ", Expanded City"
       if(user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
@@ -805,7 +805,7 @@ client.on("message", async message => {
           name: "Privaty settings",
           value: (parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private",
           inline: true
-        }
+        },
         {
           name: 'Upgrades',
           value: auText,
@@ -1204,7 +1204,7 @@ function createStoreEmbed(message, type){
           inline: true,
         },
         {
-          name: 'Advanced Equipement',
+          name: 'Advanced Equipment',
           value: '+5k population every 4h \n Price: 250,000',
           inline: true,
         },
@@ -1564,8 +1564,10 @@ function useItem(item, index, message){
   if(!parsedData[index].inventory.includes(item)){
     return "you don't own that item.";
   }
-  //let role = ;
-  //message.member.addRole(role).catch(console.error);
+  try {
+    if(item == "VIP") message.member.addRole(message.guild.roles.find(role => role.name === "VIP")).catch(console.error);
+  }
+  catch {}
   populationUpgrades = ["UK", "AE", "RU", "EC", "MS", "US"];
   parsedData[index].inventory = parsedData[index].inventory.filter(i => i !== item);
   if(populationUpgrades.includes(item)){
@@ -1581,7 +1583,7 @@ function useItem(item, index, message){
     case "UK":
       return "you succesfully invaded the UK.";
     case "AE":
-      return "you succesfully used the Advanced Equipement.";
+      return "you succesfully used the Advanced Equipment.";
     case "RU":
       return "you succesfully invaded Russia.";
     case "EC":
@@ -1599,7 +1601,10 @@ function buyItem(item, index, price){
   let rawdataUser = fs.readFileSync('userdata.json');
   var parsedData = JSON.parse(rawdataUser);
   if(parsedData[index].inventory.includes(item)){
-      return "you already own that item!";
+      return "you already own that item! Use it with `.use <item>`";
+  }
+  else if(parsedData[index].upgrades.population.includes(item) || parsedData[index].upgrades.misc.includes(item)){
+    return "you already bought and used this item!";
   }
   if(parsedData[index].money >= price){
     parsedData[index].money -= price;
