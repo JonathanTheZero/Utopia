@@ -1380,39 +1380,39 @@ async function payoutLoop(){
       if(parsedDataAlliances[i].upgrades.includes("AF")){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].ressources.food += 5000;
+            parsedData[j].resources.food += 5000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].ressources.food += 2500;
+            parsedData[j].resources.food += 2500;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].ressources.food += (40000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.food += (40000/parsedDataAlliances[i].members.length);
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.includes("PF")){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].ressources.food += 100000;
+            parsedData[j].resources.food += 100000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].ressources.food += 50000;
+            parsedData[j].resources.food += 50000;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].ressources.foodd += (800000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.foodd += (800000/parsedDataAlliances[i].members.length);
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.includes("MF")){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].ressources.food += 500000;
+            parsedData[j].resources.food += 500000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].ressources.food += 250000;
+            parsedData[j].resources.food += 250000;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].ressources.food += (4000000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.food += (4000000/parsedDataAlliances[i].members.length);
           }
         }
       }
