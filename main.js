@@ -31,8 +31,12 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-  payoutLoop();
-  populationWorkLoop();
+  setInterval(function(){
+    payoutLoop();
+  }, (1000 * 14400))
+  setInterval(function(){
+    populationWorkLoop();
+  }, (1000 * 43200))
 });
 
 
@@ -1340,7 +1344,7 @@ async function payoutLoop(){
   let rawdataAlliances = fs.readFileSync('alliances.json');
   let parsedDataAlliances = JSON.parse(rawdataAlliances);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
-  while(true){
+  //while(true){
     var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
       await Sleep((43200 - tdiff) * 1000);
@@ -1422,9 +1426,9 @@ async function payoutLoop(){
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-    await Sleep(14400000);
+    //await Sleep(14400000);
   }
-}
+//}
 
 async function populationWorkLoop(){
   let rawdataUser = fs.readFileSync('userdata.json');
@@ -1432,7 +1436,7 @@ async function populationWorkLoop(){
   let rawdataConfig = fs.readFileSync("config.json");
   let parsedConfigData = JSON.parse(rawdataConfig);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
-  while(true){
+  //while(true){
     var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
       await Sleep((43200 - tdiff) * 1000);
@@ -1469,9 +1473,9 @@ async function populationWorkLoop(){
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
-    await Sleep(43200000);
+    //await Sleep(43200000);
   }
-}
+//}
 
 function getLeaderboardList(type){
   let rawdataUser = fs.readFileSync('userdata.json');
