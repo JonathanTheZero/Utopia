@@ -50,7 +50,6 @@ client.on("guildCreate", guild => {
   const roleECexists = (guild.roles.find(role => role.name === "Expanded City") == null) ? false : true;
   const roleMSexists = (guild.roles.find(role => role.name === "More Soldiers") == null) ? false : true;
   const roleUSexists = (guild.roles.find(role => role.name === "US") == null) ? false : true;
-  const roleVIPSexists = (guild.roles.find(role => role.name === "VIP") == null) ? false : true;
   
  if(!roleUKexists) {
   guild.createRole({name: 'UK',})
@@ -79,11 +78,6 @@ client.on("guildCreate", guild => {
   }
   if(!roleUSexists) {
     guild.createRole({name: 'US',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }
-  if(!roleVIPSexists) {
-    guild.createRole({name: 'VIP',})
       .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
       .catch(console.error)
   }*/
@@ -267,9 +261,6 @@ client.on("message", async message => {
     else if(args[0] == "us"|| (args[0] == "invade") && args[1] == "the" && args[2] == "us"){
       message.reply(buyItem("US", index, 5000000));
     }
-    else if(args[0] == "vip"){
-      message.reply(buyItem("VIP", index, 50000));
-    }
     else if(args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food"){
       if(parsedData[index].money >= 20000){
         parsedData[index].money -= 20000;
@@ -325,9 +316,6 @@ client.on("message", async message => {
     }
     else if(args[0] == "us"|| (args[0] == "invade") && args[1] == "the" && args[2] == "us"){
       message.reply(useItem("US", index, message));
-    }
-    else if(args[0] == "vip"){
-      message.reply(useItem("VIP", index, message));
     }
   }
 
@@ -426,7 +414,7 @@ client.on("message", async message => {
   }
 
   else if(command == "server"){
-    message.reply("join the official LGI server here: "+ config.serverInvite);
+    message.reply("join the official Utopia server here: "+ config.serverInvite);
   }
 
   else if(command === "add"){
@@ -936,7 +924,7 @@ client.on("message", async message => {
       helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
       field3 = {
         name: "`.server`",
-        value: "Join the official LGI server!"
+        value: "Join the official Utopia server!"
       }
       helpEmbed.fields.push(field3);
     }
@@ -1200,32 +1188,32 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Invade the UK',
-          value: '+5k population every 4h \n Price: 100,000',
+          value: '+5k population every 4h \nPrice: 100,000',
           inline: true,
         },
         {
           name: 'Advanced Equipment',
-          value: '+5k population every 4h \n Price: 250,000',
+          value: '+5k population every 4h \nPrice: 250,000',
           inline: true,
         },
         {
           name: 'Invade Russia',
-          value: '+10k population every 4h \n Price: 500,000',
+          value: '+10k population every 4h \nPrice: 500,000',
           inline: true,
         },
         {
           name: 'Expand your City',
-          value: '+25k population every 4h \n Price: 1,000,000',
+          value: '+25k population every 4h \nPrice: 1,000,000',
           inline: true,
         },
         {
           name: 'Recruit more Soldiers',
-          value: '+500k population every 4h\n Price: 10,000,000',
+          value: '+500k population every 4h\nPrice: 10,000,000',
           inline: true,
         },
         {
           name: 'Invade the US',
-          value: '+2M population every 4h \n Price: 50,000,000',
+          value: '+2M population every 4h \nPrice: 50,000,000',
           inline: true,
         },
       ],
@@ -1276,17 +1264,17 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Arable farming',
-          value: '+50k food for the alliance every 4h \n Price: 100,000',
+          value: '+50k food for the alliance every 4h \nPrice: 100,000',
           inline: true,
         },
         {
           name: "Pastoral farming",
-          value: "+1M food for the alliance every 4h \n Price: 1,750,000",
+          value: "+1M food for the alliance every 4h \nPrice: 1,750,000",
           inline: true,
         },
         {
           name: "Mixed farming",
-          value: "+5M food for the alliance every 4h \n Price: 7,500,000",
+          value: "+5M food for the alliance every 4h \nPrice: 7,500,000",
           inline: true,
         }
       ],
@@ -1316,12 +1304,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'A pack of food',
-          value: 'Contains 50k food (added to your account immediately) \n Price: 20,000',
-          inline: true,
-        },
-        {
-          name: 'VIP Giveaways',
-          value: 'This will give you access to VIP giveaways \n Price: 50,000',
+          value: 'Contains 50k food (added to your account immediately) \nPrice: 20,000',
           inline: true,
         },
       ],
@@ -1499,7 +1482,7 @@ function generateLeaderboardEmbed(type, page){
     var lb = getLeaderboardList("p");
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by population, page ", page),
+      title: "".concat("Leaderboard sorted by population, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "p"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -1509,7 +1492,7 @@ function generateLeaderboardEmbed(type, page){
     var lb = getLeaderboardList("a");
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Alliance leaderboard sorted by name, page ", page),
+      title: "".concat("Alliance leaderboard sorted by name, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "a"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -1519,7 +1502,7 @@ function generateLeaderboardEmbed(type, page){
     var lb = getLeaderboardList("m");
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by money, page ", page),
+      title: "".concat("Leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "m"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -1532,27 +1515,27 @@ function leaderBoardEmbedFields(p, lb, type){
   var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
   var fields = [];
   if(type == "p"){
-    for(var i = p * 10; i < h; i++){
+    for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + "` - " + lb[i + p * 10].tag,
+        name: "`#" + (i + 1) + (p * 10) + "` - " + lb[i + p * 10].tag,
         value: "".concat(lb[i + p * 10].resources.population.commafy(), " population")
       }
       fields.push(field);
     }
   }
   else if(type == "a"){
-    for(var i = p * 10; i < h; i++){
+    for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + "`",
+        name: "`#" + (i + 1) + (p * 10) + "`",
         value: lb[i + p *10].name,
       }
       fields.push(field);
     }
   }
   else {
-    for(var i = p * 10; i < h; i++){
+    for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + "` - " + lb[i + p * 10].tag,
+        name: "`#" + (i + 1) + (p * 10) + "` - " + lb[i + p * 10].tag,
         value: "".concat(lb[i + p * 10].money.commafy(), " coins")
       }
       fields.push(field);
@@ -1567,10 +1550,6 @@ function useItem(item, index, message){
   if(!parsedData[index].inventory.includes(item)){
     return "you don't own that item.";
   }
-  try {
-    if(item == "VIP") message.member.addRole(message.guild.roles.find(role => role.name === "VIP")).catch(console.error);
-  }
-  catch {}
   populationUpgrades = ["UK", "AE", "RU", "EC", "MS", "US"];
   parsedData[index].inventory = parsedData[index].inventory.filter(i => i !== item);
   if(populationUpgrades.includes(item)){
@@ -1581,8 +1560,6 @@ function useItem(item, index, message){
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   switch(item){
-    case "VIP":
-      return "you successfully gained access to VIP giveaways.";
     case "UK":
       return "you succesfully invaded the UK.";
     case "AE":
