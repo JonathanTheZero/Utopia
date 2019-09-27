@@ -31,12 +31,8 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-  setInterval(function(){
-    payoutLoop();
-  }, (1000 * 14400))
-  setInterval(function(){
-    populationWorkLoop();
-  }, (1000 * 43200))
+  setInterval(payoutLoop, 1000 * 14400)
+  setInterval(populationWorkLoop, (1000 * 43200))
 });
 
 
@@ -951,13 +947,13 @@ client.on("message", async message => {
     var storeEmbed = null;
     a = ["alliance", "alliances", "a"]
     if(args[0] == "population" || args[0] == "p"){
-      storeEmbed = createStoreEmbed(message, "p");
+      storeEmbed = createStoreEmbed(message, "p", args);
     }
     else if(a.includes(args[0])){
-      storeEmbed = createStoreEmbed(message, "a");
+      storeEmbed = createStoreEmbed(message, "a", args);
     }
     else {
-      storeEmbed = createStoreEmbed(message, "s");
+      storeEmbed = createStoreEmbed(message, "s", args);
     }
     if(storeEmbed != null) message.channel.send({ embed: storeEmbed });
   }
@@ -1179,7 +1175,7 @@ function searchUserByID(id){
   }
 }
 
-function createStoreEmbed(message, type){
+function createStoreEmbed(message, type, args){
   /* p = populations
   *  s = store (default)
   *
@@ -1336,7 +1332,7 @@ function createStoreEmbed(message, type){
   }
 }
 
-async function payoutLoop(){
+function payoutLoop(){
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   let rawdataConfig = fs.readFileSync("config.json");
@@ -1347,7 +1343,7 @@ async function payoutLoop(){
   //while(true){
     var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
-      await Sleep((43200 - tdiff) * 1000);
+      Sleep((43200 - tdiff) * 1000);
     }
     rawdataUser = fs.readFileSync('userdata.json');
     parsedData = JSON.parse(rawdataUser);
@@ -1374,8 +1370,11 @@ async function payoutLoop(){
       if(parsedData[i].upgrades.population.includes("US")){
         parsedData[i].resources.population += 2000000;
       }
-      if(parsedData[i].payoutDMs == true){
-        client.users.get(parsedData[i].id).send("You have succesfully gained population from your upgrades!");
+      if(parsedData[i].payoutDMs){
+        try{
+          client.users.get(parsedData[i].id).send("You have succesfully gained population from your upgrades!");
+        }
+        catch {}
       }
     } 
     payoutChannel.send("You have succesfully gained population from your upgrades!");
@@ -1430,7 +1429,7 @@ async function payoutLoop(){
   }
 //}
 
-async function populationWorkLoop(){
+function populationWorkLoop(){
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   let rawdataConfig = fs.readFileSync("config.json");
@@ -1439,7 +1438,7 @@ async function populationWorkLoop(){
   //while(true){
     var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
-      await Sleep((43200 - tdiff) * 1000);
+      Sleep((43200 - tdiff) * 1000);
     }
     rawdataUser = fs.readFileSync('userdata.json');
     parsedData = JSON.parse(rawdataUser);
