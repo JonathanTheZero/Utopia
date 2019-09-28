@@ -31,7 +31,7 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-  setInterval(payoutLoop, 1000 * 14400)
+  setInterval(payoutLoop, (1000 * 14400))
   setInterval(populationWorkLoop, (1000 * 43200))
 });
 
@@ -357,7 +357,7 @@ client.on("message", async message => {
 
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: `Data for ${message.author.tag}`,
+      title: `Data for ` + (typeof args[0] === "undefined") ? `${message.author.tag}` : `${message.mentions.users.first().tag}`,
       thumbnail: {
         url: url,
       },
@@ -1300,7 +1300,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Alliance store',
-          value: "".concat('Type `', config.prefix, "store alliance` to view the alliance store"), 
+          value: "".concat('Type `', config.prefix, "store alliance` to view the alliance80a0ff store"), 
         },
         {
           name: 'A pack of food',
@@ -1324,10 +1324,10 @@ function payoutLoop(){
   let parsedDataAlliances = JSON.parse(rawdataAlliances);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   //while(true){
-    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
-    if(tdiff < 43200){
-      Sleep((43200 - tdiff) * 1000);
-    }
+    /*var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
+    if(tdiff < 100){
+      Sleep((100 - tdiff) * 1000);
+    }*/
     rawdataUser = fs.readFileSync('userdata.json');
     parsedData = JSON.parse(rawdataUser);
     rawdataAlliances = fs.readFileSync('alliances.json');
@@ -1419,10 +1419,10 @@ function populationWorkLoop(){
   let parsedConfigData = JSON.parse(rawdataConfig);
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   //while(true){
-    var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
+    /*var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
       Sleep((43200 - tdiff) * 1000);
-    }
+    }*/
     rawdataUser = fs.readFileSync('userdata.json');
     parsedData = JSON.parse(rawdataUser);
     payoutChannel.send("Processing started...");
@@ -1517,7 +1517,7 @@ function leaderBoardEmbedFields(p, lb, type){
   if(type == "p"){
     for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + (p * 10) + "` - " + lb[i + p * 10].tag,
+        name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
         value: "".concat(lb[i + p * 10].resources.population.commafy(), " population")
       }
       fields.push(field);
@@ -1526,7 +1526,7 @@ function leaderBoardEmbedFields(p, lb, type){
   else if(type == "a"){
     for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + (p * 10) + "`",
+        name: "`#" + ((i + 1) + (p * 10)) + "`",
         value: lb[i + p *10].name,
       }
       fields.push(field);
@@ -1535,7 +1535,7 @@ function leaderBoardEmbedFields(p, lb, type){
   else {
     for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + (i + 1) + (p * 10) + "` - " + lb[i + p * 10].tag,
+        name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
         value: "".concat(lb[i + p * 10].money.commafy(), " coins")
       }
       fields.push(field);
