@@ -31,8 +31,9 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-  setInterval(payoutLoop, (1000 * 14400))
-  setInterval(populationWorkLoop, (1000 * 43200))
+  var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
+  setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
+  setTimeout(populationWorkLoop, ((43200 - tidff[1]) * 1000));
 });
 
 
@@ -42,8 +43,6 @@ client.on("guildCreate", guild => {
   // This event triggers when the bot joins a guild.
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
- 
-  
   /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
   const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipment") == null) ? false : true;
   const roleRUexists = (guild.roles.find(role => role.name === "Russia") == null) ? false : true;
@@ -124,7 +123,7 @@ client.on("message", async message => {
     message.channel.send(sayMessage);
   }
   
-  else if(command === "kick" || command === "yeet" || command == "YEET") {
+  else if(command === "kick" || command === "yeet") {
     // This command must be limited to mods and admins. In this example we just hardcode the role names.
     if(!message.member.roles.some(r=>["Administrator", "Moderator"].includes(r.name)) )
       return message.reply("Sorry, you don't have permissions to use this!");
@@ -357,7 +356,7 @@ client.on("message", async message => {
 
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: `Data for ` + (typeof args[0] === "undefined") ? `${message.author.tag}` : `${message.mentions.users.first().tag}`,
+      title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${message.mentions.users.first().tag}`),
       thumbnail: {
         url: url,
       },
@@ -1327,11 +1326,11 @@ function payoutLoop(){
     /*var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 100){
       Sleep((100 - tdiff) * 1000);
-    }*/
+    }
     rawdataUser = fs.readFileSync('userdata.json');
     parsedData = JSON.parse(rawdataUser);
     rawdataAlliances = fs.readFileSync('alliances.json');
-    parsedDataAlliances = JSON.parse(rawdataAlliances);
+    parsedDataAlliances = JSON.parse(rawdataAlliances);*/
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
@@ -1409,6 +1408,7 @@ function payoutLoop(){
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
     //await Sleep(14400000);
+    setTimeout(payoutLoop, (1000 * 14400));
   }
 //}
 
@@ -1456,6 +1456,7 @@ function populationWorkLoop(){
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     //await Sleep(43200000);
+    setTimeout(populationWorkLoop, (1000 * 43200));
   }
 //}
 
