@@ -33,14 +33,10 @@ client.on("ready", () => {
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
-  setTimeout(populationWorkLoop, ((43200 - tidff[1]) * 1000));
+  setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
 });
 
-
-//join or leaving servers
-
 client.on("guildCreate", guild => {
-  // This event triggers when the bot joins a guild.
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
   /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
@@ -83,24 +79,16 @@ client.on("guildCreate", guild => {
 });
 
 client.on("guildDelete", guild => {
-  // this event triggers when the bot is removed from a guild.
   console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 });
 
 
-//answering messages/DMs
 client.on("message", async message => {
-  // ignore bots
   if(message.author.bot) return;
   
-  //ignoring messages that don't start with the prefix
   if(message.content.indexOf(config.prefix) !== 0) return;
-  
-  // Here we separate our "command" name, and our "arguments" for the command. 
-  // e.g. if we have the message "+say Is this the real life?" , we'll get the following:
-  // command = say
-  // args = ["Is", "this", "the", "real", "life?"]
+
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   
@@ -208,11 +196,21 @@ client.on("message", async message => {
       }
     }
     else {
-      try {
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
+      if(isNumber(args[0])){
+        try {
+          lbEmbed = generateLeaderboardEmbed("m", args[0]);
+        }
+        catch {
+          message.reply("that isn't a valid page number!")
+        }
       }
-      catch {
-        message.reply("that isn't a valid page number!")
+      else {
+        try {
+          lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
+        }
+        catch {
+          message.reply("that isn't a valid page number!")
+        }
       }
     }
     
@@ -323,11 +321,11 @@ client.on("message", async message => {
     var url;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
-      url = `${message.author.avatarURL}`;
+      url = `${message.author.displaydisplayAvatarURL}`;
     }
     else {
       user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().avatarURL}`;
+      url = `${message.mentions.users.first().displaydisplayAvatarURL}`;
     }
     var alliance = user.alliance;
 
@@ -398,7 +396,7 @@ client.on("message", async message => {
       color: parseInt(config.properties.embedColor),
       title: `Your inventory`,
       thumbnail: {
-        url: `${message.author.avatarURL}`,
+        url: `${message.author.displayAvatarURL}`,
       },
       fields: [
         {
@@ -721,11 +719,11 @@ client.on("message", async message => {
     var url;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
-      url = `${message.author.avatarURL}`;
+      url = `${message.author.displayAvatarURL}`;
     }
     else {
       user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().avatarURL}`;
+      url = `${message.mentions.users.first().displayAvatarURL}`;
     }
     var alliance = user.alliance;
     if(alliance == null){
@@ -810,7 +808,7 @@ client.on("message", async message => {
       color: parseInt(config.properties.embedColor),
       title: "Welcome to the help menu. Please choose a category",
       thumbnail: {
-        url: message.author.avatarURL,
+        url: message.author.displayAvatarURL,
       },
       fields: [
         {
@@ -1141,27 +1139,6 @@ async function reminder(msg, type){
   
 }
 
-
-
-function searchUser(msg){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  for(var i = 0; i < parsedData.length; i++){
-    if(msg.author.id == parsedData[i].id){
-      return parsedData[i];
-    }
-  }
-}
-function searchUserByID(id){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  for(var i = 0; i < parsedData.length; i++){
-    if(id == parsedData[i].id){
-      return parsedData[i];
-    }
-  }
-}
-
 function createStoreEmbed(message, type, args){
   /* p = populations
   *  s = store (default)
@@ -1174,7 +1151,7 @@ function createStoreEmbed(message, type, args){
       title: 'Population store',
       description: 'These items are currently avialable in the population store!',
       thumbnail: {
-        url: `${message.author.avatarURL}`,
+        url: `${message.author.displayAvatarURL}`,
       },
       fields: [
         {
@@ -1244,7 +1221,7 @@ function createStoreEmbed(message, type, args){
                 "Note: only the leader and the Co-Leaders can buy alliance upgrades and they are used immediately. " +
                 "The Leader gets 10% of the alliance income, the Co-Leaders 5% each. The rest is split among the members.",
       thumbnail: {
-        url: `${message.author.avatarURL}`,
+        url: `${message.author.displayAvatarURL}`,
       },
       fields: [
         {
@@ -1290,7 +1267,7 @@ function createStoreEmbed(message, type, args){
       description: 'Welcome to the store! \n' +
                     "Note: All items can only be purchased **once**.",
       thumbnail: {
-        url: `${message.author.avatarURL}`,
+        url: `${message.author.displayAvatarURL}`,
       },
       fields: [
         {
@@ -1429,7 +1406,7 @@ function populationWorkLoop(){
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
-      parsedData[i].money += (pop / 100);
+      parsedData[i].money += (pop / Math.floor((Math.random() * 10) + 15));
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
