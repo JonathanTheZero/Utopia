@@ -321,11 +321,11 @@ client.on("message", async message => {
     var url;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
-      url = `${message.author.displaydisplayAvatarURL}`;
+      url = `${message.author.displayAvatarURL}`;
     }
     else {
       user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().displaydisplayAvatarURL}`;
+      url = `${message.mentions.users.first().displayAvatarURL}`;
     }
     var alliance = user.alliance;
 
