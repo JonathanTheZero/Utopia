@@ -26,7 +26,11 @@ module.exports = function(){
           },
           coLeaders: [],
           members: [],
-          upgrades: [],
+          upgrades: {
+            af: 0,
+            pf: 0,
+            mf: 0
+          },
           invitedUsers: []
         }
         parsedDataAlliances.push(data);
@@ -265,7 +269,7 @@ module.exports = function(){
             parsedDataAlliances[ind].level = 2;
             fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
             fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-            return "Succesfully upgraded your alliance to level 2";
+            return "Succesfully upgraded your alliance to level 2. Your alliance can now own each farm two times.";
           }
         }
         else if(parsedDataAlliances[ind].level == 2){
@@ -277,7 +281,7 @@ module.exports = function(){
             parsedDataAlliances[ind].level = 3;
             fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
             fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-            return "Succesfully upgraded your alliance to level 3";
+            return "Succesfully upgraded your alliance to level 3. Your alliance can now own each farm three times.";
           }
         }
         else if(parsedDataAlliances[ind].level == 3){
@@ -289,7 +293,7 @@ module.exports = function(){
             parsedDataAlliances[ind].level = 4;
             fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
             fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-            return "Succesfully upgraded your alliance to level 4";
+            return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
           }
         }
         return "Error";
@@ -329,10 +333,20 @@ module.exports = function(){
         let rawdataUser = fs.readFileSync('userdata.json');
         let parsedData = JSON.parse(rawdataUser);
         if(parsedData[index].allianceRank == "M"){
-          return "sorry, you can't buy this upgrade.";
+          return "sorry, you rank isn't high enough to buy upgrades.";
+        }
+        var ind = -1;
+        for(let i = 0; i < parsedDataAlliances.length; i++){
+          if(parsedData[index].alliance == parsedDataAlliances[i].name){
+            ind = i;
+            break;
+          }
+        }
+        if(ind == -1){
+          return "error, I couldn't find your alliance."
         }
         if(parsedData[index].money >= price){
-          for(var i = 0; i < parsedDataAlliances.length; i++){
+          /*for(var i = 0; i < parsedDataAlliances.length; i++){
             if(parsedDataAlliances[i].name == parsedData[index].alliance){
               if(parsedData[i].level < minLevel){
                 return "only level " + minLevel +"+ alliances can buy this upgrade.";
@@ -340,7 +354,29 @@ module.exports = function(){
               parsedData[index].money -= price;
               parsedDataAlliances[i].upgrades.push(itemShort);
               break;
+            }*/
+            if(itemShort == "AF"){
+              if(parsedDataAlliances[ind].upgrades.af >= parsedDataAlliances[ind].level){
+                return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
+              }
+              parsedDataAlliances[ind].upgrades.af += 1;
             }
+            else if(itemShort == "PF"){
+              if(parsedDataAlliances[ind].upgrades.pf >= parsedDataAlliances[ind].level){
+                return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
+              }
+              parsedDataAlliances[ind].upgrades.pf += 1;
+            }
+            else if(itemShort == "MF"){
+              if(parsedDataAlliances[ind].upgrades.mf >= parsedDataAlliances[ind].level){
+                return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
+              }
+              parsedDataAlliances[ind].upgrades.mf += 1;
+            }
+            else {
+              return "sorry, an error occured."
+            }
+            parsedData[index].money -= price;
           }
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
           fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
@@ -350,8 +386,8 @@ module.exports = function(){
             case "PF":
               return "you successfully bought the pastoral farming upgrade for your alliance.";
             case "MF":
-              return "you successfully bought the mixed farming upgrade for your alliance.";            }
-          }
-      return "You don't have enough money to buy that item.";
-      }
+              return "you successfully bought the mixed farming upgrade for your alliance.";            
+            }
+            return "You don't have enough money to buy that item.";
+          } 
 };

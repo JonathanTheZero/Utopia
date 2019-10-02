@@ -1,12 +1,14 @@
 const Discord = require('discord.js');
+const DBL = require("dblapi.js");
 const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
 require("./utils.js")();
-const client = new Discord.Client();
 const express = require('express');
+const client = new Discord.Client();
 const app = express();
 app.use(express.static('public'));
+var server = require('http').createServer(app);
 
 app.get('/', function(request, response) {
   response.sendFile(__dirname + '/views/index.html');
@@ -16,10 +18,21 @@ const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 
+const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
+dbl.webhook.on('ready', hook => {
+  console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
+});
 
-
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+dbl.webhook.on('vote', vote => {
+  let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(let i = 0; i < parsedData.length;i++){
+    if(parsedData[i].id == vote.id){
+      parsedData[i].money += 20000;
+      break;
+    }
+  }
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
 
 //loading the settings
@@ -91,12 +104,8 @@ client.on("message", async message => {
 
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
-  
-  // Let's go with a few common example commands! Feel free to delete or change those.
-  
+
   if(command === "ping") {
-    // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
-    // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
     const m = await message.channel.send("Ping?");
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
   }
@@ -112,10 +121,14 @@ client.on("message", async message => {
   }
   
   else if(command === "kick" || command === "yeet") {
-    // This command must be limited to mods and admins. In this example we just hardcode the role names.
+    /* This command must be limited to mods and admins. In this example we just hardcode the role names.
     if(!message.member.roles.some(r=>["Administrator", "Moderator"].includes(r.name)) )
-      return message.reply("Sorry, you don't have permissions to use this!");
+      return message.reply("Sorry, you don't have permissions to use this!");*/
     
+    if (!message.member.hasPermission(['KICK_MEMBERS'], false, true, true)) {
+      return message.reply("this command can only be used by Members who have Kick permissions");
+    }  
+
     // Let's first check if we have a member and if we can kick them!
     // message.mentions.members is a collection of people that have been mentioned, as GuildMembers.
     // We can also support getting the member by ID, which would be args[0]
@@ -138,11 +151,16 @@ client.on("message", async message => {
   }
   
   else if(command === "ban") {
-    // Most of this command is identical to kick, except that here we'll only let admins do it.
+    /* Most of this command is identical to kick, except that here we'll only let admins do it.
     // In the real world mods could ban too, but this is just an example, right? ;)
     if(!message.member.roles.some(r=>["Administrator"].includes(r.name)) )
-      return message.reply("Sorry, you don't have permissions to use this!");
+      return message.reply("Sorry, you don't have permissions to use this!");*/
     
+    if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'], false, true, true)) {
+      return message.reply("this command can only be used by Members who have Kick and Ban permissions");
+    }
+
+
     let member = message.mentions.members.first();
     if(!member)
       return message.reply("Please mention a valid member of this server");
@@ -159,13 +177,15 @@ client.on("message", async message => {
   
   if(command === "purge") {
     // This command removes all messages from all users in the channel, up to 100.
-    
+    if(!message.member.hasPermission(['MANAGE_MESSAGES'], false, true, true)){
+      return message.reply("sorry, this command requires the manage message permission.")
+    }
     // get the delete count, as an actual number.
-    const deleteCount = parseInt(args[0], 10);
+    const deleteCount = parseInt(args[0], 10) + 1;
     
     // Ooooh nice, combined conditions. <3
-    if(!deleteCount || deleteCount < 2 || deleteCount > 100)
-      return message.reply("Please provide a number between 2 and 100 for the number of messages to delete");
+    if(!deleteCount || deleteCount < 1 || deleteCount > 100)
+      return message.reply("Please provide a number between 1 and 100 for the number of messages to delete");
     
     // So we get our messages, and delete them. Simple enough, right?
     const fetched = await message.channel.fetchMessages({limit: deleteCount});
@@ -175,6 +195,49 @@ client.on("message", async message => {
 
   else if(command === "create"){
     createUser(message);
+  }
+
+  else if(command === "vote"){
+    message.channel.send("Vote every 12h in order to get 15,000 food for free! \n" + "https://top.gg/bot/619909215997394955/vote")
+  }
+
+  else if(command == "bet" || command == "coinflip"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    var parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    if(typeof args[0] === "undefined"){
+      message.reply("please sepcificy an amount you want to bet using `.bet <amount>` or `.bet a` to bet all your money.");
+      return;
+    }
+    else if(!isNumber(args[0]) && args[0] != "a"){
+      message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
+      return;
+    }
+    var won = (Math.random() > 0.5);
+    var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    if(money > parsedData[index].money){
+      message.reply("you can't bet more money than you own!");
+      return;
+    }
+    if(won){
+      parsedData[index].money += money;
+      message.reply("congratulations! You won " + money.commafy() + " coins!");
+    }
+    else {
+      parsedData[index].money -= money;
+      message.reply("you lost " + money.commafy() + " coins. Try again next time!");
+    }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
   else if(command == "leaderboard" || command == "lb"){
@@ -224,8 +287,6 @@ client.on("message", async message => {
   else if(command == "buy"){
     let rawdataUser = fs.readFileSync('userdata.json');
     var parsedData = JSON.parse(rawdataUser);
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -823,6 +884,10 @@ client.on("message", async message => {
           name: "Miscellaneous help:",
           value: "type `.help misc` to view the help menu for everything else",
         },
+        {
+          name: "Moderation help:",
+          value: "type `.help mod` to view the help menu for everything else",
+        }
       ],
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -836,10 +901,8 @@ client.on("message", async message => {
       helpEmbed.fields[0].value ="Create an account and start to conquer the world!"
       helpEmbed.fields[1].name = "`.me` or `.stats <mention>`"
       helpEmbed.fields[1].value = "View your stats or these of other players."
-      field3 = {
-        name: "`.crime`",
-        value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
-      }
+      helpEmbed.fields[3].value = "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
+      helpEmbed.fields[3].name = "`.crime`"
       field4 = {
         name: "`.lb` or `.leaderboard [type] [page]`",
         value: "View the global leaderboard. Allowed types are 'allaince', 'money' and 'population'.",
@@ -857,16 +920,25 @@ client.on("message", async message => {
         value: "Use on of your purchased items."
       }
       field8 = {
+        name: "`.inventory` or `.inv`",
+        value: "View the items you purchased but haven't used yet."
+      }
+      field9 = {
         name: "`.alliance [mention]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
+      field10 = {
+        name: "`.bet <amount>` or `.coinflip <amount>`",
+        value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
+      }
       helpEmbed.title = "General help";
-      helpEmbed.fields.push(field3);
       helpEmbed.fields.push(field4);
       helpEmbed.fields.push(field5);
       helpEmbed.fields.push(field6);
       helpEmbed.fields.push(field7);
       helpEmbed.fields.push(field8);
+      helpEmbed.fields.push(field9);
+      helpEmbed.fields.push(field10);
     }
     else if(a.includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
@@ -875,6 +947,7 @@ client.on("message", async message => {
       helpEmbed.fields[0].value ="Leave your current alliance";
       helpEmbed.fields[1].name = "`.joinalliance <name>`";
       helpEmbed.fields[1].value = "Join an alliance";
+      helpEmbed.fields.pop();
       field3 = {
         name: "`.promote <mention>` (Leader only)",
         value: "Promote a member or Co-Leader of your alliance (there is a maximum of two co-leaders)",
@@ -919,11 +992,24 @@ client.on("message", async message => {
       helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
       helpEmbed.fields[2].name = "`.invitelink`";
       helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
+      helpEmbed.fields.pop();
       field3 = {
         name: "`.server`",
         value: "Join the official Utopia server!"
       }
+      helpEmbed.title = "Miscellaneous help";
       helpEmbed.fields.push(field3);
+    }
+    else if(args[0] == "mod"){
+      helpEmbed.fields[0].name = "`.ban <mention>`";
+      helpEmbed.fields[0].value ="Bans a user from the server.";
+      helpEmbed.fields[1].name = "`.yeet <mention>` or `.kick <mention>`";
+      helpEmbed.fields[1].value = "Kicks a user from the server";
+      helpEmbed.fields[2].name = "`.purge <amount>`";
+      helpEmbed.fields[2].value = "Delete a specific amount of messages (up to 100 at the same time).";
+      helpEmbed.fields.pop();
+      helpEmbed.title = "Moderation help"
+      helpEmbed.description = "The bot role needs to be ranked above the roles of the other users in order for these commands to work.";
     }
     message.channel.send({ embed: helpEmbed });
   }
@@ -992,6 +1078,13 @@ client.on("message", async message => {
         index = i;
         break;
       }
+    }
+    const oldTag = parsedData[index].tag;
+    try{
+      parsedData[index].tag = client.users.get(parsedData[index].id.toString()).tag;
+    }
+    catch {
+      parsedData[index].tag = oldTag;
     }
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
@@ -1140,9 +1233,9 @@ async function reminder(msg, type){
 }
 
 function createStoreEmbed(message, type, args){
-  /* p = populations
+  /* p = population
   *  s = store (default)
-  *
+  *  a = alliance
   */
   if(type == "p"){
     var user = searchUser(message);
@@ -1240,7 +1333,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Arable farming',
-          value: '+50k food for the alliance every 4h \nPrice: 100,000',
+          value: '+150k food for the alliance every 4h \nPrice: 100,000',
           inline: true,
         },
         {
@@ -1276,7 +1369,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Alliance store',
-          value: "".concat('Type `', config.prefix, "store alliance` to view the alliance80a0ff store"), 
+          value: "".concat('Type `', config.prefix, "store alliance` to view the alliance store"), 
         },
         {
           name: 'A pack of food',
@@ -1331,7 +1424,7 @@ function payoutLoop(){
       }
       if(parsedData[i].payoutDMs){
         try{
-          client.users.get(parsedData[i].id).send("You have succesfully gained population from your upgrades!");
+          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
         }
         catch {}
       }
@@ -1339,42 +1432,42 @@ function payoutLoop(){
     payoutChannel.send("You have succesfully gained population from your upgrades!");
     payoutChannel.send("Processing started...");
     for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].upgrades.includes("AF")){
+      if(parsedDataAlliances[i].upgrades.af > 0){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += 5000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 55000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += 2500;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.food += (40000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/parsedDataAlliances[i].members.length));
           }
         }
       }
-      if(parsedDataAlliances[i].upgrades.includes("PF")){
+      if(parsedDataAlliances[i].upgrades.pf > 0){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += 100000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += 50000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.foodd += (800000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/parsedDataAlliances[i].members.length));
           }
         }
       }
-      if(parsedDataAlliances[i].upgrades.includes("MF")){
+      if(parsedDataAlliances[i].upgrades.mf > 0){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += 500000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += 250000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000;
           }
           if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.food += (4000000/parsedDataAlliances[i].members.length);
+            parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/parsedDataAlliances[i].members.length));
           }
         }
       }
@@ -1406,15 +1499,15 @@ function populationWorkLoop(){
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
-      parsedData[i].money += (pop / Math.floor((Math.random() * 10) + 15));
+      parsedData[i].money += Math.floor(pop / Math.floor((Math.random() * 10) + 15));
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
         parsedData[i].resources.food = 0;
-        client.users.get(parsedData[i].id).send("**Alert**: You don't have any food left, your population is dying!");
+        client.users.get(parsedData[i].id.toString()).send("**Alert**: You don't have any food left, your population is dying!");
         if(diff > pop){
           parsedData[i].resources.population = 0;
-          client.users.get(parsedData[i].id).send("**Alert**: All of your population died");
+          client.users.get(parsedData[i].id.toString()).send("**Alert**: All of your population died");
         }
         else {
           parsedData[i].resources.population -= diff;
@@ -1423,8 +1516,11 @@ function populationWorkLoop(){
       else {
         parsedData[i].resources.food -= consumption;
       }
-      if(parsedData[i].payoutDMs == true){
-        client.users.get(parsedData[i].id).send("You have succesfully gained money through the work of your population!");
+      if(parsedData[i].payoutDMs){
+        try {
+          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained money through the work of your population!");
+        }
+        catch {}
       }
       console.log("Factor: " + (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))) + "(" + parsedData[i].tag + ")");
     } 
