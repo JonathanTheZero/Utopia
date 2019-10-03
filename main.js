@@ -27,8 +27,8 @@ dbl.webhook.on('vote', vote => {
   let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
-    if(parsedData[i].id == vote.id){
-      parsedData[i].money += 20000;
+    if(parsedData[i].id == vote.user){
+      parsedData[i].money += 15000;
       break;
     }
   }
@@ -47,6 +47,14 @@ client.on("ready", () => {
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
+  /*
+    let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(let i = 0; i < parsedData.length;i++){
+    parsedData[i].money = Math.floor(parsedData[i].money);
+    console.log(parsedData[i].tag);
+  }
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));*/
 });
 
 client.on("guildCreate", guild => {
@@ -198,7 +206,7 @@ client.on("message", async message => {
   }
 
   else if(command === "vote"){
-    message.channel.send("Vote every 12h in order to get 15,000 food for free! \n" + "https://top.gg/bot/619909215997394955/vote")
+    message.channel.send("Vote every 12h in order to get 15,000 money for free! \n" + "https://top.gg/bot/619909215997394955/vote")
   }
 
   else if(command == "bet" || command == "coinflip"){
