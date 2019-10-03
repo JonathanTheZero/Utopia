@@ -137,6 +137,9 @@ module.exports = function(){
         if(memberIndex == -1){
           return "sorry, I couldn't find his user.";
         }
+        if(parsedData[index].alliance != parsedData[memberIndex].alliance){
+          return "you can't promote someone who isn't part of your alliance.";
+        }
         for(var i = 0; i < parsedDataAlliances.length; i++){
           if(parsedDataAlliances[i].name == parsedData[index].alliance){
             if(parsedData[memberIndex].allianceRank == "M"){
@@ -180,6 +183,9 @@ module.exports = function(){
         if(memberIndex == -1){
           return "sorry, I couldn't find his user.";
         }
+        if(parsedData[index].alliance != parsedData[memberIndex].alliance){
+          return "you can't demote someone who isn't part of your alliance.";
+        }
         for(var i = 0; i < parsedDataAlliances.length; i++){
           if(parsedDataAlliances[i].name == parsedData[index].alliance){
             if(parsedData[memberIndex].allianceRank == "M"){
@@ -212,6 +218,9 @@ module.exports = function(){
         }
         if(memberIndex == -1){
           return "sorry, I couldn't find his user.";
+        }
+        if(parsedData[index].alliance != parsedData[memberIndex].alliance){
+          return "you can't fire someone who isn't part of your alliance.";
         }
         for(var i = 0; i < parsedDataAlliances.length; i++){
           if(parsedDataAlliances[i].name == parsedData[index].alliance){

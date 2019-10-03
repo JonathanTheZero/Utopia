@@ -47,7 +47,16 @@ client.on("ready", () => {
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
+
   /*
+    let rawdataUser = fs.readFileSync('userdata.json');
+  let parsedData = JSON.parse(rawdataUser);
+  for(let i = 0; i < parsedData.length;i++){
+    if(parsedData[i].food == null){
+      parsedData[i].food = 0;
+    }
+  }
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
@@ -1250,7 +1259,7 @@ function createStoreEmbed(message, type, args){
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
       title: 'Population store',
-      description: 'These items are currently avialable in the population store!',
+      description: 'These items are currently available in the population store!',
       thumbnail: {
         url: `${message.author.displayAvatarURL}`,
       },
@@ -1443,7 +1452,7 @@ function payoutLoop(){
       if(parsedDataAlliances[i].upgrades.af > 0){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 55000;
+            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
           }
           if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
             parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500;
@@ -1512,10 +1521,16 @@ function populationWorkLoop(){
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
         parsedData[i].resources.food = 0;
-        client.users.get(parsedData[i].id.toString()).send("**Alert**: You don't have any food left, your population is dying!");
+        try {
+          client.users.get(parsedData[i].id.toString()).send("**Alert**: You don't have any food left, your population is dying!");
+        }
+        catch {}
         if(diff > pop){
           parsedData[i].resources.population = 0;
-          client.users.get(parsedData[i].id.toString()).send("**Alert**: All of your population died");
+          try{
+            client.users.get(parsedData[i].id.toString()).send("**Alert**: All of your population died");
+          }
+          catch {}
         }
         else {
           parsedData[i].resources.population -= diff;
