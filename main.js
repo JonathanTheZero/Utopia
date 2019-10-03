@@ -232,13 +232,8 @@ client.on("message", async message => {
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
     }
-    if(typeof args[0] === "undefined"){
-      message.reply("please sepcificy an amount you want to bet using `.bet <amount>` or `.bet a` to bet all your money.");
-      return;
-    }
-    else if(!isNumber(args[0]) && args[0] != "a"){
-      message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
-      return;
+    else if((!isNumber(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
+      return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
     var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
@@ -832,11 +827,8 @@ client.on("message", async message => {
     }
     var auText = "This alliance hasn't purchased any upgrades yet";
     const u = parsedDataAlliances[ind].upgrades;
-    if(u.length != 0){
-      auText = "This alliance owns: ";
-      if(u.includes("AF"))auText = "Arable Farming";
-      if(u.includes("PF")) auText += ", Pastoral Farming";
-      if(u.includes("MF")) auText += ", Mixed Farming";
+    if(u.af != 0){
+      auText = "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming";
     }
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -990,7 +982,7 @@ client.on("message", async message => {
         value: "Level up your alliance to gain access to more alliance upgrades like bigger farms."
       }
       field9 = {
-        name: "`.alliance [mention}`",
+        name: "`.alliance [mention]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
       helpEmbed.title = "Alliance help";

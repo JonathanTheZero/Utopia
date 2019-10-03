@@ -50,6 +50,7 @@ module.exports = function(){
     }
 
     isNumber = function(n){
-        return ((n >= '0' && n <= '9') ? true : false);
+        //return ((n >= '0' && n <= '9') ? true : false);
+        return !isNaN(n);
     }
 }
