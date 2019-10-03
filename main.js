@@ -47,7 +47,6 @@ client.on("ready", () => {
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
-
   /*
     let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
@@ -232,6 +231,7 @@ client.on("message", async message => {
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
     }
+    if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
     else if((!isNumber(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
@@ -497,7 +497,7 @@ client.on("message", async message => {
       return;
     }
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined"){
-      message.reply("please supply valid parameters following the `.add <type> <mention> <amount>`.");
+      message.reply("please supply valid parameters following the syntax `.add <type> <mention> <amount>`.");
       return;
     }
     let rawdataUser = fs.readFileSync('userdata.json');
@@ -523,15 +523,15 @@ client.on("message", async message => {
     }
     if(m.includes(args[0])){
       parsedData[index].money += a;
-      message.reply("Succesfully added " + a + " " + `money to ${message.mentions.users.first()} balance.`);
+      message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
     }
     else if(f.includes(args[0])){
       parsedData[index].resources.food += a;
-      message.reply("Succesfully added " + a + " " + `food to ${message.mentions.users.first()} balance.`);
+      message.reply("Succesfully added " + a.commafy() + " " + `food to ${message.mentions.users.first()} balance.`);
     }
     else if(p.includes(args[0])){
       parsedData[index].resources.population += a;
-      message.reply("Succesfully added " + a + " " + `population to ${message.mentions.users.first()} balance.`);
+      message.reply("Succesfully added " + a.commafy() + " " + `population to ${message.mentions.users.first()} balance.`);
     }
    
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
@@ -619,16 +619,16 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
+      return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.promote <mention>`.");
-      return;
+      return message.reply("please supply a username with `.promote <mention>`.");
+    }
+    if(message.mentions.users.first().id == message.author.id){
+      return message.reply("you can't promote yourself!");
     }
     if(parsedData[index].allianceRank != "L"){
-      message.reply("only the leader can promote members.");
-      return;
+      return message.reply("only the leader can promote members.");
     }
     else {
       message.reply(promote(message, index));
@@ -645,18 +645,10 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.demote <mention>`.");
-      return;
-    }
-    if(parsedData[index].allianceRank != "L"){
-      message.reply("only the leader can demote members.");
-      return;
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(message.mentions.users.first().id == message.author.id) return message.reply("you can't demote yourself!");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention>`.");
+    if(parsedData[index].allianceRank != "L") return message.reply("only the leader can demote members.");
     else {
       message.reply(demote(message, index));
     }
@@ -673,12 +665,11 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
+      return message.reply("you haven't created an account yet, please use the `create` command.");
     }
+    if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
     if(parsedData[index].allianceRank != "M"){
-      message.reply(setAllianceStatus(false, index));
-      return;
+      return message.reply(setAllianceStatus(false, index));
     }
     else {
       message.reply("Only the Leader and the Co-Leaders can set the alliance status");
@@ -695,14 +686,9 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    if(parsedData[index].allianceRank != "M"){
-      message.reply(setAllianceStatus(true, index));
-      return;
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
+    if(parsedData[index].allianceRank != "M") return message.reply(setAllianceStatus(true, index));
     else {
       message.reply("Only the Leader and the Co-Leaders can set the alliance status");
     }
@@ -825,11 +811,7 @@ client.on("message", async message => {
     else if(cl.length == 2){
       coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
-    var auText = "This alliance hasn't purchased any upgrades yet";
     const u = parsedDataAlliances[ind].upgrades;
-    if(u.af != 0){
-      auText = "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming";
-    }
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Data for ", alliance),
@@ -863,7 +845,7 @@ client.on("message", async message => {
         },
         {
           name: 'Upgrades',
-          value: auText,
+          value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
           inline: true,
         },
       ],
@@ -1433,9 +1415,11 @@ function payoutLoop(){
       }
       if(parsedData[i].payoutDMs){
         try{
-          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
+          client.users.get(parsedData[i].id).send("You have succesfully gained population from your upgrades!");
         }
-        catch {}
+        catch(e){
+          console.log(e);
+        }
       }
     } 
     payoutChannel.send("You have succesfully gained population from your upgrades!");
@@ -1443,40 +1427,46 @@ function payoutLoop(){
     for(var i = 0; i < parsedDataAlliances.length; i++){
       if(parsedDataAlliances[i].upgrades.af > 0){
         for(var j = 0; j < parsedData.length; j++){
-          if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
-          }
-          if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500;
-          }
-          if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/parsedDataAlliances[i].members.length));
+          if(parsedData[j].alliance == parsedDataAlliances[i].name){
+            if(parsedData[j].id == parsedDataAlliances[i].leader.id){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
+            }
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500;
+            }
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/parsedDataAlliances[i].members.length));
+            }
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.pf > 0){
         for(var j = 0; j < parsedData.length; j++){
-          if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
-          }
-          if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000;
-          }
-          if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/parsedDataAlliances[i].members.length));
+          if(parsedData[j].alliance == parsedDataAlliances[i].name){
+            if(parsedData[j].id == parsedDataAlliances[i].leader.id){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
+            }
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000;
+            }
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/parsedDataAlliances[i].members.length));
+            }
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.mf > 0){
         for(var j = 0; j < parsedData.length; j++){
-          if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
-          }
-          if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-            parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000;
-          }
-          if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-            parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/parsedDataAlliances[i].members.length));
+          if(parsedData[j].alliance == parsedDataAlliances[i].name){
+            if(parsedData[j].id == parsedDataAlliances[i].leader.id){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
+            }
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000;
+            }
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/parsedDataAlliances[i].members.length));
+            }
           }
         }
       }
