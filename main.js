@@ -537,6 +537,34 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
+  else if(command === "send"){
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined"){
+      message.reply("please supply valid parameters following the syntax `.send <mention> <amount>`.");
+      return;
+    }
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    var auInd = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.mentions.users.first().id == parsedData[i].id) index = i;
+      if(message.author.id == parsedData[i].id) auInd = i;
+    }
+    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(index == -1) return message.reply("this user hasn't created an account yet.");
+    if(index == auInd) return message.reply("you can't send money to yourself!");
+    if(parsedData[auInd].alliance == null) return message.reply("you haven't joined an alliance yet!");
+    const a = parseInt(args[1])
+    if(a == null) return message.reply("this isn't a valid amount.");
+    if(["money", "m"].includes(args[0])){
+      if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
+      parsedData[index].money += a;
+      parsedData[auInd].money -= a;
+      message.reply("Succesfully sent " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
+    }
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
   else if(command === "joinalliance" || command === "join"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
@@ -618,18 +646,10 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      return message.reply("you haven't created an account yet, please use the `create` command.");
-    }
-    if(typeof args[0] === 'undefined'){
-      return message.reply("please supply a username with `.promote <mention>`.");
-    }
-    if(message.mentions.users.first().id == message.author.id){
-      return message.reply("you can't promote yourself!");
-    }
-    if(parsedData[index].allianceRank != "L"){
-      return message.reply("only the leader can promote members.");
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention>`.");
+    if(message.mentions.users.first().id == message.author.id) return message.reply("you can't promote yourself!");
+    if(parsedData[index].allianceRank != "L") return message.reply("only the leader can promote members.");
     else {
       message.reply(promote(message, index));
     }
@@ -664,13 +684,9 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      return message.reply("you haven't created an account yet, please use the `create` command.");
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
-    if(parsedData[index].allianceRank != "M"){
-      return message.reply(setAllianceStatus(false, index));
-    }
+    if(parsedData[index].allianceRank != "M") return message.reply(setAllianceStatus(false, index));
     else {
       message.reply("Only the Leader and the Co-Leaders can set the alliance status");
     }
@@ -967,6 +983,10 @@ client.on("message", async message => {
         name: "`.alliance [mention]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
+      field10 = {
+        name: `.send <mention> <amount>`,
+        value: "Send a specific amount of money to one of your alliance members."
+      }
       helpEmbed.title = "Alliance help";
       helpEmbed.fields.push(field3);
       helpEmbed.fields.push(field4);
@@ -975,6 +995,7 @@ client.on("message", async message => {
       helpEmbed.fields.push(field7);
       helpEmbed.fields.push(field8);
       helpEmbed.fields.push(field9);
+      helpEmbed.fields.push(field10);
     }
     else if(args[0] == "misc"){
       helpEmbed.fields[0].name = "`.autpoing`";
