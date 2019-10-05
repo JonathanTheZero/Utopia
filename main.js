@@ -262,7 +262,7 @@ client.on("message", async message => {
         message.reply("that isn't a valid page numbers!")
       }
     }
-    else if(args[0] == "allainces" || args[0] == "allaince" || args[0] == "a"){
+    else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
       }
@@ -488,18 +488,8 @@ client.on("message", async message => {
   }
 
   else if(command === "add"){
-    /*if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'], false, true, true)) {
-      message.reply("this command can only be used by Members who have Kick and Ban permissions");
-      return;
-    }*/
-    if(!config.botAdmins.includes(parseInt(message.author.id))){
-      message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-      return;
-    }
-    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined"){
-      message.reply("please supply valid parameters following the syntax `.add <type> <mention> <amount>`.");
-      return;
-    }
+    if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -509,18 +499,12 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      message.reply("this user hasn't created an account yet.");
-      return;
-    }
+    if(index == -1) return message.reply("this user hasn't created an account yet.");
     var m = ["money", "m"];
     var f = ["food", "f"];
     var p = ["population", "p"]
     const a = parseInt(args[2])
-    if(a == null){
-      message.reply("this isn't a valid amount.");
-      return;
-    }
+    if(a == null) return message.reply("this isn't a valid amount.");
     if(m.includes(args[0])){
       parsedData[index].money += a;
       message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
@@ -538,10 +522,8 @@ client.on("message", async message => {
   }
 
   else if(command === "send"){
-    if(typeof args[0] === "undefined" || typeof args[1] === "undefined"){
-      message.reply("please supply valid parameters following the syntax `.send <mention> <amount>`.");
-      return;
-    }
+    const a = parseInt(args[1])
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -554,8 +536,8 @@ client.on("message", async message => {
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't send money to yourself!");
     if(parsedData[auInd].alliance == null) return message.reply("you haven't joined an alliance yet!");
-    const a = parseInt(args[1])
-    if(a == null) return message.reply("this isn't a valid amount.");
+    if(parsedData[auInd].alliance != parsedData[ind].alliance) return message.reply("you can only send money to users in your alliance.");
+    if(a == null || a < 1) return message.reply("this isn't a valid amount.");
     if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
     parsedData[index].money += a;
     parsedData[auInd].money -= a;
@@ -975,7 +957,7 @@ client.on("message", async message => {
       }
       field8 = {
         name: "`.upgradealliance` (Leader and Co-Leaders only)",
-        value: "Level up your alliance to gain access to more alliance upgrades like bigger farms."
+        value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
       }
       field9 = {
         name: "`.alliance [mention]`",
