@@ -556,12 +556,10 @@ client.on("message", async message => {
     if(parsedData[auInd].alliance == null) return message.reply("you haven't joined an alliance yet!");
     const a = parseInt(args[1])
     if(a == null) return message.reply("this isn't a valid amount.");
-    if(["money", "m"].includes(args[0])){
-      if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
-      parsedData[index].money += a;
-      parsedData[auInd].money -= a;
-      message.reply("Succesfully sent " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
-    }
+    if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
+    parsedData[index].money += a;
+    parsedData[auInd].money -= a;
+    message.reply("Succesfully sent " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
@@ -984,7 +982,7 @@ client.on("message", async message => {
         value: "View the stats of your alliance or of the alliance of another user."
       }
       field10 = {
-        name: `.send <mention> <amount>`,
+        name: "`.send <mention> <amount>`",
         value: "Send a specific amount of money to one of your alliance members."
       }
       helpEmbed.title = "Alliance help";
@@ -1179,9 +1177,7 @@ function createUser(msg){
       }
     }
   }
-  catch {
-
-  }
+  catch {}
   
   let data = {
       tag: msg.author.tag,
@@ -1203,12 +1199,9 @@ function createUser(msg){
       },
       inventory: []
   }
-  
   parsedData.push(data);
-  
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   msg.reply("your account has been succesfully created.");
-  console.log(data)
 }
 
 async function reminder(msg, type){
