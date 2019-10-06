@@ -4,6 +4,7 @@ const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
 require("./utils.js")();
+const battle = require("./battles.js");
 const express = require('express');
 const client = new Discord.Client();
 const app = express();
@@ -125,7 +126,18 @@ client.on("message", async message => {
     const m = await message.channel.send("Ping?");
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
   }
-  
+  else if(command == "test"){
+    const filter = m => m.content.includes('discord');
+    const collector = message.channel.createMessageCollector(filter, { time: 15000 });
+
+    collector.on('collect', m => {
+      console.log(`Collected ${m.content}`);
+    });
+
+    collector.on('end', collected => {
+      console.log(`Collected ${collected.size} items`);
+    });
+  }
   else if(command === "say") {
     // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
     // To get the "message" itself we join the `args` back into a string with spaces: 
@@ -536,7 +548,7 @@ client.on("message", async message => {
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't send money to yourself!");
     if(parsedData[auInd].alliance == null) return message.reply("you haven't joined an alliance yet!");
-    if(parsedData[auInd].alliance != parsedData[ind].alliance) return message.reply("you can only send money to users in your alliance.");
+    if(parsedData[auInd].alliance != parsedData[index].alliance) return message.reply("you can only send money to users in your alliance.");
     if(a == null || a < 1) return message.reply("this isn't a valid amount.");
     if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
     parsedData[index].money += a;
@@ -1141,8 +1153,23 @@ client.on("message", async message => {
       }
     }   
   }
-  
 
+  else if(command === "startbattle"){
+    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention>`.");
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    var auInd = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.mentions.users.first().id == parsedData[i].id) index = i;
+      if(message.author.id == parsedData[i].id) auInd = i;
+    }
+    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(index == -1) return message.reply("this user hasn't created an account yet.");
+    if(index == auInd) return message.reply("you can't battle yourself!");
+    battle.startbattle(auInd, index);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
 });
 
 
@@ -1425,13 +1452,13 @@ function payoutLoop(){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/parsedDataAlliances[i].members.length));
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
@@ -1440,13 +1467,13 @@ function payoutLoop(){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/parsedDataAlliances[i].members.length));
+              parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
@@ -1455,13 +1482,13 @@ function payoutLoop(){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000;
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/parsedDataAlliances[i].members.length));
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
