@@ -863,6 +863,93 @@ client.on("message", async message => {
     message.channel.send({ embed: allianceEmbed });
   }
 
+  else if(command == "alliancemembers"){
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    var user;
+    var url;
+    if(typeof args[0] === "undefined"){
+      user = searchUser(message);
+      url = `${message.author.displayAvatarURL}`;
+    }
+    else {
+      user = searchUserByID(message.mentions.users.first().id);
+      url = `${message.mentions.users.first().displayAvatarURL}`;
+    }
+    var alliance = user.alliance;
+    if(alliance == null){
+      if(typeof args[0] === "undefined"){
+        message.reply("you haven't joined an alliance yet.");
+        return;
+      }
+      else{
+        message.reply(`${message.mentions.users.first()} hasn't joined an alliance yet.`);
+        return;
+      }
+    }
+
+    var ind = -1;
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedDataAlliances[i].name == user.alliance){
+        ind = i;
+        break;
+      }
+    }
+    var coLeaders = "This alliance doesn't have any Co-Leaders";
+    const cl = parsedDataAlliances[ind].coLeaders;
+    if(cl.length == 1){
+      coLeaders = "<@" + cl[0] + ">";
+    }
+    else if(cl.length == 2){
+      coLeaders = " <@" + cl[0] + "> and <@" + cl[1] + ">";
+    }
+    var members = "This alliance doesn't have any members";
+    if(parsedDataAlliances[ind].members.length > 0){
+      members = ""
+      for(let i = 0; i < parsedDataAlliances[ind].members.length;i++){
+        members += "<@" + parsedDataAlliances[ind].members[i] +">\n";
+      }
+    }
+    var invs = "This alliance doesn't have any active invites";
+    if(parsedDataAlliances[ind].invitedUsers.length > 0){
+      invs = ""
+      for(let i = 0; i < parsedDataAlliances[ind].invitedUsers.length;i++){
+        invs += "<@" + parsedDataAlliances[ind].invitedUsers[i] +">\n";
+      }
+    }
+    const u = parsedDataAlliances[ind].upgrades;
+    const allianceEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "".concat("Data for ", alliance),
+      thumbnail: {
+        url: url,
+      },
+      fields: [
+        {
+          name: 'Leader:',
+          value: "".concat("<@",parsedDataAlliances[ind].leader.id,">"),
+          inline: true,
+        },
+        {
+          name: 'Co-Leaders:',
+          value: coLeaders,
+          inline: true,
+        },
+        {
+          name: "Members:",
+          value: members,
+        },
+        {
+          name: "Invited users:",
+          value: invs
+        }
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }; 
+    message.channel.send({ embed: allianceEmbed });
+  }
+
   else if(command === "help"){
     var helpEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -931,13 +1018,7 @@ client.on("message", async message => {
         value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
       }
       helpEmbed.title = "General help";
-      helpEmbed.fields.push(field4);
-      helpEmbed.fields.push(field5);
-      helpEmbed.fields.push(field6);
-      helpEmbed.fields.push(field7);
-      helpEmbed.fields.push(field8);
-      helpEmbed.fields.push(field9);
-      helpEmbed.fields.push(field10);
+      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10);
     }
     else if(a.includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
@@ -979,15 +1060,12 @@ client.on("message", async message => {
         name: "`.send <mention> <amount>`",
         value: "Send a specific amount of money to one of your alliance members."
       }
+      field11 = {
+        name: "`.alliancemembers [mention]`",
+        value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
+      }
       helpEmbed.title = "Alliance help";
-      helpEmbed.fields.push(field3);
-      helpEmbed.fields.push(field4);
-      helpEmbed.fields.push(field5);
-      helpEmbed.fields.push(field6);
-      helpEmbed.fields.push(field7);
-      helpEmbed.fields.push(field8);
-      helpEmbed.fields.push(field9);
-      helpEmbed.fields.push(field10);
+      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11);
     }
     else if(args[0] == "misc"){
       helpEmbed.fields[0].name = "`.autpoing`";
