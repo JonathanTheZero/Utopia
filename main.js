@@ -269,7 +269,7 @@ client.on("message", async message => {
     if(args[0] == "p" || args[0] == "population"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1) : generateLeaderboardEmbed("p", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1 || isNaN(args[1])) return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -278,7 +278,7 @@ client.on("message", async message => {
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1 || isNaN(args[1])) return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -297,7 +297,7 @@ client.on("message", async message => {
       else {
         try {
           lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
-          if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1])) return message.reply("this isn't a valid page number!");
+          if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
         }
         catch {
           message.reply("that isn't a valid page number!")
