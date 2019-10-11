@@ -121,12 +121,11 @@ module.exports = function(){
         return "you have left your alliance";
       },
       
-    promote = function(message, index){
+    promote = function(message, index, member){
         let rawdataAlliances = fs.readFileSync('alliances.json');
         let parsedDataAlliances = JSON.parse(rawdataAlliances);
         let rawdataUser = fs.readFileSync('userdata.json');
         let parsedData = JSON.parse(rawdataUser);
-        let member = message.mentions.members.first();
         var memberIndex = -1;
         for(var i = 0; i < parsedData.length; i++){
           if(parsedData[i].id === member.id){
@@ -149,7 +148,7 @@ module.exports = function(){
                 parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
                 fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
                 fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-                return `Succesfully promoted ${message.mentions.members.first()} from Member to **Co-Leader**`;
+                return `Succesfully promoted ${member.tag} from Member to **Co-Leader**`;
               }
               return "an alliance can't have more than two Co-Leaders at the same time."
             }
@@ -161,18 +160,17 @@ module.exports = function(){
               parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
               fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
               fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-              return `Succesfully promoted ${message.mentions.members.first()} from Co-Leader to **Leader**`;
+              return `Succesfully promoted ${member.tag} from Co-Leader to **Leader**`;
             }
           }
         }
       },
       
-    demote = function(message, index){
+    demote = function(message, index, member){
         let rawdataAlliances = fs.readFileSync('alliances.json');
         let parsedDataAlliances = JSON.parse(rawdataAlliances);
         let rawdataUser = fs.readFileSync('userdata.json');
         let parsedData = JSON.parse(rawdataUser);
-        let member = message.mentions.members.first();
         var memberIndex = -1;
         for(var i = 0; i < parsedData.length; i++){
           if(parsedData[i].id === member.id){
@@ -189,7 +187,7 @@ module.exports = function(){
         for(var i = 0; i < parsedDataAlliances.length; i++){
           if(parsedDataAlliances[i].name == parsedData[index].alliance){
             if(parsedData[memberIndex].allianceRank == "M"){
-              return `you can't demote ${message.mentions.members.first()} since he is only a member. Use \`.fire <mention>\` to fire a member from your alliance. `;
+              return `you can't demote ${member.tag} since he is only a member. Use \`.fire <mention>\` to fire a member from your alliance. `;
             }
             else {
               parsedData[memberIndex].allianceRank = "M";
@@ -197,18 +195,17 @@ module.exports = function(){
               parsedDataAlliances[i].coLeaders = parsedDataAlliances[i].coLeaders.filter(item => item != member.id);
               fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
               fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-              return `Succesfully demoted ${message.mentions.members.first()} from Co-Leader to **Member**`;
+              return `Succesfully demoted ${member.tag} from Co-Leader to **Member**`;
             }
           }
         }
       },
       
-      fire = function(message, index){
+      fire = function(message, index, member){
         let rawdataAlliances = fs.readFileSync('alliances.json');
         let parsedDataAlliances = JSON.parse(rawdataAlliances);
         let rawdataUser = fs.readFileSync('userdata.json');
         let parsedData = JSON.parse(rawdataUser);
-        let member = message.mentions.members.first();
         var memberIndex = -1;
         for(var i = 0; i < parsedData.length; i++){
           if(parsedData[i].id === member.id){
@@ -235,7 +232,7 @@ module.exports = function(){
             parsedData[memberIndex].allianceRank = null;
             fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
             fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-            return `Succesfully fired ${message.mentions.members.first()} from your alliance`;
+            return `Succesfully fired ${member.tag} from your alliance`;
           }
         }
       },
@@ -308,12 +305,11 @@ module.exports = function(){
         return "Error";
       },
       
-      inviteToAlliance = function (message, index){
+      inviteToAlliance = function (message, index, member){
         let rawdataAlliances = fs.readFileSync('alliances.json');
         let parsedDataAlliances = JSON.parse(rawdataAlliances);
         let rawdataUser = fs.readFileSync('userdata.json');
         let parsedData = JSON.parse(rawdataUser);
-        let member = message.mentions.members.first();
         var memberIndex = -1;
         for(var i = 0; i < parsedData.length; i++){
           if(parsedData[i].id === member.id){
@@ -331,7 +327,7 @@ module.exports = function(){
           if(parsedDataAlliances[i].name == parsedData[index].alliance){
             parsedDataAlliances[i].invitedUsers.push(member.id);
             fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-            return `Succesfully invited ${message.mentions.members.first()} to join your alliance`;
+            return `Succesfully invited ${member.tag} to join your alliance`;
           }
         }
       }

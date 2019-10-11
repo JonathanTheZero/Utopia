@@ -158,15 +158,15 @@ client.on("message", async message => {
     }  
 
     // Let's first check if we have a member and if we can kick them!
-    // message.mentions.members is a collection of people that have been mentioned, as GuildMembers.
+    // message.mention/IDs.members is a collection of people that have been mention/IDed, as GuildMembers.
     // We can also support getting the member by ID, which would be args[0]
-    let member = message.mentions.members.first() || message.guild.members.get(args[0]);
+    let member = message.mention/IDs.members.first() || message.guild.members.get(args[0]);
     if(!member)
-      return message.reply("Please mention a valid member of this server");
+      return message.reply("Please mention/ID a valid member of this server");
     if(!member.kickable) 
       return message.reply("I cannot kick this user! Do they have a higher role? Do I have kick permissions?");
     
-    // slice(1) removes the first part, which here should be the user mention or ID
+    // slice(1) removes the first part, which here should be the user mention/ID or ID
     // join(' ') takes all the various parts to make it a single string.
     let reason = args.slice(1).join(' ');
     if(!reason) reason = "No reason provided";
@@ -189,9 +189,9 @@ client.on("message", async message => {
     }
 
 
-    let member = message.mentions.members.first();
+    let member = message.mention/IDs.members.first();
     if(!member)
-      return message.reply("Please mention a valid member of this server");
+      return message.reply("Please mention/ID a valid member of this server");
     if(!member.bannable) 
       return message.reply("I cannot ban this user! Do they have a higher role? Do I have ban permissions?");
 
@@ -413,13 +413,19 @@ client.on("message", async message => {
       url = `${message.author.displayAvatarURL}`;
     }
     else {
-      user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().displayAvatarURL}`;
+      try{
+        user = searchUserByID(message.mentions.users.first().id);
+        url = `${message.mentions.users.first().displayAvatarURL}`;
+      }
+      catch {
+        user = searchUserByID(args[0]);
+        url = client.users.get(user.id.toString()).displayAvatarURL;
+      }
     }
     var alliance = user.alliance;
 
     if(alliance == null){
-      alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet.`;
+      alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." :  user.tag + ` hasn't joined an alliance yet.`;
     }
     if(user.allianceRank == "M"){
       alliance = "".concat("Member of ", alliance);
@@ -430,7 +436,7 @@ client.on("message", async message => {
     else if(user.allianceRank == "L"){
       alliance = "".concat("Leader of ", alliance);
     }
-    var upgrades = (typeof args[0] === "undefined") ? "You haven't purchased any upgrades yet." : `${message.mentions.users.first()} hasn't purchased any upgrades yet.`;
+    var upgrades = (typeof args[0] === "undefined") ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`;
     if(user.upgrades.population.length != 0){
       upgrades = "\u200b";
       if(user.upgrades.population.includes("UK")) upgrades += "UK"
@@ -443,7 +449,7 @@ client.on("message", async message => {
 
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${message.mentions.users.first().tag}`),
+      title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
       thumbnail: {
         url: url,
       },
@@ -467,10 +473,14 @@ client.on("message", async message => {
           value: alliance,
           inline: true,
         },
+        /*{
+          name: "Duels won:",
+          value: user.duelsWon.commafy(),
+          inline: true,
+        },*/
         {
           name: "Upgrades",
           value: upgrades,
-          inline: true,
         }
       ],
       timestamp: new Date(),
@@ -505,7 +515,7 @@ client.on("message", async message => {
 
   else if(command === "add"){
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention> <amount>`.");
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -539,7 +549,7 @@ client.on("message", async message => {
 
   else if(command === "send"){
     const a = parseInt(args[1])
-    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention> <amount>`.");
+    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -642,12 +652,19 @@ client.on("message", async message => {
         break;
       }
     }
+    let member;
+    try{
+      member = searchUserByID(message.mentions.users.first().id);
+    }
+    catch {
+      member = searchUserByID(args[0]);
+    }
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
-    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention>`.");
-    if(message.mentions.users.first().id == message.author.id) return message.reply("you can't promote yourself!");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention/ID>`.");
+    if(member.id == message.author.id) return message.reply("you can't promote yourself!");
     if(parsedData[index].allianceRank != "L") return message.reply("only the leader can promote members.");
     else {
-      message.reply(promote(message, index));
+      message.reply(promote(message, index, member));
     }
   }
 
@@ -661,12 +678,19 @@ client.on("message", async message => {
         break;
       }
     }
+    let member;
+    try{
+      member = searchUserByID(message.mentions.users.first().id);
+    }
+    catch {
+      member = searchUserByID(args[0]);
+    }
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
-    if(message.mentions.users.first().id == message.author.id) return message.reply("you can't demote yourself!");
-    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention>`.");
+    if(member.id == message.author.id) return message.reply("you can't demote yourself!");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention/ID>`.");
     if(parsedData[index].allianceRank != "L") return message.reply("only the leader can demote members.");
     else {
-      message.reply(demote(message, index));
+      message.reply(demote(message, index, member));
     }
   }
 
@@ -739,16 +763,23 @@ client.on("message", async message => {
         break;
       }
     }
+    let member;
+    try{
+      member = searchUserByID(message.mentions.users.first().id);
+    }
+    catch {
+      member = searchUserByID(args[0]);
+    }
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
     }
     if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.invite <mention>`.");
+      message.reply("please supply a username with `.invite <mention/ID>`.");
       return;
     }
     if(parsedData[index].allianceRank != "M"){
-      message.reply(inviteToAlliance(message, index));
+      message.reply(inviteToAlliance(message, index, member));
       return;
     }
     else {
@@ -766,12 +797,19 @@ client.on("message", async message => {
         break;
       }
     }
+    let member;
+    try{
+      member = searchUserByID(message.mentions.users.first().id);
+    }
+    catch {
+      member = searchUserByID(args[0]);
+    }
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
     }
     if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.fire <mention>`.");
+      message.reply("please supply a username with `.fire <mention/ID>`.");
       return;
     }
     if(parsedData[index].allianceRank != "L"){
@@ -779,7 +817,7 @@ client.on("message", async message => {
       return;
     }
     else {
-      message.reply(fire(message, index));
+      message.reply(fire(message, index, member));
     }
   }
 
@@ -793,8 +831,14 @@ client.on("message", async message => {
       url = `${message.author.displayAvatarURL}`;
     }
     else {
-      user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().displayAvatarURL}`;
+      try{
+        user = searchUserByID(message.mentions.users.first().id);
+        url = `${message.mentions.users.first().displayAvatarURL}`;
+      }
+      catch {
+        user = searchUserByID(args[0]);
+        url = client.users.get(user.id.toString()).displayAvatarURL;
+      }
     }
     var alliance = user.alliance;
     if(alliance == null){
@@ -803,8 +847,7 @@ client.on("message", async message => {
         return;
       }
       else{
-        message.reply(`${message.mentions.users.first()} hasn't joined an alliance yet.`);
-        return;
+        return message.reply(user.tag + " hasn't joined an alliance yet");
       }
     }
 
@@ -877,8 +920,14 @@ client.on("message", async message => {
       url = `${message.author.displayAvatarURL}`;
     }
     else {
-      user = searchUserByID(message.mentions.users.first().id);
-      url = `${message.mentions.users.first().displayAvatarURL}`;
+      try{
+        user = searchUserByID(message.mentions.users.first().id);
+        url = `${message.mentions.users.first().displayAvatarURL}`;
+      }
+      catch {
+        user = searchUserByID(args[0]);
+        url = client.users.get(user.id.toString()).displayAvatarURL;
+      }
     }
     var alliance = user.alliance;
     if(alliance == null){
@@ -887,7 +936,7 @@ client.on("message", async message => {
         return;
       }
       else{
-        message.reply(`${message.mentions.users.first()} hasn't joined an alliance yet.`);
+        message.reply(user.tag + ` hasn't joined an alliance yet.`);
         return;
       }
     }
@@ -989,7 +1038,7 @@ client.on("message", async message => {
       helpEmbed.fields[2].value = "You gain up to 10,000 coins from working. You can work every 30 minutes.";
       helpEmbed.fields[0].name = "`.create`"
       helpEmbed.fields[0].value ="Create an account and start to conquer the world!"
-      helpEmbed.fields[1].name = "`.me` or `.stats <mention>`"
+      helpEmbed.fields[1].name = "`.me` or `.stats [mention/ID/ID]`"
       helpEmbed.fields[1].value = "View your stats or these of other players."
       helpEmbed.fields[3].value = "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
       helpEmbed.fields[3].name = "`.crime`"
@@ -1002,11 +1051,11 @@ client.on("message", async message => {
         value: "View the shop (you'll find further information there).",
       }
       field6 = {
-        name: "`.buy [item]`",
+        name: "`.buy <item>`",
         value: "Buy an item from the shop."
       },
       field7 = {
-        name: "`.use [item]`",
+        name: "`.use <item>`",
         value: "Use on of your purchased items."
       }
       field8 = {
@@ -1014,7 +1063,7 @@ client.on("message", async message => {
         value: "View the items you purchased but haven't used yet."
       }
       field9 = {
-        name: "`.alliance [mention]`",
+        name: "`.alliance [mention/ID/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
       field10 = {
@@ -1033,15 +1082,15 @@ client.on("message", async message => {
       helpEmbed.fields[1].value = "Join an alliance";
       helpEmbed.fields.pop();
       field3 = {
-        name: "`.promote <mention>` (Leader only)",
+        name: "`.promote <mention/ID/ID>` (Leader only)",
         value: "Promote a member or Co-Leader of your alliance (there is a maximum of two co-leaders)",
       }
       field4 = {
-        name: "`.demote <mention>` (Leader only)",
+        name: "`.demote <mention/ID>` (Leader only)",
         value: "Demote a member of your alliance.",
       }
       field5 = {
-        name: "`.fire <mention>` (Leader only)",
+        name: "`.fire <mention/ID>` (Leader only)",
         value: "Fire a member of your alliance.",
       }
       field6 = {
@@ -1049,7 +1098,7 @@ client.on("message", async message => {
         value: "Change the setting of your alliance. Public: Everyone can join, Private: Only invited users can join."
       },
       field7 = {
-        name: "`.invite <mention>` (Leader and Co-Leaders only)",
+        name: "`.invite <mention/ID>` (Leader and Co-Leaders only)",
         value: "Invite a member to your alliance."
       }
       field8 = {
@@ -1057,22 +1106,22 @@ client.on("message", async message => {
         value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
       }
       field9 = {
-        name: "`.alliance [mention]`",
+        name: "`.alliance [mention/ID/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
       field10 = {
-        name: "`.send <mention> <amount>`",
+        name: "`.send <mention/ID> <amount>`",
         value: "Send a specific amount of money to one of your alliance members."
       }
       field11 = {
-        name: "`.alliancemembers [mention]`",
+        name: "`.alliancemembers [mention/ID/ID]`",
         value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
       }
       helpEmbed.title = "Alliance help";
       helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11);
     }
     else if(args[0] == "misc"){
-      helpEmbed.fields[0].name = "`.autpoing`";
+      helpEmbed.fields[0].name = "`.autoping`";
       helpEmbed.fields[0].value ="Enable/Disable autopings when you can work or commit a crime again. (Enabled by default)";
       helpEmbed.fields[1].name = "`.payoutdms`";
       helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
@@ -1087,9 +1136,9 @@ client.on("message", async message => {
       helpEmbed.fields.push(field3);
     }
     else if(args[0] == "mod"){
-      helpEmbed.fields[0].name = "`.ban <mention>`";
+      helpEmbed.fields[0].name = "`.ban <mention/ID>`";
       helpEmbed.fields[0].value ="Bans a user from the server.";
-      helpEmbed.fields[1].name = "`.yeet <mention>` or `.kick <mention>`";
+      helpEmbed.fields[1].name = "`.yeet <mention/ID>` or `.kick <mention/ID>`";
       helpEmbed.fields[1].value = "Kicks a user from the server";
       helpEmbed.fields[2].name = "`.purge <amount>`";
       helpEmbed.fields[2].value = "Delete a specific amount of messages (up to 100 at the same time).";
@@ -1236,8 +1285,8 @@ client.on("message", async message => {
     }   
   }
 
-  else if(command === "startbattle"){
-    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention>`.");
+  else if(command === "startbattle" || command == "startduel"){
+    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -1250,7 +1299,26 @@ client.on("message", async message => {
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't battle yourself!");
     battle.startbattle(auInd, index);
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
+  else if(command === "cancelduel"){
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    var dInd = -1;
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
+        dInd = 0;
+        break;
+      }
+    }
+    if(dInd == -1) return message.reply("there is no active duel you could cancel.");
+    message.reply("the running duel between <@" + battleData[dInd].p1.id + "> and <@" + battleData[dInd].p2.id + "> has been cancelled.");
+    battleData.splice(i, 1);
+    fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+  }
+
+  else if(command == "dividetroops"){
+    
   }
 });
 
@@ -1288,7 +1356,8 @@ function createUser(msg){
         population: [],
         misc: []
       },
-      inventory: []
+      inventory: [],
+      duelsWon: 0
   }
   parsedData.push(data);
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
@@ -1406,7 +1475,7 @@ function createStoreEmbed(message, type, args){
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
       title: 'Alliance store',
-      description: 'These items are currently avialable in the alliance store! \n' +  
+      description: 'These items are currently available in the alliance store! \n' +  
                 "Note: only the leader and the Co-Leaders can buy alliance upgrades and they are used immediately. " +
                 "The Leader gets 10% of the alliance income, the Co-Leaders 5% each. The rest is split among the members.",
       thumbnail: {
