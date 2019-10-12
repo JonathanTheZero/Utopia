@@ -1337,6 +1337,7 @@ client.on("message", async message => {
         var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
         produced -= taxed;
         parsedDataAlliances[alInd].money += taxed;
+        parsedData[index] += produced;
         message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
       }
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
