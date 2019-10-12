@@ -269,7 +269,7 @@ client.on("message", async message => {
     if(args[0] == "p" || args[0] == "population"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1) : generateLeaderboardEmbed("p", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -278,7 +278,7 @@ client.on("message", async message => {
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -288,7 +288,7 @@ client.on("message", async message => {
       if(isNumber(args[0])){
         try {
           lbEmbed = generateLeaderboardEmbed("m", args[0]);
-          if(args[0] > Math.floor(getLeaderboardList("m").length / 10) + 1) return message.reply("this isn't a valid page number!");
+          if(args[0] > Math.floor(getLeaderboardList("m").length / 10)) return message.reply("this isn't a valid page number!");
         }
         catch {
           message.reply("that isn't a valid page number!")
@@ -297,7 +297,7 @@ client.on("message", async message => {
       else {
         try {
           lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
-          if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+          if(args[1] > Math.floor(getLeaderboardList("m").length / 10)  || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
         }
         catch {
           message.reply("that isn't a valid page number!")
@@ -548,14 +548,21 @@ client.on("message", async message => {
   }
 
   else if(command === "send"){
-    const a = parseInt(args[1])
+    var a = parseInt(args[1])
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
     var auInd = -1;
+    let user;
+    try{
+      user = searchUserByID(message.mentions.users.first().id);
+    }
+    catch {
+      user = searchUserByID(args[0]);
+    }
     for(var i = 0; i < parsedData.length; i++){
-      if(message.mentions.users.first().id == parsedData[i].id) index = i;
+      if(user.id == parsedData[i].id) index = i;
       if(message.author.id == parsedData[i].id) auInd = i;
     }
     if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
@@ -565,10 +572,56 @@ client.on("message", async message => {
     if(parsedData[auInd].alliance != parsedData[index].alliance) return message.reply("you can only send money to users in your alliance.");
     if(a == null || a < 1) return message.reply("this isn't a valid amount.");
     if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
-    parsedData[index].money += a;
-    parsedData[auInd].money -= a;
-    message.reply("Succesfully sent " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
+    if(args[1] == "a"){
+      parsedData[index].money += parsedData[auInd].money;
+      parsedData[auInd].money = 0;
+      a = parsedData[auInd].money;
+    }
+    else {
+      parsedData[index].money += a;
+      parsedData[auInd].money -= a;
+    }
+    message.reply("Succesfully sent " + a.commafy() + " " + `money to ${user.tag}.`);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
+  else if(command === "deposit"){
+    var a = parseInt(args[0])
+    if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <amount>`.");
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    var alInd = -1;
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedData[index].alliance == parsedDataAlliances[i].name){
+        alInd = i;
+        break;
+      }
+    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(parsedData[index].alliance == null) return message.reply("you haven't joined an alliance yet!");
+    if(a == null || a < 1) return message.reply("this isn't a valid amount.");
+    if(parsedData[index].money < a) return message.reply("you can't send more money than you own!");
+    if(args[1] == "a"){
+      parsedDataAlliances[alInd].money += parsedData[index].money;
+      parsedData[index].money = 0;
+      a = parsedData[index].money;
+    }
+    else {
+      parsedDataAlliances[alInd].money += a;
+      parsedData[index].money -= a;
+    }
+    message.reply("Succesfully sent " + a.commafy() + " " + `money to your alliance.`);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }
 
   else if(command === "joinalliance" || command === "join"){
@@ -725,6 +778,25 @@ client.on("message", async message => {
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
     if(parsedData[index].allianceRank != "M") return message.reply(setAllianceStatus(true, index));
+    else {
+      message.reply("Only the Leader and the Co-Leaders can set the alliance status");
+    }
+  }
+
+  else if(command === "settax"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
+    if(typeof args[0] === "undefined" || parseInt(args[0]) > 90 || parseInt(args[0]) < 0) return message.reply("please provide a valid number following `.settax <0-90>`.")
+    if(parsedData[index].allianceRank != "M") return message.reply(setAllianceTax(index, parseInt(args[0])));
     else {
       message.reply("Only the Leader and the Co-Leaders can set the alliance status");
     }
@@ -894,12 +966,22 @@ client.on("message", async message => {
           inline: true,
         },
         {
-          name: "Privaty settings",
+          name: "Money:",
+          value: "The balance of this alliance is " + parsedDataAlliances[ind].money.commafy(),
+          inline: true,
+        },
+        {
+          name: "Privaty settings:",
           value: (parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private",
           inline: true
         },
         {
-          name: 'Upgrades',
+          name: "Taxrate:",
+          value: parsedDataAlliances[ind].tax + "%",
+          inline: true,
+        },
+        {
+          name: 'Upgrades:',
           value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
           inline: true,
         },
@@ -1063,7 +1145,7 @@ client.on("message", async message => {
         value: "View the items you purchased but haven't used yet."
       }
       field9 = {
-        name: "`.alliance [mention/ID/ID]`",
+        name: "`.alliance [mention/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
       field10 = {
@@ -1071,7 +1153,7 @@ client.on("message", async message => {
         value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
       }
       helpEmbed.title = "General help";
-      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10);
+      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10);
     }
     else if(a.includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
@@ -1082,7 +1164,7 @@ client.on("message", async message => {
       helpEmbed.fields[1].value = "Join an alliance";
       helpEmbed.fields.pop();
       field3 = {
-        name: "`.promote <mention/ID/ID>` (Leader only)",
+        name: "`.promote <mention/ID>` (Leader only)",
         value: "Promote a member or Co-Leader of your alliance (there is a maximum of two co-leaders)",
       }
       field4 = {
@@ -1106,7 +1188,7 @@ client.on("message", async message => {
         value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
       }
       field9 = {
-        name: "`.alliance [mention/ID/ID]`",
+        name: "`.alliance [mention/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
       field10 = {
@@ -1114,11 +1196,19 @@ client.on("message", async message => {
         value: "Send a specific amount of money to one of your alliance members."
       }
       field11 = {
-        name: "`.alliancemembers [mention/ID/ID]`",
+        name: "`.alliancemembers [mention/ID]`",
         value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
       }
+      field12 = {
+        name: "`.deposit <amount>`",
+        value: "Deposit a specific amount of money in the bank of your alliance"
+      }
+      field13 = {
+        name: "`.settax <value between 0 and 90>` (Leader and Co-Leaders only)",
+        value: "Set the taxrate of your alliance. The tax only applies to the work and crime commands."
+      }
       helpEmbed.title = "Alliance help";
-      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11);
+      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13);
     }
     else if(args[0] == "misc"){
       helpEmbed.fields[0].name = "`.autoping`";
@@ -1207,10 +1297,19 @@ client.on("message", async message => {
   else if(command === "work"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    var alInd = -1;
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
         index = i;
+        break;
+      }
+    }
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedData[index].alliance == parsedDataAlliances[i].name){
+        alInd = i;
         break;
       }
     }
@@ -1222,29 +1321,37 @@ client.on("message", async message => {
       parsedData[index].tag = oldTag;
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
+      message.reply("you haven't created an account yet, please use the `.create` command.");
       return;
     }
     if(Math.floor(Date.now() / 1000) - parsedData[index].lastWorked < 1800){
       message.reply("".concat("You can work again in ", new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
     }
     else {
-      let oldBalance = parseInt(parsedData[index].money);
       var produced = Math.floor(Math.random() * 10000);
-      var newBalance = oldBalance + produced;
-      parsedData[index].money = newBalance;
+      if(alInd == -1){
+        parsedData[index].money += produced;
+        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+      }
+      else {
+        var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
+        produced -= taxed;
+        parsedDataAlliances[alInd].money += taxed;
+        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+      }
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-      message.reply("".concat("You successfully worked and gained ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
-      if(parsedData[index].autoping == true){
-        reminder(message, "w");
-      }
+      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+      if(parsedData[index].autoping) reminder(message, "w");
     }
   }
 
   else if(command === "crime"){
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    var alInd = -1;
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -1252,40 +1359,53 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedData[index].alliance == parsedDataAlliances[i].name){
+        alInd = i;
+        break;
+      }
     }
-    if(Math.floor(Date.now() / 1000) - parsedData[index].lastCrime < 14400){
-      message.reply("".concat("You can commit a crime again in ", new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8)));
-    }
+    if(index == -1) 
+      return message.reply("you haven't created an account yet, please use the `.create` command.");
+    if(Math.floor(Date.now() / 1000) - parsedData[index].lastCrime < 14400) 
+      return message.reply("You can commit a crime again in " + new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8));
     else {
       let oldBalance = parseInt(parsedData[i].money);
       var produced;
-      if(Math.floor(Math.random() * 99) < 5){
+      if(Math.floor(Math.random() * 99) < 6){
         var p = Math.floor(oldBalance * Math.random() * 0.02);
         produced = (p > 50000) ? p : 50000;
       }
       else {
         produced = Math.floor(-1 * (oldBalance * Math.random() * 0.02));
       }
-      var newBalance = oldBalance + produced;
-      parsedData[index].money = newBalance;
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-      if(produced > 1){
-        message.reply("".concat("You successfully worked and gained ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
+      if(alInd = -1){
+        parsedData[index].money += produced;
+        if(produced > 1){
+          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+        }
+        else{
+          message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+        }
       }
-      else{
-        message.reply("".concat("You were unsuccesful and lost ", produced.commafy(), " coins. Your new balance is ", newBalance.commafy(), " coins."));
+      else {
+        if(produced > 1){
+          var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
+          produced -= taxed;
+          parsedDataAlliances[ind].money += taxed;
+          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+        }
+        else{
+          message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+        }
       }
-      if(parsedData[index].autoping == true){
-        reminder(message, "c");
-      }
+      if(parsedData[index].autoping) reminder(message, "c");
     }   
   }
 
-  else if(command === "startbattle" || command == "startduel"){
+  else if(command == "startbattle" || command == "startduel" || command == "duel"){
     if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
@@ -1705,6 +1825,11 @@ function populationWorkLoop(){
     } 
     payoutChannel.send("You have succesfully gained money through the work of your population!");
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
+    for(let i = 0; i < parsedData.length;i++){
+      if(parsedData[i].food == null){
+        parsedData[i].food = 0;
+      }
+    }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     //await Sleep(43200000);
@@ -1797,7 +1922,7 @@ function leaderBoardEmbedFields(p, lb, type){
   return fields;
 }
 
-function useItem(item, index, message){
+function useItem(item, index){
   let rawdataUser = fs.readFileSync('userdata.json');
   var parsedData = JSON.parse(rawdataUser);
   if(!parsedData[index].inventory.includes(item)){
