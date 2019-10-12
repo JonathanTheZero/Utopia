@@ -211,7 +211,7 @@ module.exports = function () {
       let parsedData = JSON.parse(rawdataUser);
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
-        if (parsedData[i].id === member.id) {
+        if (parsedData[i].id == member.id) {
           memberIndex = i;
           break;
         }
@@ -224,7 +224,6 @@ module.exports = function () {
       }
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
-          parsedData[memberIndex].allianceRank = null;
           if (parsedData[memberIndex].allianceRank == "M") {
             parsedDataAlliances[i].members = parsedDataAlliances[i].members.filter(item => item != member.id);
           }
@@ -334,12 +333,8 @@ module.exports = function () {
           break;
         }
       }
-      if (memberIndex == -1) {
-        return "sorry, I couldn't find his user.";
-      }
-      if (parsedData[memberIndex].alliance != null) {
-        return "sorry, this User already joined another alliance.";
-      }
+      if (memberIndex == -1) return "sorry, I couldn't find his user.";
+      if (parsedData[memberIndex].alliance != null) return "sorry, this user already joined another alliance.";
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
           parsedDataAlliances[i].invitedUsers.push(member.id);

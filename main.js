@@ -842,18 +842,9 @@ client.on("message", async message => {
     catch {
       member = searchUserByID(args[0]);
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.invite <mention/ID>`.");
-      return;
-    }
-    if(parsedData[index].allianceRank != "M"){
-      message.reply(inviteToAlliance(message, index, member));
-      return;
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
+    if(parsedData[index].allianceRank != "M") return message.reply(inviteToAlliance(message, index, member));
     else {
       message.reply("only the leader and the co-leaders can send out invites.");
     }
@@ -876,21 +867,10 @@ client.on("message", async message => {
     catch {
       member = searchUserByID(args[0]);
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    if(typeof args[0] === 'undefined'){
-      message.reply("please supply a username with `.fire <mention/ID>`.");
-      return;
-    }
-    if(parsedData[index].allianceRank != "L"){
-      message.reply("only the leader can fire members.");
-      return;
-    }
-    else {
-      message.reply(fire(message, index, member));
-    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
+    if(typeof args[0] === 'undefined') return message.reply("please supply a username with `.fire <mention/ID>`.");
+    if(parsedData[index].allianceRank != "L") return message.reply("only the leader can fire members.");
+    return message.reply(fire(message, index, member));
   }
 
   else if(command == "alliance"){
@@ -939,6 +919,7 @@ client.on("message", async message => {
       coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
     const u = parsedDataAlliances[ind].upgrades;
+    const priv = ((parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private")
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Data for ", alliance),
@@ -972,7 +953,7 @@ client.on("message", async message => {
         },
         {
           name: "Privaty settings:",
-          value: (parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private",
+          value: priv,
           inline: true
         },
         {
@@ -1337,7 +1318,7 @@ client.on("message", async message => {
         var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
         produced -= taxed;
         parsedDataAlliances[alInd].money += taxed;
-        parsedData[index] += produced;
+        parsedData[index].money += produced;
         message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
       }
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
@@ -1428,7 +1409,7 @@ client.on("message", async message => {
     var dInd = -1;
     for(let i = 0; i < battleData.length;i++){
       if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
-        dInd = 0;
+        dInd = i;
         break;
       }
     }
@@ -1439,7 +1420,31 @@ client.on("message", async message => {
   }
 
   else if(command == "dividetroops"){
-    
+    if(typeof args[2] === "undefined") return message.reply("please provde valid parameters following `.dividetroops <infantry> <cavalry> <artillery>`");
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    var dInd = -1;
+    var p1;
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id){
+        p1 = true;
+        dInd = i;
+        break;
+      }
+      if(message.author.id == battleData[i].p2.id){
+        p1 = false;
+        dInd = i;
+        break;
+      }
+    }
+    if(dInd == -1) return message.reply("you're not fighting in any active duel.");
+    const inf = parseInt(args[0]);
+    const cav = parseInt(args[1]);
+    const art = parseInt(args[2]);
+    const tot = inf + cav + art;
+    var player = (p1) ? battleData[dInd].p1 : battleData[dInd].p2;
+    if(tot > player.resources.population) return message.reply("you tried to use " + tot.commafy() + " troop but you only own " + player.resources.population.commafy() + " population.");
+
   }
 });
 
