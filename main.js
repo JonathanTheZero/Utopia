@@ -1852,7 +1852,7 @@ function getLeaderboardList(type){
     return parsedData.sort((a, b) => parseFloat(b.resources.population) - parseFloat(a.resources.population));
   }
   else if(type == "a"){
-    return parsedDataAlliances.sort(sort_by('name', false, function(a){return a.toUpperCase()}));
+    return parsedDataAlliances.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
   else {
     return parsedData.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
@@ -1876,7 +1876,7 @@ function generateLeaderboardEmbed(type, page){
     var lb = getLeaderboardList("a");
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Alliance leaderboard sorted by name, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "a"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -1902,7 +1902,7 @@ function leaderBoardEmbedFields(p, lb, type){
     for(var i = 0; i < h; i++){
       field = {
         name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
-        value: "".concat(lb[i + p * 10].resources.population.commafy(), " population")
+        value: lb[i + p * 10].resources.population.commafy() + " population"
       }
       fields.push(field);
     }
@@ -1910,8 +1910,8 @@ function leaderBoardEmbedFields(p, lb, type){
   else if(type == "a"){
     for(var i = 0; i < h; i++){
       field = {
-        name: "`#" + ((i + 1) + (p * 10)) + "`",
-        value: lb[i + p *10].name,
+        name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p *10].name,
+        value: lb[i + p * 10].money.commafy() + " coins",
       }
       fields.push(field);
     }
@@ -1920,7 +1920,7 @@ function leaderBoardEmbedFields(p, lb, type){
     for(var i = 0; i < h; i++){
       field = {
         name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
-        value: "".concat(lb[i + p * 10].money.commafy(), " coins")
+        value: lb[i + p * 10].money.commafy() + " coins"
       }
       fields.push(field);
     }
