@@ -269,7 +269,7 @@ client.on("message", async message => {
     if(args[0] == "p" || args[0] == "population"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1) : generateLeaderboardEmbed("p", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -278,7 +278,7 @@ client.on("message", async message => {
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
-        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -288,7 +288,7 @@ client.on("message", async message => {
       if(isNumber(args[0])){
         try {
           lbEmbed = generateLeaderboardEmbed("m", args[0]);
-          if(args[0] > Math.floor(getLeaderboardList("m").length / 10)) return message.reply("this isn't a valid page number!");
+          if(args[0] > Math.floor(getLeaderboardList("m").length / 10) + 1) return message.reply("this isn't a valid page number!");
         }
         catch {
           message.reply("that isn't a valid page number!")
@@ -297,7 +297,7 @@ client.on("message", async message => {
       else {
         try {
           lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
-          if(args[1] > Math.floor(getLeaderboardList("m").length / 10)  || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+          if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
         }
         catch {
           message.reply("that isn't a valid page number!")
@@ -469,15 +469,19 @@ client.on("message", async message => {
           value: user.resources.population.commafy(),
         },
         {
-          name: 'Alliance',
-          value: alliance,
-          inline: true,
+          name: "Battle token:",
+          value: user.battleToken.commafy(),
+          inline: true
         },
-        /*{
+        {
           name: "Duels won:",
           value: user.duelsWon.commafy(),
           inline: true,
-        },*/
+        },
+        {
+          name: 'Alliance',
+          value: alliance,
+        },
         {
           name: "Upgrades",
           value: upgrades,
@@ -548,8 +552,6 @@ client.on("message", async message => {
   }
 
   else if(command === "send"){
-    var a = parseInt(args[1])
-    if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     var index = -1;
@@ -565,6 +567,9 @@ client.on("message", async message => {
       if(user.id == parsedData[i].id) index = i;
       if(message.author.id == parsedData[i].id) auInd = i;
     }
+    
+    var a = (args[1] == "a") ? parsedData[index].money : parseInt(args[1]);
+    if(typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't send money to yourself!");
@@ -575,7 +580,6 @@ client.on("message", async message => {
     if(args[1] == "a"){
       parsedData[index].money += parsedData[auInd].money;
       parsedData[auInd].money = 0;
-      a = parsedData[auInd].money;
     }
     else {
       parsedData[index].money += a;
@@ -586,8 +590,6 @@ client.on("message", async message => {
   }
 
   else if(command === "deposit"){
-    var a = parseInt(args[0])
-    if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <amount>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
     let parsedData = JSON.parse(rawdataUser);
     let rawdataAlliances = fs.readFileSync('alliances.json');
@@ -606,6 +608,8 @@ client.on("message", async message => {
         break;
       }
     }
+    var a = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.deposit <amount>`.");
     if(index == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if(parsedData[index].alliance == null) return message.reply("you haven't joined an alliance yet!");
     if(a == null || a < 1) return message.reply("this isn't a valid amount.");
@@ -613,7 +617,6 @@ client.on("message", async message => {
     if(args[1] == "a"){
       parsedDataAlliances[alInd].money += parsedData[index].money;
       parsedData[index].money = 0;
-      a = parsedData[index].money;
     }
     else {
       parsedDataAlliances[alInd].money += a;
@@ -795,7 +798,7 @@ client.on("message", async message => {
     }
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
-    if(typeof args[0] === "undefined" || parseInt(args[0]) > 90 || parseInt(args[0]) < 0) return message.reply("please provide a valid number following `.settax <0-90>`.")
+    if(typeof args[0] === "undefined" || parseInt(args[0]) > 90 || parseInt(args[0]) < 0 || isNaN(parseInt(args[0]))) return message.reply("please provide a valid number following `.settax <0-90>`.")
     if(parsedData[index].allianceRank != "M") return message.reply(setAllianceTax(index, parseInt(args[0])));
     else {
       message.reply("Only the Leader and the Co-Leaders can set the alliance status");
@@ -1217,6 +1220,9 @@ client.on("message", async message => {
       helpEmbed.title = "Moderation help"
       helpEmbed.description = "The bot role needs to be ranked above the roles of the other users in order for these commands to work.";
     }
+    else if(args[0] == "battle"){
+      helpEmbed = battle.battleHelpEmbed;
+    }
     message.channel.send({ embed: helpEmbed });
   }
 
@@ -1306,7 +1312,7 @@ client.on("message", async message => {
       return;
     }
     if(Math.floor(Date.now() / 1000) - parsedData[index].lastWorked < 1800){
-      message.reply("".concat("You can work again in ", new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
+      message.reply("You can work again in " + (new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
     }
     else {
       var produced = Math.floor(Math.random() * 10000);
@@ -1387,65 +1393,7 @@ client.on("message", async message => {
     }   
   }
 
-  else if(command == "startbattle" || command == "startduel" || command == "duel"){
-    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
-    var index = -1;
-    var auInd = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.mentions.users.first().id == parsedData[i].id) index = i;
-      if(message.author.id == parsedData[i].id) auInd = i;
-    }
-    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
-    if(index == -1) return message.reply("this user hasn't created an account yet.");
-    if(index == auInd) return message.reply("you can't battle yourself!");
-    battle.startbattle(auInd, index);
-  }
 
-  else if(command === "cancelduel"){
-    let rawdataBattle = fs.readFileSync('activebattles.json');
-    let battleData = JSON.parse(rawdataBattle);
-    var dInd = -1;
-    for(let i = 0; i < battleData.length;i++){
-      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
-        dInd = i;
-        break;
-      }
-    }
-    if(dInd == -1) return message.reply("there is no active duel you could cancel.");
-    message.reply("the running duel between <@" + battleData[dInd].p1.id + "> and <@" + battleData[dInd].p2.id + "> has been cancelled.");
-    battleData.splice(i, 1);
-    fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
-  }
-
-  else if(command == "dividetroops"){
-    if(typeof args[2] === "undefined") return message.reply("please provde valid parameters following `.dividetroops <infantry> <cavalry> <artillery>`");
-    let rawdataBattle = fs.readFileSync('activebattles.json');
-    let battleData = JSON.parse(rawdataBattle);
-    var dInd = -1;
-    var p1;
-    for(let i = 0; i < battleData.length;i++){
-      if(message.author.id == battleData[i].p1.id){
-        p1 = true;
-        dInd = i;
-        break;
-      }
-      if(message.author.id == battleData[i].p2.id){
-        p1 = false;
-        dInd = i;
-        break;
-      }
-    }
-    if(dInd == -1) return message.reply("you're not fighting in any active duel.");
-    const inf = parseInt(args[0]);
-    const cav = parseInt(args[1]);
-    const art = parseInt(args[2]);
-    const tot = inf + cav + art;
-    var player = (p1) ? battleData[dInd].p1 : battleData[dInd].p2;
-    if(tot > player.resources.population) return message.reply("you tried to use " + tot.commafy() + " troop but you only own " + player.resources.population.commafy() + " population.");
-
-  }
 });
 
 
@@ -1456,10 +1404,7 @@ function createUser(msg){
   let parsedData = JSON.parse(rawdataUser);
   try{
     for(var i = 0; i < parsedData.length; i++){
-      if(msg.author.id == parsedData[i].id){
-        msg.reply("you already have an registered account!");
-        return;
-      }
+      if(msg.author.id == parsedData[i].id) return msg.reply("you already have an registered account!");
     }
   }
   catch {}
@@ -1483,7 +1428,9 @@ function createUser(msg){
         misc: []
       },
       inventory: [],
-      duelsWon: 0
+      duelsWon: 0,
+      battleToken: 0,
+      tokenUsed: false
   }
   parsedData.push(data);
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
@@ -1798,7 +1745,7 @@ function populationWorkLoop(){
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
-      parsedData[i].money += Math.floor(pop / Math.floor((Math.random() * 10) + 15));
+      parsedData[i].money += Math.floor(pop / rangeInt(10, 20));
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
@@ -1827,14 +1774,16 @@ function populationWorkLoop(){
         }
         catch {}
       }
-      console.log("Factor: " + (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))) + "(" + parsedData[i].tag + ")");
+      //console.log("Factor: " + (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))) + "(" + parsedData[i].tag + ")");
+      parsedData[i].tokenUsed = false;
     } 
     payoutChannel.send("You have succesfully gained money through the work of your population!");
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
     for(let i = 0; i < parsedData.length;i++){
-      if(parsedData[i].food == null){
-        parsedData[i].food = 0;
+      if(parsedData[i].resources.food == null){
+        parsedData[i].resources.food = 0;
       }
+      parsedData[i].battleToken = false;
     }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
