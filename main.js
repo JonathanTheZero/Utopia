@@ -48,15 +48,22 @@ client.on("ready", () => {
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
-  /*
-    let rawdataUser = fs.readFileSync('userdata.json');
+  
+  /*let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
-    if(parsedData[i].food == null){
-      parsedData[i].food = 0;
-    }
+    parsedData[i].upgrades.battle.iA = 0;
+    parsedData[i].upgrades.battle.iD = 0;
+    parsedData[i].upgrades.battle.cA = 0;
+    parsedData[i].upgrades.battle.cD = 0;
+    parsedData[i].upgrades.battle.aA = 0;
+    parsedData[i].upgrades.battle.aD = 0;
+    parsedData[i].battleToken = 0;
+    parsedData[i].tokenUsed = false;
+    parsedData[i].duelsWon = 0;
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  /*
     let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
@@ -118,7 +125,14 @@ client.on("message", async message => {
   if(message.author.bot) return;
   
   if(message.content.indexOf(config.prefix) !== 0) return;
-
+  else {
+    var bsRaw = fs.readFileSync("botstats.json");
+    var bs = JSON.parse(bsRaw);
+    bs.commandsRun++;
+    bs.activeServers = client.guilds.size;
+    bs.users = client.users.size;
+    fs.writeFileSync("botstats.json", JSON.stringify(bs, null, 2))
+  }
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
 
@@ -366,6 +380,21 @@ client.on("message", async message => {
     else if(args[0] == "mixed" && args[1] == "farming"){
       message.reply(buyItemAlliance("MF", index, 7500000, 3));
     }
+    else if(args[0] == "better" && args[1] == "armors"){
+      message.reply(buyBattleUpgrade(index, 0, 2, 0, 1, 0, 0, 4));
+    }
+    else if(args[0] == "harder" && args[1] == "steel"){
+      message.reply(buyBattleUpgrade(index, 1, 1, 1, 1, 1, 1, 10));
+    }
+    else if(args[0] == "arabic" && args[1] == "horses"){
+      message.reply(buyBattleUpgrade(index, 0, 0, 2, 2, 0, 0, 6));
+    }
+    else if(args[0] == "heavy" && args[1] == "artillery"){
+      message.reply(buyBattleUpgrade(index, 0, 0, 0, 0, 2, 2, 8));
+    }
+    else if(args[0] == "better" && args[1] == "army" && args[2] == "management"){
+      message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
+    }
   }
 
   else if(command == "use"){
@@ -446,7 +475,7 @@ client.on("message", async message => {
       if(user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
       if(user.upgrades.population.includes("US")) upgrades += ", US"
     }
-
+    const bu = user.upgrades.battle
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
       title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
@@ -465,7 +494,7 @@ client.on("message", async message => {
           inline: true,
         },
         {
-          name: "Population",
+          name: "Population:",
           value: user.resources.population.commafy(),
         },
         {
@@ -479,12 +508,18 @@ client.on("message", async message => {
           inline: true,
         },
         {
-          name: 'Alliance',
+          name: 'Alliance:',
           value: alliance,
         },
         {
-          name: "Upgrades",
+          name: "Upgrades:",
           value: upgrades,
+        },
+        {
+          name: "Battle bonuses:",
+          value: `+${bu.iA} Att/+${bu.iD} Def for Infantry
+          +${bu.cA} Att/+${bu.cD} Def for Cavallry
+          +${bu.aA} Att/+${bu.aD} Def for Artillery`
         }
       ],
       timestamp: new Date(),
@@ -1086,6 +1121,10 @@ client.on("message", async message => {
           value: "type `.help alliance` to view the alliance help menu",
         },
         {
+          name: "Battle help",
+          value: "type `.help battle` to view the battle help menu",
+        },
+        {
           name: "Miscellaneous help:",
           value: "type `.help misc` to view the help menu for everything else",
         },
@@ -1107,7 +1146,8 @@ client.on("message", async message => {
       helpEmbed.fields[1].name = "`.me` or `.stats [mention/ID/ID]`"
       helpEmbed.fields[1].value = "View your stats or these of other players."
       helpEmbed.fields[3].value = "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
-      helpEmbed.fields[3].name = "`.crime`"
+      helpEmbed.fields[3].name = "`.crime`";
+      helpEmbed.fields.pop();
       field4 = {
         name: "`.lb` or `.leaderboard [type] [page]`",
         value: "View the global leaderboard. Allowed types are 'allaince', 'money' and 'population'.",
@@ -1146,6 +1186,7 @@ client.on("message", async message => {
       helpEmbed.fields[0].value ="Leave your current alliance";
       helpEmbed.fields[1].name = "`.joinalliance <name>`";
       helpEmbed.fields[1].value = "Join an alliance";
+      helpEmbed.fields.pop();
       helpEmbed.fields.pop();
       field3 = {
         name: "`.promote <mention/ID>` (Leader only)",
@@ -1201,6 +1242,8 @@ client.on("message", async message => {
       helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
       helpEmbed.fields[2].name = "`.invitelink`";
       helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
+      helpEmbed.fields[3].name = "`.patreon`";
+      helpEmbed.fields[3].value = "Support the bot on Patreon!";
       helpEmbed.fields.pop();
       field3 = {
         name: "`.server`",
@@ -1220,7 +1263,7 @@ client.on("message", async message => {
       helpEmbed.title = "Moderation help"
       helpEmbed.description = "The bot role needs to be ranked above the roles of the other users in order for these commands to work.";
     }
-    else if(args[0] == "battle"){
+    else if(["battle", "battles", "b"].includes(args[0])){
       helpEmbed = battle.battleHelpEmbed;
     }
     message.channel.send({ embed: helpEmbed });
@@ -1234,6 +1277,9 @@ client.on("message", async message => {
     }
     else if(a.includes(args[0])){
       storeEmbed = createStoreEmbed(message, "a", args);
+    }
+    else if(["battle", "battles", "b"].includes(args[0])){
+      storeEmbed = createStoreEmbed(message, "b", args)
     }
     else {
       storeEmbed = createStoreEmbed(message, "s", args);
@@ -1279,6 +1325,10 @@ client.on("message", async message => {
     var s = (!parsedData[index].payoutDMs) ? "you successfully disabled payout DMs." : "you succesfully enabled payout DMS.";
     message.reply(s);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
+  else if(command == "patreon" || command == "donate"){
+    return message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot")
   }
 
   else if(command === "work"){
@@ -1361,7 +1411,7 @@ client.on("message", async message => {
       let oldBalance = parseInt(parsedData[i].money);
       var produced;
       if(Math.floor(Math.random() * 99) < 6){
-        var p = Math.floor(oldBalance * Math.random() * 0.02);
+        var p = Math.floor(oldBalance * Math.random() * 0.03);
         produced = (p > 50000) ? p : 50000;
       }
       else {
@@ -1369,7 +1419,7 @@ client.on("message", async message => {
       }
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
-      if(alInd = -1){
+      if(alInd == -1){
         parsedData[index].money += produced;
         if(produced > 1){
           message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
@@ -1392,7 +1442,137 @@ client.on("message", async message => {
       if(parsedData[index].autoping) reminder(message, "c");
     }   
   }
+  else if(command == "startbattle" || command == "startduel" || command == "duel"){
+    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    var auInd = -1;
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
+        return message.reply("you are already fighting in an active duel!")
+      }
+    }
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.mentions.users.first().id == parsedData[i].id) index = i;
+      if(message.author.id == parsedData[i].id) auInd = i;
+    }
+    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(index == -1) return message.reply("this user hasn't created an account yet.");
+    if(index == auInd) return message.reply("you can't battle yourself!");
+    battle.startbattle(auInd, index, message.channel.id);
+  }
 
+  else if(command === "cancelduel"){
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    var dInd = -1;
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
+        dInd = i;
+        break;
+      }
+    }
+    if(dInd == -1) return message.reply("there is no active duel you could cancel.");
+    message.reply("the running duel between <@" + battleData[dInd].p1.id + "> and <@" + battleData[dInd].p2.id + "> has been cancelled.");
+    battleData.splice(i, 1);
+    fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+  }
+
+  else if(command == "dividetroops" || command == "divtroops"){
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    var dInd = -1;
+    var p1;
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id){
+        p1 = true;
+        dInd = i;
+        break;
+      }
+      if(message.author.id == battleData[i].p2.id){
+        p1 = false;
+        dInd = i;
+        break;
+      }
+    }
+    let rawdataUser = fs.readFileSync("userdata.json");
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(let i = 0;i<parsedData.length;i++){
+      if(parsedData[i].id == message.author.id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1) return message.reply("you haven't created an account yet, please use `.create` first.");
+    if(dInd == -1) return message.reply("you're not fighting in any active duel.");
+    const inf = parseInt(args[0]);
+    const cav = parseInt(args[1]);
+    const art = parseInt(args[2]);
+    if(isNaN(inf) || isNaN(cav) || isNaN(art) || inf < 0 || cav < 0 || art < 0 || typeof args[2] === "undefined") return message.reply("please provde valid parameters following `.dividetroops <infantry> <cavalry> <artillery>`");
+    const tot = (inf + cav + art) * 1000;
+    var player = (p1) ? battleData[dInd].p1 : battleData[dInd].p2;
+    if(player.ready) return message.reply("error, you already locked your decision.");
+    if(tot > player.resources.population) return message.reply("you tried to use " + tot.commafy() + " troops but you only own " + player.resources.population.commafy() + " population.");
+    player.troops.inf = inf;
+    player.troops.cav = cav;
+    player.troops.art = art;
+    let consump = inf * 20 + cav * 300 + art * 500;
+    let cost = inf * 50 + cav * 100 + art * 1000;
+    if(cost > parsedData[index].money) return message.reply(`choosing this troops would cost you ${cost.commafy()} but you only own ${parsedData[index].money.commafy()}`);
+    parsedData[index].resources.population -= tot;
+    parsedData[index].money -= cost;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+    message.reply(`succesfully set ${(inf*1000).commafy()} Infantry, ${(cav*1000).commafy()} Cavalry and ${(art*1000).commafy()} Artillery. Run this command with different parameters again if you want to change your division or use \`.ready\` to lock it.\n` + 
+      `Your Troops will consume approximately ${consump.commafy()} food per round and cost you ${cost.commafy()}`);
+  }
+
+  else if(command == "troopinfo"){
+    message.channel.send({embed: battle.troopInfoEmbed});
+  }
+
+  else if(command == "ready"){
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    var dInd = -1;
+    var p1;
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id){
+        p1 = true;
+        dInd = i;
+        break;
+      }
+      if(message.author.id == battleData[i].p2.id){
+        p1 = false;
+        dInd = i;
+        break;
+      }
+    }
+    if(dInd == -1) return message.reply("there is no active duel you could cancel.");
+    if(p1){
+      battleData[dInd].p1.ready = true;
+      fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+      if(battleData[dInd].p2.ready) battle.battleMatch(dInd);
+      else {
+        message.channel.send("Waiting for your opponent... \nPlease return to the previous channel, where the battle was started");
+      }
+    }
+    else if(!p1){
+      battleData[dInd].p2.ready = true;
+      fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+      if(battleData[dInd].p1.ready) battle.battleMatch(dInd);
+      else {
+        message.channel.send("Waiting for your opponent...");
+      }
+    }
+    else {
+      return message.reply("an error occured.");
+    }
+  }
 
 });
 
@@ -1425,7 +1605,15 @@ function createUser(msg){
       },
       upgrades: {
         population: [],
-        misc: []
+        misc: [],
+        battle: {
+          iA: 0,
+          iD: 0,
+          cA: 0,
+          cD: 0,
+          aA: 0,
+          aD: 0,
+        }
       },
       inventory: [],
       duelsWon: 0,
@@ -1467,14 +1655,14 @@ async function reminder(msg, type){
   else {
     console.log("Error, no valid parameter for the reminder function.");
   }
-  
 }
 
 function createStoreEmbed(message, type, args){
   /* p = population
   *  s = store (default)
   *  a = alliance
-  */
+  *  b = battles
+  */ 
   if(type == "p"){
     var user = searchUser(message);
     const newEmbed = {
@@ -1590,9 +1778,49 @@ function createStoreEmbed(message, type, args){
     };
     return newEmbed;
   }
-  else if(type == "s"){
+  else if(type == "b"){
     var user = searchUser(message);
     const newEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: 'Store',
+      description: 'Welcome to the battle store! Here you can buy Upgrades for you troops to use in a battle!\nItems are used immidiately and can be purchased **multiple** times.' ,
+      thumbnail: {
+        url: `${message.author.displayAvatarURL}`,
+      },
+      fields: [
+        {
+          name: "Your battle tokens:",
+          value: user.battleToken,
+        },
+        {
+          name: "Better armors",
+          value: "+2 Def for your Infantry and +1 Def for your Cavalry\nPrice: 4 Battle tokens"
+        },
+        {
+          name: "Harder Steel",
+          value: "+1 on all Att and Def\nPrice: 10 Battle tokens"
+        },
+        {
+          name: "Arabic horses",
+          value: "+2 on Att and Def for Cavalry\nPrice: 6 Battle tokens"
+        },
+        {
+          name: "Heavy Artillery",
+          value: "+2 on Att and Def for Artillery\nPrice: 8 Battle tokens"
+        },
+        {
+          name: "Better army management",
+          value: "+1 on Infantry Att and Def, +1 on Artillery Att\nPrice: 6 Battle tokens"
+        }
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+    return newEmbed;
+  }
+  else if(type == "s"){
+    var user = searchUser(message);
+    return {
       color: parseInt(config.properties.embedColor),
       title: 'Store',
       description: 'Welcome to the store! \n' +
@@ -1603,11 +1831,15 @@ function createStoreEmbed(message, type, args){
       fields: [
         {
           name: 'Population store',
-          value: "".concat('Type `', config.prefix, "store population` to view the population store"),
+          value: "Type `.store population` to view the population store",
         },
         {
           name: 'Alliance store',
-          value: "".concat('Type `', config.prefix, "store alliance` to view the alliance store"), 
+          value: "Type `.store alliance` to view the alliance store", 
+        },
+        {
+          name: "Battle store",
+          value: "Type `.store battle` to view the battle store",
         },
         {
           name: 'A pack of food',
@@ -1617,8 +1849,7 @@ function createStoreEmbed(message, type, args){
       ],
       timestamp: new Date(),
       footer: config.properties.footer,
-    };
-    return newEmbed;
+    }
   }
 }
 
@@ -1926,4 +2157,20 @@ function buyItem(item, index, price){
     return "you successfully bought the item.";
   }
   return "You don't have enough money to buy that item.";
+}
+
+function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
+  let rawdataUser = fs.readFileSync('userdata.json');
+  var parsedData = JSON.parse(rawdataUser);
+  if(price > parsedData[index].battleToken) return `this items costs ${price} Battle tokens! You only own ${parsedData[index].battleToken}`;
+  b = parsedData[index].upgrades.battle;
+  b.iA += iA;
+  b.iD += iD;
+  b.cA += cA;
+  b.cD += cD;
+  b.aA += aA;
+  b.aD += aD;
+  parsedData[index].battleToken -= price;
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  return "you succesfully bought the upgrade!";
 }

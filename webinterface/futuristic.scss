@@ -1,0 +1,293 @@
+
+$gray: rgb(255, 255, 255);
+$blue: rgb(120, 200, 255);
+$dark-blue: rgb(120, 200, 255);
+$green: rgb(100, 200, 100);
+$red: rgb(255, 120, 120);
+$dark-red: rgb(120, 0, 0);
+$black: rgb(0, 0, 0);
+$yellow: rgb(255, 200, 0);
+
+.futurepanel {  
+  $font-stack: 'Exo 2', Arial, sans-serif;
+  $font-size: 14px;
+  $base-color: $blue;
+  $background-color: rgba($base-color, .1);
+  $border-color: rgba($base-color, .2);
+  $text-color: rgba($base-color, .8);
+  box-sizing: border-box;
+  display: inline-block;
+  font: normal 100 #{$font-size}/1.2em $font-stack;
+  letter-spacing: .06em;
+  background-color: $background-color;
+  border: 1px solid $border-color;
+  color: $text-color;
+  padding: 0 1em 1em;
+
+  .futurepanel__header {
+    box-sizing: border-box;
+    border-bottom: 1px solid $border-color;
+  }
+  .futurepanel__title {
+    box-sizing: border-box;
+    font: normal 100 1.429em/1em $font-stack;
+    text-transform: uppercase;
+    padding: .4em 0;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .futurepanel__body {
+    box-sizing: border-box;
+    padding: 1em;
+  }
+  .futurepanel__divider {
+    box-sizing: border-box;
+    height: .6em;
+    margin-top: .6em;
+    border-top: 1px solid $border-color;
+  }
+  .futurepanel__footer {
+    box-sizing: border-box;
+    height: 2em;
+    font-size: .8em;
+    color: $border-color;
+  }
+}
+
+.futureinput {
+  $font-stack: 'Exo 2', Arial, sans-serif;
+  $font-size: 16px;
+  $base-color: $blue;
+  $background-color: rgba($base-color, .1);
+  $border-color: rgba($base-color, .2);
+  $text-color: rgba($base-color, .8);
+  $text-color-muted: rgba($base-color, .5);
+  $text-color-error: rgba($red, .8);
+  font: normal 100 #{$font-size}/1.2em $font-stack;
+  letter-spacing: .06em;
+  color: $text-color;
+  margin: 0;  
+  padding: 0;
+  
+  label {
+    font: normal 100 1em/1.8em $font-stack;
+    margin: 0 0 4em 0;
+  }
+  label.required:after {
+    display: relative;
+    content: '*';
+    padding-left: .2em;
+    color: $text-color-error;
+    font: normal 100 1em/1.8em $font-stack;
+  }
+  input[type="text"] {
+    font: normal 100 1em/2.4em $font-stack;
+    background-color: rgba($base-color, .1);
+    border: 1px solid rgba($base-color, .2);
+    color: rgba($base-color, .8);
+    height: 2.4em;
+    box-sizing: border-box;
+    padding: 0 .8em;
+    letter-spacing: .06em;
+    width: 100%;
+  }
+  input[type="text"]:focus {
+    background-color: rgba($base-color, .2);
+    border: 1px solid rgba($base-color, .3);
+    color: rgba($base-color, .9);
+    outline: none;
+  }
+  input[type="text"]::-webkit-input-placeholder {
+    color: $text-color-muted;
+    font: normal 100 1em/2.4em $font-stack;
+  }
+  input[type="text"]:-moz-placeholder {
+    color: $text-color-muted;
+    font: normal 100 1em/2.4em $font-stack;
+  }
+  input[type="text"][disabled] {
+    background-color: rgba($base-color, .04);
+    border: 1px solid rgba($base-color, .06);
+    color: rgba($base-color, .2);
+    cursor: not-allowed;
+  }
+  input[type="text"][disabled]::-webkit-input-placeholder {
+    color: rgba($base-color, .2);
+  }
+  input[type="text"][disabled]:-moz-placeholder {
+    color: rgba($base-color, .2);
+  }  
+  .futureinput__help {
+    display: block;
+    font: normal 100 .8em/1.2em $font-stack;    
+    padding: .6em 0;
+    color: $text-color-muted;
+  }
+  .futureinput__error {
+    display: block;
+    font: normal 100 .8em/1.2em $font-stack;
+    text-transform: uppercase;
+    padding: .6em 0;
+    color: $text-color-error;
+  }
+}
+
+.futurebutton {
+  $font-stack: 'Exo 2', Arial, sans-serif;
+  $font-size: 14px;
+  $base-color: $blue;
+  $background-color: rgba($base-color, .6);
+  $border-color: rgba($base-color, .2);
+  $text-color: rgba($gray, .8);
+  font: normal 300 #{$font-size}/1.2em $font-stack;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: $text-color;
+  margin: 1px; 
+  padding: .4em 1em;
+  border: 1px solid $border-color;
+  background-color: $background-color;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba($base-color, .4);
+    color: rgba($gray, .6);
+  }
+  &[disabled] {
+    background-color: rgba($base-color, .2);
+    border: 1px solid rgba($base-color, .1);
+    color: rgba($gray, .3);
+    cursor: not-allowed;
+  }  
+}
+
+.futurebutton--alert {
+  background-color: rgba($dark-red, .9);
+  border: 1px solid rgba($red, .4);
+  color: rgba($gray, .8);
+  &:hover {
+    background-color: rgba($dark-red, .9);
+    color: rgba($gray, .8);
+  }
+  &[disabled] {
+    background-color: rgba($dark-red, .2);
+    border: 1px solid rgba($red, .2);
+    color: rgba($gray, .4);  
+  }
+}
+
+.futuremetric {
+  $font-stack: 'Exo 2', Arial, sans-serif;
+  $font-size: 14px;
+  $base-color: $blue;
+  $border-color: rgba($base-color, .4);
+  $text-color: rgba($blue, .8);
+  
+  font: normal 300 #{$font-size}/1.2em $font-stack;
+  box-sizing: border-box;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border: 1px solid $border-color;
+  color: $text-color;
+  height: 6em;
+  width: 6em;
+  margin: 0;
+  padding: .4em;
+  text-align: center;
+  border-radius: 50%;
+  .futuremetric__value {
+    font: normal 300 2em/1.2em $font-stack;
+    margin-top: .4em;
+  }
+  .futuremetric__value--optimal {
+    color: rgba($green, .8);
+  }
+  .futuremetric__value--optimal:hover {
+    color: $green;
+  }
+  .futuremetric__value--warning {
+    color: rgba($yellow, .8);
+  }
+  .futuremetric__value--warning:hover {
+    color: $yellow;
+  }
+  .futuremetric__value--alert {
+    color: rgba($red, .8);
+  }
+  .futuremetric__value--alert:hover {
+    color: $red;
+  }
+  .futuremetric__label {
+    font-size: .8em;    
+  }  
+}
+
+.futuregrid {
+  $font-stack: 'Exo 2', Arial, sans-serif;
+  $font-size: 14px;
+  $base-color: $blue;
+  $border-color: rgba($base-color, .4);
+  $text-color: rgba($blue, .8);
+  
+  font: normal 300 #{$font-size}/1.2em $font-stack;
+  box-sizing: border-box;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border: 1px solid $border-color;
+  color: $text-color;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  
+  .futuregrid__cell {
+    display: inline-block;
+    box-sizing: border-box;
+    margin: 0;
+    border-right: 1px solid $border-color; 
+    border-bottom: 1px solid $border-color;
+    height: 3.6em;
+    width: 3.6em;
+    text-align: center;
+  }
+  
+}
+
+
+.heading {
+  font: normal 100 12px/1.2em 'Exo 2', Arial, sans-serif;
+  text-transform: uppercase;
+  padding: 0;
+  margin: 0;
+}
+h6.heading {
+  font-size: 1em;
+}
+h5.heading {
+  font-size: 1.143em;
+}
+h4.heading {
+  font-size: 1.286em;
+}
+h3.heading {
+  font-size: 1.429em;
+}
+h2.heading {
+  font-size: 1.714em;
+}
+h1.heading {
+  font-size: 2em;
+  border-bottom: 1px solid rgba(0, 255, 255, .2);
+}
+
+body {
+  background-color: #012;
+}
+body > * {
+  width: 24%;
+  margin: .4%;
+  vertical-align: top;
+}
+
