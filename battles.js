@@ -34,6 +34,7 @@ function startbattle(index, oppIndex, channelID) {
         population: parsedData[index].resources.population
       },
       ready: false,
+      costs: 0,
     },
     p2: {
       id: parsedData[oppIndex].id,
@@ -49,13 +50,14 @@ function startbattle(index, oppIndex, channelID) {
         population: parsedData[oppIndex].resources.population
       },
       ready: false,
+      costs: 0,
     },
     channelID: channelID,
     startedAt: Math.floor(Date.now() / 1000),
   }
   battleData.push(newBattle);
-  parsedData[oppIndex].resources.food -= parsedData[oppIndex].resources.food * 0.85;
-  parsedData[index].resources.food = parsedData[index].resources.food * 0.85;
+  parsedData[oppIndex].resources.food -= Math.floor(parsedData[oppIndex].resources.food * 0.95);
+  parsedData[index].resources.food -= Math.floor(parsedData[index].resources.food * 0.95);
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
   startBattleSelection(parsedData[index].id, true);
@@ -68,7 +70,7 @@ const battleHelpEmbed = {
   description: "This guide will guide you through the battle process in the right order.\n" +
     "Battles are working round-based and there are three types of troops exisitng: Infantry, Cavalry and Artillery. Each of them have their own pros and cons.\n" +
     "Each round a random effect occurs and influences the battle. They can affect both, only one or no players and can be positive or negative.\n" + 
-    "If you win a duel, you get a duel token (you can claim one every 12h). You can use those to buy buffs in the battle shop.",
+    "If you win a duel, you get a duel token (you can get one every 12h). You can use those to buy buffs in the battle shop. The winner also gets his money back and gets 5% of the remaining population of the Loser",
   fields: [
     {
       name: "`.duel <mention>` or `.startbattle <mention>`",
@@ -272,9 +274,11 @@ async function battleMatch(index){
         parsedData[i].battleToken++;
       } 
       parsedData[i].resources.food += battleData[index].p1.resources.food;
-      parsedData[i].resources.population += (battleData[index].p1.troops.inf + battleData[index].p1.troops.cav + battleData[index].p1.troops.art)*1000;
+      parsedData[i].resources.population += (battleData[index].p1.troops.inf + battleData[index].p1.troops.cav + battleData[index].p1.troops.art)*1000
+        + searchUserByID(battleData[index].p2.id).resources.population * 0.05;
       parsedData[i].tokenUsed = true;
       parsedData[i].duelsWon++;
+      parsedData[i].money += parsedData[index].p1.costs;
       channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p1.tag}`}});
     }
     if(!winnerP1 && battleData[index].p2.id == parsedData[i].id){
@@ -282,9 +286,11 @@ async function battleMatch(index){
         parsedData[i].battleToken++;
       }
       parsedData[i].resources.food += battleData[index].p2.resources.food;
-      parsedData[i].resources.population += (battleData[index].p2.troops.inf + battleData[index].p2.troops.cav + battleData[index].p2.troops.art)*1000;
+      parsedData[i].resources.population += (battleData[index].p2.troops.inf + battleData[index].p2.troops.cav + battleData[index].p2.troops.art)*1000
+        + searchUserByID(battleData[index].p1.id).resources.population * 0.05;;
       parsedData[i].tokenUsed = true;
       parsedData[i].duelsWon++;
+      parsedData[i].money += parsedData[index].p2.costs;
       channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p2.tag}`}});
     }  
   }

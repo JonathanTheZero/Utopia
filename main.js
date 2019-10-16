@@ -67,7 +67,7 @@ client.on("ready", () => {
     let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
-    parsedData[i].money = Math.floor(parsedData[i].money);
+    parsedData[i].resources.food = Math.floor(parsedData[i].resources.food);
     console.log(parsedData[i].tag);
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));*/
@@ -172,9 +172,9 @@ client.on("message", async message => {
     }  
 
     // Let's first check if we have a member and if we can kick them!
-    // message.mention/IDs.members is a collection of people that have been mention/IDed, as GuildMembers.
+    // message.mentions.members is a collection of people that have been mention/IDed, as GuildMembers.
     // We can also support getting the member by ID, which would be args[0]
-    let member = message.mention/IDs.members.first() || message.guild.members.get(args[0]);
+    let member = message.mentions.members.first() || message.guild.members.get(args[0]);
     if(!member)
       return message.reply("Please mention/ID a valid member of this server");
     if(!member.kickable) 
@@ -203,7 +203,7 @@ client.on("message", async message => {
     }
 
 
-    let member = message.mention/IDs.members.first();
+    let member = message.mentions.members.first();
     if(!member)
       return message.reply("Please mention/ID a valid member of this server");
     if(!member.bannable) 
@@ -293,6 +293,15 @@ client.on("message", async message => {
       try {
         lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
         if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+      }
+      catch {
+        message.reply("that isn't a valid page number!")
+      }
+    }
+    else if(["wins", "duels", "w"].includes(args[0])){
+      try {
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("w", 1) : generateLeaderboardEmbed("w", args[1]);
+        if(args[1] > Math.floor(getLeaderboardList("w").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         message.reply("that isn't a valid page number!")
@@ -517,9 +526,9 @@ client.on("message", async message => {
         },
         {
           name: "Battle bonuses:",
-          value: `+${bu.iA} Att/+${bu.iD} Def for Infantry
-          +${bu.cA} Att/+${bu.cD} Def for Cavallry
-          +${bu.aA} Att/+${bu.aD} Def for Artillery`
+          value: `+${bu.iA} Att/+${bu.iD} Def for Infantry` +
+          `+${bu.cA} Att/+${bu.cD} Def for Cavallry` +
+          `+${bu.aA} Att/+${bu.aD} Def for Artillery`
         }
       ],
       timestamp: new Date(),
@@ -1150,7 +1159,7 @@ client.on("message", async message => {
       helpEmbed.fields.pop();
       field4 = {
         name: "`.lb` or `.leaderboard [type] [page]`",
-        value: "View the global leaderboard. Allowed types are 'allaince', 'money' and 'population'.",
+        value: "View the global leaderboard. Allowed types are 'allaince', 'wins', 'money' and 'population'.",
       }
       field5 = {
         name: "`.shop` or `.store [category]`",
@@ -1468,6 +1477,8 @@ client.on("message", async message => {
   else if(command === "cancelduel" || command == "cancelbattle"){
     let rawdataBattle = fs.readFileSync('activebattles.json');
     let battleData = JSON.parse(rawdataBattle);
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
     var dInd = -1;
     for(let i = 0; i < battleData.length;i++){
       if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
@@ -1481,14 +1492,12 @@ client.on("message", async message => {
       if(battleData[dInd].p1.id == parsedData[i].id){
         parsedData[i].resources.food += battleData[dInd].p1.resources.food;
         parsedData[i].resources.population += (battleData[dInd].p1.troops.inf + battleData[dInd].p1.troops.cav + battleData[dInd].p1.troops.art)*1000;
-        parsedData[i].tokenUsed = true;
-        parsedData[i].duelsWon++;
+        parsedData[i].money += parsedData[dInd].p1.costs;
       }
       if(battleData[dInd].p2.id == parsedData[i].id){
         parsedData[i].resources.food += battleData[dInd].p2.resources.food;
         parsedData[i].resources.population += (battleData[dInd].p2.troops.inf + battleData[dInd].p2.troops.cav + battleData[dInd].p2.troops.art)*1000;
-        parsedData[i].tokenUsed = true;
-        parsedData[i].duelsWon++;
+        parsedData[i].money += parsedData[dInd].p1.costs;
       }  
     }
     battleData.splice(dInd, 1);
@@ -1540,6 +1549,7 @@ client.on("message", async message => {
     if(cost > parsedData[index].money) return message.reply(`choosing this troops would cost you ${cost.commafy()} but you only own ${parsedData[index].money.commafy()}`);
     parsedData[index].resources.population -= tot;
     parsedData[index].money -= cost;
+    player.costs = cost;
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
     message.reply(`succesfully set ${(inf*1000).commafy()} Infantry, ${(cav*1000).commafy()} Cavalry and ${(art*1000).commafy()} Artillery. Run this command with different parameters again if you want to change your division or use \`.ready\` to lock it.\n` + 
@@ -2050,6 +2060,9 @@ function getLeaderboardList(type){
   else if(type == "a"){
     return parsedDataAlliances.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
+  else if(type == "w"){
+    return parsedData.sort((a,b) => parseFloat(b.duelsWon) - parseFloat(a.duelsWon));
+  }
   else {
     return parsedData.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
@@ -2074,6 +2087,16 @@ function generateLeaderboardEmbed(type, page){
       color: parseInt(config.properties.embedColor),
       title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "a"),
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+  }
+  else if(type == "w"){
+    var lb = getLeaderboardList("w");
+    lbEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      fields: leaderBoardEmbedFields(p, lb, "w"),
       timestamp: new Date(),
       footer: config.properties.footer,
     };
@@ -2108,6 +2131,15 @@ function leaderBoardEmbedFields(p, lb, type){
       field = {
         name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p *10].name,
         value: lb[i + p * 10].money.commafy() + " coins",
+      }
+      fields.push(field);
+    }
+  }
+  else if(type == "w"){
+    for(var i = 0; i < h; i++){
+      field = {
+        name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p *10].tag,
+        value: lb[i + p * 10].duelsWon.commafy() + " wins",
       }
       fields.push(field);
     }
