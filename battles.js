@@ -54,6 +54,9 @@ function startbattle(index, oppIndex, channelID) {
     startedAt: Math.floor(Date.now() / 1000),
   }
   battleData.push(newBattle);
+  parsedData[oppIndex].resources.food = 0;
+  parsedData[index].resources.food = 0;
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
   startBattleSelection(parsedData[index].id, true);
   startBattleSelection(parsedData[oppIndex].id, false);
@@ -67,6 +70,10 @@ const battleHelpEmbed = {
     "Each round a random effect occurs and influences the battle. They can affect both, only one or no players and can be positive or negative.\n" + 
     "If you win a duel, you get a duel token (you can claim one every 12h). You can use those to buy buffs in the battle shop.",
   fields: [
+    {
+      name: "`.duel <mention>` or `.startbattle <mention>`",
+      value: "Start a battle against another user"
+    },
     {
       name: "`.dividetroops <infantry: regiments> <Cavalry: regiments> <artillery: regiments>`",
       value: "You can divide your population into the different types with this command (One regiment = 1000 troops). Use `.troopinfo` to view an expanded list of the stats and effects of the different types.\n\n" +

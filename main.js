@@ -1465,7 +1465,7 @@ client.on("message", async message => {
     battle.startbattle(auInd, index, message.channel.id);
   }
 
-  else if(command === "cancelduel"){
+  else if(command === "cancelduel" || command == "cancelbattle"){
     let rawdataBattle = fs.readFileSync('activebattles.json');
     let battleData = JSON.parse(rawdataBattle);
     var dInd = -1;
@@ -1553,6 +1553,7 @@ client.on("message", async message => {
       }
     }
     if(dInd == -1) return message.reply("there is no active duel you could cancel.");
+    if(p1 && battleData[dInd].p1.ready || !p1 && battleData[dInd].p2.ready) return message.channel.send("You already confirmed that you're ready.");
     if(p1){
       battleData[dInd].p1.ready = true;
       fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
@@ -1566,7 +1567,7 @@ client.on("message", async message => {
       fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
       if(battleData[dInd].p1.ready) battle.battleMatch(dInd);
       else {
-        message.channel.send("Waiting for your opponent...");
+        message.channel.send("Waiting for your opponent... \nPlease return to the previous channel, where the battle was started");
       }
     }
     else {
