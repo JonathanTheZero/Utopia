@@ -54,8 +54,8 @@ function startbattle(index, oppIndex, channelID) {
     startedAt: Math.floor(Date.now() / 1000),
   }
   battleData.push(newBattle);
-  parsedData[oppIndex].resources.food = 0;
-  parsedData[index].resources.food = 0;
+  parsedData[oppIndex].resources.food -= parsedData[oppIndex].resources.food * 0.85;
+  parsedData[index].resources.food = parsedData[index].resources.food * 0.85;
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
   startBattleSelection(parsedData[index].id, true);

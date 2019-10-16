@@ -1477,8 +1477,23 @@ client.on("message", async message => {
     }
     if(dInd == -1) return message.reply("there is no active duel you could cancel.");
     message.reply("the running duel between <@" + battleData[dInd].p1.id + "> and <@" + battleData[dInd].p2.id + "> has been cancelled.");
-    battleData.splice(i, 1);
+    for(let i = 0;i < parsedData.length;i++){
+      if(battleData[dInd].p1.id == parsedData[i].id){
+        parsedData[i].resources.food += battleData[dInd].p1.resources.food;
+        parsedData[i].resources.population += (battleData[dInd].p1.troops.inf + battleData[dInd].p1.troops.cav + battleData[dInd].p1.troops.art)*1000;
+        parsedData[i].tokenUsed = true;
+        parsedData[i].duelsWon++;
+      }
+      if(battleData[dInd].p2.id == parsedData[i].id){
+        parsedData[i].resources.food += battleData[dInd].p2.resources.food;
+        parsedData[i].resources.population += (battleData[dInd].p2.troops.inf + battleData[dInd].p2.troops.cav + battleData[dInd].p2.troops.art)*1000;
+        parsedData[i].tokenUsed = true;
+        parsedData[i].duelsWon++;
+      }  
+    }
+    battleData.splice(dInd, 1);
     fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
   else if(command == "dividetroops" || command == "divtroops"){
