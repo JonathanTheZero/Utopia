@@ -58,5 +58,15 @@ module.exports = function () {
   
   rangeInt = function (min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);
+  },
+
+  getAllianceByName = function(name){
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let a = JSON.parse(rawdataAlliances);
+    for (var i = 0; i < a.length; i++) {
+      if (name == a[i].name) {
+        return a[i];
+      }
+    }
   }
 }

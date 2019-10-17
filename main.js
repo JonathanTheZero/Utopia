@@ -1261,8 +1261,12 @@ client.on("message", async message => {
         name: "`.server`",
         value: "Join the official Utopia server!"
       }
+      field4 = {
+        name: "`.vote`",
+        value: "You can vote every 12h for Utopia on top.gg to get 15k money for free!"
+      }
       helpEmbed.title = "Miscellaneous help";
-      helpEmbed.fields.push(field3);
+      helpEmbed.fields.push(field3, field4);
     }
     else if(args[0] == "mod"){
       helpEmbed.fields[0].name = "`.ban <mention/ID>`";
@@ -1762,6 +1766,7 @@ function createStoreEmbed(message, type, args){
     else if(user.allianceRank == "L"){
       alliance = "".concat("Leader of ", alliance);
     }
+    alMoney = (alliance == null) ? "You haven't joined an alliance yet" : getAllianceByName(user.alliance).money.commafy();
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
       title: 'Alliance store',
@@ -1773,8 +1778,8 @@ function createStoreEmbed(message, type, args){
       },
       fields: [
         {
-          name: 'Your balance',
-          value: user.money.commafy(),
+          name: 'The balance of your alliance:',
+          value: alMoney,
           inline: true,
         },
         {
