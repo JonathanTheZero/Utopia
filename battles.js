@@ -208,6 +208,19 @@ async function battleMatch(index){
       + ef.p2.consump * ef.both.consump * battleData[index].p2.troops.cav * 300 
       + ef.both.consump * ef.p2.consump * battleData[index].p2.troops.art * 500);
 
+    await Sleep(3000);
+    if(p1Con > battleData[index].p1.resources.food){
+      channel.send({embed: getMissingFoodEmbed(battleData[index].p1, p1Con)});
+    }
+    else {
+      battleData[index].p1.resources.food -= p1Con;
+    }
+    if(p2Con > battleData[index].p2.resources.food){
+      channel.send({embed: getMissingFoodEmbed(battleData[index].p1, p1Con)});
+    }
+    else {
+      battleData[index].p1.resources.food -= p2Con;
+    }
     await Sleep(5000)
     if(p1Att > p2Def){
       channel.send({embed:{ 
@@ -248,20 +261,6 @@ async function battleMatch(index){
       }});
     }
 
-    await Sleep(3000);
-    if(p1Con > battleData[index].p1.resources.food){
-      channel.send({embed: getMissingFoodEmbed(battleData[index].p1, p1Con)});
-    }
-    else {
-      battleData[index].p1.resources.food -= p1Con;
-    }
-    if(p2Con > battleData[index].p2.resources.food){
-      channel.send({embed: getMissingFoodEmbed(battleData[index].p1, p1Con)});
-    }
-    else {
-      battleData[index].p1.resources.food -= p2Con;
-    }
-
     fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
 
     await Sleep(10000);
@@ -269,29 +268,39 @@ async function battleMatch(index){
   let rawdataUser = fs.readFileSync("userdata.json");
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0;i < parsedData.length;i++){
-    if(winnerP1 && battleData[index].p1.id == parsedData[i].id){
-      if(!parsedData[i].tokenUsed){
-        parsedData[i].battleToken++;
-      } 
-      parsedData[i].resources.food += battleData[index].p1.resources.food;
-      parsedData[i].resources.population += (battleData[index].p1.troops.inf + battleData[index].p1.troops.cav + battleData[index].p1.troops.art)*1000
-        + searchUserByID(battleData[index].p2.id).resources.population * 0.05;
-      parsedData[i].tokenUsed = true;
-      parsedData[i].duelsWon++;
-      parsedData[i].money += parsedData[index].p1.costs;
-      channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p1.tag}`}});
+    if(battleData[index].p1.id == parsedData[i].id){
+      if(winnerP1){
+        if(!parsedData[i].tokenUsed){
+          parsedData[i].battleToken++;
+        } 
+        parsedData[i].resources.food += battleData[index].p1.resources.food;
+        parsedData[i].resources.population += (battleData[index].p1.troops.inf + battleData[index].p1.troops.cav + battleData[index].p1.troops.art)*1000
+          + Math.floor(searchUserByID(battleData[index].p2.id).resources.population * 0.05);
+        parsedData[i].tokenUsed = true;
+        parsedData[i].duelsWon++;
+        parsedData[i].money += battleData[index].p1.costs;
+        channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p1.tag}`}});
+      }
+      else {
+        parsedData[i].resources.population -= Math.floor(0.05 * parsedData[i].resources.population);
+      }
     }
     if(!winnerP1 && battleData[index].p2.id == parsedData[i].id){
-      if(!parsedData[i].tokenUsed){
-        parsedData[i].battleToken++;
+      if(!winnerP1){
+        if(!parsedData[i].tokenUsed){
+          parsedData[i].battleToken++;
+        }
+        parsedData[i].resources.food += battleData[index].p2.resources.food;
+        parsedData[i].resources.population += (battleData[index].p2.troops.inf + battleData[index].p2.troops.cav + battleData[index].p2.troops.art)*1000
+          + Math.floor(searchUserByID(battleData[index].p1.id).resources.population * 0.05);
+        parsedData[i].tokenUsed = true;
+        parsedData[i].duelsWon++;
+        parsedData[i].money += battleData[index].p2.costs;
+        channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p2.tag}`}});
       }
-      parsedData[i].resources.food += battleData[index].p2.resources.food;
-      parsedData[i].resources.population += (battleData[index].p2.troops.inf + battleData[index].p2.troops.cav + battleData[index].p2.troops.art)*1000
-        + searchUserByID(battleData[index].p1.id).resources.population * 0.05;;
-      parsedData[i].tokenUsed = true;
-      parsedData[i].duelsWon++;
-      parsedData[i].money += parsedData[index].p2.costs;
-      channel.send({embed: {color: 0x23E809, title: `The winner is ${battleData[index].p2.tag}`}});
+      else {
+        parsedData[i].resources.population -= Math.floor(0.05 * parsedData[i].resources.population);
+      }
     }  
   }
   battleData.splice(index, 1);

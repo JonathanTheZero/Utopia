@@ -121,17 +121,20 @@ client.on("guildDelete", guild => {
 });
 
 
-client.on("message", async message => {
-  if(message.author.bot) return;
-  
-  if(message.content.indexOf(config.prefix) !== 0) return;
+client.on("message", async message => {  
+  if(message.content.indexOf(config.prefix) !== 0 || message.author.bot) return;
   else {
-    var bsRaw = fs.readFileSync("botstats.json");
-    var bs = JSON.parse(bsRaw);
-    bs.commandsRun++;
-    bs.activeServers = client.guilds.size;
-    bs.users = client.users.size;
-    fs.writeFileSync("botstats.json", JSON.stringify(bs, null, 2))
+    try {
+      var bsRaw = fs.readFileSync("public/botstats.json");
+      var bs = JSON.parse(bsRaw);
+      bs.commandsRun = (bs.commandsRun + 1).commafy();
+      bs.activeServers = client.guilds.size.commafy();
+      bs.users = client.users.size.commafy();
+      fs.writeFileSync("public/botstats.json", JSON.stringify(bs, null, 2));
+    }
+    catch(e) {
+      console.log(e);
+    }
   }
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
@@ -526,9 +529,9 @@ client.on("message", async message => {
         },
         {
           name: "Battle bonuses:",
-          value: `+${bu.iA} Att/+${bu.iD} Def for Infantry` +
-          `+${bu.cA} Att/+${bu.cD} Def for Cavallry` +
-          `+${bu.aA} Att/+${bu.aD} Def for Artillery`
+          value: `+${bu.iA} Att/+${bu.iD} Def for Infantry\n` +
+          `+${bu.cA} Att/+${bu.cD} Def for Cavallry\n` +
+          `+${bu.aA} Att/+${bu.aD} Def for Artillery\n`
         }
       ],
       timestamp: new Date(),
@@ -999,7 +1002,7 @@ client.on("message", async message => {
           inline: true,
         },
         {
-          name: "Privaty settings:",
+          name: "Privacy settings:",
           value: priv,
           inline: true
         },
@@ -1492,12 +1495,12 @@ client.on("message", async message => {
       if(battleData[dInd].p1.id == parsedData[i].id){
         parsedData[i].resources.food += battleData[dInd].p1.resources.food;
         parsedData[i].resources.population += (battleData[dInd].p1.troops.inf + battleData[dInd].p1.troops.cav + battleData[dInd].p1.troops.art)*1000;
-        parsedData[i].money += parsedData[dInd].p1.costs;
+        parsedData[i].money += battleData[dInd].p1.costs;
       }
       if(battleData[dInd].p2.id == parsedData[i].id){
         parsedData[i].resources.food += battleData[dInd].p2.resources.food;
         parsedData[i].resources.population += (battleData[dInd].p2.troops.inf + battleData[dInd].p2.troops.cav + battleData[dInd].p2.troops.art)*1000;
-        parsedData[i].money += parsedData[dInd].p1.costs;
+        parsedData[i].money += battleData[dInd].p1.costs;
       }  
     }
     battleData.splice(dInd, 1);
@@ -1714,12 +1717,12 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Advanced Equipment',
-          value: '+5k population every 4h \nPrice: 250,000',
+          value: '+10k population every 4h \nPrice: 250,000',
           inline: true,
         },
         {
           name: 'Invade Russia',
-          value: '+10k population every 4h \nPrice: 500,000',
+          value: '+15k population every 4h \nPrice: 500,000',
           inline: true,
         },
         {
@@ -1903,10 +1906,10 @@ function payoutLoop(){
         parsedData[i].resources.population += 5000;
       }
       if(parsedData[i].upgrades.population.includes("AE")){
-        parsedData[i].resources.population += 5000;
+        parsedData[i].resources.population += 10000;
       }
       if(parsedData[i].upgrades.population.includes("RU")){
-        parsedData[i].resources.population += 10000;
+        parsedData[i].resources.population += 15000;
       }
       if(parsedData[i].upgrades.population.includes("EC")){
         parsedData[i].resources.population += 25000;
@@ -2027,21 +2030,16 @@ function populationWorkLoop(){
       }
       if(parsedData[i].payoutDMs){
         try {
-          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained money through the work of your population!");
+          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!");
         }
         catch {}
       }
       //console.log("Factor: " + (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))) + "(" + parsedData[i].tag + ")");
       parsedData[i].tokenUsed = false;
+      if(parsedData[i].resources.food == null) parsedData[i].resources.food = 0;
     } 
-    payoutChannel.send("You have succesfully gained money through the work of your population!");
+    payoutChannel.send("You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!");
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
-    for(let i = 0; i < parsedData.length;i++){
-      if(parsedData[i].resources.food == null){
-        parsedData[i].resources.food = 0;
-      }
-      parsedData[i].battleToken = false;
-    }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     //await Sleep(43200000);
