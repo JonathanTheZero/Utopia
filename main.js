@@ -67,7 +67,7 @@ client.on("ready", () => {
     let rawdataUser = fs.readFileSync('userdata.json');
   let parsedData = JSON.parse(rawdataUser);
   for(let i = 0; i < parsedData.length;i++){
-    parsedData[i].resources.food = Math.floor(parsedData[i].resources.food);
+    parsedData[i].resources.population = Math.floor(parsedData[i].resources.population);
     console.log(parsedData[i].tag);
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));*/
@@ -127,7 +127,7 @@ client.on("message", async message => {
     try {
       var bsRaw = fs.readFileSync("public/botstats.json");
       var bs = JSON.parse(bsRaw);
-      bs.commandsRun = (bs.commandsRun + 1).commafy();
+      bs.commandsRun++;
       bs.activeServers = client.guilds.size.commafy();
       bs.users = client.users.size.commafy();
       fs.writeFileSync("public/botstats.json", JSON.stringify(bs, null, 2));
@@ -487,6 +487,7 @@ client.on("message", async message => {
       if(user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
       if(user.upgrades.population.includes("US")) upgrades += ", US"
     }
+    if(user.resources.food == null) user.resources.food = 0;
     const bu = user.upgrades.battle
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -561,7 +562,7 @@ client.on("message", async message => {
   }
 
   else if(command == "server"){
-    message.reply("join the official Utopia server here: "+ config.serverInvite);
+    message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: "+ config.serverInvite);
   }
 
   else if(command === "add"){
@@ -1378,7 +1379,7 @@ client.on("message", async message => {
       return;
     }
     if(Math.floor(Date.now() / 1000) - parsedData[index].lastWorked < 1800){
-      message.reply("You can work again in " + (new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[i].lastWorked)) * 1000).toISOString().substr(11, 8)));
+      message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[index].lastWorked)) * 1000).toISOString().substr(11, 8));
     }
     else {
       var produced = Math.floor(Math.random() * 10000);
@@ -1422,11 +1423,11 @@ client.on("message", async message => {
     if(index == -1) 
       return message.reply("you haven't created an account yet, please use the `.create` command.");
     if(Math.floor(Date.now() / 1000) - parsedData[index].lastCrime < 14400) 
-      return message.reply("You can commit a crime again in " + new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[i].lastCrime)) * 1000).toISOString().substr(11, 8));
+      return message.reply("You can commit a crime again in " + new Date((14400 - (Math.floor(Date.now() / 1000) - parsedData[index].lastCrime)) * 1000).toISOString().substr(11, 8));
     else {
-      let oldBalance = parseInt(parsedData[i].money);
+      let oldBalance = parseInt(parsedData[index].money);
       var produced;
-      if(Math.floor(Math.random() * 99) < 6){
+      if(Math.floor(Math.random() * 99) < 7){
         var p = Math.floor(oldBalance * Math.random() * 0.03);
         produced = (p > 50000) ? p : 50000;
       }
@@ -1434,7 +1435,6 @@ client.on("message", async message => {
         produced = Math.floor(-1 * (oldBalance * Math.random() * 0.02));
       }
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
-      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
       if(alInd == -1){
         parsedData[index].money += produced;
         if(produced > 1){
@@ -1448,16 +1448,20 @@ client.on("message", async message => {
         if(produced > 1){
           var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
           produced -= taxed;
-          parsedDataAlliances[ind].money += taxed;
+          parsedDataAlliances[alInd].money += taxed;
+          parsedData[index].money += produced;
           message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
         }
         else{
+          parsedData[index].money += produced
           message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
         }
       }
       if(parsedData[index].autoping) reminder(message, "c");
-    }   
+    } 
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
+  
   else if(command == "startbattle" || command == "startduel" || command == "duel"){
     if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
     let rawdataUser = fs.readFileSync('userdata.json');
@@ -1584,7 +1588,7 @@ client.on("message", async message => {
         break;
       }
     }
-    if(dInd == -1) return message.reply("there is no active duel you could cancel.");
+    if(dInd == -1) return message.reply("you're not fighting in any battle.");
     if(p1 && battleData[dInd].p1.ready || !p1 && battleData[dInd].p2.ready) return message.channel.send("You already confirmed that you're ready.");
     if(p1){
       battleData[dInd].p1.ready = true;
@@ -1927,12 +1931,13 @@ function payoutLoop(){
       }
       if(parsedData[i].payoutDMs){
         try{
-          client.users.get(parsedData[i].id).send("You have succesfully gained population from your upgrades!");
+          client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
         }
         catch(e){
-          console.log(e);
+          console.log(e +"\n" + parsedData[i].tag);
         }
       }
+      if(parsedData[i].resources.food == null) parsedData[i].resources.food =0
     } 
     payoutChannel.send("You have succesfully gained population from your upgrades!");
     payoutChannel.send("Processing started...");
@@ -2224,4 +2229,5 @@ function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
   parsedData[index].battleToken -= price;
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   return "you succesfully bought the upgrade!";
+
 }

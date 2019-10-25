@@ -56,8 +56,8 @@ function startbattle(index, oppIndex, channelID) {
     startedAt: Math.floor(Date.now() / 1000),
   }
   battleData.push(newBattle);
-  parsedData[oppIndex].resources.food -= Math.floor(parsedData[oppIndex].resources.food * 0.95);
-  parsedData[index].resources.food -= Math.floor(parsedData[index].resources.food * 0.95);
+  parsedData[oppIndex].resources.food = 0;
+  parsedData[index].resources.food = 0;
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
   fs.writeFileSync("activebattles.json", JSON.stringify(battleData, null, 2));
   startBattleSelection(parsedData[index].id, true);
@@ -273,7 +273,6 @@ async function battleMatch(index){
         if(!parsedData[i].tokenUsed){
           parsedData[i].battleToken++;
         } 
-        parsedData[i].resources.food += battleData[index].p1.resources.food;
         parsedData[i].resources.population += (battleData[index].p1.troops.inf + battleData[index].p1.troops.cav + battleData[index].p1.troops.art)*1000
           + Math.floor(searchUserByID(battleData[index].p2.id).resources.population * 0.05);
         parsedData[i].tokenUsed = true;
@@ -284,13 +283,20 @@ async function battleMatch(index){
       else {
         parsedData[i].resources.population -= Math.floor(0.05 * parsedData[i].resources.population);
       }
+      let factor;
+      try{
+        factor (-1* (getBaseLog(10, getBaseLog(10, getBaseLog(5, battleData[index].resources.food)))) + 1);
+      }
+      catch {
+        factor = 1.05;
+      }
+      parsedData[i].resources.food += Math.floor(factor * battleData[index].p1.resources.food);
     }
-    if(!winnerP1 && battleData[index].p2.id == parsedData[i].id){
+    if(battleData[index].p2.id == parsedData[i].id){
       if(!winnerP1){
         if(!parsedData[i].tokenUsed){
           parsedData[i].battleToken++;
         }
-        parsedData[i].resources.food += battleData[index].p2.resources.food;
         parsedData[i].resources.population += (battleData[index].p2.troops.inf + battleData[index].p2.troops.cav + battleData[index].p2.troops.art)*1000
           + Math.floor(searchUserByID(battleData[index].p1.id).resources.population * 0.05);
         parsedData[i].tokenUsed = true;
@@ -301,6 +307,14 @@ async function battleMatch(index){
       else {
         parsedData[i].resources.population -= Math.floor(0.05 * parsedData[i].resources.population);
       }
+      let factor;
+      try{
+        factor = (-1* (getBaseLog(10, getBaseLog(10, getBaseLog(5, battleData[index].p2.resources.food)))) + 1)
+      }
+      catch{
+        factor = 1.05
+      }
+      parsedData[i].resources.food += Math.floor(factor * battleData[index].p2.resources.food);
     }  
   }
   battleData.splice(index, 1);
