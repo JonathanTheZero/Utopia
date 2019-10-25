@@ -374,14 +374,17 @@ client.on("message", async message => {
       message.reply(buyItem("US", index, 5000000));
     }
     else if(args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food"){
-      if(parsedData[index].money >= 20000){
-        parsedData[index].money -= 20000;
-        parsedData[index].resources.food += 50000;
+      let amount;
+      if(typeof args[1] != "undefined" && !isNaN(parseInt(args[1]))) amount = parseInt(args[1]);
+      if(typeof args[1] != "undefined" && !isNaN(parseInt(args[4]))) amount = parseInt(args[4]);
+      if(isNaN(amount) || typeof amount == "undefined") amount = 1;
+      if(parsedData[index].money >= amount * 20000){
+        parsedData[index].money -= amount * 20000;
+        parsedData[index].resources.food += amount * 50000;
         fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-        message.reply("you successfully bought 50,000 food for your population.");
-        return;
+        return message.reply(`you successfully bought ${(amount*50000).commafy()} food for your population.`);
       }
-      message.reply("You don't have enough money to buy that item.");
+      return message.reply("you don't have enough money.");
     }
     else if(args[0] == "arable" && args[1] == "farming"){
       message.reply(buyItemAlliance("AF", index, 100000, 1));
@@ -2229,5 +2232,4 @@ function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
   parsedData[index].battleToken -= price;
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   return "you succesfully bought the upgrade!";
-
 }
