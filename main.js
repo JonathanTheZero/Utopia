@@ -1268,9 +1268,13 @@ client.on("message", async message => {
       field4 = {
         name: "`.vote`",
         value: "You can vote every 12h for Utopia on top.gg to get 15k money for free!"
+      },
+      field5 = {
+        name: "`.statistics`",
+        value: "View some statistics about the bot"
       }
       helpEmbed.title = "Miscellaneous help";
-      helpEmbed.fields.push(field3, field4);
+      helpEmbed.fields.push(field3, field4, field5);
     }
     else if(args[0] == "mod"){
       helpEmbed.fields[0].name = "`.ban <mention/ID>`";
@@ -1612,6 +1616,30 @@ client.on("message", async message => {
     else {
       return message.reply("an error occured.");
     }
+  }
+
+  else if(command == "statistics"){
+    let bsRaw = fs.readFileSync("public/botstats.json");
+    let bs = JSON.parse(bsRaw);
+    message.channel.send({
+      embed: {
+        title: "Utopia statistics",
+        color: parseInt(config.properties.embedColor),
+        fields: [{
+            name: "Servers:",
+            value: `Currently I am active on ${bs.activeServers} servers`
+          },
+          {
+            name: "Users:",
+            value: `Currently I have ${bs.users} users.`
+          },
+          {
+            name: "Commands run:",
+            value: `I already executed ${bs.commandsRun} commands.`
+        }],
+        footer: config.properties.footer
+      }
+    });
   }
 
 });
