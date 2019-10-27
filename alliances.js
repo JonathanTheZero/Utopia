@@ -67,7 +67,7 @@ module.exports = function () {
           }
         }
       }
-      return "".concat("this alliance doesn't exist, you can form it with `.createalliance ", allianceName, "`.");
+      return "this alliance doesn't exist, you can form it with `.createalliance " + allianceName + "`.";
     },
 
     leaveAlliance = function (message) {
@@ -405,5 +405,24 @@ module.exports = function () {
       case "MF":
         return "you successfully bought the mixed farming upgrade for your alliance.";
     }
-  }
+  },
+
+  renameAlliance = function(message, allianceName, index){
+    let rawdataAlliances = fs.readFileSync('alliances.json');
+    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    const old = (' ' + parsedData[index].alliance).slice(1);
+    for (var i = 0; i < parsedDataAlliances.length; i++) {
+      if (parsedDataAlliances[i].name == old) {
+          parsedDataAlliances[i].name = allianceName;
+          for(let j = 0; j < parsedData.length;j++){
+            if(parsedData[i].alliance == old) parsedData[i].alliance = allianceName;
+          }
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+          return `Succesfully renamed your alliance to ${allianceName}`;
+        }
+      }
+    }
 };

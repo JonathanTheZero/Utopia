@@ -76,43 +76,6 @@ client.on("ready", () => {
 client.on("guildCreate", guild => {
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-  /*const roleUKexists = (guild.roles.find(role => role.name === "UK") == null) ? false : true;
-  const roleAEexists = (guild.roles.find(role => role.name === "Advanced Equipment") == null) ? false : true;
-  const roleRUexists = (guild.roles.find(role => role.name === "Russia") == null) ? false : true;
-  const roleECexists = (guild.roles.find(role => role.name === "Expanded City") == null) ? false : true;
-  const roleMSexists = (guild.roles.find(role => role.name === "More Soldiers") == null) ? false : true;
-  const roleUSexists = (guild.roles.find(role => role.name === "US") == null) ? false : true;
-  
- if(!roleUKexists) {
-  guild.createRole({name: 'UK',})
-    .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-    .catch(console.error)
-  }
-  if(!roleAEexists) {
-    guild.createRole({name: 'Advanced Equipment',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }
-  if(!roleRUexists) {
-    guild.createRole({name: 'Russia',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }
-  if(!roleECexists) {
-    guild.createRole({name: 'Expanded City',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }
-  if(!roleMSexists) {
-    guild.createRole({name: 'More Soldiers',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }
-  if(!roleUSexists) {
-    guild.createRole({name: 'US',})
-      .then(role => console.log(`Created new role with name ${role.name} and color ${role.color}`))
-      .catch(console.error)
-  }*/
 });
 
 client.on("guildDelete", guild => {
@@ -133,7 +96,7 @@ client.on("message", async message => {
       fs.writeFileSync("public/botstats.json", JSON.stringify(bs, null, 2));
     }
     catch(e) {
-      console.log(e);
+
     }
   }
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
@@ -736,16 +699,36 @@ client.on("message", async message => {
         break;
       }
     }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
+    if(index == -1)
+      return message.reply("you haven't created an account yet, please use the `create` command.");
     else if(parsedData[i].alliance != null){
-      message.reply(leaveAlliance(message));
+      return message.reply(leaveAlliance(message));
     }
-    if(parsedData[index].alliance == null){
-      message.reply("you are not part of any alliance.")
-      return;
+    if(parsedData[index].alliance == null)
+      return message.reply("you are not part of any alliance.");
+  }
+
+  else if(command == "renamealliance" || command == "rename"){
+    let rawdataUser = fs.readFileSync('userdata.json');
+    let parsedData = JSON.parse(rawdataUser);
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1)
+      return message.reply("you haven't created an account yet, please use the `create` command.");
+    else if(parsedData[index].allianceRank == "M"){
+      return message.reply("only Co-Leaders and the Leader can use this command!");
+    }
+    else if(parsedData[index].alliance == null){
+      return message.reply("you haven't joined an alliance yet!");
+    }
+    if(parsedData[index].alliance != null){
+      const allianceName = args.join(" ");
+      return message.reply(renameAlliance(message, allianceName, index));
     }
   }
 
@@ -1152,9 +1135,7 @@ client.on("message", async message => {
       timestamp: new Date(),
       footer: config.properties.footer,
     }; 
-    var a = ["alliance", "alliances", "a"]
-    var g = ["general", "g"]
-    if(g.includes(args[0])){
+    if(["general", "g"].includes(args[0])){
       helpEmbed.fields[2].name = "`.work`";
       helpEmbed.fields[2].value = "You gain up to 10,000 coins from working. You can work every 30 minutes.";
       helpEmbed.fields[0].name = "`.create`"
@@ -1195,7 +1176,7 @@ client.on("message", async message => {
       helpEmbed.title = "General help";
       helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10);
     }
-    else if(a.includes(args[0])){
+    else if(["alliance", "alliances", "a"].includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
       helpEmbed.fields[2].value = "Create your own alliance. (Price: 250,000)";
       helpEmbed.fields[0].name = "`.leavealliance`";
@@ -1217,39 +1198,43 @@ client.on("message", async message => {
         value: "Fire a member of your alliance.",
       }
       field6 = {
+        name: "`.renamealliance <new name>` (Leader and Co-Leaders only)",
+        value: "Rename your alliance."
+      }
+      field7 = {
         name: "`.setpublic` and `.setprivate` (Leader and Co-Leaders only)",
         value: "Change the setting of your alliance. Public: Everyone can join, Private: Only invited users can join."
       },
-      field7 = {
+      field8 = {
         name: "`.invite <mention/ID>` (Leader and Co-Leaders only)",
         value: "Invite a member to your alliance."
       }
-      field8 = {
+      field9 = {
         name: "`.upgradealliance` (Leader and Co-Leaders only)",
         value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
       }
-      field9 = {
+      field10 = {
         name: "`.alliance [mention/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
-      field10 = {
+      field11 = {
         name: "`.send <mention/ID> <amount>`",
         value: "Send a specific amount of money to one of your alliance members."
       }
-      field11 = {
+      field12 = {
         name: "`.alliancemembers [mention/ID]`",
         value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
       }
-      field12 = {
+      field13 = {
         name: "`.deposit <amount>`",
         value: "Deposit a specific amount of money in the bank of your alliance"
       }
-      field13 = {
+      field14 = {
         name: "`.settax <value between 0 and 90>` (Leader and Co-Leaders only)",
         value: "Set the taxrate of your alliance. The tax only applies to the work and crime commands."
       }
       helpEmbed.title = "Alliance help";
-      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13);
+      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13, field14);
     }
     else if(args[0] == "misc"){
       helpEmbed.fields[0].name = "`.autoping`";
@@ -1619,29 +1604,37 @@ client.on("message", async message => {
   }
 
   else if(command == "statistics"){
-    let bsRaw = fs.readFileSync("public/botstats.json");
-    let bs = JSON.parse(bsRaw);
-    message.channel.send({
-      embed: {
-        title: "Utopia statistics",
-        color: parseInt(config.properties.embedColor),
-        fields: [{
-            name: "Servers:",
-            value: `Currently I am active on ${bs.activeServers} servers`
-          },
-          {
-            name: "Users:",
-            value: `Currently I have ${bs.users} users.`
-          },
-          {
-            name: "Commands run:",
-            value: `I already executed ${bs.commandsRun} commands.`
-        }],
-        footer: config.properties.footer
-      }
+    let rawdataUser = fs.readFileSync("userdata.json");
+    let otherData = JSON.parse(rawdataUser);
+    fs.readFile("botstats.json", (err, data) =>{
+      data = JSON.parse(data);
+      if (err) throw err;
+      message.channel.send({
+        embed: {
+          title: "Utopia statistics",
+          color: parseInt(config.properties.embedColor),
+          fields: [{
+              name: "Servers:",
+              value: `Currently I am active on ${data.activeServers} servers`
+            },
+            {
+              name: "Users:",
+              value: `Currently I have ${data.users} users.`
+            },
+            {
+              name: "Commands run:",
+              value: `I already executed ${data.commandsRun.commafy()} commands.`
+            },
+            {
+              name: "Registered accounts:",
+              value: `${otherData.length.commafy()} users already created an account!`
+          }],
+          footer: config.properties.footer,
+          timestamp: new Date()
+        }
+      });
     });
   }
-
 });
 
 
