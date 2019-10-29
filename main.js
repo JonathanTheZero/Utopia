@@ -319,22 +319,25 @@ client.on("message", async message => {
       args[i] = args[i].toLowerCase();
     }
     if(args[0] == "uk"|| (args[0] == "invade") && args[1] == "the" && args[2] == "uk"){
-      message.reply(buyItem("UK", index, 100000));
+      return message.reply(buyItem("UK", index, 100000));
     }
     else if(args[0] == "equipment"|| (args[0] == "advanced") && args[1] == "equipment"){
-      message.reply(buyItem("AE", index, 250000));
+      return message.reply(buyItem("AE", index, 250000));
     }
     else if(args[0] == "russia"|| (args[0] == "invade") && args[1] == "russia"){
-      message.reply(buyItem("RU", index, 500000));
+      return message.reply(buyItem("RU", index, 500000));
     }
     else if(args[0] == "city"|| (args[0] == "expand") && args[1] == "your" && args[2] == "city"){
-      message.reply(buyItem("EC", index, 1000000));
+      return message.reply(buyItem("EC", index, 1000000));
+    }
+    else if(args[0] == "globalization"){
+      return message.reply(buyItem("GL", index, 2500000));
     }
     else if(args[0] == "soldiers"|| (args[0] == "recruit") && args[1] == "more" && args[2] == "soldiers"){
-      message.reply(buyItem("MS", index, 10000000));
+      return message.reply(buyItem("MS", index, 10000000));
     }
     else if(args[0] == "us"|| (args[0] == "invade") && args[1] == "the" && args[2] == "us"){
-      message.reply(buyItem("US", index, 5000000));
+      return message.reply(buyItem("US", index, 5000000));
     }
     else if(args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food"){
       let amount;
@@ -350,28 +353,28 @@ client.on("message", async message => {
       return message.reply("you don't have enough money.");
     }
     else if(args[0] == "arable" && args[1] == "farming"){
-      message.reply(buyItemAlliance("AF", index, 100000, 1));
+      return message.reply(buyItemAlliance("AF", index, 100000, 1));
     }
     else if(args[0] == "pastoral" && args[1] == "farming"){
-      message.reply(buyItemAlliance("PF", index, 1750000, 2));
+      return message.reply(buyItemAlliance("PF", index, 1750000, 2));
     }
     else if(args[0] == "mixed" && args[1] == "farming"){
-      message.reply(buyItemAlliance("MF", index, 7500000, 3));
+      return message.reply(buyItemAlliance("MF", index, 7500000, 3));
     }
     else if(args[0] == "better" && args[1] == "armors"){
-      message.reply(buyBattleUpgrade(index, 0, 2, 0, 1, 0, 0, 4));
+      return message.reply(buyBattleUpgrade(index, 0, 2, 0, 1, 0, 0, 4));
     }
     else if(args[0] == "harder" && args[1] == "steel"){
-      message.reply(buyBattleUpgrade(index, 1, 1, 1, 1, 1, 1, 10));
+      return message.reply(buyBattleUpgrade(index, 1, 1, 1, 1, 1, 1, 10));
     }
     else if(args[0] == "arabic" && args[1] == "horses"){
-      message.reply(buyBattleUpgrade(index, 0, 0, 2, 2, 0, 0, 6));
+      return message.reply(buyBattleUpgrade(index, 0, 0, 2, 2, 0, 0, 6));
     }
     else if(args[0] == "heavy" && args[1] == "artillery"){
-      message.reply(buyBattleUpgrade(index, 0, 0, 0, 0, 2, 2, 8));
+      return message.reply(buyBattleUpgrade(index, 0, 0, 0, 0, 2, 2, 8));
     }
     else if(args[0] == "better" && args[1] == "army" && args[2] == "management"){
-      message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
+      return message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
     }
   }
 
@@ -450,6 +453,7 @@ client.on("message", async message => {
       if(user.upgrades.population.includes("AE")) upgrades += ", Equipment"
       if(user.upgrades.population.includes("RU")) upgrades += ", Russia"
       if(user.upgrades.population.includes("EC")) upgrades += ", Expanded City"
+      if(user.upgrades.population.includes("GL")) upgrades += ", Globalization"
       if(user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
       if(user.upgrades.population.includes("US")) upgrades += ", US"
     }
@@ -1113,7 +1117,7 @@ client.on("message", async message => {
       fields: [
         {
           name: 'General help:',
-          value: "type `.help general` to view the help menu for the general comamnds",
+          value: "type `.help general` to view the help menu for the general commands",
         },
         {
           name: 'Alliance help:',
@@ -1548,6 +1552,7 @@ client.on("message", async message => {
     player.troops.cav = cav;
     player.troops.art = art;
     let consump = inf * 20 + cav * 300 + art * 500;
+    parsedData[index].money += player.costs;
     let cost = inf * 50 + cav * 100 + art * 1000;
     if(cost > parsedData[index].money) return message.reply(`choosing this troops would cost you ${cost.commafy()} but you only own ${parsedData[index].money.commafy()}`);
     parsedData[index].resources.population -= tot;
@@ -1601,12 +1606,13 @@ client.on("message", async message => {
     else {
       return message.reply("an error occured.");
     }
+    client.channels.get(battleData[dInd].channelID).send(`${message.author.tag} is ready.`);
   }
 
   else if(command == "statistics"){
     let rawdataUser = fs.readFileSync("userdata.json");
     let otherData = JSON.parse(rawdataUser);
-    fs.readFile("botstats.json", (err, data) =>{
+    fs.readFile("public/botstats.json", (err, data) =>{
       data = JSON.parse(data);
       if (err) throw err;
       message.channel.send({
@@ -1744,23 +1750,28 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Invade the UK',
-          value: '+5k population every 4h \nPrice: 100,000',
+          value: '+5k population every 4h\nPrice: 100,000',
           inline: true,
         },
         {
           name: 'Advanced Equipment',
-          value: '+10k population every 4h \nPrice: 250,000',
+          value: '+10k population every 4h\nPrice: 250,000',
           inline: true,
         },
         {
           name: 'Invade Russia',
-          value: '+15k population every 4h \nPrice: 500,000',
+          value: '+15k population every 4h\nPrice: 500,000',
           inline: true,
         },
         {
           name: 'Expand your City',
-          value: '+25k population every 4h \nPrice: 1,000,000',
+          value: '+25k population every 4h\nPrice: 1,000,000',
           inline: true,
+        },
+        {
+          name: 'Globalization',
+          value: '+50k population every 4h\nPrice: 2,500,000',
+          inline: true
         },
         {
           name: 'Recruit more Soldiers',
@@ -1769,7 +1780,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Invade the US',
-          value: '+2M population every 4h \nPrice: 50,000,000',
+          value: '+2M population every 4h\nPrice: 50,000,000',
           inline: true,
         },
       ],
@@ -1935,24 +1946,20 @@ function payoutLoop(){
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
-      if(parsedData[i].upgrades.population.includes("UK")){
+      if(parsedData[i].upgrades.population.includes("UK"))
         parsedData[i].resources.population += 5000;
-      }
-      if(parsedData[i].upgrades.population.includes("AE")){
+      if(parsedData[i].upgrades.population.includes("AE"))
         parsedData[i].resources.population += 10000;
-      }
-      if(parsedData[i].upgrades.population.includes("RU")){
+      if(parsedData[i].upgrades.population.includes("RU"))
         parsedData[i].resources.population += 15000;
-      }
-      if(parsedData[i].upgrades.population.includes("EC")){
+      if(parsedData[i].upgrades.population.includes("EC")) 
         parsedData[i].resources.population += 25000;
-      }
-      if(parsedData[i].upgrades.population.includes("MS")){
+      if(parsedData[i].upgrades.population.includes("GL")) 
+        parsedData[i].resources.population += 50000
+      if(parsedData[i].upgrades.population.includes("MS"))
         parsedData[i].resources.population += 500000;
-      }
-      if(parsedData[i].upgrades.population.includes("US")){
+      if(parsedData[i].upgrades.population.includes("US"))
         parsedData[i].resources.population += 2000000;
-      }
       if(parsedData[i].payoutDMs){
         try{
           client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
@@ -1961,7 +1968,7 @@ function payoutLoop(){
           console.log(e +"\n" + parsedData[i].tag);
         }
       }
-      if(parsedData[i].resources.food == null) parsedData[i].resources.food =0
+      if(parsedData[i].resources.food == null) parsedData[i].resources.food = 0;
     } 
     payoutChannel.send("You have succesfully gained population from your upgrades!");
     payoutChannel.send("Processing started...");
@@ -2188,53 +2195,37 @@ function leaderBoardEmbedFields(p, lb, type){
   return fields;
 }
 
-function useItem(item, index){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  var parsedData = JSON.parse(rawdataUser);
-  if(!parsedData[index].inventory.includes(item)){
-    return "you don't own that item.";
-  }
-  populationUpgrades = ["UK", "AE", "RU", "EC", "MS", "US"];
-  parsedData[index].inventory = parsedData[index].inventory.filter(i => i !== item);
-  if(populationUpgrades.includes(item)){
-    parsedData[index].upgrades.population.push(item);
-  }
-  else {
-    parsedData[index].upgrades.misc.push(item);
-  }
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-  switch(item){
-    case "UK":
-      return "you succesfully invaded the UK.";
-    case "AE":
-      return "you succesfully used the Advanced Equipment.";
-    case "RU":
-      return "you succesfully invaded Russia.";
-    case "EC":
-      return "you succesfully expanded your city.";
-    case "MS":
-      return "you succesfully recruited more soldiers.";
-    case "US":
-      return "you succesfully invaded the US";
-    default:
-      return "Error";
-  }
-}
-
 function buyItem(item, index, price){
   let rawdataUser = fs.readFileSync('userdata.json');
   var parsedData = JSON.parse(rawdataUser);
-  if(parsedData[index].inventory.includes(item)){
-      return "you already own that item! Use it with `.use <item>`";
-  }
-  else if(parsedData[index].upgrades.population.includes(item) || parsedData[index].upgrades.misc.includes(item)){
-    return "you already bought and used this item!";
-  }
   if(parsedData[index].money >= price){
     parsedData[index].money -= price;
-    parsedData[index].inventory.push(item);
+    populationUpgrades = ["UK", "AE", "RU", "EC", "GL", "MS", "US"];
+    if(populationUpgrades.includes(item)){
+      parsedData[index].upgrades.population.push(item);
+    }
+    else {
+      parsedData[index].upgrades.misc.push(item);
+    }
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    return "you successfully bought the item.";
+    switch(item){
+      case "UK":
+        return "you succesfully invaded the UK.";
+      case "AE":
+        return "you succesfully used the Advanced Equipment.";
+      case "RU":
+        return "you succesfully invaded Russia.";
+      case "EC":
+        return "you succesfully expanded your city.";
+      case "GL":
+        return "you succesfully discovered globalization."
+      case "MS":
+        return "you succesfully recruited more soldiers.";
+      case "US":
+        return "you succesfully invaded the US";
+      default:
+        return "Error!"
+    }
   }
   return "You don't have enough money to buy that item.";
 }

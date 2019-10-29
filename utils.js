@@ -68,5 +68,9 @@ module.exports = function () {
         return a[i];
       }
     }
+  },
+
+  String.prototype.isNaN = function(){
+    return isNaN(this);
   }
 }
