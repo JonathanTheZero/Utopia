@@ -95,9 +95,7 @@ client.on("message", async message => {
       bs.users = client.users.size.commafy();
       fs.writeFileSync("public/botstats.json", JSON.stringify(bs, null, 2));
     }
-    catch(e) {
-
-    }
+    catch {}
   }
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
@@ -106,52 +104,29 @@ client.on("message", async message => {
     const m = await message.channel.send("Ping?");
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
   }
-  else if(command == "test"){
-    const filter = m => m.content.includes('discord');
-    const collector = message.channel.createMessageCollector(filter, { time: 15000 });
-
-    collector.on('collect', m => {
-      console.log(`Collected ${m.content}`);
-    });
-
-    collector.on('end', collected => {
-      console.log(`Collected ${collected.size} items`);
-    });
-  }
+  
   else if(command === "say") {
-    // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
-    // To get the "message" itself we join the `args` back into a string with spaces: 
     const sayMessage = args.join(" ");
-    // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
     message.delete().catch(O_o=>{}); 
-    // And we get the bot to say the thing: 
     message.channel.send(sayMessage);
   }
   
   else if(command === "kick" || command === "yeet") {
-    /* This command must be limited to mods and admins. In this example we just hardcode the role names.
-    if(!message.member.roles.some(r=>["Administrator", "Moderator"].includes(r.name)) )
+    /*if(!message.member.roles.some(r=>["Administrator", "Moderator"].includes(r.name)) )
       return message.reply("Sorry, you don't have permissions to use this!");*/
     
     if (!message.member.hasPermission(['KICK_MEMBERS'], false, true, true)) {
       return message.reply("this command can only be used by Members who have Kick permissions");
-    }  
-
-    // Let's first check if we have a member and if we can kick them!
-    // message.mentions.members is a collection of people that have been mention/IDed, as GuildMembers.
-    // We can also support getting the member by ID, which would be args[0]
+    } 
     let member = message.mentions.members.first() || message.guild.members.get(args[0]);
     if(!member)
       return message.reply("Please mention/ID a valid member of this server");
     if(!member.kickable) 
       return message.reply("I cannot kick this user! Do they have a higher role? Do I have kick permissions?");
     
-    // slice(1) removes the first part, which here should be the user mention/ID or ID
-    // join(' ') takes all the various parts to make it a single string.
     let reason = args.slice(1).join(' ');
     if(!reason) reason = "No reason provided";
     
-    // Now, time for a swift kick in the nuts!
     await member.kick(reason)
       .catch(error => message.reply(`Sorry ${message.author} I couldn't kick because of : ${error}`));
     message.reply(`${member.user.tag} has been kicked by ${message.author.tag} because: ${reason}`);
@@ -159,9 +134,7 @@ client.on("message", async message => {
   }
   
   else if(command === "ban") {
-    /* Most of this command is identical to kick, except that here we'll only let admins do it.
-    // In the real world mods could ban too, but this is just an example, right? ;)
-    if(!message.member.roles.some(r=>["Administrator"].includes(r.name)) )
+    /*if(!message.member.roles.some(r=>["Administrator"].includes(r.name)) )
       return message.reply("Sorry, you don't have permissions to use this!");*/
     
     if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'], false, true, true)) {
@@ -379,40 +352,7 @@ client.on("message", async message => {
   }
 
   else if(command == "use"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    var parsedData = JSON.parse(rawdataUser);
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
-    if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    for(var i = 0; i < args.length; i++){
-      args[i] = args[i].toLowerCase();
-    }
-    if(args[0] == "uk"|| (args[0] == "invade") && args[1] == "the" && args[2] == "uk"){
-      message.reply(useItem("UK", index, message));
-    }
-    else if(args[0] == "equipment"|| (args[0] == "advanced") && args[1] == "equipment"){
-      message.reply(useItem("AE", index, message));
-    }
-    else if(args[0] == "russia"|| (args[0] == "invade") && args[1] == "russia"){
-      message.reply(useItem("RU", index, message));
-    }
-    else if(args[0] == "city"|| (args[0] == "expand") && args[1] == "your" && args[2] == "city"){
-      message.reply(useItem("EC", index, message));
-    }
-    else if(args[0] == "soldiers"|| (args[0] == "recruit") && args[1] == "more" && args[2] == "soldiers"){
-      message.reply(useItem("MS", index, message));
-    }
-    else if(args[0] == "us"|| (args[0] == "invade") && args[1] == "the" && args[2] == "us"){
-      message.reply(useItem("US", index, message));
-    }
+
   }
 
   else if(command === "me" || command === "stats"){
@@ -1998,7 +1938,7 @@ function payoutLoop(){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.foodd += Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
