@@ -1,22 +1,3 @@
-/*.button {
-  background-color: #565656;
-  color: black; 
-  border: 4px solid #f44336;
-  color: black;
-  padding: 10px;
-  width: 200px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  -webkit-transition-duration: 0.4s; /* Safari *
-  transition-duration: 0.4s;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}*/
-
 .button {
   position: relative;
   background-color: #565656;
@@ -72,6 +53,8 @@ div#statbox {
   flex: 0 0 100%;
   margin-bottom: 30%;
   position: relative;
+  /*-webkit-clip-path: polygon(10% 0%, 10% 0%, 100% 10%, 100% 10%, 10% 100%, 20% 100%, 0% 80%, 0% 20%);
+  clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 100% 100%, 5% 100%, 0 95%, 0 0);*/
 }
 
 div#statbox:before {
@@ -93,9 +76,9 @@ div#statbox hr {
   margin-top: -2%;
 }
 
-div#statbox h2 {
+/*div#statbox h2 {
   font-size: 34px;
-}
+}*/
 
 div#featurebox {
   margin-left: 15%;
@@ -114,5 +97,20 @@ div#featurebox:hover {
   margin-left: 20%;
 }
 
+div.cutCorner{
+  position: relative;
+}
 
+div.cutCorner:before {
+  content: '';
+  position: absolute;
+  top: 0; 
+  right: 0;
+  border-top: 50px solid white;
+  border-left: 50px solid pink;
+}
+
+body {
+  line-height: 1.5;
+}
 

@@ -1,67 +1,72 @@
-<html> 
-  <head>
-    <title>Utopia statistics</title>
-    <link href='https://fonts.googleapis.com/css?family=Exo+2:400,900italic,900,800italic,800,700italic,700,600italic,600,500italic,500,400italic,300italic,300,200italic,200,100italic,100' rel='stylesheet' type='text/css'>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <link rel="stylesheet" type="text/css" href="futuristic.css" />
-  </head>
-  <body>
-  <div id="wrapper">
-    <div class="futurepanel" id="statbox">
-      <div class="futurepanel__header">
-        <h1 class="futurepanel__title">Bot statistics</h1>
-      </div>
-        <div class="futurepanel__body">
-          <h2 class="heading">Server: </h2>
-          <p id="statbox_first">Loading...</p>
-          <h2 class="heading">Users: </h3>
-          <p id="statbox_second">Loading...</p>
-          <h2 class="heading">Commands: </h4>
-          <p id="statbox_third">Loading...</p>
-          <br />
-          <a href="https://discordapp.com/oauth2/authorize?client_id=619909215997394955&permissions=8&scope=bot" target="_blank">
-            <button class="futurebutton">
-                Add Utopia to your Server!
-            </button>
-          </a>
-          <br />
-          <br />
-          <a href="https://discord.gg/d24gpB6" target="_blank">
-            <button class="futurebutton">
+<html>
+
+<head>
+	<title>Utopia statistics</title>
+	<link href='https://fonts.googleapis.com/css?family=Exo+2:400,900italic,900,800italic,800,700italic,700,600italic,600,500italic,500,400italic,300italic,300,200italic,200,100italic,100' rel='stylesheet' type='text/css'>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="futuristic.css" />
+	<script type="text/javascript">
+		if (screen.width <= 699) {
+			document.location = "mobile/index.html";
+		}
+	</script>
+</head>
+
+<body id="body">
+	<div id="wrapper">
+		<div class="futurepanel cutCorner" id="statbox">
+			<div class="futurepanel__header">
+				<h1 class="futurepanel__title">Bot statistics</h1>
+			</div>
+			<div class="futurepanel__body">
+				<h2 class="heading">Server: </h2>
+				<p id="statbox_first">Loading...</p>
+				<h2 class="heading">Users: </h3>
+					<p id="statbox_second">Loading...</p>
+					<h2 class="heading">Commands: </h4>
+						<p id="statbox_third">Loading...</p>
+						<br />
+						<a href="https://discordapp.com/oauth2/authorize?client_id=619909215997394955&permissions=8&scope=bot" target="_blank">
+							<button class="futurebutton">
+                  Add Utopia to your Server!
+              </button>
+						</a>
+						<br />
+						<br />
+						<a href="https://discord.gg/d24gpB6" target="_blank">
+							<button class="futurebutton">
                 Join the Utopia Server
-            </button>
-          </a>
-          <a href="https://github.com/JonathanTheZero/Utopia" target="_blank">
-            <button class="futurebutton">
-              GitHub
-            </button>
-          </a>
-        </div>
-        <div class="futurepanel__footer">
-          <div>#0002134678 TFFC:3 ///////////// </div>
-        </div>
-      </div>
-      
-      <div class="futurepanel" id="featurebox">
-        <div class="futurepanel__header">
-          <h1 class="futurepanel__title">Features</h1>
-        </div>
-        <div class="futurepanel__body">
-          <h3 class="heading">Build the biggest Empire of all!</h3>
-          <p>
-            Now new with v1: Battles!
-            <br />
-            The new battle feature allows you to duel other players, using your population and your resources.
-            But there is more: Winning duels will give you battle tokens which you can use to purchase upgrades for your army!
-          </p>
-        </div>
-        <div class="futurepanel__footer">
-          <div>#0002134678 TFFC:3 ///////////// </div>
-        </div>
-      </div>  
-    </div>
-    <!--
+              </button>
+						</a>
+						<a href="https://github.com/JonathanTheZero/Utopia" target="_blank">
+							<button class="futurebutton">
+                GitHub
+              </button>
+						</a>
+			</div>
+			<div class="futurepanel__footer">
+				<div>#0002134678 TFFC:3 ///////////// </div>
+			</div>
+		</div>
+
+		<div class="futurepanel" id="featurebox">
+			<div class="futurepanel__header">
+				<h1 class="futurepanel__title">Features</h1>
+			</div>
+			<div class="futurepanel__body">
+				<h3 class="heading">Build the biggest Empire of all!</h3>
+				<p>
+					Now new with v1: Battles!
+					<br /> The new battle feature allows you to duel other players, using your population and your resources. But there is more: Winning duels will give you battle tokens which you can use to purchase upgrades for your army!
+				</p>
+			</div>
+			<div class="futurepanel__footer">
+				<div>#0002134678 TFFC:3 ///////////// </div>
+			</div>
+		</div>
+	</div>
+	<!--
     <div class="futurepanel">
       <div class="futurepanel__header">
         <h1 class="futurepanel__title">Text Input Styles</h1>
@@ -163,8 +168,10 @@
         <div>#0002134678 TFFC:3 ///////////// </div>
       </div>
     </div>-->
-    
-    <!-- Load JSON with bot stats-->
-    <script src="botstats.js"></script> 
-  </body>
+
+	<!-- Load JSON with bot stats-->
+	<script src="botstats.js"></script>
+</body>
+
 </html>
+
