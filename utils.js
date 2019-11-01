@@ -32,8 +32,7 @@ module.exports = function () {
       });
     },
     searchUser = function (msg) {
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (var i = 0; i < parsedData.length; i++) {
         if (msg.author.id == parsedData[i].id) {
           return parsedData[i];
@@ -42,8 +41,7 @@ module.exports = function () {
     },
 
     searchUserByID = function (id) {
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (var i = 0; i < parsedData.length; i++) {
         if (id == parsedData[i].id) {
           return parsedData[i];
@@ -61,8 +59,7 @@ module.exports = function () {
   },
 
   getAllianceByName = function(name){
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let a = JSON.parse(rawdataAlliances);
+    let a = JSON.parse(fs.readFileSync('alliances.json'));
     for (var i = 0; i < a.length; i++) {
       if (name == a[i].name) {
         return a[i];

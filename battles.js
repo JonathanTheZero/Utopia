@@ -15,10 +15,8 @@ async function startBattleSelection(id, initiator) {
 }
 
 function startbattle(index, oppIndex, channelID) {
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let rawdataBattle = fs.readFileSync('activebattles.json');
-  let battleData = JSON.parse(rawdataBattle);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  let battleData =  JSON.parse(fs.readFileSync('activebattles.json'));
   const newBattle = {
     p1: {
       id: parsedData[index].id,
@@ -129,8 +127,7 @@ const troopInfoEmbed = {
 }
 
 async function battleMatch(index){
-  var rawdataBattle = fs.readFileSync('activebattles.json');
-  var battleData = JSON.parse(rawdataBattle);
+  var battleData =  JSON.parse(fs.readFileSync('activebattles.json'));
   const channel = client.channels.get(battleData[index].channelID);
   await Sleep(5000);
   var battleFinished = false;
@@ -170,7 +167,7 @@ async function battleMatch(index){
   while(!battleFinished){
     let ef = effect[rangeInt(0, effect.length - 1)];
     rawdataBattle = fs.readFileSync('activebattles.json');
-    battleData = JSON.parse(rawdataBattle);
+    battleData =  JSON.parse(fs.readFileSync('activebattles.json'));
     channel.send({embed: {
       color: parseInt(config.properties.embedColor),
       title: "Duel between " + battleData[index].p1.tag + " (player 1) and " + battleData[index].p2.tag + " (player 2).",
@@ -285,7 +282,7 @@ async function battleMatch(index){
       }
       let factor;
       try{
-        factor (-1* (getBaseLog(10, getBaseLog(10, getBaseLog(5, battleData[index].resources.food)))) + 1);
+        factor = (-1* (getBaseLog(10, getBaseLog(10, getBaseLog(5, battleData[index].resources.food)))) + 1);
       }
       catch {
         factor = 1.05;

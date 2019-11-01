@@ -25,8 +25,7 @@ dbl.webhook.on('ready', hook => {
 });
 
 dbl.webhook.on('vote', vote => {
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
     if(parsedData[i].id == vote.user){
       parsedData[i].money += 15000;
@@ -47,10 +46,10 @@ client.on("ready", () => {
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
-  setTimeout(populationWorkLoop, ((43200 - tdiff[1]) * 1000));
+  setTimeout(populationWorkLoop, ((39600 - tdiff[1]) * 1000));
   
-  /*let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
+  /*let  
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
     parsedData[i].upgrades.battle.iA = 0;
     parsedData[i].upgrades.battle.iD = 0;
@@ -64,8 +63,8 @@ client.on("ready", () => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   /*
-    let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
+    let  
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
     parsedData[i].resources.population = Math.floor(parsedData[i].resources.population);
     console.log(parsedData[i].tag);
@@ -183,8 +182,7 @@ client.on("message", async message => {
   }
 
   else if(command == "bet" || command == "coinflip"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    var parsedData = JSON.parse(rawdataUser);
+    var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -275,8 +273,7 @@ client.on("message", async message => {
   }
 
   else if(command == "buy"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    var parsedData = JSON.parse(rawdataUser);
+    var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -478,8 +475,7 @@ client.on("message", async message => {
   else if(command === "add"){
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.mentions.users.first().id == parsedData[i].id){
@@ -510,8 +506,7 @@ client.on("message", async message => {
   }
 
   else if(command === "send"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     var auInd = -1;
     let user;
@@ -548,10 +543,9 @@ client.on("message", async message => {
   }
 
   else if(command === "deposit"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+     
+    let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
@@ -586,8 +580,7 @@ client.on("message", async message => {
   }
 
   else if(command === "joinalliance" || command === "join"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -610,8 +603,7 @@ client.on("message", async message => {
   }
 
   else if(command == "createalliance"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -634,8 +626,7 @@ client.on("message", async message => {
   }
 
   else if(command == "leavealliance" || command == "leave"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -653,8 +644,7 @@ client.on("message", async message => {
   }
 
   else if(command == "renamealliance" || command == "rename"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -677,8 +667,7 @@ client.on("message", async message => {
   }
 
   else if(command === "promote"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -703,8 +692,7 @@ client.on("message", async message => {
   }
 
   else if(command === "demote"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -729,8 +717,7 @@ client.on("message", async message => {
   }
 
   else if(command === "setprivate"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -747,8 +734,7 @@ client.on("message", async message => {
   }
 
   else if(command === "setpublic"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -765,8 +751,7 @@ client.on("message", async message => {
   }
 
   else if(command === "settax"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -784,8 +769,7 @@ client.on("message", async message => {
   }
 
   else if(command === "upgradealliance" || command == "upalliance"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -807,8 +791,7 @@ client.on("message", async message => {
   }
 
   else if(command === "invite"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -832,8 +815,7 @@ client.on("message", async message => {
   }
   
   else if(command === "fire"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -855,8 +837,7 @@ client.on("message", async message => {
   }
 
   else if(command == "alliance"){
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var user;
     var url;
     if(typeof args[0] === "undefined"){
@@ -955,8 +936,8 @@ client.on("message", async message => {
   }
 
   else if(command == "alliancemembers"){
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+     
+    let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var user;
     var url;
     if(typeof args[0] === "undefined"){
@@ -1241,8 +1222,7 @@ client.on("message", async message => {
   }
 
   else if(command == "autoping"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -1261,8 +1241,7 @@ client.on("message", async message => {
   }
 
   else if(command == "payoutdms"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
       if(message.author.id == parsedData[i].id){
@@ -1285,10 +1264,8 @@ client.on("message", async message => {
   }
 
   else if(command === "work"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
@@ -1333,15 +1310,14 @@ client.on("message", async message => {
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
       fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-      if(parsedData[index].autoping) reminder(message, "w");
+      if(parsedData[index].autoping) reminder(message, 1800000, "I'll remind you in 30 minutes that you can work again.", "Reminder: Work again");
     }
   }
 
   else if(command === "crime"){
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+     
+    let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
     var index = -1;
     for(var i = 0; i < parsedData.length; i++){
@@ -1393,15 +1369,14 @@ client.on("message", async message => {
           message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
         }
       }
-      if(parsedData[index].autoping) reminder(message, "c");
+      if(parsedData[index].autoping) reminder(message, 14400000, "I'll remind you in 4h to commit a crime again.", "Reminder: Commit a crime.");
     } 
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
   
   else if(command == "startbattle" || command == "startduel" || command == "duel"){
     if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     var auInd = -1;
     let rawdataBattle = fs.readFileSync('activebattles.json');
@@ -1422,10 +1397,8 @@ client.on("message", async message => {
   }
 
   else if(command === "cancelduel" || command == "cancelbattle"){
-    let rawdataBattle = fs.readFileSync('activebattles.json');
-    let battleData = JSON.parse(rawdataBattle);
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let battleData = JSON.parse(fs.readFileSync('activebattles.json'));
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var dInd = -1;
     for(let i = 0; i < battleData.length;i++){
       if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
@@ -1469,8 +1442,7 @@ client.on("message", async message => {
         break;
       }
     }
-    let rawdataUser = fs.readFileSync("userdata.json");
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for(let i = 0;i<parsedData.length;i++){
       if(parsedData[i].id == message.author.id){
@@ -1509,8 +1481,7 @@ client.on("message", async message => {
   }
 
   else if(command == "ready"){
-    let rawdataBattle = fs.readFileSync('activebattles.json');
-    let battleData = JSON.parse(rawdataBattle);
+    let battleData = JSON.parse(fs.readFileSync('activebattles.json'));
     var dInd = -1;
     var p1;
     for(let i = 0; i < battleData.length;i++){
@@ -1550,8 +1521,7 @@ client.on("message", async message => {
   }
 
   else if(command == "statistics"){
-    let rawdataUser = fs.readFileSync("userdata.json");
-    let otherData = JSON.parse(rawdataUser);
+    let otherData = JSON.parse(fs.readFileSync('userdata.json'));
     fs.readFile("public/botstats.json", (err, data) =>{
       data = JSON.parse(data);
       if (err) throw err;
@@ -1587,15 +1557,13 @@ client.on("message", async message => {
 client.login(config.token);
 
 function createUser(msg){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   try{
     for(var i = 0; i < parsedData.length; i++){
       if(msg.author.id == parsedData[i].id) return msg.reply("you already have an registered account!");
     }
   }
   catch {}
-  
   let data = {
       tag: msg.author.tag,
       id: msg.author.id,
@@ -1632,36 +1600,10 @@ function createUser(msg){
   msg.reply("your account has been succesfully created.");
 }
 
-async function reminder(msg, type){
-  var rawdataUser = fs.readFileSync('userdata.json');
-  var parsedData = JSON.parse(rawdataUser);
-  if(type == "w"){
-    msg.channel.send("I'll remind you in 30 minutes that you can work again.");
-    for(var i = 0; i < parsedData.length; i++){
-      if(msg.author.id == parsedData[i].id){
-        parsedData[i].lastWorked = Math.floor(Date.now() / 1000);
-        break;
-      }
-    }
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    await Sleep(1800000);
-    msg.reply("Reminder: Work again");
-  }
-  else if(type == "c"){
-    msg.channel.send("I'll remind you in 4h to commit a crime again.");
-    for(var i = 0; i < parsedData.length; i++){
-      if(msg.author.id == parsedData[i].id){
-        parsedData[i].lastCrime = Math.floor(Date.now() / 1000);
-        break;
-      }
-    }
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    await Sleep(14400000);
-    msg.reply("Reminder: Commit a crime.");
-  }
-  else {
-    console.log("Error, no valid parameter for the reminder function.");
-  }
+async function reminder(message, duration, preText, postText){
+  message.channel.send(preText);
+  await Sleep(duration);
+  message.reply(postText);
 }
 
 function createStoreEmbed(message, type, args){
@@ -1867,22 +1809,19 @@ function createStoreEmbed(message, type, args){
 }
 
 function payoutLoop(){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let rawdataConfig = fs.readFileSync("config.json");
-  let parsedConfigData = JSON.parse(rawdataConfig);
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  let parsedConfigData = JSON.parse(fs.readFileSync("config.json"));
+  let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   //while(true){
     /*var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 100){
       Sleep((100 - tdiff) * 1000);
     }
-    rawdataUser = fs.readFileSync('userdata.json');
-    parsedData = JSON.parse(rawdataUser);
+     
+    parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     rawdataAlliances = fs.readFileSync('alliances.json');
-    parsedDataAlliances = JSON.parse(rawdataAlliances);*/
+     parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));*/
     payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
@@ -1970,20 +1909,33 @@ function payoutLoop(){
 //}
 
 function populationWorkLoop(){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let rawdataConfig = fs.readFileSync("config.json");
-  let parsedConfigData = JSON.parse(rawdataConfig);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  let parsedConfigData = JSON.parse(fs.readFileSync("config.json"));
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
   //while(true){
     /*var tdiff = Math.floor(Date.now() / 1000) - parsedConfigData.lastPopulationWorkPayout;
     if(tdiff < 43200){
       Sleep((43200 - tdiff) * 1000);
     }*/
-    rawdataUser = fs.readFileSync('userdata.json');
-    parsedData = JSON.parse(rawdataUser);
-    payoutChannel.send("Processing started...");
+    parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     let l = parsedData.length;
+    for(let i = 0; i < l; i++){
+      pop = parsedData[i].resources.population;
+      const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+      if(consumption > pop){
+        try {
+          client.users.get(parsedData[i].id.toString()).send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
+        }
+        catch (e){
+          console.log(e + `\n${parsedData[i].tag}`);
+        }
+      }
+    }
+    Sleep(3600000);
+     
+    parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    payoutChannel.send("Processing started...");
+    l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
       parsedData[i].money += Math.floor(pop / rangeInt(10, 20));
@@ -2024,15 +1976,14 @@ function populationWorkLoop(){
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
     //await Sleep(43200000);
-    setTimeout(populationWorkLoop, (1000 * 43200));
+    setTimeout(populationWorkLoop, 39600000); //11h
   }
 //}
 
 function getLeaderboardList(type){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  let parsedData = JSON.parse(rawdataUser);
-  let rawdataAlliances = fs.readFileSync('alliances.json');
-  let parsedDataAlliances = JSON.parse(rawdataAlliances);
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+   
+  let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
   if(type == "p"){
     return parsedData.sort((a, b) => parseFloat(b.resources.population) - parseFloat(a.resources.population));
   }
@@ -2136,8 +2087,8 @@ function leaderBoardEmbedFields(p, lb, type){
 }
 
 function buyItem(item, index, price){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  var parsedData = JSON.parse(rawdataUser);
+  let  
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   if(parsedData[index].money >= price){
     parsedData[index].money -= price;
     populationUpgrades = ["UK", "AE", "RU", "EC", "GL", "MS", "US"];
@@ -2171,8 +2122,8 @@ function buyItem(item, index, price){
 }
 
 function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
-  let rawdataUser = fs.readFileSync('userdata.json');
-  var parsedData = JSON.parse(rawdataUser);
+  let  
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   if(price > parsedData[index].battleToken) return `this items costs ${price} Battle tokens! You only own ${parsedData[index].battleToken}`;
   b = parsedData[index].upgrades.battle;
   b.iA += iA;

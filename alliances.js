@@ -4,10 +4,10 @@ const fs = require("fs");
 
 module.exports = function () {
   createAliiance = function (message, allianceName, index) {
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+
+    let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     if (parsedData[index].money < 250000) {
       return "you don't have enough money to create a new alliance. Creating an alliance costs 250,000 coins."
     }
@@ -45,10 +45,10 @@ module.exports = function () {
   },
 
     joinAliiance = function (message, allianceName, index) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == allianceName) {
           if (parsedDataAlliances[i].public || parsedDataAlliances[i].invitedUsers.includes(message.author.id)) {
@@ -71,10 +71,10 @@ module.exports = function () {
     },
 
     leaveAlliance = function (message) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var index = -1;
       for (var i = 0; i < parsedData.length; i++) {
         if (message.author.id == parsedData[i].id) {
@@ -124,10 +124,10 @@ module.exports = function () {
     },
 
     promote = function (message, index, member) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
         if (parsedData[i].id === member.id) {
@@ -170,10 +170,10 @@ module.exports = function () {
     },
 
     demote = function (message, index, member) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
         if (parsedData[i].id === member.id) {
@@ -205,10 +205,10 @@ module.exports = function () {
     },
 
     fire = function (message, index, member) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
         if (parsedData[i].id == member.id) {
@@ -240,10 +240,10 @@ module.exports = function () {
     },
 
     setAllianceStatus = function (mode, index) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (let i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
           parsedDataAlliances[i].public = mode;
@@ -257,10 +257,10 @@ module.exports = function () {
     },
 
     setAllianceTax = function (index, tax) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (let i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
           parsedDataAlliances[i].tax = tax;
@@ -271,10 +271,10 @@ module.exports = function () {
     },
 
     upgradeAlliance = function (index) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var ind = -1;
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedData[index].alliance == parsedDataAlliances[i].name) {
@@ -322,10 +322,8 @@ module.exports = function () {
     },
 
     inviteToAlliance = function (message, index, member) {
-      let rawdataAlliances = fs.readFileSync('alliances.json');
-      let parsedDataAlliances = JSON.parse(rawdataAlliances);
-      let rawdataUser = fs.readFileSync('userdata.json');
-      let parsedData = JSON.parse(rawdataUser);
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
         if (parsedData[i].id === member.id) {
@@ -345,10 +343,8 @@ module.exports = function () {
     }
 
   buyItemAlliance = function (itemShort, index, price, minLevel) {
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
+    let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     if (parsedData[index].allianceRank == "M") {
       return "sorry, you rank isn't high enough to buy upgrades.";
     }
@@ -407,17 +403,16 @@ module.exports = function () {
     }
   },
 
-  renameAlliance = function(message, allianceName, index){
-    let rawdataAlliances = fs.readFileSync('alliances.json');
-    let parsedDataAlliances = JSON.parse(rawdataAlliances);
-    let rawdataUser = fs.readFileSync('userdata.json');
-    let parsedData = JSON.parse(rawdataUser);
-    const old = (' ' + parsedData[index].alliance).slice(1);
-    for (var i = 0; i < parsedDataAlliances.length; i++) {
-      if (parsedDataAlliances[i].name == old) {
+    renameAlliance = function (message, allianceName, index) {
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+      const old = (' ' + parsedData[index].alliance).slice(1);
+      for (var i = 0; i < parsedDataAlliances.length; i++) {
+        if (parsedDataAlliances[i].name == old) {
           parsedDataAlliances[i].name = allianceName;
-          for(let j = 0; j < parsedData.length;j++){
-            if(parsedData[i].alliance == old) parsedData[i].alliance = allianceName;
+          for (let j = 0; j < parsedData.length; j++) {
+            if (parsedData[i].alliance == old) parsedData[i].alliance = allianceName;
           }
           fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
