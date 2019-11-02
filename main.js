@@ -1932,7 +1932,7 @@ async function populationWorkLoop(){
       }
     }
     await Sleep(3600000);
-     
+    
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     payoutChannel.send("Processing started...");
     l = parsedData.length;
@@ -1982,8 +1982,7 @@ async function populationWorkLoop(){
 
 function getLeaderboardList(type){
   let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-   
-  let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+  let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
   if(type == "p"){
     return parsedData.sort((a, b) => parseFloat(b.resources.population) - parseFloat(a.resources.population));
   }
@@ -2087,7 +2086,6 @@ function leaderBoardEmbedFields(p, lb, type){
 }
 
 function buyItem(item, index, price){
-  let  
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   if(parsedData[index].money >= price){
     parsedData[index].money -= price;
@@ -2122,7 +2120,6 @@ function buyItem(item, index, price){
 }
 
 function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
-  let  
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   if(price > parsedData[index].battleToken) return `this items costs ${price} Battle tokens! You only own ${parsedData[index].battleToken}`;
   b = parsedData[index].upgrades.battle;
