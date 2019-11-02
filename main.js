@@ -1908,7 +1908,7 @@ function payoutLoop(){
   }
 //}
 
-function populationWorkLoop(){
+async function populationWorkLoop(){
   let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   let parsedConfigData = JSON.parse(fs.readFileSync("config.json"));
   var payoutChannel = client.channels.get(parsedConfigData.payoutChannel);
@@ -1922,7 +1922,7 @@ function populationWorkLoop(){
     for(let i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
-      if(consumption > pop){
+      if(consumption > parsedData[i].resources.food){
         try {
           client.users.get(parsedData[i].id.toString()).send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
         }
@@ -1931,7 +1931,7 @@ function populationWorkLoop(){
         }
       }
     }
-    Sleep(3600000);
+    await Sleep(3600000);
      
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     payoutChannel.send("Processing started...");
