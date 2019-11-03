@@ -472,6 +472,27 @@ client.on("message", async message => {
     message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: "+ config.serverInvite);
   }
 
+  else if(command == "kill"){
+    if(typeof args[0] === "undefined" || args[0].isNaN() || parseInt(args[0]) < 0) 
+      return message.reply("please specify the amount follow the syntax of `.kill <amount>`.");
+    let parsedData = JSON.parse(fs.readFileSync("userdata.json"));
+    let index = -1;
+    for(let i = 0; i < parsedData.length;i++){
+      if(parsedData[i].id == message.author.id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1)
+      return message.reply("you haven't created an account yet, please use the `.create` command first.");
+    const a = parseInt(args[0]);
+    if(a > parsedData[index].resources.population)
+      return message.reply("you can't kill more population than you own!");
+    parsedData[index].resources.population -= a;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return message.reply(`you succesfully killed ${a} people.`)
+  }
+
   else if(command === "add"){
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
@@ -1091,15 +1112,19 @@ client.on("message", async message => {
         value: "View the items you purchased but haven't used yet."
       }
       field9 = {
+        name: "`.kill <amount>`",
+        value: "Kill a specific amount of your population."
+      }
+      field10 = {
         name: "`.alliance [mention/ID]`",
         value: "View the stats of your alliance or of the alliance of another user."
       }
-      field10 = {
+      field11 = {
         name: "`.bet <amount>` or `.coinflip <amount>`",
         value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
       }
       helpEmbed.title = "General help";
-      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10);
+      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10, field11);
     }
     else if(["alliance", "alliances", "a"].includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
@@ -1362,7 +1387,7 @@ client.on("message", async message => {
           produced -= taxed;
           parsedDataAlliances[alInd].money += taxed;
           parsedData[index].money += produced;
-          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
         }
         else{
           parsedData[index].money += produced
@@ -1458,15 +1483,18 @@ client.on("message", async message => {
     if(isNaN(inf) || isNaN(cav) || isNaN(art) || inf < 0 || cav < 0 || art < 0 || typeof args[2] === "undefined") return message.reply("please provde valid parameters following `.dividetroops <infantry> <cavalry> <artillery>`");
     const tot = (inf + cav + art) * 1000;
     var player = (p1) ? battleData[dInd].p1 : battleData[dInd].p2;
-    if(player.ready) return message.reply("error, you already locked your decision.");
-    if(tot > player.resources.population) return message.reply("you tried to use " + tot.commafy() + " troops but you only own " + player.resources.population.commafy() + " population.");
+    if(player.ready) 
+      return message.reply("error, you already locked your decision.");
+    if(tot > player.resources.population) 
+      return message.reply("you tried to use " + tot.commafy() + " troops but you only own " + player.resources.population.commafy() + " population.");
     player.troops.inf = inf;
     player.troops.cav = cav;
     player.troops.art = art;
     let consump = inf * 20 + cav * 300 + art * 500;
     parsedData[index].money += player.costs;
     let cost = inf * 50 + cav * 100 + art * 1000;
-    if(cost > parsedData[index].money) return message.reply(`choosing this troops would cost you ${cost.commafy()} but you only own ${parsedData[index].money.commafy()}`);
+    if(cost > parsedData[index].money) 
+      return message.reply(`choosing this troops would cost you ${cost.commafy()} but you only own ${parsedData[index].money.commafy()}`);
     parsedData[index].resources.population -= tot;
     parsedData[index].money -= cost;
     player.costs = cost;
@@ -1657,12 +1685,12 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Recruit more Soldiers',
-          value: '+500k population every 4h\nPrice: 10,000,000',
+          value: '+200k population every 4h\nPrice: 10,000,000',
           inline: true,
         },
         {
           name: 'Invade the US',
-          value: '+2M population every 4h\nPrice: 50,000,000',
+          value: '+750k population every 4h\nPrice: 50,000,000',
           inline: true,
         },
       ],
@@ -1818,7 +1846,6 @@ function payoutLoop(){
     if(tdiff < 100){
       Sleep((100 - tdiff) * 1000);
     }
-     
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     rawdataAlliances = fs.readFileSync('alliances.json');
      parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));*/
@@ -1836,9 +1863,9 @@ function payoutLoop(){
       if(parsedData[i].upgrades.population.includes("GL")) 
         parsedData[i].resources.population += 50000
       if(parsedData[i].upgrades.population.includes("MS"))
-        parsedData[i].resources.population += 500000;
+        parsedData[i].resources.population += 200000;
       if(parsedData[i].upgrades.population.includes("US"))
-        parsedData[i].resources.population += 2000000;
+        parsedData[i].resources.population += 750000;
       if(parsedData[i].payoutDMs){
         try{
           client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
@@ -1938,7 +1965,7 @@ async function populationWorkLoop(){
     l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
-      parsedData[i].money += Math.floor(pop / rangeInt(10, 20));
+      parsedData[i].money += Math.floor(pop / rangeInt(8, 15));
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
