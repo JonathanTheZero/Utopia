@@ -473,7 +473,7 @@ client.on("message", async message => {
   }
 
   else if(command == "kill"){
-    if(typeof args[0] === "undefined" || args[0].isNaN() || parseInt(args[0]) < 0) 
+    if(typeof args[0] === "undefined" || (args[0].isNaN() && args[0] != "a") || parseInt(args[0]) < 0) 
       return message.reply("please specify the amount follow the syntax of `.kill <amount>`.");
     let parsedData = JSON.parse(fs.readFileSync("userdata.json"));
     let index = -1;
@@ -485,7 +485,7 @@ client.on("message", async message => {
     }
     if(index == -1)
       return message.reply("you haven't created an account yet, please use the `.create` command first.");
-    const a = parseInt(args[0]);
+    const a = (args[0] == "a") ? parsedData[index].resources.population : parseInt(args[0]);
     if(a > parsedData[index].resources.population)
       return message.reply("you can't kill more population than you own!");
     parsedData[index].resources.population -= a;
