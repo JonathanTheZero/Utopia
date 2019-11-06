@@ -191,8 +191,7 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
+      return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
     else if((!isNumber(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
@@ -223,7 +222,7 @@ client.on("message", async message => {
         if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
-        message.reply("that isn't a valid page number!")
+        return  message.reply("that isn't a valid page number!")
       }
     }
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
@@ -232,7 +231,7 @@ client.on("message", async message => {
         if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
-        message.reply("that isn't a valid page number!")
+        return message.reply("that isn't a valid page number!")
       }
     }
     else if(["wins", "duels", "w"].includes(args[0])){
@@ -241,7 +240,7 @@ client.on("message", async message => {
         if(args[1] > Math.floor(getLeaderboardList("w").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
-        message.reply("that isn't a valid page number!")
+        return message.reply("that isn't a valid page number!")
       }
     }
     else {
@@ -251,7 +250,7 @@ client.on("message", async message => {
           if(args[0] > Math.floor(getLeaderboardList("m").length / 10) + 1) return message.reply("this isn't a valid page number!");
         }
         catch {
-          message.reply("that isn't a valid page number!")
+          return message.reply("that isn't a valid page number!")
         }
       }
       else {
@@ -260,11 +259,10 @@ client.on("message", async message => {
           if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
         }
         catch {
-          message.reply("that isn't a valid page number!")
+          return message.reply("that isn't a valid page number!")
         }
       }
     }
-    
     message.channel.send({ embed: lbEmbed });
   }
 
@@ -282,8 +280,7 @@ client.on("message", async message => {
       }
     }
     if(index == -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
+      return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     for(var i = 0; i < args.length; i++){
       args[i] = args[i].toLowerCase();
@@ -297,7 +294,7 @@ client.on("message", async message => {
     else if(args[0] == "russia"|| (args[0] == "invade") && args[1] == "russia"){
       return message.reply(buyItem("RU", index, 500000));
     }
-    else if(args[0] == "city"|| (args[0] == "expand") && args[1] == "your" && args[2] == "city"){
+    else if(args[0] == "city"|| (args[0] == "expand") && args[1] == "your" && args[2] == "city" || args[0] == "expanded" && args[1] == "city"){
       return message.reply(buyItem("EC", index, 1000000));
     }
     else if(args[0] == "globalization"){
@@ -2114,6 +2111,10 @@ function leaderBoardEmbedFields(p, lb, type){
 
 function buyItem(item, index, price){
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+
+  if(parsedData[index].upgrades.population.includes(item) || parsedData[index].upgrades.misc.includes(item))
+    return "you already own that item!";
+
   if(parsedData[index].money >= price){
     parsedData[index].money -= price;
     populationUpgrades = ["UK", "AE", "RU", "EC", "GL", "MS", "US"];
@@ -2140,7 +2141,7 @@ function buyItem(item, index, price){
       case "US":
         return "you succesfully invaded the US";
       default:
-        return "Error!"
+        return "Error!";
     }
   }
   return "You don't have enough money to buy that item.";
