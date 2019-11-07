@@ -490,6 +490,16 @@ client.on("message", async message => {
     return message.reply(`you succesfully killed ${a} people.`)
   }
 
+  else if(command == "start-giveaway"){
+    if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+    const ending;
+    const giveaway = {
+      channel: message.channel,
+      startedAt: Date.now() / 1000,
+      endingAt: ending
+    }
+  }
+
   else if(command === "add"){
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
