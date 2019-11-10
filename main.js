@@ -491,13 +491,34 @@ client.on("message", async message => {
   }
 
   else if(command == "start-giveaway"){
+    //.start-giveaway <amount> <currency> <ending>
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+    let gas = JSON.parse(fs.readFileSync("giveaways.json"));
+    const endstr = args.slice(2).join(" ");
     const ending;
-    const giveaway = {
-      channel: message.channel,
-      startedAt: Date.now() / 1000,
-      endingAt: ending
+    if(endstr.match(/[in]?[ ]?\d{1,}[ ]?m/ig)){//x minutes
+      addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 60 * 1000;
+      ending = new Date(Date.now() + addTime);
     }
+    else if(endstr.match(/[in]?[ ]?\d{1,}[ ]?h/ig)){//x hours
+      addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 3600 * 1000;
+      ending = new Date(Date.now() + addTime);
+    }
+    else if(endstr.match(/[in]?[ ]?\d{1,}[ ]?h/ig)){//x days
+      addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 24 * 3600 * 1000;
+      ending = new Date(Date.now() + addTime);
+    }
+    const giveaway = {
+      channelid: message.channel,
+      messageid: message.id,
+      startedAt: Date.now(),
+      endingAt: ending,
+      users: [] 
+    }
+    gas.push(giveaway);
+    fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
+    message.react("🎉");
+    giveawayCheck(gas.indexOf(giveaway));
   }
 
   else if(command === "add"){
@@ -2170,4 +2191,12 @@ function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
   parsedData[index].battleToken -= price;
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   return "you succesfully bought the upgrade!";
+}
+
+async function giveawayCheck(index){
+  const giveaway = JSON.parse(fs.readFileSync("giveaways.json"))[index];
+  let message = client.channels.get(giveaway.channelid.toString())
+    .fetchMessage(giveaway.messageid.toString())
+    .catch(console.error);
+  await Sleep(giveaway.endingAt - giveaway.startedAt);
 }
