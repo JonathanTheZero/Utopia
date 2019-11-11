@@ -495,7 +495,19 @@ client.on("message", async message => {
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     let gas = JSON.parse(fs.readFileSync("giveaways.json"));
     const endstr = args.slice(2).join(" ");
-    const ending;
+
+    var currency;
+    if(args[1].startsWith("p") || args[1].startsWith("P"))
+      currency = "Population";
+    else if(args[1].startsWith("f") || args[1].startsWith("F"))
+      currency = "Food";
+    else if(args[1].startsWith("m") || args[1].startsWith("M"))
+      currency = "Money";
+    else
+      return message.reply("the only valid currencies are food, population and money!");
+    
+    var ending;
+    var addTime = -1;
     if(endstr.match(/[in]?[ ]?\d{1,}[ ]?m/ig)){//x minutes
       addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 60 * 1000;
       ending = new Date(Date.now() + addTime);
@@ -504,19 +516,36 @@ client.on("message", async message => {
       addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 3600 * 1000;
       ending = new Date(Date.now() + addTime);
     }
-    else if(endstr.match(/[in]?[ ]?\d{1,}[ ]?h/ig)){//x days
+    else if(endstr.match(/[in]?[ ]?\d{1,}[ ]?d/ig)){//x days
       addTime = parseInt(endstr.match(/\d+/g).map(Number)[0]) * 24 * 3600 * 1000;
       ending = new Date(Date.now() + addTime);
     }
+    if(addTime == -1)
+      return message.reply("please specifiy a valid time.")
+    if(addTime > 172800000) 
+      return message.reply("You can't start a giveaway that lasts longer than two days!");
     const giveaway = {
-      channelid: message.channel,
+      channelid: message.channel.id,
       messageid: message.id,
       startedAt: Date.now(),
-      endingAt: ending,
+      endingISO: ending,
+      endingAt: new Date(ending).getTime(),
       users: [] 
     }
     gas.push(giveaway);
     fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
+    message.channel.send({
+      embed: {
+        color: parseInt(config.properties.embedColor),
+        title: `Giveaway for ${args[0]}x${currency}`,
+        description: "React to the message to participate in the giveaway",
+        footer: {
+          text: `${config.properties.footer.text}  •  Ends at: `,
+          icon_url: config.properties.footer.icon_url
+        },
+        timestamp: new Date(ending)
+      }
+    });
     message.react("🎉");
     giveawayCheck(gas.indexOf(giveaway));
   }
@@ -2194,9 +2223,16 @@ function buyBattleUpgrade(index, iA, iD, cA, cD, aA, aD, price){
 }
 
 async function giveawayCheck(index){
-  const giveaway = JSON.parse(fs.readFileSync("giveaways.json"))[index];
-  let message = client.channels.get(giveaway.channelid.toString())
-    .fetchMessage(giveaway.messageid.toString())
-    .catch(console.error);
+  var gas = JSON.parse(fs.readFileSync("giveaways.json"));
+  var giveaway = gas[index];
+  const channel = client.channels.get(giveaway.channelid);
+  var voteCollection;
+  let message =  await channel.fetchMessage(giveaway.messageid).then(msg => {
+    voteCollection = msg.reactions.filter(rx => rx.emoji.name == '🎉');
+  });
+  await Sleep(15000);
+  //console.log(message.reactions.fetchUser());
+  
+  channel.send(voteCollection.array().length + " Reactions");
   await Sleep(giveaway.endingAt - giveaway.startedAt);
 }
