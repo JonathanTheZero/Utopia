@@ -48,11 +48,6 @@ module.exports = function () {
         }
       }
     }
-
-  isNumber = function (n) {
-    //return ((n >= '0' && n <= '9') ? true : false);
-    return !isNaN(n);
-  },
   
   rangeInt = function (min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);

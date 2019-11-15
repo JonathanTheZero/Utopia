@@ -218,7 +218,7 @@ client.on("message", async message => {
     var lbEmbed;
     if(args[0] == "p" || args[0] == "population"){
       try {
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1) : generateLeaderboardEmbed("p", args[1]);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("p", 1, message) : generateLeaderboardEmbed("p", args[1], message);
         if(args[1] > Math.floor(getLeaderboardList("p").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
@@ -227,7 +227,7 @@ client.on("message", async message => {
     }
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
       try {
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1) : generateLeaderboardEmbed("a", args[1]);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1, message) : generateLeaderboardEmbed("a", args[1], message);
         if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
@@ -236,7 +236,7 @@ client.on("message", async message => {
     }
     else if(["wins", "duels", "w"].includes(args[0])){
       try {
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("w", 1) : generateLeaderboardEmbed("w", args[1]);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("w", 1, message) : generateLeaderboardEmbed("w", args[1], message);
         if(args[1] > Math.floor(getLeaderboardList("w").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
@@ -244,9 +244,9 @@ client.on("message", async message => {
       }
     }
     else {
-      if(isNumber(args[0])){
+      if(!isNaN(args[0])){
         try {
-          lbEmbed = generateLeaderboardEmbed("m", args[0]);
+          lbEmbed = generateLeaderboardEmbed("m", args[0], message);
           if(args[0] > Math.floor(getLeaderboardList("m").length / 10) + 1) return message.reply("this isn't a valid page number!");
         }
         catch {
@@ -255,7 +255,7 @@ client.on("message", async message => {
       }
       else {
         try {
-          lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1) : generateLeaderboardEmbed("m", args[1]);
+          lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("m", 1, message) : generateLeaderboardEmbed("m", args[1], message);
           if(args[1] > Math.floor(getLeaderboardList("m").length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
         }
         catch {
@@ -469,6 +469,77 @@ client.on("message", async message => {
     message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: "+ config.serverInvite);
   }
 
+  else if(command == "payoutstats"){
+    var user;
+    if(typeof args[0] === "undefined"){
+      user = searchUser(message);
+    }
+    else {
+      try{
+        user = searchUserByID(message.mentions.users.first().id);
+      }
+      catch {
+        user = searchUserByID(args[0]);
+      }
+    }
+    var userPop = 0;
+    if(user.upgrades.population.length != 0){
+      if(user.upgrades.population.includes("UK")) userPop += 5000;
+      if(user.upgrades.population.includes("AE")) userPop += 10000;      
+      if(user.upgrades.population.includes("RU")) userPop += 15000;
+      if(user.upgrades.population.includes("EC")) userPop += 25000;
+      if(user.upgrades.population.includes("GL")) userPop += 50000;
+      if(user.upgrades.population.includes("MS")) userPop += 200000;
+      if(user.upgrades.population.includes("US")) userPop += 750000;
+    }
+
+    var userFood = 0;
+    if(user.alliance != null){
+      let alliance = getAllianceByName(user.alliance);
+      if(user.allianceRank == "L"){
+        userFood = alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1)));
+      }
+      else if(user.allianceRank == "LC"){
+        userFood = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1)));
+      }
+      else if(user.allianceRank == "M"){
+        userFood = Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
+          Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1)));
+      }
+    }
+
+    message.channel.send({
+      embed: {
+        color: parseInt(config.properties.embedColor),
+        title: `Next payout stats for ${user.tag}`,
+        fields: [
+          {
+            name: "Population:",
+            value: userPop.commafy(),
+            inline: true
+          },
+          {
+            name: "Money",
+            value: `Between ${Math.floor(user.resources.population / 15).commafy()} and ${Math.floor(user.resources.population / 8).commafy()}`,
+            inline: true
+          },
+          {
+            name: "Food:",
+            value: userFood.commafy(),
+            inline: true
+          }
+        ],
+        footer: config.properties.footer,
+        timestamp: new Date()
+      }
+    });
+  }
+
   else if(command == "kill"){
     if(typeof args[0] === "undefined" || (args[0].isNaN() && args[0] != "a") || parseInt(args[0]) < 0) 
       return message.reply("please specify the amount follow the syntax of `.kill <amount>`.");
@@ -487,7 +558,7 @@ client.on("message", async message => {
       return message.reply("you can't kill more population than you own!");
     parsedData[index].resources.population -= a;
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    return message.reply(`you succesfully killed ${a} people.`)
+    return message.reply(`you succesfully killed ${a.commafy()} people.`);
   }
 
   else if(command == "start-giveaway"){
@@ -1906,7 +1977,7 @@ function payoutLoop(){
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     rawdataAlliances = fs.readFileSync('alliances.json');
      parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));*/
-    payoutChannel.send("Processing started...");
+    //payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
       if(parsedData[i].upgrades.population.includes("UK"))
@@ -1933,8 +2004,15 @@ function payoutLoop(){
       }
       if(parsedData[i].resources.food == null) parsedData[i].resources.food = 0;
     } 
-    payoutChannel.send("You have succesfully gained population from your upgrades!");
-    payoutChannel.send("Processing started...");
+    /*payoutChannel.send("You have succesfully gained population from your upgrades!");
+    payoutChannel.send("Processing started...");*/
+    payoutChannel.send({
+      embed: {
+        color: 0x00FF00,
+        title: "You have succesfully gained population from your upgrades!",
+        timestamp: new Date()
+      }
+    });
     for(var i = 0; i < parsedDataAlliances.length; i++){
       if(parsedDataAlliances[i].upgrades.af > 0){
         for(var j = 0; j < parsedData.length; j++){
@@ -1955,13 +2033,13 @@ function payoutLoop(){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
@@ -1970,19 +2048,26 @@ function payoutLoop(){
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
       }
     }
-    payoutChannel.send("You have succesfully gained food from your alliance upgrades!");
+    //payoutChannel.send("You have succesfully gained food from your alliance upgrades!");
+    payoutChannel.send({
+      embed: {
+        color: 0x00FF00,
+        title: "You have succesfully gained food from your alliance upgrades!",
+        timestamp: new Date()
+      }
+    });
     parsedConfigData.lastPayout = Math.floor(Date.now() / 1000);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
@@ -2018,7 +2103,7 @@ async function populationWorkLoop(){
     await Sleep(3600000);
     
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    payoutChannel.send("Processing started...");
+    //payoutChannel.send("Processing started...");
     l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
@@ -2055,7 +2140,14 @@ async function populationWorkLoop(){
       parsedData[i].tokenUsed = false;
       if(parsedData[i].resources.food == null) parsedData[i].resources.food = 0;
     } 
-    payoutChannel.send("You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!");
+    //payoutChannel.send("You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!");
+    payoutChannel.send({
+      embed: {
+        color: 0x00FF00,
+        title: "You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!",
+        timestamp: new Date()
+      }
+    });
     parsedConfigData.lastPopulationWorkPayout = Math.floor(Date.now() / 1000);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     fs.writeFileSync("config.json", JSON.stringify(parsedConfigData, null, 2))
@@ -2081,14 +2173,18 @@ function getLeaderboardList(type){
   }
 }
 
-function generateLeaderboardEmbed(type, page){
+function generateLeaderboardEmbed(type, page, message){
   var p = page - 1;
   var lbEmbed;
   if(type == "p"){
     var lb = getLeaderboardList("p");
+    var index = lb.findIndex(function(item, i){
+      return item.id == message.author.id;
+    });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Leaderboard sorted by population, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "p"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -2106,9 +2202,13 @@ function generateLeaderboardEmbed(type, page){
   }
   else if(type == "w"){
     var lb = getLeaderboardList("w");
+    var index = lb.findIndex(function(item, i){
+      return item.id == message.author.id;
+    });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "w"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -2116,9 +2216,13 @@ function generateLeaderboardEmbed(type, page){
   }
   else {
     var lb = getLeaderboardList("m");
+    var index = lb.findIndex(function(item, i){
+      return item.id == message.author.id;
+    });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
       title: "".concat("Leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "m"),
       timestamp: new Date(),
       footer: config.properties.footer,
