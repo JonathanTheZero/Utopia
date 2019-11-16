@@ -1252,7 +1252,7 @@ client.on("message", async message => {
         value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
       }
       field12 = {
-        name: "`.payoutstats [mention]",
+        name: "`.payout [mention]",
         value: "See how many ressources you or another user will receive during the next payout"
       }
       helpEmbed.title = "General help";
