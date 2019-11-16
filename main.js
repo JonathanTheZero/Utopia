@@ -194,7 +194,7 @@ client.on("message", async message => {
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
-    else if((!isNumber(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
+    else if((isNaN(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
@@ -501,7 +501,7 @@ client.on("message", async message => {
           alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
           alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1)));
       }
-      else if(user.allianceRank == "LC"){
+      else if(user.allianceRank == "C"){
         userFood = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
           alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
           alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1)));
@@ -1251,8 +1251,12 @@ client.on("message", async message => {
         name: "`.bet <amount>` or `.coinflip <amount>`",
         value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
       }
+      field12 = {
+        name: "`.payoutstats [mention]",
+        value: "See how many ressources you or another user will receive during the next payout"
+      }
       helpEmbed.title = "General help";
-      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10, field11);
+      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10, field11, field12);
     }
     else if(["alliance", "alliances", "a"].includes(args[0])){
       helpEmbed.fields[2].name = "`.createalliance <name>`";
@@ -2207,7 +2211,7 @@ function generateLeaderboardEmbed(type, page, message){
     });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: "".concat("Leaderboard sorted by wins, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "w"),
       timestamp: new Date(),
