@@ -562,10 +562,11 @@ client.on("message", async message => {
   }
 
   else if(command == "start-giveaway"){
-    //.start-giveaway <amount> <currency> <ending>
+    //.start-giveaway <amount> <currency> <winners> <ending>
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     let gas = JSON.parse(fs.readFileSync("giveaways.json"));
-    const endstr = args.slice(2).join(" ");
+    const endstr = args.slice(3).join(" ");
+    if(args.length < 4) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
 
     var currency;
     if(args[1].startsWith("p") || args[1].startsWith("P"))
@@ -595,17 +596,8 @@ client.on("message", async message => {
       return message.reply("please specifiy a valid time.")
     if(addTime > 172800000) 
       return message.reply("You can't start a giveaway that lasts longer than two days!");
-    const giveaway = {
-      channelid: message.channel.id,
-      messageid: message.id,
-      startedAt: Date.now(),
-      endingISO: ending,
-      endingAt: new Date(ending).getTime(),
-      users: [] 
-    }
-    gas.push(giveaway);
-    fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
-    message.channel.send({
+    var giveaway;
+    await message.channel.send({
       embed: {
         color: parseInt(config.properties.embedColor),
         title: `Giveaway for ${args[0]}x${currency}`,
@@ -616,8 +608,25 @@ client.on("message", async message => {
         },
         timestamp: new Date(ending)
       }
+    }).then(sent => {
+      giveaway = {
+        channelid: message.channel.id,
+        messageid: message.id,
+        winners: parseInt(args[2]),
+        startedAt: Date.now(),
+        endingISO: ending,
+        priceAm: args[0],
+        priceCur: args[1],
+        endingAt: new Date(ending).getTime(),
+        embedId: sent.id,
+        users: [] 
+      }
     });
-    message.react("🎉");
+    console.log(giveaway);
+    gas.push(giveaway);
+    fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
+    let msg = await message.channel.fetchMessage(giveaway.embedId);
+    msg.react("🎉");
     giveawayCheck(gas.indexOf(giveaway));
   }
 
@@ -1085,7 +1094,6 @@ client.on("message", async message => {
   }
 
   else if(command == "alliancemembers"){
-     
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var user;
     var url;
@@ -2335,12 +2343,10 @@ async function giveawayCheck(index){
   var giveaway = gas[index];
   const channel = client.channels.get(giveaway.channelid);
   var voteCollection;
-  let message =  await channel.fetchMessage(giveaway.messageid).then(msg => {
-    voteCollection = msg.reactions.filter(rx => rx.emoji.name == '🎉');
+  let message =  await channel.fetchMessage(giveaway.embedId).then(msg => {
+    voteCollection = msg.reactions;
   });
-  await Sleep(15000);
-  //console.log(message.reactions.fetchUser());
-  
-  channel.send(voteCollection.array().length + " Reactions");
-  await Sleep(giveaway.endingAt - giveaway.startedAt);
+  await Sleep(giveaway.endingAt - Date.now());
+  giveaway.users = voteCollection.first().users.array().shift();
+  let x = giveaway.users.getRandom(giveaway.winners);
 }

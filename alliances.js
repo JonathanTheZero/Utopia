@@ -405,14 +405,13 @@ module.exports = function () {
 
     renameAlliance = function (message, allianceName, index) {
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       const old = (' ' + parsedData[index].alliance).slice(1);
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == old) {
           parsedDataAlliances[i].name = allianceName;
           for (let j = 0; j < parsedData.length; j++) {
-            if (parsedData[i].alliance == old) parsedData[i].alliance = allianceName;
+            if (parsedData[j].alliance == old) parsedData[j].alliance = allianceName;
           }
           fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
