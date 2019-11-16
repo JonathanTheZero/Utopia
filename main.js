@@ -206,6 +206,10 @@ client.on("message", async message => {
     if (args[0] == "half" || args[0] == "h"){
       var money = Math.floor((parsedData[index].money)/2);
     }
+    if(money > parsedData[index].money){
+      message.reply("you can't bet more money than you own!");
+      return;
+    }
     if(won){
       parsedData[index].money += money;
       message.reply("congratulations! You won " + money.commafy() + " coins!");
