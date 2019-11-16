@@ -198,7 +198,14 @@ client.on("message", async message => {
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
-    var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+
+    if (args[0] == "a"){
+      var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    }
+
+    if (args[0] == "half" || args[0] == "h"){
+      var money = Math.floor((parsedData[index].money)/2);
+    }
     if(money > parsedData[index].money){
       message.reply("you can't bet more money than you own!");
       return;
