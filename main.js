@@ -198,14 +198,11 @@ client.on("message", async message => {
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
-
-    if (args[0] == "a"){
-      var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
-    }
-
+    var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
     if (args[0] == "half" || args[0] == "h"){
-      var money = Math.floor((parsedData[index].money)/2);
+      money = Math.floor((parsedData[index].money)/2);
     }
+
     if(money > parsedData[index].money){
       message.reply("you can't bet more money than you own!");
       return;
@@ -2353,16 +2350,7 @@ async function giveawayCheck(index){
   let message =  await channel.fetchMessage(giveaway.embedId).then(msg => {
     voteCollection = msg.reactions;
   });
-<<<<<<< HEAD
   await Sleep(giveaway.endingAt - Date.now());
   giveaway.users = voteCollection.first().users.array().shift();
   let x = giveaway.users.getRandom(giveaway.winners);
 }
-=======
-  await Sleep(15000);
-  //console.log(message.reactions.fetchUser());
-  
-  channel.send(voteCollection.array().length + " Reactions");
-  await Sleep(giveaway.endingAt - giveaway.startedAt);
-}
->>>>>>> 8137fa01f3a5a23fe33e6824ea5b8a23a6c07dfb
