@@ -194,7 +194,7 @@ client.on("message", async message => {
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
-    else if((isNaN(args[0]) && args[0] != "a" )|| typeof args[0] === "undefined" || args[0] < 1){
+    else if((isNaN(args[0]) && args[0] != "a" && (!args[0].startsWith("h") || !args[0].startsWith("H")))|| typeof args[0] === "undefined" || args[0] < 1){
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
