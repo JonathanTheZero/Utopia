@@ -469,7 +469,7 @@ client.on("message", async message => {
     message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: "+ config.serverInvite);
   }
 
-  else if(command == "payoutstats"){
+  else if(command == "payout"){
     var user;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
