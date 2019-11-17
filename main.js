@@ -1090,6 +1090,11 @@ client.on("message", async message => {
           value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
           inline: true,
         },
+        {
+          name: "\u200b",
+          value: "\u200b",
+          inline: true
+        }
       ],
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -1261,10 +1266,10 @@ client.on("message", async message => {
       }
       field11 = {
         name: "`.bet <amount>` or `.coinflip <amount>`",
-        value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money)"
+        value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money or `.bet h` to bet half of your money)"
       }
       field12 = {
-        name: "`.payout [mention]",
+        name: "`.payout [mention]`",
         value: "See how many ressources you or another user will receive during the next payout"
       }
       helpEmbed.title = "General help";
