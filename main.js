@@ -205,6 +205,11 @@ client.on("message", async message => {
     if (args[0] == "half" || args[0] == "h"){
       money = Math.floor((parsedData[index].money)/2);
     }
+    
+    //To allow the user to bet a quarter of their money rounded up
+    if (args[0] == "quarter" || args[0] == "q"){
+        money = Math.floor((parsedData[index].money)*0.25);
+    }
 
     if(money > parsedData[index].money){
       message.reply("you can't bet more money than you own!");
