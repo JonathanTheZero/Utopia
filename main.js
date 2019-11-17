@@ -1,3 +1,4 @@
+//Ok
 const Discord = require('discord.js');
 const DBL = require("dblapi.js");
 const config = require("./config.json");
