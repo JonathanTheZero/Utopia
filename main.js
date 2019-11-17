@@ -20,7 +20,7 @@ const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 
-const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
+/*const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
 });
@@ -35,6 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
+*/
 
 //loading the settings
 console.log("My prefix is", config.prefix)
@@ -198,18 +199,19 @@ client.on("message", async message => {
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
     if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
-    else if((isNaN(args[0]) && args[0] != "a" && (!args[0].startsWith("h") || !args[0].startsWith("H")))|| typeof args[0] === "undefined" || args[0] < 1){
+    else if((isNaN(args[0]) && args[0] != "a" && (args[0] != ("h") || args[0] != ("h")) && (args[0] != ("q") || args[0] != ("quarter"))) && typeof args[0] === "undefined" && args[0] < 1){
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
     
     var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    
     if (args[0] == "half" || args[0] == "h"){
       money = Math.floor((parsedData[index].money)/2);
     }
     
     //To allow the user to bet a quarter of their money rounded up
-    if (args[0] == "quarter" || args[0] == "q"){
+    else if (args[0] == "quarter" || args[0] == "q"){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
@@ -237,6 +239,17 @@ client.on("message", async message => {
       }
       catch {
         return  message.reply("that isn't a valid page number!")
+      }
+    }
+
+    
+    else if (args[0] == "f" || args[0] == "food"){
+      try{
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("f", 1, message) : generateLeaderboardEmbed("f", 1, message);
+        if(args[1] > Math.floor(getLeaderboardList("f").length / 10) + 1 ||  isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+      }
+      catch {
+        return message.reply("that isn't a valid page number!")
       }
     }
     else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
@@ -2192,6 +2205,9 @@ function getLeaderboardList(type){
   if(type == "p"){
     return parsedData.sort((a, b) => parseFloat(b.resources.population) - parseFloat(a.resources.population));
   }
+  else if (type == "f"){
+    return parsedData.sort((a, b) => parseFloat(b.resources.food) - parseFloat(a.resources.food));
+  }
   else if(type == "a"){
     return parsedDataAlliances.sort((a, b) => parseFloat(b.money) - parseFloat(a.money));
   }
@@ -2220,11 +2236,26 @@ function generateLeaderboardEmbed(type, page, message){
       footer: config.properties.footer,
     };
   }
+  else if(type == "f"){
+    var lb = getLeaderboardList("f");
+    var index = lb.findIndex(function(item, i){
+      return item.id == message.author.id;
+    });
+    lbEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: "".concat("Leaderboard sorted by food, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      description: `Your rank: \`#${index+1}\``,
+      fields: leaderBoardEmbedFields(p, lb, "f"),
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }
+  }
+
   else if(type == "a"){
     var lb = getLeaderboardList("a");
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Alliance leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: "".concat("Leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
       fields: leaderBoardEmbedFields(p, lb, "a"),
       timestamp: new Date(),
       footer: config.properties.footer,
@@ -2278,6 +2309,15 @@ function leaderBoardEmbedFields(p, lb, type){
       field = {
         name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p *10].name,
         value: lb[i + p * 10].money.commafy() + " coins",
+      }
+      fields.push(field);
+    }
+  }
+  else if(type == "f"){
+    for(var i = 0; i < h; i++){
+      field = {
+        name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p *10].tag,
+        value: lb[i + p * 10].resources.food.commafy() + " food",
       }
       fields.push(field);
     }
