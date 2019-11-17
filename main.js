@@ -47,7 +47,10 @@ client.on("ready", () => {
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((39600 - tdiff[1]) * 1000));
-  
+  let gas = JSON.parse(fs.readFileSync("giveaways.json"));
+  for(let i = 0; i < gas.length; i++){
+    giveawayCheck(i);
+  }
   /*let  
   let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
@@ -570,7 +573,7 @@ client.on("message", async message => {
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     let gas = JSON.parse(fs.readFileSync("giveaways.json"));
     const endstr = args.slice(3).join(" ");
-    if(args.length < 4) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
+    if(args.length < 4 || parseInt(args[3]) < 1 || parseInt(args[0]) < 1) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
 
     var currency;
     if(args[1].startsWith("p") || args[1].startsWith("P"))
@@ -604,7 +607,7 @@ client.on("message", async message => {
     await message.channel.send({
       embed: {
         color: parseInt(config.properties.embedColor),
-        title: `Giveaway for ${args[0]}x${currency}`,
+        title: `Giveaway for ${args[0].commafy()}x${currency}`,
         description: "React to the message to participate in the giveaway",
         footer: {
           text: `${config.properties.footer.text}  •  Ends at: `,
@@ -626,7 +629,6 @@ client.on("message", async message => {
         users: [] 
       }
     });
-    console.log(giveaway);
     gas.push(giveaway);
     fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
     let msg = await message.channel.fetchMessage(giveaway.embedId);
@@ -1433,8 +1435,8 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
 
-  else if(command == "patreon" || command == "donate"){
-    return message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot")
+  else if(["patreon", "donate", "paypal"].includes(command)){
+    return message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
   }
 
   else if(command === "work"){
@@ -2352,10 +2354,50 @@ async function giveawayCheck(index){
   var giveaway = gas[index];
   const channel = client.channels.get(giveaway.channelid);
   var voteCollection;
+
+  await Sleep(giveaway.endingAt - Date.now());
+
   let message =  await channel.fetchMessage(giveaway.embedId).then(msg => {
     voteCollection = msg.reactions;
   });
-  await Sleep(giveaway.endingAt - Date.now());
-  giveaway.users = voteCollection.first().users.array().shift();
-  let x = giveaway.users.getRandom(giveaway.winners);
+
+  giveaway.users = await voteCollection.first().users.array();
+  giveaway.users.shift();
+  console.log(giveaway.users);
+  let x = await giveaway.users.getRandom(giveaway.winners);
+  console.log(x);
+  var winnerMentions = `<@${x[0].id}>`;
+  for(let i = 1; i < x.length; i++){
+    winnerMentions += `<@${x[i].id}>`;
+  }
+  channel.send({
+    embed: {
+      color: parseInt(config.properties.embedColor),
+      title: "Giveaway ended",
+      description: `Congratulations ${winnerMentions}, you won the ${giveaway.priceAm.commafy()} ${giveaway.priceCur}`,
+      footer: config.properties.footer,
+      timestamp: new Date()
+    }
+  });
+
+  var parsedData = JSON.parse(fs.readFileSync("userdata.json"));
+  for(let i = 0; i < x.length; i++){
+    for(let j = 0; j < parsedData.length; j++){
+      if(parsedData[j].id == x[i].id){
+        if(giveaway.priceCur == "food"){
+          parsedData[j].resources.food += parseInt(giveaway.priceAm);
+        }
+        else if(giveaway.priceCur == "population"){
+          parsedData[j].resources.population += parseInt(giveaway.priceAm);
+        }
+        if(giveaway.priceCur == "money"){
+          parsedData[j].money += parseInt(giveaway.priceAm);
+        }
+      }
+    }
+  }
+  console.log(giveaway);
+  gas.splice(index, 1);
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
 }
