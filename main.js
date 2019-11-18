@@ -2063,11 +2063,13 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-            }
-            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+            else if(parsedDataAlliances[i].members.length > 1){
+              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
+              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
             }
           }
         }
@@ -2078,11 +2080,13 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-            }
-            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+          else if(parsedDataAlliances[i].members.length > 1){
+              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
+              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
             }
           }
         }
@@ -2093,11 +2097,13 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-            }
-            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+            else if(parsedDataAlliances[i].members.length > 1){
+              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
+              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              }
             }
           }
         }
