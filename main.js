@@ -19,7 +19,7 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-
+/*
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
@@ -35,7 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-
+*/
 
 //loading the settings
 console.log("My prefix is", config.prefix)
@@ -762,7 +762,42 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }
-
+  else if(command == "donatep"){
+    parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+     
+    parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+    var alInd = -1;
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    for(var i = 0; i < parsedDataAlliances.length; i++){
+      if(parsedData[index].alliance == parsedDataAlliances[i].name){
+        alInd = i;
+        break;
+      }
+    }
+    var a = (args[0] == "a") ? parsedData[index].resources.population : parseInt(args[0]);
+    if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.donate <amount>`.");
+    if(index == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(parsedData[index].alliance == null) return message.reply("you haven't joined an alliance yet!");
+    if(a == null || a < 1) return message.reply("this isn't a valid amount.");
+    if(parsedData[index].resources.population < a) return message.reply("you can't send more people than you have!");
+    if(args[0] == "a"){
+      parsedDataAlliances[alInd].population += parsedData[index].resources.population;
+      parsedData[index].resources.population = 0;
+    }
+    else {
+      parsedDataAlliances[alInd].population += a;
+      parsedData[index].resources.population -= a;
+    }
+    message.reply("Succesfully sent " + a.commafy() + " " + `people to your alliance.`);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+  }
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
@@ -1095,6 +1130,11 @@ client.on("message", async message => {
         {
           name: "Money:",
           value: "The balance of this alliance is " + parsedDataAlliances[ind].money.commafy(),
+          inline: true,
+        },
+        {
+          name: "Army:",
+          value: "Manpower of this alliance is " + parsedDataAlliances[ind].population.commafy(),
           inline: true,
         },
         {
@@ -2063,7 +2103,7 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.length > 1){
+            else if(parsedDataAlliances[i].members.length == 0){
               if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
                 parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
               }
@@ -2080,7 +2120,7 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-          else if(parsedDataAlliances[i].members.length > 1){
+          else if(parsedDataAlliances[i].members.length == 0){
               if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
                 parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
               }
@@ -2097,7 +2137,7 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.length > 1){
+            else if(parsedDataAlliances[i].members.length == 0){
               if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
                 parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
               }
