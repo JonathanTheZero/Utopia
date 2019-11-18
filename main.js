@@ -765,7 +765,6 @@ client.on("message", async message => {
 
   else if(command == "donatep"){
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-     
     parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
     var index = -1;
@@ -800,43 +799,6 @@ client.on("message", async message => {
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }
 
-    else if(command == "donatep"){
-    parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-     
-    parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-    var alInd = -1;
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedData[index].alliance == parsedDataAlliances[i].name){
-        alInd = i;
-        break;
-      }
-    }
-    var a = (args[0] == "a") ? parsedData[index].resources.population : parseInt(args[0]);
-    if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.donate <amount>`.");
-    if(index == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
-    if(parsedData[index].alliance == null) return message.reply("you haven't joined an alliance yet!");
-    if(a == null || a < 1) return message.reply("this isn't a valid amount.");
-    if(parsedData[index].resources.population < a) return message.reply("you can't send more people than you have!");
-    if(args[0] == "a"){
-      parsedDataAlliances[alInd].population += parsedData[index].resources.population;
-      parsedData[index].resources.population = 0;
-    }
-    else {
-      parsedDataAlliances[alInd].population += a;
-      parsedData[index].resources.population -= a;
-    }
-    message.reply("Succesfully sent " + a.commafy() + " " + `people to your alliance.`);
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
-  }
-  
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
@@ -1171,11 +1133,11 @@ client.on("message", async message => {
           value: "The balance of this alliance is " + parsedDataAlliances[ind].money.commafy(),
           inline: true,
         },
-        {
+        /*{
           name: "Army:",
           value: "Manpower of this alliance is " + parsedDataAlliances[ind].population.commafy(),
           inline: true,
-        },
+        },*/
         {
           name: "Privacy settings:",
           value: priv,
@@ -1265,14 +1227,14 @@ client.on("message", async message => {
     const u = parsedDataAlliances[ind].upgrades;
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Data for ", alliance),
+      title: "Data for" + alliance,
       thumbnail: {
         url: url,
       },
       fields: [
         {
           name: 'Leader:',
-          value: "".concat("<@",parsedDataAlliances[ind].leader.id,">"),
+          value: "<@" + parsedDataAlliances[ind].leader.id +">",
           inline: true,
         },
         {
@@ -1957,10 +1919,10 @@ function createStoreEmbed(message, type, args){
       alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet.`;
     }
     if(user.allianceRank == "M"){
-      alliance = "".concat("Member of ", alliance);
+      alliance = "Member of " + alliance;
     }
     else if(user.allianceRank == "C"){
-      alliance = "".concat("Co-leader of ", alliance);
+      alliance = "Co-leader of " + alliance;
     }
     else if(user.allianceRank == "L"){
       alliance = "".concat("Leader of ", alliance);
