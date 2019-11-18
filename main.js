@@ -294,7 +294,7 @@ client.on("message", async message => {
   }
 
   else if(command === "invitelink"){
-    message.reply("".concat("Add me to your server using this link: ", config.properties.inviteLink));
+    message.reply("Add me to your server using this link: " + config.properties.inviteLink);
   }
 
   else if(command == "buy"){
@@ -399,13 +399,13 @@ client.on("message", async message => {
       alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." :  user.tag + ` hasn't joined an alliance yet.`;
     }
     if(user.allianceRank == "M"){
-      alliance = "".concat("Member of ", alliance);
+      alliance = "Member of " + alliance;
     }
     else if(user.allianceRank == "C"){
-      alliance = "".concat("Co-leader of ", alliance);
+      alliance = "Co-leader of " + alliance;
     }
     else if(user.allianceRank == "L"){
-      alliance = "".concat("Leader of ", alliance);
+      alliance = "Leader of " + alliance;
     }
     var upgrades = (typeof args[0] === "undefined") ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`;
     if(user.upgrades.population.length != 0){
@@ -1104,14 +1104,14 @@ client.on("message", async message => {
     const priv = ((parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private")
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Data for ", alliance),
+      title: "Data for " + alliance,
       thumbnail: {
         url: url,
       },
       fields: [
         {
           name: 'Leader:',
-          value: "".concat("<@",parsedDataAlliances[ind].leader.id,">"),
+          value: "<@" + parsedDataAlliances[ind].leader.id + ">",
           inline: true,
         },
         {
@@ -1925,7 +1925,7 @@ function createStoreEmbed(message, type, args){
       alliance = "Co-leader of " + alliance;
     }
     else if(user.allianceRank == "L"){
-      alliance = "".concat("Leader of ", alliance);
+      alliance = "Leader of " + alliance;
     }
     alMoney = (alliance == null) ? "You haven't joined an alliance yet" : getAllianceByName(user.alliance).money.commafy();
     const newEmbed = {
@@ -2269,6 +2269,7 @@ function getLeaderboardList(type){
 function generateLeaderboardEmbed(type, page, message){
   var p = page - 1;
   var lbEmbed;
+
   if(type == "p"){
     var lb = getLeaderboardList("p");
     var index = lb.findIndex(function(item, i){
@@ -2276,13 +2277,14 @@ function generateLeaderboardEmbed(type, page, message){
     });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by population, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: `Leaderboard sorted by population, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
       description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "p"),
       timestamp: new Date(),
       footer: config.properties.footer,
     };
   }
+
   else if(type == "f"){
     var lb = getLeaderboardList("f");
     var index = lb.findIndex(function(item, i){
@@ -2290,7 +2292,7 @@ function generateLeaderboardEmbed(type, page, message){
     });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by food, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: `Leaderboard sorted by food, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
       description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "f"),
       timestamp: new Date(),
@@ -2300,14 +2302,20 @@ function generateLeaderboardEmbed(type, page, message){
 
   else if(type == "a"){
     var lb = getLeaderboardList("a");
+    let i = lb.findIndex(function(item, i){
+      return item.name == searchUserByID(message.author.id).alliance;
+    });
+    var index = (i == -1) ? "-" : ++i; 
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Alliance Leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: `Alliance leaderboard sorted by money, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
       fields: leaderBoardEmbedFields(p, lb, "a"),
+      description: `Your rank: \`#${index}\``,
       timestamp: new Date(),
       footer: config.properties.footer,
     };
   }
+
   else if(type == "w"){
     var lb = getLeaderboardList("w");
     var index = lb.findIndex(function(item, i){
@@ -2315,13 +2323,14 @@ function generateLeaderboardEmbed(type, page, message){
     });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by wins, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: `Leaderboard sorted by wins, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
       description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "w"),
       timestamp: new Date(),
       footer: config.properties.footer,
     };
   }
+
   else {
     var lb = getLeaderboardList("m");
     var index = lb.findIndex(function(item, i){
@@ -2329,7 +2338,7 @@ function generateLeaderboardEmbed(type, page, message){
     });
     lbEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "".concat("Leaderboard sorted by money, page ", page, " of ", Math.floor(lb.length / 10) + 1),
+      title: `Leaderboard sorted by money, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
       description: `Your rank: \`#${index+1}\``,
       fields: leaderBoardEmbedFields(p, lb, "m"),
       timestamp: new Date(),
@@ -2457,13 +2466,12 @@ async function giveawayCheck(index){
 
   giveaway.users = await voteCollection.first().users.array();
   giveaway.users.shift();
-  console.log(giveaway.users);
   let x = await giveaway.users.getRandom(giveaway.winners);
-  console.log(x);
   var winnerMentions = `<@${x[0].id}>`;
   for(let i = 1; i < x.length; i++){
     winnerMentions += `<@${x[i].id}>`;
   }
+
   channel.send({
     embed: {
       color: parseInt(config.properties.embedColor),

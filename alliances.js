@@ -26,7 +26,7 @@ module.exports = function () {
       },
       money: 0,
       tax: 5,
-      population: 0,
+      /*population: 0,*/
       coLeaders: [],
       members: [],
       upgrades: {
