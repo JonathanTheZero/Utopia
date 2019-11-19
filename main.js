@@ -228,14 +228,14 @@ client.on("message", async message => {
     }
     var won = (Math.random() > 0.5);
     
-    var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    var money = (args[0].toLowerCase() == "a") ? parsedData[index].money : parseInt(args[0]);
     
-    if (args[0] == "half" || args[0] == "h"){
+    if (args[0].toLowerCase() == "half" || args[0].toLowerCase() == "h"){
       money = Math.floor((parsedData[index].money)/2);
     }
     
-    //To allow the user to bet a quarter of their money rounded up
-    else if (args[0] == "quarter" || args[0] == "q"){
+    //To allow the user to bet a quarter of their money rounded down
+    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase() == "q"){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
@@ -787,7 +787,7 @@ client.on("message", async message => {
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }
 
-  else if(command == "donatep"){
+  /*else if(command == "donatep"){
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
@@ -821,7 +821,7 @@ client.on("message", async message => {
     message.reply("Succesfully sent " + a.commafy() + " " + `people to your alliance.`);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
-  }
+  }*/
 
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
@@ -1304,11 +1304,10 @@ client.on("message", async message => {
 
   else if(command === "store" || command == "shop"){
     var storeEmbed = null;
-    a = ["alliance", "alliances", "a"]
     if(args[0] == "population" || args[0] == "p"){
       storeEmbed = createStoreEmbed(message, "p", args);
     }
-    else if(a.includes(args[0])){
+    else if(["alliance", "alliances", "a"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "a", args);
     }
     else if(["battle", "battles", "b"].includes(args[0])){
@@ -1359,7 +1358,20 @@ client.on("message", async message => {
   }
 
   else if(["patreon", "donate", "paypal"].includes(command)){
-    return message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
+    //message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
+    return message.channel.send({
+      embed: {
+        color: 0x2ADF30,
+        title: "Support the bot",
+        thumbnail: {
+          url: message.author.avatarURL,
+        },
+        description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" + 
+          "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",
+        footer: config.properties.footer,
+        timestamp: new Date()
+      }
+    });
   }
 
   else if(command === "work"){

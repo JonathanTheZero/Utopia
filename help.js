@@ -176,8 +176,8 @@ const miscEmbed = {
             value: "Grab an invite link to add me to your server!",
         },
         {
-            name: "`.patreon`",
-            value: "Support the bot on Patreon!",
+            name: "`.donate`",
+            value: "Support the bot on Patreon or on PayPal!",
         },
         {
             name: "`.server`",
