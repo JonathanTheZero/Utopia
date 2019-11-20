@@ -1,0 +1,241 @@
+[
+  {
+    "tag": "Astilimos#6295",
+    "id": "517067779145334795",
+    "money": -10,
+    "lastWorked": 0,
+    "lastCrime": 1574025435,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": "Blitz' Empire",
+    "allianceRank": "C",
+    "resources": {
+      "food": 2191210852,
+      "population": 318500
+    },
+    "upgrades": {
+      "population": [
+        "GL",
+        "RU"
+      ],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false
+  },
+  {
+    "tag": "blitzwolfz#9361",
+    "id": "239516219445608449",
+    "money": 15000000000,
+    "lastWorked": 1574091403,
+    "lastCrime": 1574091429,
+    "autoping": false,
+    "payoutDMs": false,
+    "alliance": "Blitz' Empire",
+    "allianceRank": "L",
+    "resources": {
+      "food": 2000000004922500000,
+      "population": 100000000002109980
+    },
+    "upgrades": {
+      "population": [
+        "MS",
+        "RU",
+        "GL",
+        "UK",
+        "EC",
+        "US",
+        "AE"
+      ],
+      "misc": [],
+      "battle": {
+        "iA": 10000,
+        "iD": 10000,
+        "cA": 10000,
+        "cD": 10000,
+        "aA": 10000,
+        "aD": 10000
+      }
+    },
+    "inventory": [],
+    "duelsWon": 3,
+    "battleToken": 1,
+    "tokenUsed": true,
+    "population": 0
+  },
+  {
+    "tag": "victoriaisahuman#1808",
+    "id": "595752455409762304",
+    "money": 71290324918969885000,
+    "lastWorked": 0,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": "Victoria's Vixens",
+    "allianceRank": "L",
+    "resources": {
+      "food": 183892317,
+      "population": 8495412
+    },
+    "upgrades": {
+      "population": [
+        "UK",
+        "AE",
+        "RU",
+        "EC",
+        "GL",
+        "MS"
+      ],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 1,
+    "battleToken": 1,
+    "tokenUsed": true
+  },
+  {
+    "tag": "Zero#0659",
+    "id": "393137628083388430",
+    "money": 1005167,
+    "lastWorked": 0,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": null,
+    "allianceRank": null,
+    "resources": {
+      "food": 292892,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": [],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false
+  },
+  {
+    "tag": "bakedbaker#9811",
+    "id": "539322059537383434",
+    "money": 4.2042042042042045e+32,
+    "lastWorked": 0,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": "High Roller",
+    "allianceRank": "L",
+    "resources": {
+      "food": 1e+35,
+      "population": 102250000
+    },
+    "upgrades": {
+      "population": [
+        "US"
+      ],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false,
+    "population": null
+  },
+  {
+    "tag": "JosLH#1391",
+    "id": "277437604322869259",
+    "money": 1000000,
+    "lastWorked": 0,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": null,
+    "allianceRank": null,
+    "resources": {
+      "food": 10000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": [],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false
+  },
+  {
+    "tag": "utrebsto#8018",
+    "id": "467709408500121610",
+    "money": 20000000,
+    "lastWorked": 0,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": null,
+    "allianceRank": null,
+    "resources": {
+      "food": 10000,
+      "population": 1000
+    },
+    "upgrades": {
+      "population": [],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      }
+    },
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false
+  }
+]

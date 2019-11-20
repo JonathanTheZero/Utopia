@@ -1,10 +1,10 @@
-//Ok
 const Discord = require('discord.js');
 const DBL = require("dblapi.js");
 const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
 require("./utils.js")();
+const help = require("./help.js");
 const battle = require("./battles.js");
 const express = require('express');
 const client = new Discord.Client();
@@ -19,7 +19,7 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-/*
+
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
@@ -35,7 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-*/
+
 
 //loading the settings
 console.log("My prefix is", config.prefix)
@@ -80,11 +80,33 @@ client.on("ready", () => {
 client.on("guildCreate", guild => {
   console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+
+  //log server
+  fs.readFile("guilds.json", (err, data) => {
+    if(err) throw err;
+    data = JSON.parse(data);
+    data.push({
+      name: guild.name,
+      id: guild.id
+    });
+    fs.writeFileSync("guilds.json", JSON.stringify(data, null, 2));
+  });
 });
 
 client.on("guildDelete", guild => {
   console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
   client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+
+  //log server
+  fs.readFile("guilds.json", (err, data) => {
+    if(err) throw err;
+    data = JSON.parse(data);
+    var index = data.findIndex(function(item, i){
+      return item.id == guild.id;
+    });
+    data.splice(index, 1);
+    fs.writeFileSync("guilds.json", JSON.stringify(data, null, 2));
+  });
 });
 
 
@@ -92,14 +114,15 @@ client.on("message", async message => {
   if(message.content.indexOf(config.prefix) !== 0 || message.author.bot) return;
   else {
     try {
-      var bsRaw = fs.readFileSync("public/botstats.json");
-      var bs = JSON.parse(bsRaw);
+      var bs = JSON.parse(fs.readFileSync("public/botstats.json"));
       bs.commandsRun++;
       bs.activeServers = client.guilds.size.commafy();
       bs.users = client.users.size.commafy();
       fs.writeFileSync("public/botstats.json", JSON.stringify(bs, null, 2));
     }
-    catch {}
+    catch {
+      
+    }
   }
   var args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
@@ -198,20 +221,21 @@ client.on("message", async message => {
     if(index == -1){
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
-    if(args[0] == "a" && parsedData[index].money == 0) return message.reply("you don't have any money left!");
-    else if((isNaN(args[0]) && args[0] != "a" && (args[0] != ("h") || args[0] != ("h")) && (args[0] != ("q") || args[0] != ("quarter"))) && typeof args[0] === "undefined" && args[0] < 1){
+    if(parsedData[index].money == 0) return message.reply("you don't have any money left!");
+    else if((isNaN(args[0]) && args[0] != "a" && !args[0].toLowerCase().startsWith("h") && !args[0].toLowerCase().startsWith("q")) 
+      || typeof args[0] === "undefined" || args[0] < 1){
       return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
     }
     var won = (Math.random() > 0.5);
     
-    var money = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
+    var money = (args[0].toLowerCase() == "a") ? parsedData[index].money : parseInt(args[0]);
     
-    if (args[0] == "half" || args[0] == "h"){
+    if (args[0].toLowerCase() == "half" || args[0].toLowerCase() == "h"){
       money = Math.floor((parsedData[index].money)/2);
     }
     
-    //To allow the user to bet a quarter of their money rounded up
-    else if (args[0] == "quarter" || args[0] == "q"){
+    //To allow the user to bet a quarter of their money rounded down
+    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase() == "q"){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
@@ -628,7 +652,7 @@ client.on("message", async message => {
       embed: {
         color: parseInt(config.properties.embedColor),
         title: `Giveaway for ${args[0].commafy()}x${currency}`,
-        description: "React to the message to participate in the giveaway",
+        description: `React to the message to participate in the giveaway. There will be ${args[2]} winners.`,
         footer: {
           text: `${config.properties.footer.text}  •  Ends at: `,
           icon_url: config.properties.footer.icon_url
@@ -763,7 +787,7 @@ client.on("message", async message => {
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }
 
-  else if(command == "donatep"){
+  /*else if(command == "donatep"){
     parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
@@ -797,7 +821,7 @@ client.on("message", async message => {
     message.reply("Succesfully sent " + a.commafy() + " " + `people to your alliance.`);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
-  }
+  }*/
 
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
@@ -1258,195 +1282,32 @@ client.on("message", async message => {
   }
 
   else if(command === "help"){
-    var helpEmbed = {
-      color: parseInt(config.properties.embedColor),
-      title: "Welcome to the help menu. Please choose a category",
-      thumbnail: {
-        url: message.author.displayAvatarURL,
-      },
-      fields: [
-        {
-          name: 'General help:',
-          value: "type `.help general` to view the help menu for the general commands",
-        },
-        {
-          name: 'Alliance help:',
-          value: "type `.help alliance` to view the alliance help menu",
-        },
-        {
-          name: "Battle help",
-          value: "type `.help battle` to view the battle help menu",
-        },
-        {
-          name: "Miscellaneous help:",
-          value: "type `.help misc` to view the help menu for everything else",
-        },
-        {
-          name: "Moderation help:",
-          value: "type `.help mod` to view the help menu for everything else",
-        }
-      ],
-      timestamp: new Date(),
-      footer: config.properties.footer,
-    }; 
     if(["general", "g"].includes(args[0])){
-      helpEmbed.fields[2].name = "`.work`";
-      helpEmbed.fields[2].value = "You gain up to 10,000 coins from working. You can work every 30 minutes.";
-      helpEmbed.fields[0].name = "`.create`"
-      helpEmbed.fields[0].value ="Create an account and start to conquer the world!"
-      helpEmbed.fields[1].name = "`.me` or `.stats [mention/ID/ID]`"
-      helpEmbed.fields[1].value = "View your stats or these of other players."
-      helpEmbed.fields[3].value = "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
-      helpEmbed.fields[3].name = "`.crime`";
-      helpEmbed.fields.pop();
-      field4 = {
-        name: "`.lb` or `.leaderboard [type] [page]`",
-        value: "View the global leaderboard. Allowed types are 'allaince', 'wins', 'money' and 'population'.",
-      }
-      field5 = {
-        name: "`.shop` or `.store [category]`",
-        value: "View the shop (you'll find further information there).",
-      }
-      field6 = {
-        name: "`.buy <item>`",
-        value: "Buy an item from the shop."
-      },
-      field7 = {
-        name: "`.use <item>`",
-        value: "Use on of your purchased items."
-      }
-      field8 = {
-        name: "`.inventory` or `.inv`",
-        value: "View the items you purchased but haven't used yet."
-      }
-      field9 = {
-        name: "`.kill <amount>`",
-        value: "Kill a specific amount of your population."
-      }
-      field10 = {
-        name: "`.alliance [mention/ID]`",
-        value: "View the stats of your alliance or of the alliance of another user."
-      }
-      field11 = {
-        name: "`.bet <amount>` or `.coinflip <amount>`",
-        value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money or `.bet h` to bet half of your money)"
-      }
-      field12 = {
-        name: "`.payout [mention]`",
-        value: "See how many ressources you or another user will receive during the next payout"
-      }
-      helpEmbed.title = "General help";
-      helpEmbed.fields.push(field4, field5, field6, field7, field8, field9, field10, field11, field12);
+      message.channel.send({ embed: help.generalHelpMenu });
     }
     else if(["alliance", "alliances", "a"].includes(args[0])){
-      helpEmbed.fields[2].name = "`.createalliance <name>`";
-      helpEmbed.fields[2].value = "Create your own alliance. (Price: 250,000)";
-      helpEmbed.fields[0].name = "`.leavealliance`";
-      helpEmbed.fields[0].value ="Leave your current alliance";
-      helpEmbed.fields[1].name = "`.joinalliance <name>`";
-      helpEmbed.fields[1].value = "Join an alliance";
-      helpEmbed.fields.pop();
-      helpEmbed.fields.pop();
-      field3 = {
-        name: "`.promote <mention/ID>` (Leader only)",
-        value: "Promote a member or Co-Leader of your alliance (there is a maximum of two co-leaders)",
-      }
-      field4 = {
-        name: "`.demote <mention/ID>` (Leader only)",
-        value: "Demote a member of your alliance.",
-      }
-      field5 = {
-        name: "`.fire <mention/ID>` (Leader only)",
-        value: "Fire a member of your alliance.",
-      }
-      field6 = {
-        name: "`.renamealliance <new name>` (Leader and Co-Leaders only)",
-        value: "Rename your alliance."
-      }
-      field7 = {
-        name: "`.setpublic` and `.setprivate` (Leader and Co-Leaders only)",
-        value: "Change the setting of your alliance. Public: Everyone can join, Private: Only invited users can join."
-      },
-      field8 = {
-        name: "`.invite <mention/ID>` (Leader and Co-Leaders only)",
-        value: "Invite a member to your alliance."
-      }
-      field9 = {
-        name: "`.upgradealliance` (Leader and Co-Leaders only)",
-        value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
-      }
-      field10 = {
-        name: "`.alliance [mention/ID]`",
-        value: "View the stats of your alliance or of the alliance of another user."
-      }
-      field11 = {
-        name: "`.send <mention/ID> <amount>`",
-        value: "Send a specific amount of money to one of your alliance members."
-      }
-      field12 = {
-        name: "`.alliancemembers [mention/ID]`",
-        value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
-      }
-      field13 = {
-        name: "`.deposit <amount>`",
-        value: "Deposit a specific amount of money in the bank of your alliance"
-      }
-      field14 = {
-        name: "`.settax <value between 0 and 90>` (Leader and Co-Leaders only)",
-        value: "Set the taxrate of your alliance. The tax only applies to the work and crime commands."
-      }
-      helpEmbed.title = "Alliance help";
-      helpEmbed.fields.push(field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13, field14);
+      message.channel.send({ embed: help.allianceHelpMenu });
     }
     else if(args[0] == "misc"){
-      helpEmbed.fields[0].name = "`.autoping`";
-      helpEmbed.fields[0].value ="Enable/Disable autopings when you can work or commit a crime again. (Enabled by default)";
-      helpEmbed.fields[1].name = "`.payoutdms`";
-      helpEmbed.fields[1].value = "Enable/Disable DMs when the payouts are given out. (Disabled by default)";
-      helpEmbed.fields[2].name = "`.invitelink`";
-      helpEmbed.fields[2].value = "Grab an invite link to add me to your server!";
-      helpEmbed.fields[3].name = "`.patreon`";
-      helpEmbed.fields[3].value = "Support the bot on Patreon!";
-      helpEmbed.fields.pop();
-      field3 = {
-        name: "`.server`",
-        value: "Join the official Utopia server!"
-      }
-      field4 = {
-        name: "`.vote`",
-        value: "You can vote every 12h for Utopia on top.gg to get 15k money for free!"
-      },
-      field5 = {
-        name: "`.statistics`",
-        value: "View some statistics about the bot"
-      }
-      helpEmbed.title = "Miscellaneous help";
-      helpEmbed.fields.push(field3, field4, field5);
+      message.channel.send({ embed: help.miscHelpMenu });
     }
     else if(args[0] == "mod"){
-      helpEmbed.fields[0].name = "`.ban <mention/ID>`";
-      helpEmbed.fields[0].value ="Bans a user from the server.";
-      helpEmbed.fields[1].name = "`.yeet <mention/ID>` or `.kick <mention/ID>`";
-      helpEmbed.fields[1].value = "Kicks a user from the server";
-      helpEmbed.fields[2].name = "`.purge <amount>`";
-      helpEmbed.fields[2].value = "Delete a specific amount of messages (up to 100 at the same time).";
-      helpEmbed.fields.pop();
-      helpEmbed.title = "Moderation help"
-      helpEmbed.description = "The bot role needs to be ranked above the roles of the other users in order for these commands to work.";
+      message.channel.send({ embed: help.modHelpMenu });
     }
     else if(["battle", "battles", "b"].includes(args[0])){
-      helpEmbed = battle.battleHelpEmbed;
+      message.channel.send({ embed: battle.battleHelpEmbed });
     }
-    message.channel.send({ embed: helpEmbed });
+    else {
+      message.channel.send({ embed: help.helpMenu });
+    }
   }
 
   else if(command === "store" || command == "shop"){
     var storeEmbed = null;
-    a = ["alliance", "alliances", "a"]
     if(args[0] == "population" || args[0] == "p"){
       storeEmbed = createStoreEmbed(message, "p", args);
     }
-    else if(a.includes(args[0])){
+    else if(["alliance", "alliances", "a"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "a", args);
     }
     else if(["battle", "battles", "b"].includes(args[0])){
@@ -1497,7 +1358,20 @@ client.on("message", async message => {
   }
 
   else if(["patreon", "donate", "paypal"].includes(command)){
-    return message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
+    //message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
+    return message.channel.send({
+      embed: {
+        color: 0x2ADF30,
+        title: "Support the bot",
+        thumbnail: {
+          url: message.author.avatarURL,
+        },
+        description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" + 
+          "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",
+        footer: config.properties.footer,
+        timestamp: new Date()
+      }
+    });
   }
 
   else if(command === "work"){
@@ -2094,7 +1968,8 @@ function payoutLoop(){
       embed: {
         color: 0x00FF00,
         title: "You have succesfully gained population from your upgrades!",
-        timestamp: new Date()
+        timestamp: new Date(),
+        footer: config.properties.footer,
       }
     });
     for(var i = 0; i < parsedDataAlliances.length; i++){
@@ -2104,13 +1979,11 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.length == 0){
-              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
-              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
+            else if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+            }
+            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
@@ -2121,13 +1994,11 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-          else if(parsedDataAlliances[i].members.length == 0){
-              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
-              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
+            else if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+            }
+            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
         }
@@ -2138,14 +2009,12 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.length == 0){
-              if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
-              if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-                parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              }
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
+            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+            } 
           }
         }
       }
@@ -2155,7 +2024,8 @@ function payoutLoop(){
       embed: {
         color: 0x00FF00,
         title: "You have succesfully gained food from your alliance upgrades!",
-        timestamp: new Date()
+        timestamp: new Date(),
+        footer: config.properties.footer
       }
     });
     parsedConfigData.lastPayout = Math.floor(Date.now() / 1000);
@@ -2466,7 +2336,13 @@ async function giveawayCheck(index){
 
   giveaway.users = await voteCollection.first().users.array();
   giveaway.users.shift();
-  let x = await giveaway.users.getRandom(giveaway.winners);
+  if(giveaway.users.length == 0){
+    let y = await voteCollection.first().fetchUsers();
+    y = y.array();
+    y.pop();
+    giveaway.users = y;
+  }
+  let x = await giveaway.users.getRandom(giveaway.winners); //winners
   var winnerMentions = `<@${x[0].id}>`;
   for(let i = 1; i < x.length; i++){
     winnerMentions += `<@${x[i].id}>`;
