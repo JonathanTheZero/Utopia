@@ -1968,8 +1968,7 @@ function payoutLoop(){
       embed: {
         color: 0x00FF00,
         title: "You have succesfully gained population from your upgrades!",
-        timestamp: new Date(),
-        footer: config.properties.footer,
+        timestamp: new Date()
       }
     });
     for(var i = 0; i < parsedDataAlliances.length; i++){
@@ -1979,10 +1978,10 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
               parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
@@ -1994,10 +1993,10 @@ function payoutLoop(){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
+            if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
               parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
           }
@@ -2012,9 +2011,9 @@ function payoutLoop(){
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
             }
-            else if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
+            if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
               parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-            } 
+            }
           }
         }
       }
@@ -2024,8 +2023,7 @@ function payoutLoop(){
       embed: {
         color: 0x00FF00,
         title: "You have succesfully gained food from your alliance upgrades!",
-        timestamp: new Date(),
-        footer: config.properties.footer
+        timestamp: new Date()
       }
     });
     parsedConfigData.lastPayout = Math.floor(Date.now() / 1000);
