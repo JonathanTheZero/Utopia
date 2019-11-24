@@ -23,6 +23,10 @@ const helpEmbed = {
         {
             name: "Moderation help:",
             value: "type `.help mod` to view the help menu for everything else",
+        },
+        {
+            name: "To view an in-depth guide, use `.guide`",
+            value: "\u200b"
         }
     ],
     timestamp: new Date(),
@@ -222,10 +226,58 @@ const modEmbed = {
     footer: config.properties.footer,
 };
 
+const guideEmbed = {
+    color: parseInt(config.properties.embedColor),
+    title: "In-depth game-guide",
+    description: `If you have any additional questions, feel free to join the official server [here](${config.serverInvite}).`,
+    fields: [
+        {
+            name: "**Starting**",
+            value: "To start your empire, say `.create`."
+        },
+        {
+            name: "**Earning money**",
+            value: "Every 30 minutes you can do `.work`, which gives you up to 10,000 money. " +
+                "`.crime` has 5% to give you 50,000+ money but you can also lose up to 2% of your balance. " +
+                "If you're feeling lucky, you can also gamble by saying `.bet <amount>/a`. You have 50% to earn double your bet and 50% to lose it. To see how much money you have, say `.stats`."
+        },
+        {
+            name: "**Population**",
+            value: "Your population works once every 12 hours, giving you 1 money per 10-20 people and consuming ~2 food per person in the process. You get population by buying upgrades."
+        },
+        {
+            name: "**Upgrades**",
+            value: "When you earn enough money, you can go to a store and finally start getting population. You can see the list of upgrades by saying `.store p` and buy something by saying `.buy <name>`." +
+                "Since v1.2 there are also personal farms, which produce food only for you, but alliance farms are still stronger"
+        },
+        {
+            name: "**Alliances**",
+            value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." + 
+                "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
+                "There's also an option to create your own alliance for 250k using `.createalliance <name>`. " +
+                "You can learn how to manage it by saying `.help a`."
+        },
+        {
+            name: "**Battles**",
+            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" + 
+                "-Infantry: 50 coins per regiment to create and 20 food per regiment per round to feed. Has 30 Def and 25 Atk.\n" +
+                "-Infantry: 100 coins per regiment to create and 300 food per regiment per round to feed. 25 HP, 15 Def and 15 Atk.\n" +
+                "-Artillery: 1000 coins per regiment to create and 500 food per regiment per round to feed. 50 HP, 30 Def and 25 Atk.\n" +
+                "You get a token for every battle you win (with a 12h cooldown). Spend them on troop upgrades in `.store b`.\n"
+        }
+    ],
+    timestamp: new Date(),
+    footer: {
+        text: config.properties.footer.text + "  •   Written by Astilimos#6295",
+        icon_url: config.properties.footer.icon_url
+    }
+};
+
 module.exports = {
     generalHelpMenu : gHelpMenu,
     allianceHelpMenu : allianceHelpEmbed,
     helpMenu : helpEmbed,
     miscHelpMenu : miscEmbed,
-    modHelpMenu : modEmbed
+    modHelpMenu : modEmbed,
+    guideEmbed: guideEmbed
 }

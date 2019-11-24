@@ -1331,6 +1331,12 @@ client.on("message", async message => {
     }
   }
 
+  else if(command == "guide"){
+    message.channel.send({
+      embed: help.guideEmbed
+    });
+  }
+
   else if(command === "store" || command == "shop"){
     var storeEmbed = null;
     if(args[0] == "population" || args[0] == "p"){
@@ -2471,8 +2477,12 @@ async function giveawayCheck(index){
   let x = await giveaway.users.getRandom(giveaway.winners); //winners
   var winnerMentions = `<@${x[0].id}>`;
   for(let i = 1; i < x.length; i++){
-    winnerMentions += `<@${x[i].id}>`;
+    winnerMentions += `, <@${x[i].id}>`;
   }
+
+  channel.send(winnerMentions).then(msg =>{
+    msg.delete();
+  });
 
   channel.send({
     embed: {
