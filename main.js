@@ -52,21 +52,15 @@ client.on("ready", () => {
   let gas = JSON.parse(fs.readFileSync("giveaways.json"));
   for(let i = 0; i < gas.length; i++){
     giveawayCheck(i);
-  }
-  /*let  
-  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  } 
+  /*let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
-    parsedData[i].upgrades.battle.iA = 0;
-    parsedData[i].upgrades.battle.iD = 0;
-    parsedData[i].upgrades.battle.cA = 0;
-    parsedData[i].upgrades.battle.cD = 0;
-    parsedData[i].upgrades.battle.aA = 0;
-    parsedData[i].upgrades.battle.aD = 0;
-    parsedData[i].battleToken = 0;
-    parsedData[i].tokenUsed = false;
-    parsedData[i].duelsWon = 0;
+    parsedData[i].upgrades.pf = {};
+    parsedData[i].upgrades.pf.nf = 0;
+    parsedData[i].upgrades.pf.sf = 0;
+    parsedData[i].upgrades.pf.sef = 0;
   }
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));*/
   /*
     let  
   let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
@@ -394,6 +388,15 @@ client.on("message", async message => {
     else if(args[0] == "better" && args[1] == "army" && args[2] == "management"){
       return message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
     }
+    else if(args[0] == "nf" || (args[0] == "nomadic") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("nf", index, 1000000));
+    }
+    else if(args[0] == "sf" || (args[0] == "subsistence") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("sf", index, 10000000));
+    }
+    else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("sef", index, 50000000));
+    }
   }
 
   else if(command == "use"){
@@ -444,6 +447,7 @@ client.on("message", async message => {
     }
     if(user.resources.food == null) user.resources.food = 0;
     const bu = user.upgrades.battle
+    const pf = user.upgrades.pf;
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
       title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
@@ -478,10 +482,19 @@ client.on("message", async message => {
         {
           name: 'Alliance:',
           value: alliance,
+          inline: true
+        },
+        {
+          name: "Personal Farms:",
+          value: `+${pf.nf} Nomadic farming\n` +
+          `+${pf.sf} Subsistence Farming\n` +
+          `+${pf.sef} Sedentary Farming\n`,
+          inline: true
         },
         {
           name: "Upgrades:",
           value: upgrades,
+          inline: true
         },
         {
           name: "Battle bonuses:",
@@ -551,6 +564,9 @@ client.on("message", async message => {
         userFood = alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
           alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
           alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000)/(alliance.members.length + alliance.coLeaders.length + 1)));
+          if(alliance.coLeaders.length == 0){
+            userFood += alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000;
+          }
       }
       else if(user.allianceRank == "C"){
         userFood = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000)/(alliance.members.length + alliance.coLeaders.length + 1))) +
@@ -563,6 +579,19 @@ client.on("message", async message => {
           Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1)));
       }
     }
+
+    var u = 0;
+    if (user.upgrades.pf.nf > 0){
+      u += (user.upgrades.pf.nf*500000);
+    }
+    if (user.upgrades.pf.sf > 0){
+      u += (user.upgrades.pf.sf*1000000);
+    }
+
+    if (user.upgrades.pf.sef > 0){
+      u += (user.upgrades.pf.sef*5000000);
+    }
+    userFood += u;
 
     message.channel.send({
       embed: {
@@ -1313,6 +1342,9 @@ client.on("message", async message => {
     else if(["battle", "battles", "b"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "b", args)
     }
+    else if(["pf", "personal farms"].includes(args[0])){
+      storeEmbed = createStoreEmbed(message, "pf", args);
+    }
     else {
       storeEmbed = createStoreEmbed(message, "s", args);
     }
@@ -1702,6 +1734,11 @@ function createUser(msg){
           cD: 0,
           aA: 0,
           aD: 0,
+        },
+        pf: {
+          nf: 0,
+          sf: 0,
+          sef: 0
         }
       },
       inventory: [],
@@ -1847,6 +1884,45 @@ function createStoreEmbed(message, type, args){
     };
     return newEmbed;
   }
+  if(type == "pf"){
+    var user = searchUser(message);
+    const newEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: 'Personal Farm Store',
+      description: 'These items are currently available in the Personal Farm Store!',
+      thumbnail: {
+        url: `${message.author.displayAvatarURL}`,
+      },
+      fields: [
+        {
+          name: 'Your balance',
+          value: user.money.commafy(),
+        },
+        {
+          name: '\u200b',
+			    value: '\u200b'
+        },
+        {
+          name: 'Nomadic farming',
+          value: '+500k food every 4h\nPrice: 1,000,000',
+          inline: true,
+        },
+        {
+          name: 'Subsistence Farming',
+          value: '+1M food every 4h\nPrice: 10,000,000',
+          inline: true,
+        },
+        {
+          name: 'Sedentary Farming',
+          value: '+5M food every 4h\nPrice: 15,000,000',
+          inline: true,
+        },
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+    return newEmbed;
+  }
   else if(type == "b"){
     var user = searchUser(message);
     const newEmbed = {
@@ -1911,6 +1987,10 @@ function createStoreEmbed(message, type, args){
           value: "Type `.store battle` to view the battle store",
         },
         {
+          name: "Personal Farm store",
+          value: "Type `.store pf` to view the Personal Farm store",
+        },
+        {
           name: 'A pack of food',
           value: 'Contains 50k food (added to your account immediately) \nPrice: 20,000',
           inline: true,
@@ -1952,6 +2032,13 @@ function payoutLoop(){
         parsedData[i].resources.population += 200000;
       if(parsedData[i].upgrades.population.includes("US"))
         parsedData[i].resources.population += 750000;
+      if (parsedData[i].upgrades.pf.nf > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.pf.nf*500000);
+      if (parsedData[i].upgrades.pf.sf > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.pf.sf*1000000);
+      if (parsedData[i].upgrades.pf.sef > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.pf.sef*5000000);
+
       if(parsedData[i].payoutDMs){
         try{
           client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
@@ -1977,6 +2064,9 @@ function payoutLoop(){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              if(parsedDataAlliances[i].coLeaders.length == 0){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
+              }
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
@@ -1992,6 +2082,9 @@ function payoutLoop(){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              if(parsedDataAlliances[i].coLeaders.length == 0){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
+              }
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
@@ -2007,6 +2100,9 @@ function payoutLoop(){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              if(parsedDataAlliances[i].coLeaders.length == 0){
+                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
+              }
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
               parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
@@ -2267,9 +2363,41 @@ function leaderBoardEmbedFields(p, lb, type){
   return fields;
 }
 
+function buyPersonalfarm(item, index, price){
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  if(parsedData[index].money < price) 
+    return `this items costs ${price} coins! You only own ${parsedData[index].money}`;
+
+  if (item == "nf"){
+    if(parsedData[index].upgrades.pf.nf >= 3)
+      return "you already own this item three times!";
+    parsedData[index].upgrades.pf.nf += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Nomadic farming";
+  }
+
+  else if (item == "sf"){
+    if(parsedData[index].upgrades.pf.sf >= 3)
+      return "you already own this item three times!";
+    parsedData[index].upgrades.pf.sf += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Subsistence Farming";
+  }
+
+  else if (item == "sef"){
+    if(parsedData[index].upgrades.pf.sef >= 3)
+      return "you already own this item three times!";
+    parsedData[index].upgrades.pf.sef += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Sedentary Farming";
+  }
+} 
+
 function buyItem(item, index, price){
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-
   if(parsedData[index].upgrades.population.includes(item) || parsedData[index].upgrades.misc.includes(item))
     return "you already own that item!";
 

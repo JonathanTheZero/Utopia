@@ -46,9 +46,7 @@ module.exports = function () {
   },
 
     joinAliiance = function (message, allianceName, index) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == allianceName) {
@@ -72,9 +70,7 @@ module.exports = function () {
     },
 
     leaveAlliance = function (message) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var index = -1;
       for (var i = 0; i < parsedData.length; i++) {
@@ -125,9 +121,7 @@ module.exports = function () {
     },
 
     promote = function (message, index, member) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
@@ -171,9 +165,7 @@ module.exports = function () {
     },
 
     demote = function (message, index, member) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
@@ -206,9 +198,7 @@ module.exports = function () {
     },
 
     fire = function (message, index, member) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var memberIndex = -1;
       for (var i = 0; i < parsedData.length; i++) {
@@ -241,9 +231,7 @@ module.exports = function () {
     },
 
     setAllianceStatus = function (mode, index) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (let i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
@@ -258,9 +246,7 @@ module.exports = function () {
     },
 
     setAllianceTax = function (index, tax) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       for (let i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == parsedData[index].alliance) {
@@ -272,9 +258,7 @@ module.exports = function () {
     },
 
     upgradeAlliance = function (index) {
-
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       var ind = -1;
       for (var i = 0; i < parsedDataAlliances.length; i++) {
@@ -290,8 +274,7 @@ module.exports = function () {
         else {
           parsedDataAlliances[ind].money -= 500000;
           parsedDataAlliances[ind].level = 2;
-          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
           return "Succesfully upgraded your alliance to level 2. Your alliance can now own each farm two times.";
         }
       }
@@ -302,8 +285,7 @@ module.exports = function () {
         else {
           parsedDataAlliances[ind].money -= 1000000;
           parsedDataAlliances[ind].level = 3;
-          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
           return "Succesfully upgraded your alliance to level 3. Your alliance can now own each farm three times.";
         }
       }
@@ -314,9 +296,63 @@ module.exports = function () {
         else {
           parsedDataAlliances[ind].money -= 5000000;
           parsedDataAlliances[ind].level = 4;
-          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
           return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 4) {
+        if (parsedDataAlliances[ind].money < 10000000) {
+          return "you don't have enough money to upgrade your alliance to level 5. Upgrading your alliance to level 5 costs 10,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 10000000;
+          parsedDataAlliances[ind].level = 5;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "Succesfully upgraded your alliance to level 5. Your alliance can now own each farm five times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 5) {
+        if (parsedDataAlliances[ind].money < 20000000) {
+          return "you don't have enough money to upgrade your alliance to level 6. Upgrading your alliance to level 6 costs 20,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 20000000;
+          parsedDataAlliances[ind].level = 6;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "Succesfully upgraded your alliance to level 6. Your alliance can now own each farm six times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 6) {
+        if (parsedDataAlliances[ind].money < 50000000) {
+          return "you don't have enough money to upgrade your alliance to level 7. Upgrading your alliance to level 7 costs 50,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 50000000;
+          parsedDataAlliances[ind].level = 7;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "Succesfully upgraded your alliance to level 7. Your alliance can now own each farm seven times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 7) {
+        if (parsedDataAlliances[ind].money < 100000000) {
+          return "you don't have enough money to upgrade your alliance to level 8. Upgrading your alliance to level 8 costs 100,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 100000000;
+          parsedDataAlliances[ind].level = 9;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "Succesfully upgraded your alliance to level 8. Your alliance can now own each farm eight times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 8) {
+        if (parsedDataAlliances[ind].money < 500000000) {
+          return "you don't have enough money to upgrade your alliance to level 9. Upgrading your alliance to level 9 costs 500,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 500000000;
+          parsedDataAlliances[ind].level = 10;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
+          return "Succesfully upgraded your alliance to level 9. Your alliance can now own each farm nine times.";
         }
       }
       return "Error";
