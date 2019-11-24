@@ -319,6 +319,66 @@ module.exports = function () {
           return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
         }
       }
+      else if (parsedDataAlliances[ind].level == 4) {
+        if (parsedDataAlliances[ind].money < 10000000) {
+          return "you don't have enough money to upgrade your alliance to level 4. Upgrading your alliance to level 4 costs 5,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 10000000;
+          parsedDataAlliances[ind].level = 5;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 5) {
+        if (parsedDataAlliances[ind].money < 20000000) {
+          return "you don't have enough money to upgrade your alliance to level 4. Upgrading your alliance to level 4 costs 5,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 20000000;
+          parsedDataAlliances[ind].level = 6;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 6) {
+        if (parsedDataAlliances[ind].money < 50000000) {
+          return "you don't have enough money to upgrade your alliance to level 4. Upgrading your alliance to level 4 costs 5,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 50000000;
+          parsedDataAlliances[ind].level = 7;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 8) {
+        if (parsedDataAlliances[ind].money < 100000000) {
+          return "you don't have enough money to upgrade your alliance to level 4. Upgrading your alliance to level 4 costs 5,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 100000000;
+          parsedDataAlliances[ind].level = 9;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
+      else if (parsedDataAlliances[ind].level == 9) {
+        if (parsedDataAlliances[ind].money < 500000000) {
+          return "you don't have enough money to upgrade your alliance to level 4. Upgrading your alliance to level 4 costs 5,000,000 coins.";
+        }
+        else {
+          parsedDataAlliances[ind].money -= 500000000;
+          parsedDataAlliances[ind].level = 10;
+          fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+          return "Succesfully upgraded your alliance to level 4. Your alliance can now own each farm four times.";
+        }
+      }
       return "Error";
     },
 

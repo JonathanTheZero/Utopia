@@ -357,6 +357,15 @@ client.on("message", async message => {
     else if(args[0] == "us"|| (args[0] == "invade") && args[1] == "the" && args[2] == "us"){
       return message.reply(buyItem("US", index, 5000000));
     }
+    else if(args[0] == "nf" || (args[0] == "nomadic") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("nf", index, 1000000));
+    }
+    else if(args[0] == "sf" || (args[0] == "subsistence") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("sf", index, 10000000));
+    }
+    else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("sef", index, 50000000));
+    }
     else if(args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food"){
       let amount;
       if(typeof args[1] != "undefined" && !isNaN(parseInt(args[1]))) amount = parseInt(args[1]);
@@ -441,9 +450,11 @@ client.on("message", async message => {
       if(user.upgrades.population.includes("GL")) upgrades += ", Globalization"
       if(user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
       if(user.upgrades.population.includes("US")) upgrades += ", US"
+
     }
     if(user.resources.food == null) user.resources.food = 0;
     const bu = user.upgrades.battle
+    const me_personal_farms = user.upgrades.personalFarms
     const meEmbed = {
       color: parseInt(config.properties.embedColor),
       title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
@@ -478,6 +489,13 @@ client.on("message", async message => {
         {
           name: 'Alliance:',
           value: alliance,
+        },
+        {
+          name: "Personal Farms:",
+          value: `+${me_personal_farms.nf} Nomadic farming\n` +
+          `+${me_personal_farms.sf} Subsistence Farming\n` +
+          `+${me_personal_farms.sef} Sedentary Farming\n`,
+          inline: true
         },
         {
           name: "Upgrades:",
@@ -544,7 +562,7 @@ client.on("message", async message => {
       if(user.upgrades.population.includes("US")) userPop += 750000;
     }
 
-    var userFood = 0;
+    var userFood;
     if(user.alliance != null){
       let alliance = getAllianceByName(user.alliance);
       if(user.allianceRank == "L"){
@@ -563,7 +581,19 @@ client.on("message", async message => {
           Math.floor(((alliance.upgrades.pf * 800000)/(alliance.members.length + alliance.coLeaders.length + 1)));
       }
     }
+    
+    var usefood = 0;
+      if (user.upgrades.personalFarms.nf > 0){
+        usefood += (user.upgrades.personalFarms.nf*500000);
+      }
+      if (user.upgrades.personalFarms.sf > 0){
+        usefood += (user.upgrades.personalFarms.sf*1000000);
+      }
 
+      if (user.upgrades.personalFarms.sef > 0){
+        usefood += (user.upgrades.personalFarms.sef*5000000);
+      }
+      userFood += usefood
     message.channel.send({
       embed: {
         color: parseInt(config.properties.embedColor),
@@ -1313,6 +1343,9 @@ client.on("message", async message => {
     else if(["battle", "battles", "b"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "b", args)
     }
+    else if(["food", "personal farms", "pf"].includes(args[0])){
+      storeEmbed = createStoreEmbed(message, "pf", args)
+    }
     else {
       storeEmbed = createStoreEmbed(message, "s", args);
     }
@@ -1847,6 +1880,47 @@ function createStoreEmbed(message, type, args){
     };
     return newEmbed;
   }
+  
+  if(type == "pf"){
+    var user = searchUser(message);
+    const newEmbed = {
+      color: parseInt(config.properties.embedColor),
+      title: 'Personal Farm Store',
+      description: 'These items are currently available in the Personal Farm Store!',
+      thumbnail: {
+        url: `${message.author.displayAvatarURL}`,
+      },
+      fields: [
+        {
+          name: 'Your balance',
+          value: user.money.commafy(),
+        },
+        {
+          name: '\u200b',
+			    value: '\u200b'
+        },
+        {
+          name: 'Nomadic farming',
+          value: '+500k food every 4h\nPrice: 1,000,000',
+          inline: true,
+        },
+        {
+          name: 'Subsistence Farming',
+          value: '+1M food every 4h\nPrice: 10,000,000',
+          inline: true,
+        },
+        {
+          name: 'Sedentary Farming',
+          value: '+5M food every 4h\nPrice: 15,000,000',
+          inline: true,
+        },
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    };
+    return newEmbed;
+  }
+
   else if(type == "b"){
     var user = searchUser(message);
     const newEmbed = {
@@ -1911,6 +1985,10 @@ function createStoreEmbed(message, type, args){
           value: "Type `.store battle` to view the battle store",
         },
         {
+          name: "Personal Farm store",
+          value: "Type `.store pf` to view the Personal Farm store",
+        },
+        {
           name: 'A pack of food',
           value: 'Contains 50k food (added to your account immediately) \nPrice: 20,000',
           inline: true,
@@ -1952,6 +2030,15 @@ function payoutLoop(){
         parsedData[i].resources.population += 200000;
       if(parsedData[i].upgrades.population.includes("US"))
         parsedData[i].resources.population += 750000;
+      if (parsedData[i].upgrades.personalFarms.nf > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.personalFarms.nf*500000);
+
+      if (parsedData[i].upgrades.personalFarms.sf > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.personalFarms.sf*1000000);
+
+      if (parsedData[i].upgrades.personalFarms.sef > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.personalFarms.sef*5000000);
+
       if(parsedData[i].payoutDMs){
         try{
           client.users.get(parsedData[i].id.toString()).send("You have succesfully gained population from your upgrades!");
@@ -2266,6 +2353,36 @@ function leaderBoardEmbedFields(p, lb, type){
   }
   return fields;
 }
+function buyPersonalfarm(item, index, price){
+
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  if(parsedData[index].money < price) {
+  return `this items costs ${price} coins! You only own ${parsedData[index].money}`;
+  }
+
+
+  if (item == "nf"){
+    parsedData[index].upgrades.personalFarms.nf += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Nomadic farming";
+  }
+
+  else if (item == "sf"){
+    parsedData[index].upgrades.personalFarms.sf += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Subsistence Farming";
+  }
+
+  else if (item == "sef"){
+    parsedData[index].upgrades.personalFarms.sef += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Sedentary Farming";
+  }
+  //fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+} 
 
 function buyItem(item, index, price){
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
