@@ -300,7 +300,6 @@ client.on("message", async message => {
       }
       else if (userloan <= 0 || userloan === "undefined") {
         console.log("TEST");
-        message.reply("Congrats, you took out " + userloan.commafy() + " coins.")
         return message.reply ("Please enter a valid number");
       }
 
@@ -343,6 +342,9 @@ client.on("message", async message => {
           parsedData[index].upgrades.loan.currentLoan = false;
           parsedData[index].upgrades.loan.amount = 0;
           parsedData[index].upgrades.loan.loantax = 0;
+          if (parsedData[index].money < 0){
+            parsedData[index].money = 0
+          }
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
           return message.reply("Congrats, you paid in full.")
         }
@@ -1555,23 +1557,15 @@ client.on("message", async message => {
     else {
       var produced = Math.floor(Math.random() * 10000);
       if(alInd == -1){
-        userpayment = produced - Math.floor(produced/2)
-        produced -= userpayment
-        parsedData[index].upgrades.loan.amount -= userpayment;
-        parsedData[index].money -= userpayment
-        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You paid " + userpayment.commafy() + " towards your loan");
-        paybackchecker(index)
+        parsedData[index].money += produced;
+        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
       }
       else {
         var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
         produced -= taxed;
         parsedDataAlliances[alInd].money += taxed;
-        userpayment = produced - Math.floor(produced/2)
-        produced -= userpayment
-        parsedData[index].upgrades.loan.amount -= userpayment;
         parsedData[index].money += produced;
-        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid " + userpayment.commafy() + " towards your loan");
-        paybackchecker(index)
+        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
       }
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
@@ -1615,13 +1609,8 @@ client.on("message", async message => {
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       if(alInd == -1){
         parsedData[index].money += produced;
-        userpayment = produced - Math.floor(produced/2)
-        produced -= userpayment
-        parsedData[index].upgrades.loan.amount -= userpayment;
-        parsedData[index].money += produced;
         if(produced > 1){
-          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You paid " + userpayment.commafy() + " towards your loan");
-          paybackchecker(index)
+          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
         }
         else{
           message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
@@ -1633,12 +1622,7 @@ client.on("message", async message => {
           produced -= taxed;
           parsedDataAlliances[alInd].money += taxed;
           parsedData[index].money += produced;
-          userpayment = produced - Math.floor(produced/2)
-          produced -= userpayment
-          parsedData[index].upgrades.loan.amount -= userpayment;
-          parsedData[index].money += produced;
-          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid " + userpayment.commafy() + " towards your loan");
-          paybackchecker(index)
+          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
         }
         else{
           parsedData[index].money += produced
@@ -1648,28 +1632,6 @@ client.on("message", async message => {
       if(parsedData[index].autoping) reminder(message, 14400000, "I'll remind you in 4h to commit a crime again.", "Reminder: Commit a crime.");
     } 
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-  }
-  
-  else if(command == "startbattle" || command == "startduel" || command == "duel"){
-    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
-    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    var auInd = -1;
-    let rawdataBattle = fs.readFileSync('activebattles.json');
-    let battleData = JSON.parse(rawdataBattle);
-    for(let i = 0; i < battleData.length;i++){
-      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
-        return message.reply("you are already fighting in an active duel!")
-      }
-    }
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.mentions.users.first().id == parsedData[i].id) index = i;
-      if(message.author.id == parsedData[i].id) auInd = i;
-    }
-    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
-    if(index == -1) return message.reply("this user hasn't created an account yet.");
-    if(index == auInd) return message.reply("you can't battle yourself!");
-    battle.startbattle(auInd, index, message.channel.id);
   }
 
   else if(command === "cancelduel" || command == "cancelbattle"){
