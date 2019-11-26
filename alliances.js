@@ -8,8 +8,8 @@ module.exports = function () {
     let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
 
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    if (parsedData[index].money < 250000) {
-      return "you don't have enough money to create a new alliance. Creating an alliance costs 250,000 coins."
+    if (parsedData[index].money < 100000) {
+      return "you don't have enough money to create a new alliance. Creating an alliance costs 100,000 coins."
     }
     for (var i = 0; i < parsedDataAlliances.length; i++) {
       if (parsedDataAlliances[i].name == allianceName) {
