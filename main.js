@@ -392,10 +392,10 @@ client.on("message", async message => {
       return message.reply(buyPersonalfarm("nf", index, 1000000));
     }
     else if(args[0] == "sf" || (args[0] == "subsistence") && args[1] == "farming"){
-      return message.reply(buyPersonalfarm("sf", index, 10000000));
+      return message.reply(buyPersonalfarm("sf", index, 5000000));
     }
     else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
-      return message.reply(buyPersonalfarm("sef", index, 50000000));
+      return message.reply(buyPersonalfarm("sef", index, 15000000));
     }
   }
 
@@ -486,9 +486,9 @@ client.on("message", async message => {
         },
         {
           name: "Personal Farms:",
-          value: `+${pf.nf} Nomadic farming\n` +
-          `+${pf.sf} Subsistence Farming\n` +
-          `+${pf.sef} Sedentary Farming\n`,
+          value: `${pf.nf} Nomadic Farming\n` +
+          `${pf.sf} Subsistence Farming\n` +
+          `${pf.sef} Sedentary Farming\n`,
           inline: true
         },
         {
@@ -1348,7 +1348,7 @@ client.on("message", async message => {
     else if(["battle", "battles", "b"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "b", args)
     }
-    else if(["pf", "personal farms"].includes(args[0])){
+    else if(["pf", "personal"].includes(args[0])){
       storeEmbed = createStoreEmbed(message, "pf", args);
     }
     else {
@@ -1895,9 +1895,9 @@ function createStoreEmbed(message, type, args){
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
       title: 'Personal Farm Store',
-      description: 'These items are currently available in the Personal Farm Store!',
+      description: 'These items are currently available in the Personal Farm Store!\n(You can own each farm three times)',
       thumbnail: {
-        url: `${message.author.displayAvatarURL}`,
+        url: message.author.displayAvatarURL,
       },
       fields: [
         {
@@ -2372,7 +2372,7 @@ function leaderBoardEmbedFields(p, lb, type){
 function buyPersonalfarm(item, index, price){
   var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   if(parsedData[index].money < price) 
-    return `this items costs ${price} coins! You only own ${parsedData[index].money}`;
+    return `this items costs ${price.commafy()} coins! You only own ${parsedData[index].money.commafy()}`;
 
   if (item == "nf"){
     if(parsedData[index].upgrades.pf.nf >= 3)
