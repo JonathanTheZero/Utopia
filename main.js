@@ -1915,7 +1915,7 @@ function createStoreEmbed(message, type, args){
         },
         {
           name: 'Subsistence Farming',
-          value: '+1M food every 4h\nPrice: 10,000,000',
+          value: '+1M food every 4h\nPrice: 5,000,000',
           inline: true,
         },
         {
