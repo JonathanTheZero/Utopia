@@ -74,6 +74,10 @@ const gHelpMenu = {
             value: "View the items you purchased but haven't used yet."
         },
         {
+            name: "`.loan`",
+            value: "Using loan, you can take out money to help you further expand your empire. Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. "
+        },
+        {
             name: "`.kill <amount>`",
             value: "Kill a specific amount of your population."
         },

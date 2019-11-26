@@ -259,10 +259,11 @@ client.on("message", async message => {
     }
     maxloan = loancalc(index)
     repayment = maxloan + Math.floor(maxloan*0.25)
+    if (args[0] === "max"){
     return message.channel.send({
       embed: {
         color: parseInt(config.properties.embedColor),
-        title: `Maximum loan for ${message.author.id}`,
+        title: `Maximum loan for ${message.author.tag}`,
         fields: [
           {
             name: "Maximum Loan:",
@@ -280,6 +281,35 @@ client.on("message", async message => {
       }
     });
   }
+  
+    else if (!isNaN(args[0])){
+    maxloan = parseInt(args[0])
+    repayment = maxloan + Math.floor(maxloan*0.25)
+      return message.channel.send({
+      embed: {
+        color: parseInt(config.properties.embedColor),
+        title: `Maximum loan for ${message.author.tag}`,
+        fields: [
+          {
+            name: "Maximum Loan:",
+            value: maxloan.commafy(),
+            inline: true
+          },
+          {
+            name: "Total repayment:",
+            value: repayment.commafy(),
+            inline: true
+          },
+        ],
+        footer: config.properties.footer,
+        timestamp: new Date()
+      }
+    });
+  }
+  else {
+    return message.reply("Please enter a valid amount or `.loancalc")
+  }
+  }
 
   else if (command == "loan" || command == "lo"){
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
@@ -295,19 +325,19 @@ client.on("message", async message => {
     if (parsedData[index].upgrades.loan.currentLoan == false){
       maxloan = Math.floor(loancalc(index));
       if (userloan > maxloan){
-        console.log("TEST");
-        return message.reply("You can only take upto " + userloan.commafy() + " coins. Next time use `.loancalc`")
+        /* console.log("TEST"); */
+        return message.reply("You can only take upto " + userloan.commafy() + " coins. Next time use `.loancalc` ")
       }
       else if (userloan <= 0 || userloan === "undefined") {
-        console.log("TEST");
+        /* console.log("TEST"); */
         return message.reply ("Please enter a valid number");
       }
 
       else if (userloan > 0 && userloan <= maxloan || userloan == maxloan) {
           parsedData[index].upgrades.loan.currentLoan = true;
-          parsedData[index].upgrades.loan.amount += userloan;
+          parsedData[index].upgrades.loan.amount += userloan + Math.floor(userloan*0.25);
           parsedData[index].money += userloan
-          parsedData[index].upgrades.loan.loantax += 50;
+          /* parsedData[index].upgrades.loan.loantax = 50; */
           fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
           return message.reply("Congrats, you took out " + userloan.commafy() + " coins.")
         
@@ -341,7 +371,7 @@ client.on("message", async message => {
         if (parsedData[index].upgrades.loan.amount == 0){
           parsedData[index].upgrades.loan.currentLoan = false;
           parsedData[index].upgrades.loan.amount = 0;
-          parsedData[index].upgrades.loan.loantax = 0;
+          //parsedData[index].upgrades.loan.loantax = 0;
           if (parsedData[index].money < 0){
             parsedData[index].money = 0
           }
@@ -1557,15 +1587,57 @@ client.on("message", async message => {
     else {
       var produced = Math.floor(Math.random() * 10000);
       if(alInd == -1){
-        parsedData[index].money += produced;
-        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
-      }
+        if (parsedData[index].upgrades.loan.currentLoan === true){
+          paid = Math.floor(produced/2 + 1)
+          produced = Math.floor(produced/2 - 1 )
+          if (paid <= parsedData[index].upgrades.loan.amount){
+          parsedData[index].upgrades.loan.amount -= paid
+          parsedData[index].money += produced;
+          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You sent " + paid.commafy() + " to your loan.");
+
+          }
+          else{
+            paid -= parsedData[index].upgrades.loan.amount
+            parsedData[index].upgrades.loan.amount = 0
+            parsedData[index].upgrades.loan.currentLoan = false
+            produced += paid
+            parsedData[index].money += produced;
+            message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You paid off your loan.");
+  
+          }
+        }
+        else{
+          parsedData[index].money += produced;
+          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+        }
+    }
       else {
         var taxed = Math.floor((parsedDataAlliances[alInd].tax / 100) * produced);
         produced -= taxed;
         parsedDataAlliances[alInd].money += taxed;
-        parsedData[index].money += produced;
-        message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+        if (parsedData[index].upgrades.loan.currentLoan === true){
+          paid = Math.floor(produced/2 + 1)
+          produced = Math.floor(produced/2 - 1 )
+          if (paid <= parsedData[index].upgrades.loan.amount){
+          parsedData[index].upgrades.loan.amount -= paid
+          parsedData[index].money += produced;
+          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You sent " + paid.commafy() + " to your loan.");
+
+          }
+          else{
+            paid -= parsedData[index].upgrades.loan.amount
+            parsedData[index].upgrades.loan.amount = 0
+            parsedData[index].upgrades.loan.currentLoan = false
+            produced += paid
+            parsedData[index].money += produced;
+            message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid off your loan.");
+  
+          }
+        }
+          else{
+            parsedData[index].money += produced;
+          message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+          }
       }
       parsedData[index].lastWorked = Math.floor(Date.now() / 1000);
       fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
@@ -1610,8 +1682,24 @@ client.on("message", async message => {
       if(alInd == -1){
         parsedData[index].money += produced;
         if(produced > 1){
-          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
-        }
+          if (parsedData[index].upgrades.loan.currentLoan === true){
+            paid = Math.floor(produced/2 + 1)
+            produced = Math.floor(produced/2 - 1 )
+            if (paid < parsedData[index].upgrades.loan.amount){
+            parsedData[index].upgrades.loan.amount -= paid
+            parsedData[index].money += produced;
+            message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+            }
+            else{
+              paid -= parsedData[index].upgrades.loan.amount
+              parsedData[index].upgrades.loan.amount = 0
+              parsedData[index].upgrades.loan.currentLoan = false
+              produced += paid
+              parsedData[index].money += produced;
+              message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
+           }
+          }
+      }
         else{
           message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins.");
         }
@@ -1622,7 +1710,23 @@ client.on("message", async message => {
           produced -= taxed;
           parsedDataAlliances[alInd].money += taxed;
           parsedData[index].money += produced;
-          message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+          if (parsedData[index].upgrades.loan.currentLoan === true){
+            paid = Math.floor(produced/2 + 1)
+            produced = Math.floor(produced/2 - 1 )
+            if (paid < parsedData[index].upgrades.loan.amount){
+            parsedData[index].upgrades.loan.amount -= paid
+            parsedData[index].money += produced;
+            message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You paid " + paid.commafy() + " towards your loan.");
+            }
+            else{
+              paid -= parsedData[index].upgrades.loan.amount
+              parsedData[index].upgrades.loan.amount = 0
+              parsedData[index].upgrades.loan.currentLoan = false
+              produced += paid
+              parsedData[index].money += produced;
+              message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + parsedData[index].money.commafy() + " coins. You paid of your loan");
+           }
+          }
         }
         else{
           parsedData[index].money += produced
@@ -1850,15 +1954,6 @@ async function reminder(message, duration, preText, postText){
   message.channel.send(preText);
   await Sleep(duration);
   message.reply(postText);
-}
-function paybackchecker(index){
-  if (parsedData[index].upgrades.loan.amount == 0){
-    parsedData[index].upgrades.loan.currentLoan = false;
-    parsedData[index].upgrades.loan.amount = 0;
-    parsedData[index].upgrades.loan.loantax = 0;
-    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-    return message.reply("Congrats, you paid in full.")
-  }
 }
 
 function createStoreEmbed(message, type, args){
