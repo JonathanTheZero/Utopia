@@ -75,7 +75,7 @@ const gHelpMenu = {
         },
         {
             name: "`.loan`",
-            value: "Using loan, you can take out money to help you further expand your empire. Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. "
+            value: "Using loan, you can take out money to help you further expand your empire. Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. Use `payback [amount]` to pay it back."
         },
         {
             name: "`.kill <amount>`",
@@ -220,11 +220,7 @@ const modEmbed = {
         {
             name: "`.purge <amount>`",
             value: "Delete a specific amount of messages (up to 100 at the same time).",
-        },
-        {
-            name: "Miscellaneous help:",
-            value: "type `.help misc` to view the help menu for everything else",
-        },
+        }
     ],
     timestamp: new Date(),
     footer: config.properties.footer,
