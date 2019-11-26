@@ -19,7 +19,7 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-/*
+
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
@@ -35,7 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-*/
+
 
 //loading the settings
 console.log("My prefix is", config.prefix)
@@ -259,7 +259,7 @@ client.on("message", async message => {
     }
     maxloan = loancalc(index)
     repayment = maxloan + Math.floor(maxloan*0.25)
-    if (args[0] === "max"){
+    if (typeof args[0] === "undefined"){
     return message.channel.send({
       embed: {
         color: parseInt(config.properties.embedColor),
@@ -326,11 +326,15 @@ client.on("message", async message => {
       maxloan = Math.floor(loancalc(index));
       if (userloan > maxloan){
         /* console.log("TEST"); */
-        return message.reply("You can only take upto " + userloan.commafy() + " coins. Next time use `.loancalc` ")
+        return message.reply("You can only take upto " + userloan.commafy() + " coins. Next time use `.loancalc ` ")
       }
       else if (userloan <= 0 || userloan === "undefined") {
         /* console.log("TEST"); */
         return message.reply ("Please enter a valid number");
+      }
+
+      else if(typeof args[0] === "undefined"){
+        return message.reply("Please enter a valid amount.")
       }
 
       else if (userloan > 0 && userloan <= maxloan || userloan == maxloan) {
