@@ -39,7 +39,7 @@ module.exports = function () {
     parsedDataAlliances.push(data);
     parsedData[index].alliance = allianceName;
     parsedData[index].allianceRank = "L";
-    parsedData[index].money -= 250000;
+    parsedData[index].money -= 100000;
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
     return "".concat("you are now the leader of ", allianceName);

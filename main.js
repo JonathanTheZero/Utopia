@@ -19,7 +19,7 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-
+/* 
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
@@ -35,7 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-
+ */
 //loading the settings
 console.log("My prefix is", config.prefix)
 
@@ -1941,6 +1941,17 @@ async function reminder(message, duration, preText, postText){
   message.channel.send(preText);
   await Sleep(duration);
   message.reply(postText);
+}
+
+function if_null_then_zero(){
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  var index = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(message.author.id == parsedData[i].id){
+      index = i;
+      break;
+    }
+  }
 }
 
 function createStoreEmbed(message, type, args){
