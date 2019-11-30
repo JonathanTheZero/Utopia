@@ -320,10 +320,12 @@ client.on("message", async message => {
 
     if(!parsedData[index].upgrades.loan.currentLoan){
       maxloan = loancalc(index);
-      if (userloan > maxloan)
+      if (userloan > maxloan){
         return message.reply("You can only take upto " + maxloan.commafy() + " coins. Next time use `.loancalc ` ");
-      else if (userloan <= 0 || userloan === "undefined" || typeof args[0] === "undefined")
+      }
+      else if (userloan <= 0 || userloan === "undefined" || typeof args[0] === "undefined"){
         return message.reply ("Please enter a valid amount");
+      }
       else if (userloan > 0 && userloan <= maxloan) {
         parsedData[index].upgrades.loan.currentLoan = true;
         parsedData[index].upgrades.loan.amount += userloan + Math.floor(userloan*0.25);
@@ -348,7 +350,7 @@ client.on("message", async message => {
       if (!isNaN(args[0])){
         var userpayment = parseInt(args[0]);
       }
-      if (userpayment < 0 || userpayment > parsedData[index].upgrades.loan.amount ){
+      if (userpayment < 0 || userpayment > parsedData[index].upgrades.loan.amount || typeof args[0] === "undefined" || args[0] === "a"){
         return message.reply("Please enter valid amount.")
       }
       else{
