@@ -349,11 +349,6 @@ client.on("message", async message => {
     if (parsedData[index].upgrades.loan.currentLoan == true){
       if (!isNaN(args[0])){
         var userpayment = parseInt(args[0]);
-      }
-      if (userpayment < 0 || userpayment > parsedData[index].upgrades.loan.amount || typeof args[0] === "undefined" || args[0] === "a"){
-        return message.reply("Please enter valid amount.")
-      }
-      else{
         parsedData[index].upgrades.loan.amount -= userpayment;
         parsedData[index].money -= userpayment
 
@@ -372,7 +367,10 @@ client.on("message", async message => {
             return message.reply("Congrats, you paid " + userpayment.commafy() + ". You still owe " + parsedData[index].upgrades.loan.amount.commafy() + " coins.")
         }
       }
-  }
+      }
+      else if((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1 || typeof args[0] === "string")){
+        return message.reply("Please enter valid amount.")
+      }
       else{
         return message.reply("You do not have a loan to repay!")
       }
@@ -1943,17 +1941,6 @@ async function reminder(message, duration, preText, postText){
   message.channel.send(preText);
   await Sleep(duration);
   message.reply(postText);
-}
-
-function if_null_then_zero(){
-  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-  var index = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(message.author.id == parsedData[i].id){
-      index = i;
-      break;
-    }
-  }
 }
 
 function createStoreEmbed(message, type, args){
