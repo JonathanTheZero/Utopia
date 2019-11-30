@@ -351,7 +351,7 @@ client.on("message", async message => {
         var userpayment = parseInt(args[0]);
         parsedData[index].upgrades.loan.amount -= userpayment;
         parsedData[index].money -= userpayment
-
+  
         if (parsedData[index].upgrades.loan.amount == 0){
           parsedData[index].upgrades.loan.currentLoan = false;
           parsedData[index].upgrades.loan.amount = 0;
@@ -375,7 +375,7 @@ client.on("message", async message => {
         return message.reply("You do not have a loan to repay!")
       }
     }
-
+  
   else if(command == "leaderboard" || command == "lb"){
     var lbEmbed;
     if(args[0] == "p" || args[0] == "population"){
@@ -1941,6 +1941,17 @@ async function reminder(message, duration, preText, postText){
   message.channel.send(preText);
   await Sleep(duration);
   message.reply(postText);
+}
+
+function if_null_then_zero(){
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  var index = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(message.author.id == parsedData[i].id){
+      index = i;
+      break;
+    }
+  }
 }
 
 function createStoreEmbed(message, type, args){
