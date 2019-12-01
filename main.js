@@ -337,44 +337,37 @@ client.on("message", async message => {
     return message.reply("You still owe " + parsedData[index].upgrades.loan.amount.commafy() + " coins. Use `.payback` to pay it back");
   }
 
-  else if(command == "payback" || command == "pb"){
+  else if (command == "payback" || command == "pb") {
+    if ((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1))
+      return message.reply("Please enter valid amount.");
+
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
+    for (var i = 0; i < parsedData.length; i++) {
+      if (message.author.id == parsedData[i].id) {
         index = i;
         break;
       }
     }
-    if (parsedData[index].upgrades.loan.currentLoan == true){
-      if (!isNaN(args[0])){
-        var userpayment = parseInt(args[0]);
-        parsedData[index].upgrades.loan.amount -= userpayment;
-        parsedData[index].money -= userpayment
-  
-        if (parsedData[index].upgrades.loan.amount == 0){
-          parsedData[index].upgrades.loan.currentLoan = false;
-          parsedData[index].upgrades.loan.amount = 0;
-          //parsedData[index].upgrades.loan.loantax = 0;
-          if (parsedData[index].money < 0 || parsedData[index].money == null){
-            parsedData[index].money = 0
-          }
-          fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-          return message.reply("Congrats, you paid in full.")
-        }
-        else{
-            fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
-            return message.reply("Congrats, you paid " + userpayment.commafy() + ". You still owe " + parsedData[index].upgrades.loan.amount.commafy() + " coins.")
-        }
+
+    if (parsedData[index].upgrades.loan.currentLoan) {
+      var userpayment = parseInt(args[0]);
+      parsedData[index].money -= parseInt(args[0]);
+      if(parsedData[index].upgrades.loan.amount <= userpayment) {
+        const diff = userpayment - parsedData[index].upgrades.loan.amount + 0; //deep copy
+        parsedData[index].upgrades.loan.currentLoan = false;
+        message.reply("you paid in full.");
+        parsedData[index].upgrades.loan.amount = 0;
+        parsedData[index].money += diff;
+        fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+        return;
       }
-      }
-      else if((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1 || typeof args[0] === "string")){
-        return message.reply("Please enter valid amount.")
-      }
-      else{
-        return message.reply("You do not have a loan to repay!")
-      }
+      parsedData[index].upgrades.loan.amount -= userpayment;
+      fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+      return message.reply("Congrats, you paid " + userpayment.commafy() + ". You still owe " + parsedData[index].upgrades.loan.amount.commafy() + " coins.")
     }
+    return message.reply("You do not have a loan to repay!");
+  }
   
   else if(command == "leaderboard" || command == "lb"){
     var lbEmbed;
@@ -1923,8 +1916,7 @@ function createUser(msg){
         },
         loan: {
           currentLoan: false,
-          amount: 0,
-          loantax: 0
+          amount: 0
         }
       },
       inventory: [],
