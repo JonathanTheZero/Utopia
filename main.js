@@ -320,10 +320,12 @@ client.on("message", async message => {
 
     if(!parsedData[index].upgrades.loan.currentLoan){
       maxloan = loancalc(index);
-      if (userloan > maxloan)
+      if (userloan > maxloan){
         return message.reply("You can only take upto " + maxloan.commafy() + " coins. Next time use `.loancalc ` ");
-      else if (userloan <= 0 || userloan === "undefined" || typeof args[0] === "undefined")
+      }
+      else if (userloan <= 0 || userloan === "undefined" || typeof args[0] === "undefined"){
         return message.reply ("Please enter a valid amount");
+      }
       else if (userloan > 0 && userloan <= maxloan) {
         parsedData[index].upgrades.loan.currentLoan = true;
         parsedData[index].upgrades.loan.amount += userloan + Math.floor(userloan*0.25);
@@ -347,14 +349,9 @@ client.on("message", async message => {
     if (parsedData[index].upgrades.loan.currentLoan == true){
       if (!isNaN(args[0])){
         var userpayment = parseInt(args[0]);
-      }
-      if (userpayment < 0 || userpayment > parsedData[index].upgrades.loan.amount ){
-        return message.reply("Please enter valid amount.")
-      }
-      else{
         parsedData[index].upgrades.loan.amount -= userpayment;
         parsedData[index].money -= userpayment
-
+  
         if (parsedData[index].upgrades.loan.amount == 0){
           parsedData[index].upgrades.loan.currentLoan = false;
           parsedData[index].upgrades.loan.amount = 0;
@@ -370,12 +367,15 @@ client.on("message", async message => {
             return message.reply("Congrats, you paid " + userpayment.commafy() + ". You still owe " + parsedData[index].upgrades.loan.amount.commafy() + " coins.")
         }
       }
-  }
+      }
+      else if((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1 || typeof args[0] === "string")){
+        return message.reply("Please enter valid amount.")
+      }
       else{
         return message.reply("You do not have a loan to repay!")
       }
     }
-
+  
   else if(command == "leaderboard" || command == "lb"){
     var lbEmbed;
     if(args[0] == "p" || args[0] == "population"){
@@ -1941,6 +1941,17 @@ async function reminder(message, duration, preText, postText){
   message.channel.send(preText);
   await Sleep(duration);
   message.reply(postText);
+}
+
+function if_null_then_zero(){
+  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  var index = -1;
+  for(var i = 0; i < parsedData.length; i++){
+    if(message.author.id == parsedData[i].id){
+      index = i;
+      break;
+    }
+  }
 }
 
 function createStoreEmbed(message, type, args){
