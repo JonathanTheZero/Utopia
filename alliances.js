@@ -344,7 +344,7 @@ module.exports = function () {
           return "Succesfully upgraded your alliance to level 8. Your alliance can now own each farm eight times.";
         }
       }
-      else if (parsedDataAlliances[ind].level == 8) {
+      else if (parsedDataAlliances[ind].level == 9) {
         if (parsedDataAlliances[ind].money < 500000000) {
           return "you don't have enough money to upgrade your alliance to level 9. Upgrading your alliance to level 9 costs 500,000,000 coins.";
         }
