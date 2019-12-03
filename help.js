@@ -78,6 +78,10 @@ const gHelpMenu = {
             value: "Using loan, you can take out money to help you further expand your empire. Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. Use `payback [amount]` to pay it back."
         },
         {
+            name: "`.send <mention/ID> <amount>`",
+            value: "Send a specific amount of money to another user."
+        },
+        {
             name: "`.kill <amount>`",
             value: "Kill a specific amount of your population."
         },
@@ -145,10 +149,6 @@ const allianceHelpEmbed = {
         {
             name: "`.alliance [mention/ID]`",
             value: "View the stats of your alliance or of the alliance of another user."
-        },
-        {
-            name: "`.send <mention/ID> <amount>`",
-            value: "Send a specific amount of money to one of your alliance members."
         },
         {
             name: "`.alliancemembers [mention/ID]`",
