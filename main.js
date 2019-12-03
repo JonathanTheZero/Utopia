@@ -884,8 +884,6 @@ client.on("message", async message => {
     if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't send money to yourself!");
-    if(parsedData[auInd].alliance == null) return message.reply("you haven't joined an alliance yet!");
-    if(parsedData[auInd].alliance != parsedData[index].alliance) return message.reply("you can only send money to users in your alliance.");
     if(a == null || a < 1) return message.reply("this isn't a valid amount.");
     if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
     if(args[1] == "a"){
