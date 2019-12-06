@@ -879,21 +879,15 @@ client.on("message", async message => {
       if(message.author.id == parsedData[i].id) auInd = i;
     }
     
-    var a = (args[1] == "a") ? parsedData[index].money : parseInt(args[1]);
-    if(typeof args[1] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
+    var a = (args[1].toLowerCase() == "a") ? parsedData[auInd].money : parseInt(args[1]);
+    if(typeof args[1] === "undefined" || isNaN(a)) return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     if(index == auInd) return message.reply("you can't send money to yourself!");
     if(a == null || a < 1) return message.reply("this isn't a valid amount.");
     if(parsedData[auInd].money < a) return message.reply("you can't send more money than you own!");
-    if(args[1] == "a"){
-      parsedData[index].money += parsedData[auInd].money;
-      parsedData[auInd].money = 0;
-    }
-    else {
-      parsedData[index].money += a;
-      parsedData[auInd].money -= a;
-    }
+    parsedData[index].money += a;
+    parsedData[auInd].money -= a;
     message.reply("Succesfully sent " + a.commafy() + " " + `money to ${user.tag}.`);
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   }
