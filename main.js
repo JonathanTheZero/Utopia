@@ -381,20 +381,10 @@ client.on("message", async message => {
       }
     }
 
-    
-    else if (args[0] == "f" || args[0] == "food"){
-      try{
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("f", 1, message) : generateLeaderboardEmbed("f", 1, message);
-        if(args[1] > Math.floor(getLeaderboardList("f").length / 10) + 1 ||  isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-      }
-      catch {
-        return message.reply("that isn't a valid page number!")
-      }
-    }
-    else if(args[0] == "alliances" || args[0] == "alliance" || args[0] == "a"){
+    else if(args[0] == "food" || args[0] == "foods" || args[0] == "f"){
       try {
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("a", 1, message) : generateLeaderboardEmbed("a", args[1], message);
-        if(args[1] > Math.floor(getLeaderboardList("a").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("f", 1, message) : generateLeaderboardEmbed("f", args[1], message);
+        if(args[1] > Math.floor(getLeaderboardList("f").length / 10) + 1|| isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
         return message.reply("that isn't a valid page number!")
