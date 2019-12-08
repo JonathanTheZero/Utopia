@@ -19,7 +19,7 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-
+/* 
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
@@ -35,7 +35,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-
+ */
 //loading the settings
 console.log("My prefix is", config.prefix)
 
@@ -2241,55 +2241,49 @@ function payoutLoop(){
     });
     for(var i = 0; i < parsedDataAlliances.length; i++){
       if(parsedDataAlliances[i].upgrades.af > 0){
+        afPayout = 150000
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              if(parsedDataAlliances[i].coLeaders.length == 0){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 15000;
-              }
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * Math.floor((parsedDataAlliances[i].payout.leader * afPayout))
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.af * 7500 + Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * Math.floor((parsedDataAlliances[i].payout.co * afPayout)/parsedDataAlliances[i].coLeaders.length)
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.af * 120000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor((afPayout * parsedDataAlliances[i].payout.member)/(parsedDataAlliances[i].members.length));
             }
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.pf > 0){
+        pfPayout = 1000000
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              if(parsedDataAlliances[i].coLeaders.length == 0){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 100000;
-              }
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * Math.floor((parsedDataAlliances[i].payout.leader * pfPayout))
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * 50000 + Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.pf * Math.floor((parsedDataAlliances[i].payout.co * pfPayout)/parsedDataAlliances[i].coLeaders.length)
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.pf * 800000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor((pfPayout * parsedDataAlliances[i].payout.member)/(parsedDataAlliances[i].members.length));
             }
           }
         }
       }
       if(parsedDataAlliances[i].upgrades.mf > 0){
+        mfPayout = 5000000
         for(var j = 0; j < parsedData.length; j++){
           if(parsedData[j].alliance == parsedDataAlliances[i].name){
             if(parsedData[j].id == parsedDataAlliances[i].leader.id){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
-              if(parsedDataAlliances[i].coLeaders.length == 0){
-                parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 500000;
-              }
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * Math.floor((parsedDataAlliances[i].payout.leader * mfPayout))
             }
             if(parsedDataAlliances[i].coLeaders.includes(parsedData[j].id)){
-              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * 250000 + Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += parsedDataAlliances[i].upgrades.mf * Math.floor((parsedDataAlliances[i].payout.co * mfPayout)/parsedDataAlliances[i].coLeaders.length)
             }
             if(parsedDataAlliances[i].members.includes(parsedData[j].id)){
-              parsedData[j].resources.food += Math.floor(((parsedDataAlliances[i].upgrades.mf * 4000000)/(parsedDataAlliances[i].members.length + parsedDataAlliances[i].coLeaders.length + 1)));
+              parsedData[j].resources.food += Math.floor((mfPayout * parsedDataAlliances[i].payout.member)/(parsedDataAlliances[i].members.length));
             }
           }
         }
