@@ -1028,6 +1028,34 @@ client.on("message", async message => {
     if(parsedData[index].alliance == null)
       return message.reply("you are not part of any alliance.");
   }
+  
+  else if(command == "dividepayout" || command == "payoutdivide" || command == "pd"){
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    const leaderPayout = parseInt(args[0]);
+    const CoPayout = parseInt(args[1]);
+    const MemberPayout = parseInt(args[2]);
+    if(index == -1)
+      return message.reply("you haven't created an account yet, please use the `create` command.");
+    else if(parsedData[index].allianceRank == "M" || parsedData[index].allianceRank == "C"){
+      return message.reply("only the Leader can use this command!");
+    }
+    else if(parsedData[index].alliance == null){
+      return message.reply("you haven't joined an alliance yet!");
+    }
+    else if ((leaderPayout + CoPayout + MemberPayout) != 100){
+      return message.reply("The percentages must equal to 100")
+    }
+    if(parsedData[index].alliance != null){
+      return message.reply(payoutDivide(message, parsedData[index].alliance, leaderPayout, CoPayout, MemberPayout));
+    }
+  }
 
   else if(command == "renamealliance" || command == "rename"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));

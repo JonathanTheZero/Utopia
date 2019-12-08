@@ -68,6 +68,26 @@ module.exports = function () {
       }
       return "this alliance doesn't exist, you can form it with `.createalliance " + allianceName + "`.";
     },
+    
+    payoutDivide = function(message, allianceName, leaderPayout, CoPayout, MemberPayout){
+      let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
+      let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+      var index = -1;
+      for (var i= 0; i < parsedDataAlliances.length; i++){
+        if (parsedDataAlliances[i].name == allianceName){
+          index = i;
+          break;
+        }
+      }
+      leaderPayout = (leaderPayout/100) 
+      CoPayout = (CoPayout/100)
+      MemberPayout = (MemberPayout/100)
+      parsedDataAlliances[index].payout.leader = leaderPayout
+      parsedDataAlliances[index].payout.co = CoPayout
+      parsedDataAlliances[index].payout.member = MemberPayout
+      fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2))
+      return "New payout has been set"
+    }
 
     leaveAlliance = function (message) {
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
