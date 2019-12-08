@@ -817,7 +817,7 @@ client.on("message", async message => {
         startedAt: Date.now(),
         endingISO: ending,
         priceAm: args[0],
-        priceCur: args[1],
+        priceCur: currency,
         endingAt: new Date(ending).getTime(),
         embedId: sent.id,
         users: [] 
@@ -1927,17 +1927,6 @@ async function reminder(message, duration, preText, postText){
   message.reply(postText);
 }
 
-function if_null_then_zero(){
-  var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-  var index = -1;
-  for(var i = 0; i < parsedData.length; i++){
-    if(message.author.id == parsedData[i].id){
-      index = i;
-      break;
-    }
-  }
-}
-
 function createStoreEmbed(message, type, args){
   /* p = population
   *  s = store (default)
@@ -2689,7 +2678,6 @@ async function giveawayCheck(index){
       }
     }
   }
-  console.log(giveaway);
   gas.splice(index, 1);
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   fs.writeFileSync("giveaways.json", JSON.stringify(gas, null, 2));
