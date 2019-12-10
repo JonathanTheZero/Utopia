@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "better-arrays.js": "^1.0.3",
     "bluebird": "^3.7.1",
     "body-parser": "^1.19.0",
     "dblapi.js": "^2.3.0",

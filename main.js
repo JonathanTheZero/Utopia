@@ -4,6 +4,7 @@ const config = require("./config.json");
 const fs = require("fs");
 require("./alliances.js")();
 require("./utils.js")();
+const b = require("better-arrays.js");
 const help = require("./help.js");
 const battle = require("./battles.js");
 const express = require('express');
@@ -2642,7 +2643,7 @@ async function giveawayCheck(index){
     y.pop();
     giveaway.users = y;
   }
-  let x = await giveaway.users.getRandom(giveaway.winners); //winners
+  let x = await giveaway.users.selectRandom(giveaway.winners); //winners
   var winnerMentions = `<@${x[0].id}>`;
   for(let i = 1; i < x.length; i++){
     winnerMentions += `, <@${x[i].id}>`;
