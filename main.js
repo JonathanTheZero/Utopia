@@ -381,11 +381,9 @@ client.on("message", async message => {
         return  message.reply("that isn't a valid page number!")
       }
     }
-
-    
     else if (args[0] == "f" || args[0] == "food"){
       try{
-        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("f", 1, message) : generateLeaderboardEmbed("f", 1, message);
+        lbEmbed = (typeof args[1] === "undefined") ? generateLeaderboardEmbed("f", 1, message) : generateLeaderboardEmbed("f", args[1], message);
         if(args[1] > Math.floor(getLeaderboardList("f").length / 10) + 1 ||  isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
       }
       catch {
@@ -511,18 +509,14 @@ client.on("message", async message => {
       return message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
     }
     else if(args[0] == "nf" || (args[0] == "nomadic") && args[1] == "farming"){
-      return message.reply(buyPersonalfarm("nf", index, 1000000));
+      return message.reply(buyPersonalfarm("nf", index, 750000));
     }
     else if(args[0] == "sf" || (args[0] == "subsistence") && args[1] == "farming"){
-      return message.reply(buyPersonalfarm("sf", index, 5000000));
+      return message.reply(buyPersonalfarm("sf", index, 2750000));
     }
     else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
-      return message.reply(buyPersonalfarm("sef", index, 15000000));
+      return message.reply(buyPersonalfarm("sef", index, 7500000));
     }
-  }
-
-  else if(command == "use"){
-
   }
 
   else if(command === "me" || command === "stats"){
@@ -2074,18 +2068,18 @@ function createStoreEmbed(message, type, args){
 			    value: '\u200b'
         },
         {
-          name: 'Nomadic farming',
-          value: '+500k food every 4h\nPrice: 1,000,000',
+          name: 'Nomadic Farming',
+          value: '+500k food every 4h\nPrice: 750,000',
           inline: true,
         },
         {
           name: 'Subsistence Farming',
-          value: '+1M food every 4h\nPrice: 5,000,000',
+          value: '+1M food every 4h\nPrice: 2,750,000',
           inline: true,
         },
         {
           name: 'Sedentary Farming',
-          value: '+5M food every 4h\nPrice: 15,000,000',
+          value: '+5M food every 4h\nPrice: 7,500,000',
           inline: true,
         },
       ],
@@ -2544,8 +2538,8 @@ function buyPersonalfarm(item, index, price){
     return `this items costs ${price.commafy()} coins! You only own ${parsedData[index].money.commafy()}`;
 
   if (item == "nf"){
-    if(parsedData[index].upgrades.pf.nf >= 3)
-      return "you already own this item three times!";
+    if(parsedData[index].upgrades.pf.nf >= 4)
+      return "you already own this item four times!";
     parsedData[index].upgrades.pf.nf += 1;
     parsedData[index].money -= price;
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
