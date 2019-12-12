@@ -20,12 +20,12 @@ app.get('/', function(request, response) {
 const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-
+/*
 const dbl = new DBL(config.dbl.token, { webhookServer: listener, webhookAuth: config.dbl.auth}, client);
 dbl.webhook.on('ready', hook => {
   console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`);
 });
-
+ 
 dbl.webhook.on('vote', vote => {
   let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
@@ -36,7 +36,7 @@ dbl.webhook.on('vote', vote => {
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
 });
-
+ */
 //loading the settings
 console.log("My prefix is", config.prefix)
 
@@ -517,6 +517,10 @@ client.on("message", async message => {
     else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
       return message.reply(buyPersonalfarm("sef", index, 7500000));
     }
+    
+    else if(args[0] == "if" || (args[0] == "intensive") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("if", index, 15000000));
+    }
   }
 
   else if(command === "me" || command === "stats"){
@@ -604,7 +608,8 @@ client.on("message", async message => {
           name: "Personal Farms:",
           value: `${pf.nf} Nomadic Farming\n` +
           `${pf.sf} Subsistence Farming\n` +
-          `${pf.sef} Sedentary Farming\n`,
+          `${pf.sef} Sedentary Farming\n` +
+          `${pf.if} Intensive Farming\n`,
           inline: true
         },
         {
@@ -706,6 +711,10 @@ client.on("message", async message => {
 
     if (user.upgrades.pf.sef > 0){
       u += (user.upgrades.pf.sef*5000000);
+    }
+    
+    if (user.upgrades.pf.if > 0){
+      u += (user.upgrades.pf.if*10000000);
     }
     userFood += u;
 
@@ -959,6 +968,25 @@ client.on("message", async message => {
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     fs.writeFileSync("alliances.json", JSON.stringify(parsedDataAlliances, null, 2));
   }*/
+
+  else if(command == "stop-growing" || command == "sg"){
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    var index = -1;
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.author.id == parsedData[i].id){
+        index = i;
+        break;
+      }
+    }
+    if(index == -1){
+      message.reply("you haven't created an account yet, please use the `create` command.");
+      return;
+    }
+    parsedData[index].populationGrowth = !parsedData[index].populationGrowth;
+    var s = (!parsedData[index].populationGrowth) ? "you successfully disabled population growth." : "you succesfully enabled population growth.";
+    message.reply(s);
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
 
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
@@ -2183,26 +2211,30 @@ function payoutLoop(){
     //payoutChannel.send("Processing started...");
     let l = parsedData.length;
     for(var i = 0; i < l; i++){
-      if(parsedData[i].upgrades.population.includes("UK"))
-        parsedData[i].resources.population += 5000;
-      if(parsedData[i].upgrades.population.includes("AE"))
-        parsedData[i].resources.population += 10000;
-      if(parsedData[i].upgrades.population.includes("RU"))
-        parsedData[i].resources.population += 15000;
-      if(parsedData[i].upgrades.population.includes("EC")) 
-        parsedData[i].resources.population += 25000;
-      if(parsedData[i].upgrades.population.includes("GL")) 
-        parsedData[i].resources.population += 50000
-      if(parsedData[i].upgrades.population.includes("MS"))
-        parsedData[i].resources.population += 200000;
-      if(parsedData[i].upgrades.population.includes("US"))
-        parsedData[i].resources.population += 750000;
+      if (parsedData[i].populationGrowth == true){
+        if(parsedData[i].upgrades.population.includes("UK"))
+          parsedData[i].resources.population += 5000;
+        if(parsedData[i].upgrades.population.includes("AE"))
+          parsedData[i].resources.population += 10000;
+        if(parsedData[i].upgrades.population.includes("RU"))
+          parsedData[i].resources.population += 15000;
+        if(parsedData[i].upgrades.population.includes("EC")) 
+          parsedData[i].resources.population += 25000;
+        if(parsedData[i].upgrades.population.includes("GL")) 
+          parsedData[i].resources.population += 50000
+        if(parsedData[i].upgrades.population.includes("MS"))
+          parsedData[i].resources.population += 200000;
+        if(parsedData[i].upgrades.population.includes("US"))
+          parsedData[i].resources.population += 750000;
+      }
       if (parsedData[i].upgrades.pf.nf > 0)
         parsedData[i].resources.food += (parsedData[i].upgrades.pf.nf*500000);
       if (parsedData[i].upgrades.pf.sf > 0)
         parsedData[i].resources.food += (parsedData[i].upgrades.pf.sf*1000000);
       if (parsedData[i].upgrades.pf.sef > 0)
         parsedData[i].resources.food += (parsedData[i].upgrades.pf.sef*5000000);
+      if (parsedData[i].upgrades.pf.if > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.pf.if*10000000);
 
       if(parsedData[i].payoutDMs){
         try{
@@ -2562,6 +2594,15 @@ function buyPersonalfarm(item, index, price){
     parsedData[index].money -= price;
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     return "Congrats! You just bought Sedentary Farming";
+  }
+
+  else if (item == "if"){
+    if(parsedData[index].upgrades.pf.if>= 3)
+      return "you already own this item three times!";
+    parsedData[index].upgrades.pf.if += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Intensive Farming";
   }
 } 
 
