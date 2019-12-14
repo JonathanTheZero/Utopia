@@ -517,6 +517,9 @@ client.on("message", async message => {
     else if(args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming"){
       return message.reply(buyPersonalfarm("sef", index, 7500000));
     }
+    else if(args[0] == "if" || (args[0] == "intensive") && args[1] == "farming"){
+      return message.reply(buyPersonalfarm("if", index, 15000000));
+    }
   }
 
   else if(command === "me" || command === "stats"){
@@ -604,7 +607,8 @@ client.on("message", async message => {
           name: "Personal Farms:",
           value: `${pf.nf} Nomadic Farming\n` +
           `${pf.sf} Subsistence Farming\n` +
-          `${pf.sef} Sedentary Farming\n`,
+          `${pf.sef} Sedentary Farming\n` +
+          `${pf.if} Intensive Farming\n`,
           inline: true
         },
         {
@@ -706,6 +710,10 @@ client.on("message", async message => {
 
     if (user.upgrades.pf.sef > 0){
       u += (user.upgrades.pf.sef*5000000);
+    }
+
+    if (user.upgrades.pf.if > 0){
+      u += (user.upgrades.pf.if*10000000);
     }
     userFood += u;
 
@@ -1899,7 +1907,8 @@ function createUser(msg){
         pf: {
           nf: 0,
           sf: 0,
-          sef: 0
+          sef: 0,
+          if: 0
         },
         loan: {
           currentLoan: false,
@@ -2203,6 +2212,8 @@ function payoutLoop(){
         parsedData[i].resources.food += (parsedData[i].upgrades.pf.sf*1000000);
       if (parsedData[i].upgrades.pf.sef > 0)
         parsedData[i].resources.food += (parsedData[i].upgrades.pf.sef*5000000);
+      if (parsedData[i].upgrades.pf.if > 0)
+        parsedData[i].resources.food += (parsedData[i].upgrades.pf.if*10000000);
 
       if(parsedData[i].payoutDMs){
         try{
@@ -2562,6 +2573,15 @@ function buyPersonalfarm(item, index, price){
     parsedData[index].money -= price;
     fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
     return "Congrats! You just bought Sedentary Farming";
+  }
+
+  else if (item == "if"){
+    if(parsedData[index].upgrades.pf.if>= 3)
+      return "you already own this item three times!";
+    parsedData[index].upgrades.pf.if += 1;
+    parsedData[index].money -= price;
+    fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+    return "Congrats! You just bought Intensive Farming";
   }
 } 
 
