@@ -1552,7 +1552,7 @@ client.on("message", async message => {
       message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - parsedData[index].lastWorked)) * 1000).toISOString().substr(11, 8));
     }
     else {
-      var produced = Math.floor(Math.random() * 10000);
+      var produced = Math.floor(Math.random() * (10000 + parsedData[index].resources.population / 1000));
       if(alInd == -1){
         if (parsedData[index].upgrades.loan.currentLoan){
           paid = Math.floor(produced/2 + 1)
@@ -2054,7 +2054,7 @@ function createStoreEmbed(message, type, args){
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
       title: 'Personal Farm Store',
-      description: 'These items are currently available in the Personal Farm Store!\n(You can own each farm three times)',
+      description: 'These items are currently available in the Personal Farm Store!\n(You can own each farm three times, except Nomadic Farming, which can be owned four times)',
       thumbnail: {
         url: message.author.displayAvatarURL,
       },
