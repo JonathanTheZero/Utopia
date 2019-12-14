@@ -2091,6 +2091,11 @@ function createStoreEmbed(message, type, args){
           value: '+5M food every 4h\nPrice: 7,500,000',
           inline: true,
         },
+        {
+          name: 'Intensive Farming',
+          value: '+10M food every 4h\nPrice: 15,000,000',
+          inline: true,
+        },
       ],
       timestamp: new Date(),
       footer: config.properties.footer,
