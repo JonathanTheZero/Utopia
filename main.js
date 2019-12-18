@@ -2686,13 +2686,13 @@ async function giveawayCheck(index){
   for(let i = 0; i < x.length; i++){
     for(let j = 0; j < parsedData.length; j++){
       if(parsedData[j].id == x[i].id){
-        if(giveaway.priceCur == "food"){
+        if(giveaway.priceCur.toLowerCase() == "food"){
           parsedData[j].resources.food += parseInt(giveaway.priceAm);
         }
-        else if(giveaway.priceCur == "population"){
+        else if(giveaway.priceCur.toLowerCase() == "population"){
           parsedData[j].resources.population += parseInt(giveaway.priceAm);
         }
-        if(giveaway.priceCur == "money"){
+        if(giveaway.priceCur.toLowerCase() == "money"){
           parsedData[j].money += parseInt(giveaway.priceAm);
         }
       }
