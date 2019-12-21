@@ -10,7 +10,6 @@ const battle = require("./battles.js");
 const express = require('express');
 const client = new Discord.Client();
 const app = express();
-const { PythonShell } = require('python-shell');
 app.use(express.static('public'));
 var server = require('http').createServer(app);
 
@@ -225,12 +224,12 @@ client.on("message", async message => {
     
     var money = (args[0].toLowerCase() == "a") ? parsedData[index].money : parseInt(args[0]);
     
-    if (args[0].toLowerCase() == "half" || args[0].toLowerCase() == "h"){
+    if (args[0].toLowerCase() == "half" || args[0].toLowerCase().startsWith("h")){
       money = Math.floor((parsedData[index].money)/2);
     }
     
     //To allow the user to bet a quarter of their money rounded down
-    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase() == "q"){
+    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith("q")){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
