@@ -240,13 +240,3 @@ h1.heading {
   font-size: 2em;
   border-bottom: 1px solid rgba(0, 255, 255, 0.2);
 }
-
-body {
-  background-color: #012;
-}
-
-body > * {
-  width: 24%;
-  margin: 0.4%;
-  vertical-align: top;
-}

@@ -53,8 +53,6 @@ div#statbox {
   flex: 0 0 100%;
   margin-bottom: 30%;
   position: relative;
-  /*-webkit-clip-path: polygon(10% 0%, 10% 0%, 100% 10%, 100% 10%, 10% 100%, 20% 100%, 0% 80%, 0% 20%);
-  clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 100% 100%, 5% 100%, 0 95%, 0 0);*/
 }
 
 div#statbox:before {
@@ -75,10 +73,6 @@ div#statbox hr {
   margin-right: 40%;
   margin-top: -2%;
 }
-
-/*div#statbox h2 {
-  font-size: 34px;
-}*/
 
 div#featurebox {
   margin-left: 15%;
@@ -111,6 +105,12 @@ div.cutCorner:before {
 }
 
 body {
+  background-color: #012;
   line-height: 1.5;
 }
 
+body > * {
+  width: 24%;
+  margin: 0.4%;
+  vertical-align: top;
+}
