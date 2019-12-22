@@ -229,7 +229,7 @@ client.on("message", async message => {
     }
     
     //To allow the user to bet a quarter of their money rounded down
-    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith("q")){
+    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith()){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
@@ -1710,6 +1710,28 @@ client.on("message", async message => {
       if (parsedData[index].autoping) reminder(message, 14400000, "I'll remind you in 4h to commit a crime again.", "Reminder: Commit a crime.");
     }
     return fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
+  }
+
+  else if(command == "startbattle" || command == "startduel" || command == "duel"){
+    if(typeof args[0] === "undefined")return message.reply("please supply valid parameters following the syntax `.startbattle <mention/ID>`.");
+    let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    var index = -1;
+    var auInd = -1;
+    let rawdataBattle = fs.readFileSync('activebattles.json');
+    let battleData = JSON.parse(rawdataBattle);
+    for(let i = 0; i < battleData.length;i++){
+      if(message.author.id == battleData[i].p1.id || message.author.id == battleData[i].p2.id){
+        return message.reply("you are already fighting in an active duel!")
+      }
+    }
+    for(var i = 0; i < parsedData.length; i++){
+      if(message.mentions.users.first().id == parsedData[i].id) index = i;
+      if(message.author.id == parsedData[i].id) auInd = i;
+    }
+    if(auInd == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+    if(index == -1) return message.reply("this user hasn't created an account yet.");
+    if(index == auInd) return message.reply("you can't battle yourself!");
+    battle.startbattle(auInd, index, message.channel.id);
   }
 
   else if(command === "cancelduel" || command == "cancelbattle"){
