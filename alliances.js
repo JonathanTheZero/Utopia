@@ -455,6 +455,10 @@ module.exports = function () {
       let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
       let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
       const old = (' ' + parsedData[index].alliance).slice(1);
+      for(let i = 0; i < parsedDataAlliances.length;i++){
+        if(parsedDataAlliances[i].name == allianceName)
+          return "error, there already exists an alliance with this name!"
+      }
       for (var i = 0; i < parsedDataAlliances.length; i++) {
         if (parsedDataAlliances[i].name == old) {
           parsedDataAlliances[i].name = allianceName;
