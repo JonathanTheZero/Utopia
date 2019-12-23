@@ -13,11 +13,11 @@ const app = express();
 app.use(express.static('public'));
 var server = require('http').createServer(app);
 
-app.get('/', function(request, response) {
+app.get('/', (request, response) => {
   response.sendFile(__dirname + '/views/index.html');
 });
 
-const listener = app.listen(process.env.PORT, function() {
+const listener = app.listen(process.env.PORT, () => {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 
@@ -95,7 +95,7 @@ client.on("guildDelete", guild => {
   fs.readFile("guilds.json", (err, data) => {
     if(err) throw err;
     data = JSON.parse(data);
-    var index = data.findIndex(function(item, i){
+    var index = data.findIndex((item, i) => {
       return item.id == guild.id;
     });
     data.splice(index, 1);
@@ -229,7 +229,7 @@ client.on("message", async message => {
     }
     
     //To allow the user to bet a quarter of their money rounded down
-    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith()){
+    else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith("q")){
         money = Math.floor((parsedData[index].money)*0.25);
     }
 
@@ -2444,7 +2444,7 @@ function generateLeaderboardEmbed(type, page, message){
 
   if(type == "p"){
     var lb = getLeaderboardList("p");
-    var index = lb.findIndex(function(item, i){
+    var index = lb.findIndex((item, i) => {
       return item.id == message.author.id;
     });
     lbEmbed = {
@@ -2459,7 +2459,7 @@ function generateLeaderboardEmbed(type, page, message){
 
   else if(type == "f"){
     var lb = getLeaderboardList("f");
-    var index = lb.findIndex(function(item, i){
+    var index = lb.findIndex((item, i) => {
       return item.id == message.author.id;
     });
     lbEmbed = {
@@ -2474,7 +2474,7 @@ function generateLeaderboardEmbed(type, page, message){
 
   else if(type == "a"){
     var lb = getLeaderboardList("a");
-    let i = lb.findIndex(function(item, i){
+    let i = lb.findIndex((item, i) => {
       return item.name == searchUserByID(message.author.id).alliance;
     });
     var index = (i == -1) ? "-" : ++i; 
@@ -2490,7 +2490,7 @@ function generateLeaderboardEmbed(type, page, message){
 
   else if(type == "w"){
     var lb = getLeaderboardList("w");
-    var index = lb.findIndex(function(item, i){
+    var index = lb.findIndex((item, i) => {
       return item.id == message.author.id;
     });
     lbEmbed = {
@@ -2505,7 +2505,7 @@ function generateLeaderboardEmbed(type, page, message){
 
   else {
     var lb = getLeaderboardList("m");
-    var index = lb.findIndex(function(item, i){
+    var index = lb.findIndex((item, i) => {
       return item.id == message.author.id;
     });
     lbEmbed = {
