@@ -2,9 +2,12 @@ import os
 import random
 import sys
 import string
+import requests
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
+from io import BytesIO
+
 
 
 def randomString(stringLength=10):
@@ -18,7 +21,7 @@ def randomString(stringLength=10):
 #args[2]: Population
 #args[3]: Username
 def plotImage(args):
-    base = Image.open("./imageplotting/level1-backdrop.png")
+    base = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-backdrop.png?v=1577192506945").content))
     base = base.resize((1024, 1024))
     dome_mode = False
     black_bg = False
@@ -30,22 +33,22 @@ def plotImage(args):
     args[2] = int(args[2])
 
     if args[0] <= 1:
-        farms = Image.open("./imageplotting/level1-farm.png")
+        farms = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-farm.png?v=1577192625417").content))
         farms = farms.resize((362, 160))  
         base.paste(farms, (80, 360), mask=farms)
         used_positions.append((80, 360))
 
     elif args[0] <= 2:
-        farms = Image.open("./imageplotting/level1-farm.png")
+        farms = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-farm.png?v=1577192625417").content))
         farms = farms.resize((362, 160))  
         base.paste(farms, (80, 360), mask=farms)
         base.paste(farms, (500, 360), mask=farms)
         used_positions.extend([(80, 360), (500, 360)])
 
     elif args[0] <= 4:
-        base = Image.open("./imageplotting/transition-backdrop.png")
+        base = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2ftransition-backdrop.png?v=1577192801450").content))
         base = base.resize((1024, 1024))
-        farms = Image.open("./imageplotting/level1-farm.png")
+        farms = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-farm.png?v=1577192625417").content))
         farms = farms.resize((362, 160)) 
         base.paste(farms, (80, 360), mask=farms)
         base.paste(farms, (500, 360), mask=farms)
@@ -53,17 +56,17 @@ def plotImage(args):
         used_positions.extend([(80, 360), (500, 360), (80, 520)])
 
     else:
-        base = Image.open("./imageplotting/level2-backdrop.png")
+        base = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-backdrop.png?v=1577192652617").content))
         base = base.resize((1024, 1024))
         if args[0] <= 5:
-            factory = Image.open("./imageplotting/level2-factory.png")
+            factory = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814").content))
             factory = factory.resize((304, 330))  
             base.paste(factory, (80, 190), mask=factory)
             used_positions.append((80, 190))
 
         elif args[0] <= 6:
-            factory = Image.open("./imageplotting/level2-factory.png")
-            farms = Image.open("./imageplotting/level1-farm.png")
+            factory = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814").content))
+            farms = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-farm.png?v=1577192625417").content))
             factory = factory.resize((304, 330))  
             farms = farms.resize((362, 160))  
             base.paste(factory, (80, 190), mask=factory)
@@ -71,7 +74,7 @@ def plotImage(args):
             used_positions.extend([(80, 190), (500, 360)])
 
         elif args[0] <= 7:
-            factory = Image.open("./imageplotting/level2-factory.png")
+            factory = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814").content))
             factory = factory.resize((304, 330)) 
             base.paste(factory, (80, 190), mask=factory)
             base.paste(factory, (390, 190), mask=factory)
@@ -79,14 +82,14 @@ def plotImage(args):
         
         else:
             black_bg = True
-            base = Image.open("./imageplotting/level3-backdrop.png")
+            base = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-backdrop.png?v=1577192692405").content))
             base = base.resize((1024, 1024))
-            stars = Image.open("./imageplotting/level3-backdrop-stars.png").resize((1024, 1024))
+            stars = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-backdrop-stars.png?v=1577192732807").content)).resize((1024, 1024))
             base.paste(stars, (0, 0), mask=stars)
 
             if args[0] <= 8:
-                factory = Image.open("./imageplotting/level2-factory.png")
-                tower = Image.open("./imageplotting/level3-tower.png")
+                factory = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814").content))
+                tower = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-tower.png?v=1577192760807").content))
                 factory = factory.resize((304, 330))
                 tower = tower.resize((102, 436)) 
                 base.paste(factory, (80, 190), mask=factory)
@@ -95,9 +98,9 @@ def plotImage(args):
                 used_positions.extend([(80, 190), (500, 190), (400, 190)])
             
             elif args[0] <= 9:
-                factory = Image.open("./imageplotting/level2-factory.png")
-                tower = Image.open("./imageplotting/level3-tower.png")
-                church = Image.open("./imageplotting/level3-church.png")
+                factory = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814").content))
+                tower = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-tower.png?v=1577192760807").content))
+                church = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-church.png?v=1577192743026").content))
                 factory = factory.resize((304, 330))
                 tower = tower.resize((102, 436)) 
                 church = church.resize((185, 182))
@@ -109,20 +112,20 @@ def plotImage(args):
 
             else:
                 dome_mode = True
-                base = Image.open("./imageplotting/level4-backdrop.png").resize((1024, 1024))
-                stars = Image.open("./imageplotting/level4-backdrop-stars.png").resize((1024, 1024))
+                base = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel4-backdrop.png?v=1577192763515").content)).resize((1024, 1024))
+                stars = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel4-backdrop-stars.png?v=1577192768566").content)).resize((1024, 1024))
                 base.paste(stars, (0, 0), mask=stars)
 
-                if args[0] <= 10:
-                    dome = Image.open("./imageplotting/lvl1-lvl4.png")
+                if args[0] <= 10: #lvl1
+                    dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl1-lvl4.png?v=1577192775951").content))
                     dome = dome.resize((307, 393))
 
-                elif args[0] <= 11:
-                    dome = Image.open("./imageplotting/lvl2-lvl4.png")
+                elif args[0] <= 11: #lvl2
+                    dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl2-lvl4.png?v=1577192781298").content))
                     dome = dome.resize((307, 393))
 
-                else:
-                    dome = Image.open("./imageplotting/lvl3-lvl4.png")
+                else: #lvl3
+                    dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl3-lvl4.png?v=1577192787783").content))
                     dome = dome.resize((307, 389))
                     
                 base.paste(dome, (365, 400), mask=dome)
@@ -132,30 +135,30 @@ def plotImage(args):
     if dome_mode:
 
         if args[1] <= 2:
-            dome = Image.open("./imageplotting/lvl1-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl1-lvl4.png?v=1577192775951").content))
             dome = dome.resize((307, 393))
 
         elif args[1] <= 4:
-            dome = Image.open("./imageplotting/lvl2-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl2-lvl4.png?v=1577192781298").content))
             dome = dome.resize((307, 393))
 
         else:
-            dome = Image.open("./imageplotting/lvl3-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl3-lvl4.png?v=1577192787783").content))
             dome = dome.resize((307, 389))
 
         base.paste(dome, (640, 200), mask=dome)
         used_positions.append((630, 200))
 
         if args[2] <= 1000000: #1M
-            dome = Image.open("./imageplotting/lvl1-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl1-lvl4.png?v=1577192775951").content))
             dome = dome.resize((307, 393))
         
         elif args[2] <= 25000000: #25M
-            dome = Image.open("./imageplotting/lvl2-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl2-lvl4.png?v=1577192781298").content))
             dome = dome.resize((307, 393))
 
         else:
-            dome = Image.open("./imageplotting/lvl3-lvl4.png")
+            dome = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl3-lvl4.png?v=1577192787783").content))
             dome = dome.resize((307, 389))
 
         base.paste(dome, (50, 250), mask=dome)
@@ -163,7 +166,7 @@ def plotImage(args):
 
     else:   
         if args[1] <= 2:
-            church = Image.open("./imageplotting/level1-church.png")
+            church = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-church.png?v=1577192620571").content))
             church = church.resize((122, 142))  # divided by 10
             if (40, 95) in used_positions:
                 base.paste(church, (390, 374), mask=church)
@@ -173,13 +176,13 @@ def plotImage(args):
                 used_positions.append((446, 374))
 
             if args[1] > 1:
-                blacksmith = Image.open("./imageplotting/level1-blacksmith.png")
+                blacksmith = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-blacksmith.png?v=1577192617388").content))
                 blacksmith = blacksmith.resize((172, 160))  # divided by 10
                 base.paste(blacksmith, (100, 720), mask=blacksmith)
                 used_positions.append((100, 720))
 
         elif args[1] <= 4:
-            office = Image.open("./imageplotting/level2-office.png")
+            office = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-office.png?v=1577192668351").content))
             office = office.resize((394, 321))  # divided by 11
 
             if (80, 520) in used_positions:
@@ -191,13 +194,13 @@ def plotImage(args):
                 used_positions.append((60, 530))
 
             if args[1] > 3:
-                church = Image.open("./imageplotting/level3-church.png")
+                church = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-church.png?v=1577192743026").content))
                 church = church.resize((185, 182))
                 base.paste(church, (730, 400), mask=church)
                 used_positions.append((730, 400))
 
         else:
-            airport = Image.open("./imageplotting/level3-airport.png")
+            airport = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-airport.png?v=1577192683595").content))
             airport = airport.resize((424, 271))
 
             if (80, 520) in used_positions:
@@ -209,15 +212,15 @@ def plotImage(args):
                 used_positions.append((30, 530))
 
             if args[1] > 5:
-                tower = Image.open("./imageplotting/level3-tower.png")
+                tower = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-tower.png?v=1577192760807").content))
                 tower = tower.resize((102, 436)) 
                 base.paste(tower, (480, 550), mask=tower)
                 used_positions.append((480, 550))
 
 
         if args[2] <= 100000: #100k
-            housebrown = Image.open("./imageplotting/level1-house-brown.png")
-            housered = Image.open("./imageplotting/level1-house-red.png")
+            housebrown = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-house-brown.png?v=1577192630199").content))
+            housered = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel1-house-red.png?v=1577192634065").content))
             housebrown = housebrown.resize((162, 132))
             housered = housered.resize((162, 132))  #scaled to same size
             base.paste(housebrown, (680, 600), mask=housebrown)
@@ -230,8 +233,8 @@ def plotImage(args):
                 used_positions.extend([(680, 740), (860, 740)])
 
         elif args[2] <= 5000000: #5M
-            housebrown = Image.open("./imageplotting/level2-apartment-brown.png")
-            housered = Image.open("./imageplotting/level2-apartment-red.png")
+            housebrown = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-apartment-brown.png?v=1577192639697").content))
+            housered = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-apartment-red.png?v=1577192646591").content))
             housebrown = housebrown.resize((116, 198))
             housered = housered.resize((116, 198))
             base.paste(housebrown, (720, 680), mask=housebrown)
@@ -239,7 +242,7 @@ def plotImage(args):
             used_positions.extend([(720, 680), (840, 680)])
 
             if args[2] > 1000000: #1M
-                church = Image.open("./imageplotting/level2-church.png")
+                church = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-church.png?v=1577192658533").content))
                 church = church.resize((197, 267))
                 base.paste(housebrown, (710, 820), mask=housebrown)
                 base.paste(housered, (830, 820), mask=housered)
@@ -252,7 +255,7 @@ def plotImage(args):
                     used_positions.extend([(600, 680), (450, 650), (590, 820)])
 
         else:
-            skyscraper = Image.open("./imageplotting/level3-skyscraper.png")
+            skyscraper = Image.open(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-skyscraper.png?v=1577192755135").content))
             skyscraper = skyscraper.resize((171, 482))
             base.paste(skyscraper, (720, 380), mask=skyscraper)
             if args[2] > 15000000: #15M
@@ -270,12 +273,12 @@ def plotImage(args):
 
 
 def draw_text(author_name, base, black_bg):
-    font = ImageFont.truetype("./imageplotting/Vampire-Wars.ttf", 120)
+    font = ImageFont.truetype(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wars.ttf?v=1577192931151").content), 120)
 
     #adjust font to text
     if font.getsize(author_name)[0] > 840: #nice
         for i in range(0, 120, 4):
-            font = ImageFont.truetype("./imageplotting/Vampire-Wars.ttf", 120 - i)
+            font = ImageFont.truetype(BytesIO(requests.get("https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wars.ttf?v=1577192931151").content), 120 - i)
             if font.getsize(author_name)[0] < 842: 
                 break
 

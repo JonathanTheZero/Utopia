@@ -540,9 +540,14 @@ client.on("message", async message => {
         url = client.users.get(user.id.toString()).displayAvatarURL;
       }
     }
-    
-    if(user == undefined){
 
+    if(user == undefined){
+      if(typeof args[0] !== "undefined"){
+        return message.reply("you haven't created an account yet, please use `.create` first");
+      }
+      else {
+        return message.reply("this user hasn't created an account yet!")
+      }
     }
     var alliance = user.alliance;
 
