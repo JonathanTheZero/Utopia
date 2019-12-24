@@ -10,6 +10,7 @@ const battle = require("./battles.js");
 const express = require('express');
 const client = new Discord.Client();
 const app = express();
+const { PythonShell } = require('python-shell');
 app.use(express.static('public'));
 var server = require('http').createServer(app);
 
@@ -538,6 +539,10 @@ client.on("message", async message => {
         user = searchUserByID(args[0]);
         url = client.users.get(user.id.toString()).displayAvatarURL;
       }
+    }
+    
+    if(user == undefined){
+
     }
     var alliance = user.alliance;
 
@@ -1890,6 +1895,41 @@ client.on("message", async message => {
           timestamp: new Date()
         }
       });
+    });
+  }
+
+  else if(command == "utopia"){
+    var imgurl = -1;
+    const pyshell = new PythonShell('imageplotting/plotImage.py', { mode: "text" });
+
+    user = searchUserByID(message.author.id);
+    var sendString = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" + 
+      user.upgrades.population.length + "#" + 
+      user.resources.population + "#" + 
+      message.author.username;
+    pyshell.send(sendString);
+
+    pyshell.on('message', answer => {
+      console.log(answer);
+      imgurl = `./imageplotting/${answer.toString()}.png`;
+
+      const file = new Discord.Attachment(imgurl);
+
+      message.channel.send({
+        files: [file]
+      });
+
+      Sleep(5000);
+      const del = new PythonShell('imageplotting/deleteImage.py', { mode: "text" });
+
+      del.send(imgurl);
+      del.end((err,code,signal) => {
+        if (err) throw err;
+      });
+    });
+
+    pyshell.end((err, code, signal) => {
+      if(err) throw err;
     });
   }
 });

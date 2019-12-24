@@ -54,6 +54,10 @@ const gHelpMenu = {
             value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
         },
         {
+            name: "`.utopia`",
+            value: "View how far you've built up your Utopia. The image changes based on your personal farms, population upgrades, total population and more."
+        },
+        {
             name: "`.lb` or `.leaderboard [type] [page]`",
             value: "View the global leaderboard. Allowed types are 'allaince', 'wins', 'money', 'food' and 'population'.",
         },
