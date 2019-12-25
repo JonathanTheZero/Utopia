@@ -13,7 +13,7 @@ L2_BACKDROP = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flev
 L2_FACTORY = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-factory.png?v=1577192663814"
 L2_OFFICE = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-office.png?v=1577192668351"
 L2_HOUSE_BROWN = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-apartment-brown.png?v=1577192639697"
-L2_HOUSE_RED = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-apartment-red.png?v=1577192646591"
+L2_HOUSE_RED = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FLevel2-apartment-red.png?v=1577192646591"
 L2_CHURCH = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel2-church.png?v=1577192658533"
 
 L3_BACKDROP = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flevel3-backdrop.png?v=1577192692405"

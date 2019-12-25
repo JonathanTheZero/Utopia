@@ -1907,11 +1907,22 @@ client.on("message", async message => {
     var imgurl = -1;
     const pyshell = new PythonShell('imageplotting/plotImage.py', { mode: "text" });
 
-    user = searchUserByID(message.author.id);
+    var user;
+    if(typeof args[0] !== "undefined"){
+      try {
+        user = searchUserByID(message.mentions.users.first().id);
+      }
+      catch {
+        user = searchUserByID(args[0]);
+      }
+    }
+    else {
+      user = searchUserByID(message.author.id);
+    }
     var sendString = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" + 
       user.upgrades.population.length + "#" + 
       user.resources.population + "#" + 
-      message.author.username;
+      client.users.get(user.id).username;
     pyshell.send(sendString);
 
     pyshell.on('message', answer => {
