@@ -1657,7 +1657,7 @@ client.on("message", async message => {
         produced = (p > 50000) ? p : 50000;
       }
       else {
-        produced = Math.floor(-1 * (oldBalance * Math.random() * 0.02));
+        produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
       }
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       if(alInd == -1) {
