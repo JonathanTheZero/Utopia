@@ -233,6 +233,8 @@ client.on("message", async message => {
     else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith("q")){
         money = Math.floor((parsedData[index].money)*0.25);
     }
+    
+    if(money < 1) return message.reply("you can't bet a negative amount");
 
     if(money > parsedData[index].money){
       message.reply("you can't bet more money than you own!");
@@ -355,6 +357,7 @@ client.on("message", async message => {
 
     if(parsedData[index].loan) {
       var userpayment = parseInt(args[0]);
+      if(userpayment > parsedData[index].money) return message.reply("you don't own that much money");
       parsedData[index].money -= parseInt(args[0]);
       if(parsedData[index].loan <= userpayment) {
         const diff = userpayment - parsedData[index].loan + 0; //deep copy
