@@ -151,11 +151,11 @@ const allianceHelpEmbed = {
             value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
         },
         {
-            name: "`.alliance [mention/ID]`",
+            name: "`.alliance [mention/ID/alliance name]`",
             value: "View the stats of your alliance or of the alliance of another user."
         },
         {
-            name: "`.alliancemembers [mention/ID]`",
+            name: "`.alliancemembers [mention/ID/alliance name]`",
             value: "See a detailed list of all members and invited users from your alliance or the alliance of another user"
         },
         {

@@ -1334,9 +1334,7 @@ client.on("message", async message => {
   }
 
   else if(command == "alliancemembers"){
-    let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-    var user;
-    var url;
+    var user, url;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
       url = `${message.author.displayAvatarURL}`;
@@ -1348,30 +1346,19 @@ client.on("message", async message => {
       }
       catch {
         user = searchUserByID(args[0]);
-        url = client.users.get(user.id.toString()).displayAvatarURL;
+        if(user) url = client.users.get(user.id.toString()).displayAvatarURL;
       }
     }
-    var alliance = user.alliance;
-    if(alliance == null){
-      if(typeof args[0] === "undefined"){
-        message.reply("you haven't joined an alliance yet.");
-        return;
-      }
-      else{
-        message.reply(user.tag + ` hasn't joined an alliance yet.`);
-        return;
-      }
+    var alliance = (!user) ? getAllianceByName(args.join(" ")) : getAllianceByName(user.alliance);
+    if(!alliance){
+      if(!args[0])
+        return message.reply("you haven't joined an alliance yet.");
+      else
+        return message.reply(user.tag + " hasn't joined an alliance yet");
     }
 
-    var ind = -1;
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].name == user.alliance){
-        ind = i;
-        break;
-      }
-    }
     var coLeaders = "This alliance doesn't have any Co-Leaders";
-    const cl = parsedDataAlliances[ind].coLeaders;
+    const cl = alliance.coLeaders;
     if(cl.length == 1){
       coLeaders = "<@" + cl[0] + ">";
     }
@@ -1379,30 +1366,30 @@ client.on("message", async message => {
       coLeaders = " <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
     var members = "This alliance doesn't have any members";
-    if(parsedDataAlliances[ind].members.length > 0){
+    if(alliance.members.length > 0){
       members = ""
-      for(let i = 0; i < parsedDataAlliances[ind].members.length;i++){
-        members += "<@" + parsedDataAlliances[ind].members[i] +">\n";
+      for(let i = 0; i < alliance.members.length;i++){
+        members += "<@" + alliance.members[i] +">\n";
       }
     }
     var invs = "This alliance doesn't have any active invites";
-    if(parsedDataAlliances[ind].invitedUsers.length > 0){
+    if(alliance.invitedUsers.length > 0){
       invs = ""
-      for(let i = 0; i < parsedDataAlliances[ind].invitedUsers.length;i++){
-        invs += "<@" + parsedDataAlliances[ind].invitedUsers[i] +">\n";
+      for(let i = 0; i < alliance.invitedUsers.length;i++){
+        invs += "<@" + alliance.invitedUsers[i] +">\n";
       }
     }
-    const u = parsedDataAlliances[ind].upgrades;
+    const u = alliance.upgrades;
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "Data for" + alliance,
+      title: "Data for " + alliance.name,
       thumbnail: {
         url: url,
       },
       fields: [
         {
           name: 'Leader:',
-          value: "<@" + parsedDataAlliances[ind].leader.id +">",
+          value: "<@" + alliance.leader.id +">",
           inline: true,
         },
         {
