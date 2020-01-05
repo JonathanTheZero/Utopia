@@ -341,9 +341,6 @@ client.on("message", async message => {
   }
 
   else if (command == "payback" || command == "pb") {
-    if ((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1))
-      return message.reply("Please enter valid amount.");
-
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var index = -1;
     for (var i = 0; i < parsedData.length; i++) {
@@ -352,9 +349,15 @@ client.on("message", async message => {
         break;
       }
     }
+    
+    var userpayment = parseInt(args[0]);
+    if (args[0] === "a")
+      userpayment = parsedData[index].money;
+    else if (isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1 )
+      return message.reply("Please enter valid amount.");
 
     if(parsedData[index].loan) {
-      var userpayment = parseInt(args[0]);
+      var userpayment = (args[0] === "a") ? parsedData[index].money : parseInt(args[0]);
       parsedData[index].money -= parseInt(args[0]);
       if(parsedData[index].loan <= userpayment) {
         const diff = userpayment - parsedData[index].loan + 0; //deep copy
