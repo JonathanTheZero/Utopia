@@ -90,7 +90,7 @@ const gHelpMenu = {
             value: "Kill a specific amount of your population."
         },
         {
-            name: "`.alliance [mention/ID]`",
+            name: "`.alliance [mention/ID/alliance name]`",
             value: "View the stats of your alliance or of the alliance of another user."
         },
         {

@@ -1239,9 +1239,7 @@ client.on("message", async message => {
   }
 
   else if(command == "alliance"){
-    let parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-    var user;
-    var url;
+    var user, url;
     if(typeof args[0] === "undefined"){
       user = searchUser(message);
       url = `${message.author.displayAvatarURL}`;
@@ -1253,52 +1251,40 @@ client.on("message", async message => {
       }
       catch {
         user = searchUserByID(args[0]);
-        url = client.users.get(user.id.toString()).displayAvatarURL;
+        if(user) url = client.users.get(user.id.toString()).displayAvatarURL;
       }
     }
-    var alliance = user.alliance;
-    if(alliance == null){
-      if(typeof args[0] === "undefined"){
-        message.reply("you haven't joined an alliance yet.");
-        return;
-      }
-      else{
+    var alliance = (!user) ? getAllianceByName(args.join(" ")) : getAllianceByName(user.alliance);
+    if(!alliance){
+      if(!args[0])
+        return message.reply("you haven't joined an alliance yet.");
+      else
         return message.reply(user.tag + " hasn't joined an alliance yet");
-      }
-    }
-
-    var ind = -1;
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedDataAlliances[i].name == user.alliance){
-        ind = i;
-        break;
-      }
     }
     var coLeaders = "This alliance doesn't have any Co-Leaders";
-    const cl = parsedDataAlliances[ind].coLeaders;
+    const cl = alliance.coLeaders;
     if(cl.length == 1){
       coLeaders = "The Co-Leader of this alliance is <@" + cl[0] + ">";
     }
     else if(cl.length == 2){
       coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
-    const u = parsedDataAlliances[ind].upgrades;
-    const priv = ((parsedDataAlliances[ind].public) ? "This alliance is public" : "This alliance is private")
+    const u = alliance.upgrades;
     const allianceEmbed = {
       color: parseInt(config.properties.embedColor),
-      title: "Data for " + alliance,
-      thumbnail: {
+      title: "Data for " + alliance.name,
+      thumbnail: (user) ? {
         url: url,
-      },
+      }: undefined,
       fields: [
         {
           name: 'Leader:',
-          value: "<@" + parsedDataAlliances[ind].leader.id + ">",
+          value: "<@" + alliance.leader.id + ">",
           inline: true,
         },
         {
           name: "Level",
-          value: "This alliance is level " + parsedDataAlliances[ind].level,
+          value: "This alliance is level " + alliance.level,
           inline: true,
         },
         {
@@ -1307,12 +1293,12 @@ client.on("message", async message => {
         },
         {
           name: "Membercount:",
-          value: parsedDataAlliances[ind].members.length + parsedDataAlliances[ind].coLeaders.length + 1,
+          value: alliance.members.length + alliance.coLeaders.length + 1,
           inline: true,
         },
         {
           name: "Money:",
-          value: "The balance of this alliance is " + parsedDataAlliances[ind].money.commafy(),
+          value: "The balance of this alliance is " + alliance.money.commafy(),
           inline: true,
         },
         /*{
@@ -1322,12 +1308,12 @@ client.on("message", async message => {
         },*/
         {
           name: "Privacy settings:",
-          value: priv,
+          value: ((alliance.public) ? "This alliance is public" : "This alliance is private"),
           inline: true
         },
         {
           name: "Taxrate:",
-          value: parsedDataAlliances[ind].tax + "%",
+          value: alliance.tax + "%",
           inline: true,
         },
         {
