@@ -1526,11 +1526,10 @@ client.on("message", async message => {
   else if(command === "crime"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-    var alInd = -1;
     var index = parsedData.findIndex((item, i) => {
       return item.id == message.author.id;
     });
-    var index = parsedData.findIndex((item, i) => {
+    var alInd = parsedData.findIndex((item, i) => {
       return item.name === parsedData[index].alliance;
     });
     if (index == -1)
