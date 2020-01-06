@@ -206,13 +206,9 @@ client.on("message", async message => {
 
   else if(command == "bet" || command == "coinflip"){
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
@@ -251,13 +247,9 @@ client.on("message", async message => {
 
   else if (command == "loancalc" || command == "lc") {
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for (var i = 0; i < parsedData.length; i++) {
-      if (message.author.id == parsedData[i].id) {
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     maxloan = loancalc(index);
     repayment = maxloan + Math.floor(maxloan * 0.25)
     if (typeof args[0] === "undefined") {
@@ -312,13 +304,9 @@ client.on("message", async message => {
   else if (command == "loan" || command == "lo"){
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     var userloan = parseInt(args[0]);
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
 
     if(!parsedData[index].loan){
       maxloan = loancalc(index);
@@ -341,24 +329,21 @@ client.on("message", async message => {
   }
 
   else if (command == "payback" || command == "pb") {
-    var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for (var i = 0; i < parsedData.length; i++) {
-      if (message.author.id == parsedData[i].id) {
-        index = i;
-        break;
-      }
-    }
-    
-    var userpayment = parseInt(args[0]);
-    if (args[0] === "a")
-      userpayment = parsedData[index].money;
-    else if (isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1 )
+    if ((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1) && args[0] !== "a")
       return message.reply("Please enter valid amount.");
+
+    var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+    
+    if(index === -1)
+      return message.reply("you haven't created an account yet, please use `.create` first");
 
     if(parsedData[index].loan) {
       var userpayment = (args[0] === "a") ? parsedData[index].money : parseInt(args[0]);
-      parsedData[index].money -= parseInt(args[0]);
+      parsedData[index].money -= userpayment;
       if(parsedData[index].loan <= userpayment) {
         const diff = userpayment - parsedData[index].loan + 0; //deep copy
         message.reply("you paid in full.");
@@ -441,13 +426,11 @@ client.on("message", async message => {
 
   else if(command == "buy"){
     var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+
     if(index == -1){
       return message.reply("you haven't created an account yet, please use the `create` command.");
     }
@@ -850,13 +833,11 @@ client.on("message", async message => {
     if(!config.botAdmins.includes(parseInt(message.author.id))) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     if(typeof args[0] === "undefined" || typeof args[1] === "undefined" || typeof args[2] === "undefined") return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.mentions.users.first().id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+
     if(index == -1) return message.reply("this user hasn't created an account yet.");
     var m = ["money", "m"];
     var f = ["food", "f"];
@@ -913,19 +894,12 @@ client.on("message", async message => {
      
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedData[index].alliance == parsedDataAlliances[i].name){
-        alInd = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+    var alInd = parsedDataAlliances.findIndex((item, i) => {
+      return item.id === parsedData[index].alliance;
+    });
     var a = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
     if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.deposit <amount>`.");
     if(index == -1) return message.reply("you haven't created an account yet, please use `.create` to create one.");
@@ -983,13 +957,9 @@ client.on("message", async message => {
 
   else if(command === "joinalliance" || command === "join"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
@@ -1006,13 +976,9 @@ client.on("message", async message => {
 
   else if(command == "createalliance"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
@@ -1029,13 +995,9 @@ client.on("message", async message => {
 
   else if(command == "leavealliance" || command == "leave"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1)
       return message.reply("you haven't created an account yet, please use the `create` command.");
     else if(parsedData[i].alliance != null){
@@ -1047,13 +1009,9 @@ client.on("message", async message => {
 
   else if(command == "renamealliance" || command == "rename"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1)
       return message.reply("you haven't created an account yet, please use the `create` command.");
     else if(parsedData[index].allianceRank == "M"){
@@ -1070,13 +1028,9 @@ client.on("message", async message => {
 
   else if(command === "promote"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     let member;
     try{
       member = searchUserByID(message.mentions.users.first().id);
@@ -1095,13 +1049,9 @@ client.on("message", async message => {
 
   else if(command === "demote"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     let member;
     try{
       member = searchUserByID(message.mentions.users.first().id);
@@ -1120,13 +1070,9 @@ client.on("message", async message => {
 
   else if(command === "setprivate"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
     if(parsedData[index].allianceRank != "M") return message.reply(setAllianceStatus(false, index));
@@ -1137,13 +1083,9 @@ client.on("message", async message => {
 
   else if(command === "setpublic"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
     if(parsedData[index].allianceRank != "M") return message.reply(setAllianceStatus(true, index));
@@ -1154,13 +1096,9 @@ client.on("message", async message => {
 
   else if(command === "settax"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1) return message.reply("you haven't created an account yet, please use the `create` command.");
     if(parsedData[index].allianceRank == null) return message.reply("you haven't joined an alliance yet.");
     if(typeof args[0] === "undefined" || parseInt(args[0]) > 90 || parseInt(args[0]) < 0 || isNaN(parseInt(args[0]))) return message.reply("please provide a valid number following `.settax <0-90>`.")
@@ -1172,13 +1110,9 @@ client.on("message", async message => {
 
   else if(command === "upgradealliance" || command == "upalliance"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
@@ -1194,13 +1128,9 @@ client.on("message", async message => {
 
   else if(command === "invite"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     let member;
     try{
       member = searchUserByID(message.mentions.users.first().id);
@@ -1218,13 +1148,9 @@ client.on("message", async message => {
   
   else if(command === "fire"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     let member;
     try{
       member = searchUserByID(message.mentions.users.first().id);
@@ -1270,67 +1196,70 @@ client.on("message", async message => {
       coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     }
     const u = alliance.upgrades;
-    const allianceEmbed = {
-      color: parseInt(config.properties.embedColor),
-      title: "Data for " + alliance.name,
-      thumbnail: (user) ? {
-        url: url,
-      }: undefined,
-      fields: [
-        {
-          name: 'Leader:',
-          value: "<@" + alliance.leader.id + ">",
-          inline: true,
-        },
-        {
-          name: "Level",
-          value: "This alliance is level " + alliance.level,
-          inline: true,
-        },
-        {
-          name: 'Co-Leaders:',
-          value: coLeaders,
-        },
-        {
-          name: "Membercount:",
-          value: alliance.members.length + alliance.coLeaders.length + 1,
-          inline: true,
-        },
-        {
-          name: "Money:",
-          value: "The balance of this alliance is " + alliance.money.commafy(),
-          inline: true,
-        },
-        /*{
-          name: "Army:",
-          value: "Manpower of this alliance is " + parsedDataAlliances[ind].population.commafy(),
-          inline: true,
-        },*/
-        {
-          name: "Privacy settings:",
-          value: ((alliance.public) ? "This alliance is public" : "This alliance is private"),
-          inline: true
-        },
-        {
-          name: "Taxrate:",
-          value: alliance.tax + "%",
-          inline: true,
-        },
-        {
-          name: 'Upgrades:',
-          value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
-          inline: true,
-        },
-        {
-          name: "\u200b",
-          value: "\u200b",
-          inline: true
+    message.channel.send(
+      {
+        embed: {
+          color: parseInt(config.properties.embedColor),
+          title: "Data for " + alliance.name,
+          thumbnail: (user) ? {
+            url: url,
+          } : undefined,
+          fields: [
+            {
+              name: 'Leader:',
+              value: "<@" + alliance.leader.id + ">",
+              inline: true,
+            },
+            {
+              name: "Level",
+              value: "This alliance is level " + alliance.level,
+              inline: true,
+            },
+            {
+              name: 'Co-Leaders:',
+              value: coLeaders,
+            },
+            {
+              name: "Membercount:",
+              value: alliance.members.length + alliance.coLeaders.length + 1,
+              inline: true,
+            },
+            {
+              name: "Money:",
+              value: "The balance of this alliance is " + alliance.money.commafy(),
+              inline: true,
+            },
+            /*{
+              name: "Army:",
+              value: "Manpower of this alliance is " + parsedDataAlliances[ind].population.commafy(),
+              inline: true,
+            },*/
+            {
+              name: "Privacy settings:",
+              value: ((alliance.public) ? "This alliance is public" : "This alliance is private"),
+              inline: true
+            },
+            {
+              name: "Taxrate:",
+              value: alliance.tax + "%",
+              inline: true,
+            },
+            {
+              name: 'Upgrades:',
+              value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
+              inline: true,
+            },
+            {
+              name: "\u200b",
+              value: "\u200b",
+              inline: true
+            }
+          ],
+          timestamp: new Date(),
+          footer: config.properties.footer,
         }
-      ],
-      timestamp: new Date(),
-      footer: config.properties.footer,
-    }; 
-    message.channel.send({ embed: allianceEmbed });
+      }
+    );
   }
 
   else if(command == "alliancemembers"){
@@ -1380,36 +1309,38 @@ client.on("message", async message => {
       }
     }
     const u = alliance.upgrades;
-    const allianceEmbed = {
-      color: parseInt(config.properties.embedColor),
-      title: "Data for " + alliance.name,
-      thumbnail: {
-        url: url,
-      },
-      fields: [
-        {
-          name: 'Leader:',
-          value: "<@" + alliance.leader.id +">",
-          inline: true,
-        },
-        {
-          name: 'Co-Leaders:',
-          value: coLeaders,
-          inline: true,
-        },
-        {
-          name: "Members:",
-          value: members,
-        },
-        {
-          name: "Invited users:",
-          value: invs
-        }
-      ],
-      timestamp: new Date(),
-      footer: config.properties.footer,
-    }; 
-    message.channel.send({ embed: allianceEmbed });
+    message.channel.send(
+      { 
+        embed: {
+          color: parseInt(config.properties.embedColor),
+          title: "Data for " + alliance.name,
+          thumbnail: {
+            url: url,
+          },
+          fields: [
+            {
+              name: 'Leader:',
+              value: "<@" + alliance.leader.id +">",
+              inline: true,
+            },
+            {
+              name: 'Co-Leaders:',
+              value: coLeaders,
+              inline: true,
+            },
+            {
+              name: "Members:",
+              value: members,
+            },
+            {
+              name: "Invited users:",
+              value: invs
+            }
+          ],
+          timestamp: new Date(),
+          footer: config.properties.footer,
+        } 
+    });
   }
 
   else if(command === "help"){
@@ -1461,13 +1392,9 @@ client.on("message", async message => {
 
   else if(command == "autoping"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
@@ -1480,13 +1407,9 @@ client.on("message", async message => {
 
   else if(command == "payoutdms"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1){
       message.reply("you haven't created an account yet, please use the `create` command.");
       return;
@@ -1518,13 +1441,9 @@ client.on("message", async message => {
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     for(var i = 0; i < parsedDataAlliances.length; i++){
       if(parsedData[index].alliance == parsedDataAlliances[i].name){
         alInd = i;
@@ -1605,19 +1524,12 @@ client.on("message", async message => {
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
     var alInd = -1;
-    var index = -1;
-    for(var i = 0; i < parsedData.length; i++){
-      if(message.author.id == parsedData[i].id){
-        index = i;
-        break;
-      }
-    }
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedData[index].alliance == parsedDataAlliances[i].name){
-        alInd = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+    var index = parsedData.findIndex((item, i) => {
+      return item.name === parsedData[index].alliance;
+    });
     if (index == -1)
       return message.reply("you haven't created an account yet, please use the `.create` command.");
     if (Math.floor(Date.now() / 1000) - parsedData[index].lastCrime < 14400)
@@ -1767,13 +1679,9 @@ client.on("message", async message => {
       }
     }
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
-    var index = -1;
-    for(let i = 0;i<parsedData.length;i++){
-      if(parsedData[i].id == message.author.id){
-        index = i;
-        break;
-      }
-    }
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
     if(index == -1) return message.reply("you haven't created an account yet, please use `.create` first.");
     if(dInd == -1) return message.reply("you're not fighting in any active duel.");
     const inf = parseInt(args[0]);
