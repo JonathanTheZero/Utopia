@@ -344,14 +344,9 @@ client.on("message", async message => {
       return message.reply("you haven't created an account yet, please use `.create` first");
 
     if(parsedData[index].loan) {
-<<<<<<< HEAD
       var userpayment = (args[0] === "a") ? parsedData[index].money : parseInt(args[0]);
-      parsedData[index].money -= userpayment;
-=======
-      var userpayment = parseInt(args[0]);
       if(userpayment > parsedData[index].money) return message.reply("you don't own that much money");
-      parsedData[index].money -= parseInt(args[0]);
->>>>>>> 2df697096190c7ab04c855049680552f0b5991d1
+      parsedData[index].money -= userpayment;
       if(parsedData[index].loan <= userpayment) {
         const diff = userpayment - parsedData[index].loan + 0; //deep copy
         message.reply("you paid in full.");
