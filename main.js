@@ -229,6 +229,8 @@ client.on("message", async message => {
     else if (args[0].toLowerCase() == "quarter" || args[0].toLowerCase().startsWith("q")){
         money = Math.floor((parsedData[index].money)*0.25);
     }
+    
+    if(money < 1) return message.reply("you can't bet a negative amount");
 
     if(money > parsedData[index].money){
       message.reply("you can't bet more money than you own!");
@@ -342,8 +344,14 @@ client.on("message", async message => {
       return message.reply("you haven't created an account yet, please use `.create` first");
 
     if(parsedData[index].loan) {
+<<<<<<< HEAD
       var userpayment = (args[0] === "a") ? parsedData[index].money : parseInt(args[0]);
       parsedData[index].money -= userpayment;
+=======
+      var userpayment = parseInt(args[0]);
+      if(userpayment > parsedData[index].money) return message.reply("you don't own that much money");
+      parsedData[index].money -= parseInt(args[0]);
+>>>>>>> 2df697096190c7ab04c855049680552f0b5991d1
       if(parsedData[index].loan <= userpayment) {
         const diff = userpayment - parsedData[index].loan + 0; //deep copy
         message.reply("you paid in full.");
@@ -1542,7 +1550,7 @@ client.on("message", async message => {
         produced = (p > 50000) ? p : 50000;
       }
       else {
-        produced = Math.floor(-1 * (oldBalance * Math.random() * 0.02));
+        produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
       }
       parsedData[index].lastCrime = Math.floor(Date.now() / 1000);
       if(alInd == -1) {
