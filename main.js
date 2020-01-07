@@ -35,7 +35,13 @@ if(config.dbl){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     for(let i = 0; i < parsedData.length;i++){
       if(parsedData[i].id == vote.user){
-        parsedData[i].money += 15000;
+        if((Date.now() / 1000 - parsedData[i].lastVoted) <= 86400)
+          ++parsedData[i].votingStreak;
+        else
+          parsedData[i].votingStreak = 1;
+        
+        parsedData[i].lastVoted = Date.now() / 1000;
+        parsedData[i].money += parsedData[i].votingStreak * 15000
         break;
       }
     }
@@ -50,7 +56,7 @@ client.on("ready", () => {
 
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
 
-  client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+  client.user.setActivity(`.help | Now with voting streaks!`);
   var tdiff = [(Math.floor(Date.now() / 1000) - config.lastPayout), (Math.floor(Date.now() / 1000) - config.lastPopulationWorkPayout)];
   setTimeout(payoutLoop, ((14400 - tdiff[0]) * 1000));
   setTimeout(populationWorkLoop, ((39600 - tdiff[1]) * 1000));
@@ -60,13 +66,10 @@ client.on("ready", () => {
     giveawayCheck(i);
   } 
 
-  /*let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
-    let loanCopied = parsedData[i].upgrades.loan.amount - 1 + 1;
-    delete parsedData[i].upgrades.loan;
-    parsedData[i].loan = loanCopied;
-    delete parsedData[i].resources.foodd;
-    delete parsedData[i].food;
+    parsedData[i].votingStreak = 1;
+    parsedData[i].lastVoted = 0;
   }
   fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   /**/
@@ -201,7 +204,23 @@ client.on("message", async message => {
   }
 
   else if(command === "vote"){
-    message.channel.send("Vote every 12h in order to get 15,000 money for free! \n" + "https://top.gg/bot/619909215997394955/vote")
+    var parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+    var index = parsedData.findIndex((item, i) => {
+      return item.id == message.author.id;
+    });
+
+    // message.channel.send("Vote every 12h in order to get 15,000 money for free! \n" + "https://top.gg/bot/619909215997394955/vote");
+    message.channel.send({
+      embed: {
+        color: parseInt(config.properties.embedColor),
+        title: `Your voting streak: ${parsedData[index].votingStreak}`,
+        description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" + 
+          "You can increase your voting streak every 12h." + 
+          "If you don't vote for more than 24h, you will vote your streak.\n\n" +
+          `Click [here](https://top.gg/bot/619909215997394955/vote) to vote
+          You can vote again in ${(parsedData[index].lastVoted === 0) ? "**now**" : new Date((43200 - (Math.floor(Date.now() / 1000) - parsedData[index].lastVoted)) * 1000).toISOString().substr(11, 8)}`
+      }
+    });
   }
 
   else if(command === "bet" || command === "coinflip"){
@@ -1880,10 +1899,12 @@ function createUser(msg){
       inventory: [],
       duelsWon: 0,
       battleToken: 0,
-      tokenUsed: false
+      tokenUsed: false,
+      votingStreak: 1,
+      lastVoted: 0
   }
   parsedData.push(data);
-  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2))
+  fs.writeFileSync("userdata.json", JSON.stringify(parsedData, null, 2));
   msg.reply("your account has been succesfully created.");
 }
 
