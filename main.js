@@ -36,7 +36,7 @@ if(config.dbl){
     for(let i = 0; i < parsedData.length;i++){
       if(parsedData[i].id == vote.user){
         if((Date.now() / 1000 - parsedData[i].lastVoted) <= 86400)
-          ++parsedData[i].votingStreak;
+          parsedData[i].votingStreak++;
         else
           parsedData[i].votingStreak = 1;
         
@@ -66,7 +66,7 @@ client.on("ready", () => {
     giveawayCheck(i);
   } 
 
-  let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
+  /*let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
   for(let i = 0; i < parsedData.length;i++){
     parsedData[i].votingStreak = 1;
     parsedData[i].lastVoted = 0;
@@ -216,9 +216,9 @@ client.on("message", async message => {
         title: `Your voting streak: ${parsedData[index].votingStreak}`,
         description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" + 
           "You can increase your voting streak every 12h." + 
-          "If you don't vote for more than 24h, you will vote your streak.\n\n" +
-          `Click [here](https://top.gg/bot/619909215997394955/vote) to vote
-          You can vote again in ${(parsedData[index].lastVoted === 0) ? "**now**" : new Date((43200 - (Math.floor(Date.now() / 1000) - parsedData[index].lastVoted)) * 1000).toISOString().substr(11, 8)}`
+          "If you don't vote for more than 24h, you will lose your streak.\n\n" +
+          `Click [here](https://top.gg/bot/619909215997394955/vote) to vote` +
+         `You can vote again in ${(parsedData[index].lastVoted === 0) ? "**now**" : new Date((43200 - (Math.floor(Date.now() / 1000) - parsedData[index].lastVoted)) * 1000).toISOString().substr(11, 8)}`
       }
     });
   }
@@ -917,7 +917,7 @@ client.on("message", async message => {
       return item.id == message.author.id;
     });
     var alInd = parsedDataAlliances.findIndex((item, i) => {
-      return item.id === parsedData[index].alliance;
+      return item.name === parsedData[index].alliance;
     });
     var a = (args[0] == "a") ? parsedData[index].money : parseInt(args[0]);
     if(typeof args[0] === "undefined" || isNaN(a))return message.reply("please supply valid parameters following the syntax `.deposit <amount>`.");
@@ -979,14 +979,10 @@ client.on("message", async message => {
     var index = parsedData.findIndex((item, i) => {
       return item.id == message.author.id;
     });
-    if(index === -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    else if(parsedData[i].alliance != null){
-      message.reply("you can't join another alliance, because you already joined one. Leave your alliance with `.leavealliance` first.")
-      return;
-    }
+    if(index === -1)
+      return message.reply("you haven't created an account yet, please use the `create` command.");
+    else if(parsedData[index].alliance != null)
+      return message.reply("you can't join another alliance, because you already joined one. Leave your alliance with `.leavealliance` first.");
     if(parsedData[index].alliance == null){
       const allianceName = args.join(" ");
       message.reply(joinAliiance(message, allianceName, index));
@@ -998,14 +994,10 @@ client.on("message", async message => {
     var index = parsedData.findIndex((item, i) => {
       return item.id == message.author.id;
     });
-    if(index === -1){
-      message.reply("you haven't created an account yet, please use the `create` command.");
-      return;
-    }
-    else if(parsedData[i].alliance != null){
-      message.reply("you can't create your own alliance, because you already joined one. Leave your alliance with `.leavealliance` first.")
-      return;
-    }
+    if(index === -1)
+      return message.reply("you haven't created an account yet, please use the `create` command.");
+    else if(parsedData[index].alliance != null)
+      return message.reply("you can't create your own alliance, because you already joined one. Leave your alliance with `.leavealliance` first.");
     if(parsedData[index].alliance == null){
       const allianceName = args.join(" ");
       message.reply(createAliiance(message, allianceName, index));
@@ -1019,7 +1011,7 @@ client.on("message", async message => {
     });
     if(index === -1)
       return message.reply("you haven't created an account yet, please use the `create` command.");
-    else if(parsedData[i].alliance != null){
+    else if(parsedData[index].alliance != null){
       return message.reply(leaveAlliance(message));
     }
     if(parsedData[index].alliance == null)
@@ -1459,16 +1451,12 @@ client.on("message", async message => {
   else if(command === "work"){
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
     let  parsedDataAlliances = JSON.parse(fs.readFileSync('alliances.json'));
-    var alInd = -1;
     var index = parsedData.findIndex((item, i) => {
-      return item.id == message.author.id;
+      return item.id === message.author.id;
     });
-    for(var i = 0; i < parsedDataAlliances.length; i++){
-      if(parsedData[index].alliance == parsedDataAlliances[i].name){
-        alInd = i;
-        break;
-      }
-    }
+    var alInd = parsedDataAlliances.findIndex((item, i) => {
+      return item.name === parsedData[index].alliance;
+    });
     const oldTag = parsedData[index].tag;
     try{
       parsedData[index].tag = client.users.get(parsedData[index].id.toString()).tag;
