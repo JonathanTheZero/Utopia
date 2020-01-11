@@ -2313,7 +2313,20 @@ async function populationWorkLoop(){
     l = parsedData.length;
     for(var i = 0; i < l; i++){
       pop = parsedData[i].resources.population;
-      parsedData[i].money += Math.floor(pop / rangeInt(8, 15));
+      var money = Math.floor(pop / rangeInt(8, 15));
+      if(parsedData[i].loan) {
+        const diff = parsedData[i].loan - money;
+        if(diff < 0){
+          parsedData[i].loan = 0;
+          parsedData[i].money -= diff;
+        }
+        else {
+          parsedData[i].loan -= diff;
+        }
+      }
+      else {
+        parsedData[i].money += money;
+      }
       const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
       if(consumption > parsedData[i].resources.food){
         const diff = consumption - parsedData[i].resources.food;
