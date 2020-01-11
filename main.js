@@ -217,8 +217,8 @@ client.on("message", async message => {
         description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" + 
           "You can increase your voting streak every 12h." + 
           "If you don't vote for more than 24h, you will lose your streak.\n\n" +
-          `Click [here](https://top.gg/bot/619909215997394955/vote) to vote` +
-         `You can vote again in ${(parsedData[index].lastVoted === 0) ? "**now**" : new Date((43200 - (Math.floor(Date.now() / 1000) - parsedData[index].lastVoted)) * 1000).toISOString().substr(11, 8)}`
+          `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
+         `You can vote again ${(parsedData[index].lastVoted === 0 || Date.now() - parsedData[index].lastVoted * 1000 > 43200000) ? "**now**" : "in" + new Date((43200 - (Math.floor(Date.now() / 1000) - parsedData[index].lastVoted)) * 1000).toISOString().substr(11, 8)}`
       }
     });
   }
