@@ -147,6 +147,10 @@ const allianceHelpEmbed = {
             value: "Invite a member to your alliance."
         },
         {
+            name: "`.alliancepayout [mention/ID]`",
+            value: "Shows the food division for an alliance."
+        };
+        {
             name: "`.upgradealliance` (Leader and Co-Leaders only)",
             value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
         },
