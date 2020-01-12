@@ -762,6 +762,83 @@ client.on("message", async message => {
     });
   }
 
+  else if(command === "alliancepayout"){
+    var user;
+    var total = [0, 0, 0]; //leader at 0, cos at 1, members at 2
+    if(typeof args[0] === "undefined"){
+      user = searchUser(message);
+    }
+    else {
+      try{
+        user = searchUserByID(message.mentions.users.first().id);
+      }
+      catch {
+        user = searchUserByID(args[0]);
+      }
+    }
+
+    if(!user){
+      if(!args[0]){
+        return message.reply("you haven't created an account yet, please use `.create` first");
+      }
+      else {
+        return message.reply("this user hasn't created an account yet!")
+      }
+    }
+    var alliance = getAllianceByName(user.alliance);
+    if(!alliance){
+      if(!args[0]){
+        return message.reply("you haven't joined an alliance yet");
+      }
+      else {
+        return message.reply("this user hasn't joined an alliance yet");
+      }
+    }
+    total[0] = alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+    total[1] = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+    total[2] = Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+      Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+    if (alliance.coLeaders.length == 0) {
+      total[0] += alliance.upgrades.af * 15000 +
+        alliance.upgrades.pf * 100000 +
+        alliance.upgrades.mf * 500000;
+      total[1] = 0;
+    }
+
+    if(alliance.members.length === 0){
+      total[0] += total[2];
+      total[2] = 0;
+    }
+
+    return message.channel.send({
+      embed: {
+        color: parseInt(config.properties.embedColor),
+        title: `Payout for ${alliance.name}`,
+        fields: [
+          {
+            name: "The Leader will receive:",
+            value: `${total[0].commafy()} food`
+          },
+          {
+            name: "The Co-Leaders will receive:",
+            value: `${total[1].commafy()} food`
+          },
+          {
+            name: "Members will receive:",
+            value: `${total[2].commafy()} food`
+          }
+        ],
+        timestamp: new Date(),
+        footer: config.properties.footer
+      }
+    });
+  }
+
   else if(command === "kill"){
     if(typeof args[0] === "undefined" || (args[0].isNaN() && args[0] != "a") || parseInt(args[0]) < 0) 
       return message.reply("please specify the amount follow the syntax of `.kill <amount>`.");
