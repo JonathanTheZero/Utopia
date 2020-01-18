@@ -754,6 +754,10 @@ client.on("message", async message => {
             name: "Food:",
             value: userFood.commafy(),
             inline: true
+          },
+          {
+            name: "How much will your population consume next payout?",
+            value: Math.floor(user.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, user.resources.population))))).commafy()
           }
         ],
         footer: config.properties.footer,
@@ -934,7 +938,7 @@ client.on("message", async message => {
     let parsedData = JSON.parse(fs.readFileSync('userdata.json'));
 
     var index = parsedData.findIndex((item, i) => {
-      return item.id == message.mentions.first().id;
+      return item.id == message.mentions.users.first().id;
     });
 
     if(index === -1) return message.reply("this user hasn't created an account yet.");
@@ -2287,6 +2291,7 @@ function payoutLoop(){
         timestamp: new Date()
       }
     });
+
     for(var i = 0; i < parsedDataAlliances.length; i++){
       if(parsedDataAlliances[i].upgrades.af > 0){
         for(var j = 0; j < parsedData.length; j++){
