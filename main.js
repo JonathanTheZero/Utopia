@@ -1919,6 +1919,14 @@ client.on("message", async message => {
       if(err) throw err;
     });
   }
+
+  else if(command === "pets"){
+    return message.channel.send({
+      embed: {
+        
+      }
+    });
+  }
 });
 
 
@@ -1988,8 +1996,9 @@ function createStoreEmbed(message, type, args){
   *  s = store (default)
   *  a = alliance
   *  b = battles
+  *  pets = pets...
   */ 
-  if(type == "p"){
+  if(type === "p"){
     var user = searchUser(message);
     const newEmbed = {
       color: parseInt(config.properties.embedColor),
@@ -2194,8 +2203,29 @@ function createStoreEmbed(message, type, args){
     };
     return newEmbed;
   }
-  else if(type == "s"){
-    var user = searchUser(message);
+  else if(type === "pets"){
+    return {
+      color: parseInt(config.properties.embedColor),
+      title: 'Pet store',
+      description: "Welcome to the the pet store",
+      thumbnail: {
+        url: `${message.author.displayAvatarURL}`,
+      },
+      fields: [
+        {
+          name: 'Your balance',
+          value: user.money.commafy(),
+        },
+        {
+          name: "",
+          value: ""
+        }
+      ],
+      timestamp: new Date(),
+      footer: config.properties.footer,
+    }
+  }
+  else {
     return {
       color: parseInt(config.properties.embedColor),
       title: 'Store',

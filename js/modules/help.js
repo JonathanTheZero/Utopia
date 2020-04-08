@@ -1,7 +1,8 @@
-const config = require("./config.json");
-
-const helpEmbed = {
-    color: parseInt(config.properties.embedColor),
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_json_1 = require("../config.json");
+exports.helpMenu = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "Welcome to the help menu. Please choose a category",
     fields: [
         {
@@ -30,11 +31,10 @@ const helpEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: config_json_1.properties.footer,
 };
-
-const gHelpMenu = {
-    color: parseInt(config.properties.embedColor),
+exports.generalHelpMenu = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "General help menu",
     fields: [
         {
@@ -103,11 +103,10 @@ const gHelpMenu = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: config_json_1.properties.footer,
 };
-
-const allianceHelpEmbed = {
-    color: parseInt(config.properties.embedColor),
+exports.allianceHelpMenu = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "Alliance help menu",
     fields: [
         {
@@ -172,11 +171,10 @@ const allianceHelpEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: config_json_1.properties.footer,
 };
-
-const miscEmbed = {
-    color: parseInt(config.properties.embedColor),
+exports.miscHelpMenu = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "Miscellaneous help menu",
     fields: [
         {
@@ -209,11 +207,10 @@ const miscEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: config_json_1.properties.footer,
 };
-
-const modEmbed = {
-    color: parseInt(config.properties.embedColor),
+exports.modHelpMenu = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "Moderation help",
     description: "The bot role needs to be ranked above the roles of the other users in order for these commands to work.",
     fields: [
@@ -231,13 +228,12 @@ const modEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: config_json_1.properties.footer,
 };
-
-const guideEmbed = {
-    color: parseInt(config.properties.embedColor),
+exports.guideEmbed = {
+    color: parseInt(config_json_1.properties.embedColor),
     title: "In-depth game-guide",
-    description: `If you have any additional questions, feel free to join the official server [here](${config.serverInvite}).`,
+    description: `If you have any additional questions, feel free to join the official server [here](${config_json_1.serverInvite}).`,
     fields: [
         {
             name: "**Starting**",
@@ -260,14 +256,14 @@ const guideEmbed = {
         },
         {
             name: "**Alliances**",
-            value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." + 
+            value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." +
                 "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
                 "There's also an option to create your own alliance for 250k using `.createalliance <name>`. " +
                 "You can learn how to manage it by saying `.help a`."
         },
         {
             name: "**Battles**",
-            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" + 
+            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" +
                 "-Infantry: 50 coins per regiment to create and 20 food per regiment per round to feed. Has 30 Def and 25 Atk.\n" +
                 "-Infantry: 100 coins per regiment to create and 300 food per regiment per round to feed. 25 HP, 15 Def and 15 Atk.\n" +
                 "-Artillery: 1000 coins per regiment to create and 500 food per regiment per round to feed. 50 HP, 30 Def and 25 Atk.\n" +
@@ -276,16 +272,7 @@ const guideEmbed = {
     ],
     timestamp: new Date(),
     footer: {
-        text: config.properties.footer.text + "  •   Written by Astilimos#6295",
-        icon_url: config.properties.footer.icon_url
+        text: config_json_1.properties.footer.text + "  •   Written by Astilimos#6295",
+        icon_url: config_json_1.properties.footer.icon_url
     }
 };
-
-module.exports = {
-    generalHelpMenu : gHelpMenu,
-    allianceHelpMenu : allianceHelpEmbed,
-    helpMenu : helpEmbed,
-    miscHelpMenu : miscEmbed,
-    modHelpMenu : modEmbed,
-    guideEmbed: guideEmbed
-}

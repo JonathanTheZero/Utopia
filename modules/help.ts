@@ -1,7 +1,7 @@
-const config = require("./config.json");
+import { properties, serverInvite } from "../config.json";
 
-const helpEmbed = {
-    color: parseInt(config.properties.embedColor),
+export const helpMenu = {
+    color: parseInt(properties.embedColor),
     title: "Welcome to the help menu. Please choose a category",
     fields: [
         {
@@ -30,11 +30,11 @@ const helpEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: properties.footer,
 };
 
-const gHelpMenu = {
-    color: parseInt(config.properties.embedColor),
+export const generalHelpMenu = {
+    color: parseInt(properties.embedColor),
     title: "General help menu",
     fields: [
         {
@@ -103,11 +103,11 @@ const gHelpMenu = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: properties.footer,
 };
 
-const allianceHelpEmbed = {
-    color: parseInt(config.properties.embedColor),
+export const allianceHelpMenu = {
+    color: parseInt(properties.embedColor),
     title: "Alliance help menu",
     fields: [
         {
@@ -172,11 +172,11 @@ const allianceHelpEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: properties.footer,
 };
 
-const miscEmbed = {
-    color: parseInt(config.properties.embedColor),
+export const miscHelpMenu = {
+    color: parseInt(properties.embedColor),
     title: "Miscellaneous help menu",
     fields: [
         {
@@ -209,11 +209,11 @@ const miscEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: properties.footer,
 };
 
-const modEmbed = {
-    color: parseInt(config.properties.embedColor),
+export const modHelpMenu = {
+    color: parseInt(properties.embedColor),
     title: "Moderation help",
     description: "The bot role needs to be ranked above the roles of the other users in order for these commands to work.",
     fields: [
@@ -231,13 +231,13 @@ const modEmbed = {
         }
     ],
     timestamp: new Date(),
-    footer: config.properties.footer,
+    footer: properties.footer,
 };
 
-const guideEmbed = {
-    color: parseInt(config.properties.embedColor),
+export const guideEmbed = {
+    color: parseInt(properties.embedColor),
     title: "In-depth game-guide",
-    description: `If you have any additional questions, feel free to join the official server [here](${config.serverInvite}).`,
+    description: `If you have any additional questions, feel free to join the official server [here](${serverInvite}).`,
     fields: [
         {
             name: "**Starting**",
@@ -276,16 +276,7 @@ const guideEmbed = {
     ],
     timestamp: new Date(),
     footer: {
-        text: config.properties.footer.text + "  •   Written by Astilimos#6295",
-        icon_url: config.properties.footer.icon_url
+        text: properties.footer.text + "  •   Written by Astilimos#6295",
+        icon_url: properties.footer.icon_url
     }
 };
-
-module.exports = {
-    generalHelpMenu : gHelpMenu,
-    allianceHelpMenu : allianceHelpEmbed,
-    helpMenu : helpEmbed,
-    miscHelpMenu : miscEmbed,
-    modHelpMenu : modEmbed,
-    guideEmbed: guideEmbed
-}
