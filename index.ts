@@ -1,17 +1,23 @@
 import * as Discord from "discord.js";
 import { token, prefix } from "./config.json";
-import { Sleep } from "./utils";
+import { Sleep } from "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu } from "./modules/help";
+import { test } from "./utils/databasehandler";
+import { testUser } from "./utils/interfaces";
+
 
 const client = new Discord.Client();
 
+
 console.log("My prefix is", prefix);
+
 
 client.on("ready", () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
 
     client.user.setActivity(`.help | Now with voting streaks!`);
 });
+
 
 client.on("message", async message => {
     if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
@@ -40,6 +46,15 @@ client.on("message", async message => {
         else {
             message.channel.send({ embed: helpMenu });
         }
+    }
+
+    else if (command === "create") {
+        let obj: testUser = {
+            _id: message.author.id,
+            tag: message.author.tag
+        };
+        await test(obj);
+        message.channel.send("Created account for " + JSON.stringify(obj));
     }
 });
 

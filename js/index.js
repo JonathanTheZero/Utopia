@@ -9,8 +9,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Discord = __importStar(require("discord.js"));
 const config_json_1 = require("./config.json");
-const utils_1 = require("./utils");
+const utils_1 = require("./utils/utils");
 const help_1 = require("./modules/help");
+const databasehandler_1 = require("./utils/databasehandler");
 const client = new Discord.Client();
 console.log("My prefix is", config_json_1.prefix);
 client.on("ready", () => {
@@ -44,6 +45,14 @@ client.on("message", async (message) => {
         else {
             message.channel.send({ embed: help_1.helpMenu });
         }
+    }
+    else if (command === "create") {
+        let obj = {
+            _id: message.author.id,
+            tag: message.author.tag
+        };
+        await databasehandler_1.test(obj);
+        message.channel.send("Created account for " + JSON.stringify(obj));
     }
 });
 client.login(config_json_1.token);
