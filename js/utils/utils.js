@@ -18,30 +18,15 @@ function Sleep(milliseconds) {
 exports.Sleep = Sleep;
 Number.prototype.commafy = function () {
     return String(this).commafy();
-},
-    String.prototype.commafy = function () {
-        return this.replace(/(^|[^\w.])(\d{4,})/g, function ($0, $1, $2) {
-            return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
-        });
-    };
-function searchUser(msg) {
-    let parsedData = JSON.parse(fs.readFileSync('userdata.json').toString());
-    for (var i = 0; i < parsedData.length; i++) {
-        if (msg.author.id == parsedData[i].id) {
-            return parsedData[i];
-        }
-    }
-}
-exports.searchUser = searchUser;
-function searchUserByID(id) {
-    let parsedData = JSON.parse(fs.readFileSync('userdata.json').toString());
-    for (var i = 0; i < parsedData.length; i++) {
-        if (id == parsedData[i].id) {
-            return parsedData[i];
-        }
-    }
-}
-exports.searchUserByID = searchUserByID;
+};
+String.prototype.commafy = function () {
+    return this.replace(/(^|[^\w.])(\d{4,})/g, function ($0, $1, $2) {
+        return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
+    });
+};
+String.prototype.isNaN = function () {
+    return isNaN(this);
+};
 function rangeInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -55,6 +40,9 @@ function getAllianceByName(name) {
     }
 }
 exports.getAllianceByName = getAllianceByName;
-String.prototype.isNaN = function () {
-    return isNaN(this);
-};
+async function reminder(message, duration, preText, postText) {
+    message.channel.send(preText);
+    await Sleep(duration);
+    message.reply(postText);
+}
+exports.reminder = reminder;

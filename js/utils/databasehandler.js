@@ -8,44 +8,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb = __importStar(require("mongodb"));
-const MongoClient = mongodb.MongoClient;
 const url = "mongodb://localhost:27017/mydb";
+const client = new mongodb.MongoClient(url);
 async function addUsers(newUsers) {
-    MongoClient.connect(url, function (err, db) {
-        if (err)
-            throw err;
-        db.db("mydb").collection("users").insertMany(newUsers, function (err, res) {
-            if (err)
-                throw err;
-            console.log("Number of documents inserted: " + res.insertedCount);
-            db.close();
-        });
-    });
+    if (!newUsers || newUsers.length === 0)
+        return;
+    let result = await client.db("mydb").collection("users").insertMany(newUsers);
+    if (result)
+        console.log("Successfully added");
 }
 exports.addUsers = addUsers;
-async function test(n) {
-    MongoClient.connect(url, function (err, db) {
-        if (err)
-            throw err;
-        db.db("mydb").collection("users").insertOne(n, function (err, res) {
-            if (err)
-                throw err;
-            console.log(`Created account for ${n.tag}`);
-            db.close();
-        });
-    });
+async function getUser(_id) {
+    let result = await client.db("mydb").collection("users").findOne({ _id: _id });
+    return result;
 }
-exports.test = test;
+exports.getUser = getUser;
 function start() {
-    MongoClient.connect(url, (err, db) => {
+    client.connect(err => {
         if (err)
             throw err;
-        db.db("mydb").createCollection("users", (err, res) => {
-            if (err)
-                throw err;
-            console.log("Collection created!");
-            db.close();
-        });
+        console.log("Successfully connected");
     });
 }
 exports.start = start;

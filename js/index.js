@@ -9,14 +9,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Discord = __importStar(require("discord.js"));
 const config_json_1 = require("./config.json");
-const utils_1 = require("./utils/utils");
 const help_1 = require("./modules/help");
+const create_1 = require("./modules/create");
 const databasehandler_1 = require("./utils/databasehandler");
+const stats_1 = require("./modules/stats");
 const client = new Discord.Client();
 console.log("My prefix is", config_json_1.prefix);
 client.on("ready", () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
     client.user.setActivity(`.help | Now with voting streaks!`);
+    databasehandler_1.start();
 });
 client.on("message", async (message) => {
     var _a;
@@ -47,17 +49,12 @@ client.on("message", async (message) => {
         }
     }
     else if (command === "create") {
-        let obj = {
-            _id: message.author.id,
-            tag: message.author.tag
-        };
-        await databasehandler_1.test(obj);
-        message.channel.send("Created account for " + JSON.stringify(obj));
+        let data = create_1.createUser(message);
+        databasehandler_1.addUsers([data]);
+        message.reply("You succesfully created an acoount");
+    }
+    else if (command === "me" || command === "stats") {
+        await stats_1.statsEmbed(message, args, client);
     }
 });
 client.login(config_json_1.token);
-async function reminder(message, duration, preText, postText) {
-    message.channel.send(preText);
-    await utils_1.Sleep(duration);
-    message.reply(postText);
-}

@@ -11,7 +11,7 @@ export interface user {
     resources: {
         food: number;
         population: number;
-    },
+    };
     upgrades: {
         population: string[];
         misc: string[];
@@ -27,7 +27,6 @@ export interface user {
     votingStreak: number;
     lastVoted: number;
 }
-
 export interface testUser {
     _id: string;
     tag: string;
