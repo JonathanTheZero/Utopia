@@ -89,6 +89,7 @@ async function statsEmbed(message, args, client) {
                 {
                     name: "Population:",
                     value: user.resources.population.commafy(),
+                    inline: true
                 },
                 {
                     name: 'Alliance:',
