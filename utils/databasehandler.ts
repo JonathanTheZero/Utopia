@@ -17,20 +17,29 @@ export async function getUser(_id: string): Promise<user> {
 }
 
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any) {
-    let newValues = {};
-    if (mode === "money") {
-        newValues = {
-            $set: { money: (await getUser(_id)).money + <number>newValue }
-        };
-    }
-    else if (mode === "allianceRank") {
-        newValues = {
-            $set: { allianceRank: <string>newValue }
-        };
-    }
-    client.db(dbName).collection("users").updateOne({ _id }, newValues, err => {
+    let newQuery = {};
+    if (mode === "money")
+        newQuery = { $set: { money: (await getUser(_id)).money + <number>newValue } };
+    else if (mode === "allianceRank")
+        newQuery = { $set: { allianceRank: <string>newValue } };
+    else if (mode === "alliance")
+        newQuery = { $set: { alliance: <string>newValue } };
+    else if (mode === "food")
+        newQuery = { $set: { food: (await getUser(_id)).resources.food + <number>newValue } };
+    else if (mode === "autoping")
+        newQuery = { $set: { autoping: <boolean>newValue } };
+    else if (mode === "loan")
+        newQuery = { $set: { loan: <number>newValue } };
+
+    client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
         if (err) throw err;
     });
+}
+
+export async function addUpgrade(_id: string, upgrade: string, type: "population" | "misc"): Promise<void> {
+    let userUpgrades: user["upgrades"] = (await getUser(_id)).upgrades;
+    userUpgrades[type].push(upgrade);
+    client.db(dbName).collection("users").updateOne({ _id }, { $set: { upgrades: userUpgrades } });
 }
 
 export async function addAlliance(alliance: alliance): Promise<void> {
@@ -39,7 +48,7 @@ export async function addAlliance(alliance: alliance): Promise<void> {
     if (result) console.log(`Successfully added ${alliance.name}`);
 }
 
-export function start(): void {
+export function connectToDB(): void {
     client.connect(err => {
         if (err) throw err;
         console.log("Successfully connected");

@@ -48,4 +48,4 @@ export interface alliance {
     invitedUsers: string[];
 }
 
-export type updateUserQuery = "tag" | "money" | "autoping" | "payoutDMs" | "alliance" | "allianceRank" | "food" | "population";
+export type updateUserQuery = "tag" | "money" | "autoping" | "payoutDMs" | "alliance" | "allianceRank" | "food" | "population" | "loan";

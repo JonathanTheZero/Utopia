@@ -32,3 +32,25 @@ function createUser(message) {
     };
 }
 exports.createUser = createUser;
+function createAlliance(name, message) {
+    return {
+        name: name,
+        level: 1,
+        public: true,
+        leader: {
+            tag: message.author.tag,
+            _id: message.author.id,
+        },
+        money: 0,
+        tax: 5,
+        coLeaders: [],
+        members: [],
+        upgrades: {
+            af: 0,
+            pf: 0,
+            mf: 0
+        },
+        invitedUsers: []
+    };
+}
+exports.createAlliance = createAlliance;

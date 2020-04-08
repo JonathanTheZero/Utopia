@@ -27,7 +27,23 @@ export interface user {
     votingStreak: number;
     lastVoted: number;
 }
-export interface testUser {
-    _id: string;
-    tag: string;
+export interface alliance {
+    name: string;
+    level: number;
+    public: boolean;
+    leader: {
+        tag: string;
+        _id: string;
+    };
+    money: number;
+    tax: number;
+    coLeaders: string[];
+    members: string[];
+    upgrades: {
+        af: number;
+        pf: number;
+        mf: number;
+    };
+    invitedUsers: string[];
 }
+export declare type updateUserQuery = "tag" | "money" | "autoping" | "payoutDMs" | "alliance" | "allianceRank" | "food" | "population" | "loan";

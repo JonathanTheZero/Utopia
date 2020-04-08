@@ -1,10 +1,17 @@
 import * as Discord from "discord.js";
 import * as config from "./config.json";
 const DBL = require("dblapi.js");
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu } from "./modules/help";
-import { createUser, createAlliance } from "./modules/create";
-import { addUsers, getUser, start, addAlliance } from "./utils/databasehandler";
-import { statsEmbed } from "./modules/stats";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu } from "./commands/help";
+import { createUser, createAlliance } from "./commands/create";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser } from "./utils/databasehandler";
+import { statsEmbed } from "./commands/stats";
+import { kick } from "./commands/moderation/yeet";
+import { ban } from "./commands/moderation/ban";
+import { purge } from "./commands/moderation/purge";
+import { user } from "./utils/interfaces";
+import "./utils/utils";
+import { bet } from "./commands/bet";
+import { loancalc } from "./commands/loans";
 
 const express = require('express');
 const app = express();
@@ -39,26 +46,27 @@ console.log("My prefix is", config.prefix);
 
 client.on("ready", () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
-
     client.user.setActivity(`.help | Now with voting streaks!`);
-
-    start();
+    connectToDB();
 });
+
 
 client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 });
 
+
 client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 });
 
+
 client.on("message", async message => {
     if (message.content.indexOf(config.prefix) !== 0 || message.author.bot) return;
 
-    var args: string[] = message.content.slice(config.prefix.length).trim().split(/ +/g);
+    var args: Array<string> = message.content.slice(config.prefix.length).trim().split(/ +/g);
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
 
@@ -66,6 +74,35 @@ client.on("message", async message => {
         const m = await message.channel.send("Ping?") as Discord.Message;
         m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
     }
+
+    else if (command === "say") {
+        const sayMessage = args.join(" ");
+        message.delete().catch(null);
+        message.channel.send(sayMessage);
+    }
+
+    else if (command === "kick" || command === "yeet") kick(message, args);
+
+    else if (command === "ban") ban(message, args);
+
+    else if (command === "purge" || command === "clear") purge(message, args);
+
+    else if (command === "vote") {
+        let u: user = await getUser(message.author.id);
+        message.channel.send({
+            embed: {
+                color: parseInt(config.properties.embedColor),
+                title: `Your voting streak: ${u.votingStreak}`,
+                description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" +
+                    "You can increase your voting streak every 12h." +
+                    "If you don't vote for more than 24h, you will lose your streak.\n\n" +
+                    `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
+                    `You can vote again ${(u.lastVoted === 0 || Date.now() - u.lastVoted * 1000 > 43200000) ? "**now**" : "in" + new Date((43200 - (Math.floor(Date.now() / 1000) - u.lastVoted)) * 1000).toISOString().substr(11, 8)}`
+            }
+        });
+    }
+
+    else if (command === "bet" || command === "coinflip") bet(message, args);
 
     else if (command === "help") {
         if (["general", "g"].includes(args[0])) {
@@ -91,11 +128,20 @@ client.on("message", async message => {
         message.reply("You succesfully created an acoount");
     }
 
-    else if(command === "createalliance"){
-        if(!args[0]) return message.reply("please specify a name for your alliance");
+    else if(["loancalc", "lc"].includes(command as string))
+        loancalc(message, args, await getUser(message.author.id));
+
+    else if(command === "me" || command === "stats"){
+        message.channel.send({
+            embed: await statsEmbed(message, args, client)
+        });
+    }
+
+    else if (command === "createalliance") {
+        if (!args[0]) return message.reply("please specify a name for your alliance");
         await addAlliance(createAlliance(args[0], message));
         message.reply("You are now the leader of " + args[0]);
-        
+        //TODO
     }
 });
 

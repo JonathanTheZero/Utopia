@@ -24,23 +24,43 @@ async function getUser(_id) {
     return result;
 }
 exports.getUser = getUser;
-async function addMoney(_id, money) {
-    let newValues = {
-        $set: {
-            money: (await getUser(_id)).money + money
-        }
-    };
-    client.db(dbName).collection("users").updateOne({ _id }, newValues, err => {
+async function updateValueForUser(_id, mode, newValue) {
+    let newQuery = {};
+    if (mode === "money")
+        newQuery = { $set: { money: (await getUser(_id)).money + newValue } };
+    else if (mode === "allianceRank")
+        newQuery = { $set: { allianceRank: newValue } };
+    else if (mode === "alliance")
+        newQuery = { $set: { alliance: newValue } };
+    else if (mode === "food")
+        newQuery = { $set: { food: (await getUser(_id)).resources.food + newValue } };
+    else if (mode === "autoping")
+        newQuery = { $set: { autoping: newValue } };
+    client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
         if (err)
             throw err;
     });
 }
-exports.addMoney = addMoney;
-function start() {
+exports.updateValueForUser = updateValueForUser;
+async function addUpgrade(_id, upgrade, type) {
+    let userUpgrades = (await getUser(_id)).upgrades;
+    userUpgrades[type].push(upgrade);
+    client.db(dbName).collection("users").updateOne({ _id }, { $set: { upgrades: userUpgrades } });
+}
+exports.addUpgrade = addUpgrade;
+async function addAlliance(alliance) {
+    if (!alliance)
+        return;
+    let result = await client.db(dbName).collection("alliances").insertOne(alliance);
+    if (result)
+        console.log(`Successfully added ${alliance.name}`);
+}
+exports.addAlliance = addAlliance;
+function connectToDB() {
     client.connect(err => {
         if (err)
             throw err;
         console.log("Successfully connected");
     });
 }
-exports.start = start;
+exports.connectToDB = connectToDB;
