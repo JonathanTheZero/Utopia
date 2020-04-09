@@ -27,6 +27,6 @@ async function bet(message, args) {
         message.reply("congratulations! You won " + money.commafy() + " coins!");
     else
         message.reply("you lost " + money.commafy() + " coins. Try again next time!");
-    databasehandler_1.updateValueForUser(message.author.id, "money", addedMoney);
+    databasehandler_1.updateValueForUser(message.author.id, "money", addedMoney, "$inc");
 }
 exports.bet = bet;

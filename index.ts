@@ -12,6 +12,10 @@ import { user } from "./utils/interfaces";
 import "./utils/utils";
 import { bet } from "./commands/bet";
 import { loancalc } from "./commands/loans";
+import { leaderboard } from "./commands/leaderboard";
+import { buy } from "./commands/buy";
+import { payout, alliancePayout } from "./commands/payouts";
+import { kill } from "./commands/populations";
 
 const express = require('express');
 const app = express();
@@ -35,6 +39,7 @@ if (config.dbl) {
         webhookAuth: config.dbl.auth
     }, client);
     dbl.webhook.on('ready', (hook: { hostname: any; port: any; path: any; }) => console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`));
+
     dbl.webhook.on('vote', (vote: any) => {
 
     });
@@ -128,10 +133,10 @@ client.on("message", async message => {
         message.reply("You succesfully created an acoount");
     }
 
-    else if(["loancalc", "lc"].includes(command as string))
+    else if (["loancalc", "lc"].includes(command as string))
         loancalc(message, args, await getUser(message.author.id));
 
-    else if(command === "me" || command === "stats"){
+    else if (command === "me" || command === "stats") {
         message.channel.send({
             embed: await statsEmbed(message, args, client)
         });
@@ -143,6 +148,27 @@ client.on("message", async message => {
         message.reply("You are now the leader of " + args[0]);
         //TODO
     }
+
+    else if (command === "lb" || command === "leaderboard")
+        leaderboard(message, args);
+
+    else if (command === "invitelink")
+        return message.reply("Add me to your server using this link: " + config.properties.inviteLink);
+
+    else if (command === "server")
+        return message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: " + config.serverInvite);
+
+    else if (command === "buy")
+        buy(message, args);
+
+    else if (command === "payout")
+        payout(message, args);
+
+    else if (command === "alliancepayout")
+        alliancePayout(message, args);
+
+    else if (command === "kill")
+        kill(message, args);
 });
 
 client.login(config.token);

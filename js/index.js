@@ -20,6 +20,7 @@ const purge_1 = require("./commands/moderation/purge");
 require("./utils/utils");
 const bet_1 = require("./commands/bet");
 const loans_1 = require("./commands/loans");
+const leaderboard_1 = require("./commands/leaderboard");
 const express = require('express');
 const app = express();
 app.use(express.static('public'));
@@ -129,5 +130,7 @@ client.on("message", async (message) => {
         message.reply("You are now the leader of " + args[0]);
         //TODO
     }
+    else if (command === "lb")
+        leaderboard_1.leaderboard(message, args);
 });
 client.login(config.token);

@@ -24,18 +24,21 @@ async function getUser(_id) {
     return result;
 }
 exports.getUser = getUser;
-async function updateValueForUser(_id, mode, newValue) {
+async function updateValueForUser(_id, mode, newValue, updateMode = "$set") {
     let newQuery = {};
     if (mode === "money")
-        newQuery = { $set: { money: (await getUser(_id)).money + newValue } };
+        newQuery = { [updateMode]: { money: newValue } };
     else if (mode === "allianceRank")
-        newQuery = { $set: { allianceRank: newValue } };
+        newQuery = { [updateMode]: { allianceRank: newValue } };
     else if (mode === "alliance")
-        newQuery = { $set: { alliance: newValue } };
+        newQuery = { [updateMode]: { alliance: newValue } };
     else if (mode === "food")
-        newQuery = { $set: { food: (await getUser(_id)).resources.food + newValue } };
+        newQuery = { [updateMode]: { "resources.food": newValue } };
     else if (mode === "autoping")
-        newQuery = { $set: { autoping: newValue } };
+        newQuery = { [updateMode]: { autoping: newValue } };
+    else if (mode === "loan")
+        newQuery = { [updateMode]: { loan: newValue } };
+    console.log(newQuery);
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
         if (err)
             throw err;
@@ -56,6 +59,14 @@ async function addAlliance(alliance) {
         console.log(`Successfully added ${alliance.name}`);
 }
 exports.addAlliance = addAlliance;
+function getAllUsers() {
+    return client.db(dbName).collection("users").find({}).toArray();
+}
+exports.getAllUsers = getAllUsers;
+function getAllAlliances() {
+    return client.db(dbName).collection("alliances").find({}).toArray();
+}
+exports.getAllAlliances = getAllAlliances;
 function connectToDB() {
     client.connect(err => {
         if (err)

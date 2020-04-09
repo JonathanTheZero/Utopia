@@ -49,3 +49,4 @@ export interface alliance {
 }
 
 export type updateUserQuery = "tag" | "money" | "autoping" | "payoutDMs" | "alliance" | "allianceRank" | "food" | "population" | "loan";
+export type updateAllianceQuery = "name" | "level" | "public" | "leader" | "money" | "tax" | "coLeaders" | "invitedUsers";

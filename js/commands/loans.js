@@ -71,8 +71,8 @@ async function loan(message, args, user) {
         else if (userloan <= 0 || userloan === "undefined" || typeof args[0] === "undefined")
             return message.reply("Please enter a valid amount");
         else if (userloan > 0 && userloan <= maxloan) {
-            databasehandler_1.updateValueForUser(message.author.id, "money", userloan);
-            databasehandler_1.updateValueForUser(message.author.id, "loan", Math.floor(userloan * 1.25));
+            databasehandler_1.updateValueForUser(message.author.id, "money", userloan, "$inc");
+            databasehandler_1.updateValueForUser(message.author.id, "loan", Math.floor(user.money + userloan * 1.25));
             return message.reply("Congrats, you took out " + userloan.commafy() + " coins.");
         }
     }
@@ -81,6 +81,30 @@ async function loan(message, args, user) {
     }
 }
 exports.loan = loan;
+async function payback(message, args, user) {
+    if ((isNaN(args[0]) || typeof args[0] === "undefined" || args[0] < 1) && args[0] !== "a")
+        return message.reply("Please enter valid amount.");
+    if (!user || Object.keys(user).length === 0 && user.constructor === Object)
+        return message.reply("you haven't created an account yet, please use `.create` first");
+    if (user.loan) {
+        var userpayment = (args[0] === "a") ? user.money : parseInt(args[0]);
+        if (userpayment > user.money)
+            return message.reply("you don't own that much money");
+        databasehandler_1.updateValueForUser(message.author.id, "money", user.money + (-1 * userpayment));
+        if (user.loan <= userpayment) {
+            const diff = userpayment - user.loan;
+            message.reply("you paid in full.");
+            databasehandler_1.updateValueForUser(message.author.id, "loan", 0);
+            databasehandler_1.updateValueForUser(message.author.id, "money", diff, "$inc");
+            return;
+        }
+        user.loan -= userpayment;
+        databasehandler_1.updateValueForUser(message.author.id, "loan", -1 * userpayment, "$inc");
+        return message.reply("Congrats, you paid " + userpayment.commafy() + ". You still owe " + user.loan.commafy() + " coins.");
+    }
+    return message.reply("You do not have a loan to repay!");
+}
+exports.payback = payback;
 function lc(pop) {
     return Math.floor(pop / 8);
 }

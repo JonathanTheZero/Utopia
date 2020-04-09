@@ -4,7 +4,8 @@ import { user } from "../utils/interfaces";
 
 export async function bet(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
-    if (!user) return message.reply("You haven't created an account yet! Use `.create` in order to create one");
+    if (!user || Object.keys(user).length === 0 && user.constructor === Object)
+        return message.reply("you haven't created an account yet, please use `.create` first");
 
     if (user.money === 0) return message.reply("you don't have any money left!");
 
@@ -30,5 +31,5 @@ export async function bet(message: Message, args: string[]) {
     let addedMoney = won ? money : -1 * money;
     if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");
     else message.reply("you lost " + money.commafy() + " coins. Try again next time!");
-    updateValueForUser(message.author.id, "money", addedMoney);
+    updateValueForUser(message.author.id, "money", addedMoney, "$inc");
 }

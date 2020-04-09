@@ -1,0 +1,42 @@
+[
+  {
+    "tag": "Zero#0659",
+    "id": "393137628083388430",
+    "money": 0,
+    "lastWorked": 1578415141,
+    "lastCrime": 0,
+    "autoping": true,
+    "payoutDMs": false,
+    "alliance": "jhfosadfsadf",
+    "allianceRank": "L",
+    "resources": {
+      "food": 10000000,
+      "population": 3123123
+    },
+    "upgrades": {
+      "population": [],
+      "misc": [],
+      "battle": {
+        "iA": 0,
+        "iD": 0,
+        "cA": 0,
+        "cD": 0,
+        "aA": 0,
+        "aD": 0
+      },
+      "pf": {
+        "nf": 0,
+        "sf": 0,
+        "sef": 0,
+        "if": 0
+      }
+    },
+    "loan": 0,
+    "inventory": [],
+    "duelsWon": 0,
+    "battleToken": 0,
+    "tokenUsed": false,
+    "votingStreak": 1,
+    "lastVoted": 1578415141
+  }
+]
