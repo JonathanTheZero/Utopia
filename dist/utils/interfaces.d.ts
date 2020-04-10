@@ -47,4 +47,4 @@ export interface alliance {
     invitedUsers: string[];
 }
 export declare type updateUserQuery = "tag" | "money" | "autoping" | "payoutDMs" | "alliance" | "allianceRank" | "food" | "population" | "loan" | "lastWorked" | "lastCrime" | "lastVoted" | "votingStreak";
-export declare type updateAllianceQuery = "name" | "level" | "public" | "leader" | "money" | "tax" | "coLeaders" | "invitedUsers";
+export declare type updateAllianceQuery = "name" | "level" | "public" | "leader" | "money" | "tax";

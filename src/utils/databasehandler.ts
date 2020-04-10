@@ -22,8 +22,9 @@ export async function getAlliance(name: string): Promise<alliance | null> {
 
 export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastWorked" | "lastVoted", newValue: number): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "alliance" | "tag", newValue: string): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L"): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};

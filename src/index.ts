@@ -2,16 +2,16 @@ import * as Discord from "discord.js";
 import * as config from "./config.json";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser } from "./utils/databasehandler";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { kick } from "./commands/moderation/yeet";
 import { ban } from "./commands/moderation/ban";
 import { purge } from "./commands/moderation/purge";
 import { user } from "./utils/interfaces";
 import { bet } from "./commands/bet";
-import { loancalc } from "./commands/loans";
+import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
 import { buy } from "./commands/buy";
 import { payout, alliancePayout } from "./commands/payouts";
@@ -23,6 +23,14 @@ import { leaveAlliance } from "./commands/alliances/leave";
 import { promote } from "./commands/alliances/promote";
 import { demote } from "./commands/alliances/demote";
 import { toggleStatus } from "./commands/alliances/setpublic";
+import { upgradeAlliance } from "./commands/alliances/upgrade";
+import { invite } from "./commands/alliances/invite";
+import { fire } from "./commands/alliances/fire";
+import { allianceOverview } from "./commands/alliances/overview";
+import { work } from "./commands/work";
+import { Sleep } from "./utils/utils";
+import { storeEmbed } from "./commands/store";
+import { PythonShell } from "python-shell";
 
 const express = require('express');
 const app = express();
@@ -136,12 +144,17 @@ client.on("message", async message => {
 
     else if (command === "create") {
         let data = createUser(message);
+        if (await getUser(message.author.id)) return message.reply("error, you already have an account!");
         addUsers([data]);
         message.reply("You succesfully created an acoount");
     }
 
     else if (["loancalc", "lc"].includes(command as string))
         loancalc(message, args, await getUser(message.author.id));
+
+    else if (command === "loan") loan(message, args, await getUser(message.author.id));
+
+    else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
     else if (command === "me" || command === "stats") {
         statsEmbed(message, args, client);
@@ -199,13 +212,7 @@ client.on("message", async message => {
 
     else if (command === "promote") {
         let user: user = await getUser(message.author.id);
-        let member: user;
-        try {
-            member = await getUser(message.mentions.users.first().id);
-        }
-        catch {
-            member = await getUser(args[0]);
-        }
+        let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention/ID>`.");
         if (member._id == message.author.id) return message.reply("you can't promote yourself!");
@@ -215,13 +222,7 @@ client.on("message", async message => {
 
     else if (command === "demote") {
         let user: user = await getUser(message.author.id);
-        let member: user;
-        try {
-            member = await getUser(message.mentions.users.first().id);
-        }
-        catch {
-            member = await getUser(args[0]);
-        }
+        let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (member._id == message.author.id) return message.reply("you can't demote yourself!");
         if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention/ID>`.");
@@ -237,7 +238,7 @@ client.on("message", async message => {
         return message.reply("Only the Leader and the Co-Leaders can set the alliance status");
     }
 
-    else if(command === "setpublic"){
+    else if (command === "setpublic") {
         let user: user = await getUser(message.author.id);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (!user.allianceRank) return message.reply("you haven't joined an alliance yet.");
@@ -245,7 +246,163 @@ client.on("message", async message => {
         return message.reply("Only the Leader and the Co-Leaders can set the alliance status");
     }
 
-    else if(command === "upgradealliance" || command === "upalliance"){
+    else if (command === "upgradealliance" || command === "upalliance") {
+        let user: user = await getUser(message.author.id);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (user.allianceRank != "M")
+            return message.reply(await upgradeAlliance(user.alliance as string));
+        return message.reply("Only the Leader and the Co-Leaders can upgrade the alliance status");
+    }
+
+    else if (command === "invite") {
+        let user: user = await getUser(message.author.id);
+        let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
+        if (user._id === member._id) return message.reply("you can't invite yourself!");
+        if (user.allianceRank != "M") return message.reply(await invite(user.alliance as string, member));
+        return message.reply("only the leader and the co-leaders can send out invites.");
+    }
+
+    else if (command === "fire") {
+        let user: user = await getUser(message.author.id);
+        let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
+        if (user.allianceRank != "L") return message.reply("only the leader can fire members.");
+        return message.reply(await fire(user.alliance as string, user, member));
+    }
+
+    else if (command === "alliance")
+        allianceOverview(message, args, client);
+
+    else if (command === "guide") {
+        message.channel.send({
+            embed: guideEmbed
+        });
+    }
+
+    else if (command === "shop" || command === "store") {
+        var store: any;
+        if (args[0] == "population" || args[0] == "p") {
+            store = await storeEmbed!(message, "p", args);
+        }
+        else if (["alliance", "alliances", "a"].includes(args[0])) {
+            store = await storeEmbed!(message, "a", args);
+        }
+        else if (["battle", "battles", "b"].includes(args[0])) {
+            store = await storeEmbed!(message, "b", args)
+        }
+        else if (["pf", "personal"].includes(args[0])) {
+            store = await storeEmbed!(message, "pf", args);
+        }
+        else {
+            store = await storeEmbed!(message, "s", args);
+        }
+        if (store) message.channel.send({ embed: store });
+    }
+
+    else if (["patreon", "donate", "paypal"].includes(command as string)) {
+        //message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
+        return message.channel.send({
+            embed: {
+                color: 0x2ADF30,
+                title: "Support the bot",
+                thumbnail: {
+                    url: message.author.avatarURL,
+                },
+                description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" +
+                    "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",
+                footer: config.properties.footer,
+                timestamp: new Date()
+            }
+        });
+    }
+
+    else if (command === "autoping") {
+        let user: user = await getUser(message.author.id);
+        if (!user)
+            return message.reply("you haven't created an account yet, please use the `create` command.");
+        message.reply((user.autoping) ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
+        updateValueForUser(user._id, "autoping", !user.autoping);
+    }
+
+    else if (command === "payoutdms") {
+        let user: user = await getUser(message.author.id);
+        if (!user)
+            return message.reply("you haven't created an account yet, please use the `create` command.");
+        message.reply(user.payoutDMs ? "you successfully disabled payout DMs." : "you succesfully enabled payout DMS.");
+        updateValueForUser(user._id, "payoutDMs", !user.payoutDMs);
+    }
+
+    else if (command === "work")
+        work(message, client);
+
+    else if (command === "statistics") {
+        message.channel.send({
+            embed: {
+                title: "Utopia statistics",
+                color: parseInt(config.properties.embedColor),
+                fields: [{
+                    name: "Servers:",
+                    value: `Currently I am active on ${client.guilds.size} servers`
+                },
+                {
+                    name: "Users:",
+                    value: `Currently I have ${client.users.size} users.`
+                },
+                /*{
+                    name: "Commands run:",
+                    value: `I already executed ${data.commandsRun.commafy()} commands.`
+                },*/
+                {
+                    name: "Registered accounts:",
+                    value: `${(await getAllUsers()).length} users already created an account!`
+                }],
+                footer: config.properties.footer,
+                timestamp: new Date()
+            }
+        });
+    }
+
+    else if (command === "utopia") {
+        /*var imgurl: string = "-1";
+        const pyshell = new PythonShell('./imageplotting/plotImage.py', { mode: "text" });
+
+        let user: user = await getUser(message.author.id);
+        if (typeof args[0] !== "undefined")
+            user = await getUser(message.mentions?.users?.first()?.id || args[0]);
+
+        var sendString = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" +
+            user.upgrades.population.length + "#" +
+            user.resources.population + "#" +
+            client.users.get(user._id)?.username;
+        pyshell.send(sendString);
+
+        pyshell.on('message', async answer => {
+            console.log(answer);
+            imgurl = `./imageplotting/${answer.toString()}.png`;
+
+            const file = new Discord.Attachment(imgurl);
+
+            message.channel.send({
+                files: [file]
+            });
+
+            await Sleep(5000);
+            const del = new PythonShell('imageplotting/deleteImage.py', { mode: "text" });
+
+            del.send(imgurl);
+            del.end((err, code, signal) => {
+                if (err) throw err;
+            });
+        });
+
+        pyshell.end((err, code, signal) => {
+            if (err) throw err;
+        });*/
+        let p = new PythonShell("x.py");
+        p.on("message", console.log);
     }
 });
 
