@@ -48,6 +48,12 @@ export interface alliance {
     invitedUsers: string[];
 }
 
+export interface configDB {
+    _id: 1;
+    lastPayout: number;
+    lastPopulationWorkPayout: number;
+}
+
 export type updateUserQuery = "tag"
     | "money"
     | "autoping"

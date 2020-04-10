@@ -1,9 +1,15 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB } from "./interfaces";
 import * as mongodb from "mongodb";
 
 const url: string = "mongodb://localhost:27017/mydb";
 const client = new mongodb.MongoClient(url);
 const dbName = "mydb";
+
+const config: configDB = {
+    _id: 1,
+    lastPayout: 0,
+    lastPopulationWorkPayout: 0
+};
 
 export async function addUsers(newUsers: user[]): Promise<void> {
     if (!newUsers || newUsers.length === 0) return;
@@ -132,6 +138,16 @@ export async function deleteAlliance(name: string) {
 
 export async function customUpdateQuery(collection: string, filter: { [key: string]: any }, update: { [key: string]: any }) {
     client.db(dbName).collection(collection).updateMany(filter, update, err => {
+        if (err) throw err;
+    });
+}
+
+export async function getConfig(): Promise<configDB> {
+    return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
+}
+
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout", val: number) {
+    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
 }

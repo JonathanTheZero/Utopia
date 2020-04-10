@@ -55,8 +55,18 @@ if (config.dbl) {
     }, client);
     dbl.webhook.on('ready', (hook: { hostname: any; port: any; path: any; }) => console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`));
 
-    dbl.webhook.on('vote', (vote: any) => {
-
+    dbl.webhook.on('vote', async (vote: { user: string }) => {
+        let user: user = await getUser(vote.user);
+        if ((Date.now() / 1000 - user.lastVoted) <= 86400) {
+            updateValueForUser(user._id, "votingStreak", 1, "$inc");
+            user.votingStreak++;
+        }
+        else {
+            updateValueForUser(user._id, "votingStreak", 1, "$set");
+            user.votingStreak = 1;
+        }
+        updateValueForUser(user._id, "lastVoted", Date.now() / 1000);
+        updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
     });
 }
 
