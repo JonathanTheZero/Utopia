@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
-import { user, alliance } from "../utils/interfaces";
-import { getUser, getAlliance, editAllianceArray, updateValueForUser } from "../utils/databasehandler";
+import { user, alliance } from "../../utils/interfaces";
+import { getUser, getAlliance, editAllianceArray, updateValueForUser, deleteAlliance } from "../../utils/databasehandler";
 
-export async function joinalliance(message: Message, args: string[]) {
+export async function joinAlliance(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
     if (!user)
         return message.reply("you haven't created an account yet, please use the `create` command.");

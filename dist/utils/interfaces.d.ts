@@ -7,7 +7,7 @@ export interface user {
     autoping: boolean;
     payoutDMs: boolean;
     alliance: string | null;
-    allianceRank: string | null;
+    allianceRank: "M" | "L" | "C" | null;
     resources: {
         food: number;
         population: number;

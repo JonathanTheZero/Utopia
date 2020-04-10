@@ -66,6 +66,4 @@ export type updateAllianceQuery = "name"
     | "public"
     | "leader"
     | "money"
-    | "tax"
-    | "coLeaders"
-    | "invitedUsers";
+    | "tax";

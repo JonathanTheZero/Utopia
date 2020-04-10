@@ -30,7 +30,7 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
     }
 
     if (!user) {
-        if (typeof args[0] !== "undefined")
+        if (typeof args[0] === "undefined")
             return message.reply("you haven't created an account yet, please use `.create` first");
         else
             return message.reply("this user hasn't created an account yet!");

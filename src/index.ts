@@ -1,15 +1,15 @@
 import * as Discord from "discord.js";
 import * as config from "./config.json";
 const DBL = require("dblapi.js");
+import "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser } from "./utils/databasehandler";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { kick } from "./commands/moderation/yeet";
 import { ban } from "./commands/moderation/ban";
 import { purge } from "./commands/moderation/purge";
 import { user } from "./utils/interfaces";
-import "./utils/utils";
 import { bet } from "./commands/bet";
 import { loancalc } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -18,6 +18,11 @@ import { payout, alliancePayout } from "./commands/payouts";
 import { kill } from "./commands/populations";
 import { add } from "./commands/moderation/add";
 import { send } from "./commands/send";
+import { joinAlliance } from "./commands/alliances/join";
+import { leaveAlliance } from "./commands/alliances/leave";
+import { promote } from "./commands/alliances/promote";
+import { demote } from "./commands/alliances/demote";
+import { toggleStatus } from "./commands/alliances/setpublic";
 
 const express = require('express');
 const app = express();
@@ -139,17 +144,26 @@ client.on("message", async message => {
         loancalc(message, args, await getUser(message.author.id));
 
     else if (command === "me" || command === "stats") {
-        message.channel.send({
-            embed: await statsEmbed(message, args, client)
-        });
+        statsEmbed(message, args, client);
     }
 
     else if (command === "createalliance") {
         if (!args[0]) return message.reply("please specify a name for your alliance");
-        await addAlliance(createAlliance(args[0], message));
-        message.reply("You are now the leader of " + args[0]);
-        //TODO
+        let user: user = await getUser(message.author.id);
+        if (!user)
+            return message.reply("you haven't created an account yet, please use the `create` command.");
+        else if (user.alliance != null)
+            return message.reply("you can't create your own alliance, because you already joined one. Leave your alliance with `.leavealliance` first.");
+
+        await addAlliance(createAlliance(args.join(" "), message));
+        updateValueForUser(message.author.id, "alliance", args.join(" "));
+        updateValueForUser(message.author.id, "allianceRank", "L");
+        message.reply("You are now the leader of " + args.join(" "));
     }
+
+    else if (command === "joinalliance" || command === "join") joinAlliance(message, args);
+
+    else if (command === "leavealliance" || command === "leave") leaveAlliance(message, args);
 
     else if (command === "lb" || command === "leaderboard")
         leaderboard(message, args);
@@ -177,6 +191,62 @@ client.on("message", async message => {
 
     else if (command === "send")
         send(message, args);
+
+    else if (command === "delete") {
+        deleteUser(message.author.id);
+        return message.reply("you have successfully deleted your account!");
+    }
+
+    else if (command === "promote") {
+        let user: user = await getUser(message.author.id);
+        let member: user;
+        try {
+            member = await getUser(message.mentions.users.first().id);
+        }
+        catch {
+            member = await getUser(args[0]);
+        }
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention/ID>`.");
+        if (member._id == message.author.id) return message.reply("you can't promote yourself!");
+        if (user.allianceRank != "L") return message.reply("only the leader can promote members.");
+        return message.reply(await promote(user, member));
+    }
+
+    else if (command === "demote") {
+        let user: user = await getUser(message.author.id);
+        let member: user;
+        try {
+            member = await getUser(message.mentions.users.first().id);
+        }
+        catch {
+            member = await getUser(args[0]);
+        }
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (member._id == message.author.id) return message.reply("you can't demote yourself!");
+        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention/ID>`.");
+        if (user.allianceRank != "L") return message.reply("only the leader can demote members.");
+        return message.reply(await demote(user, member));
+    }
+
+    else if (command === "setprivate") {
+        let user: user = await getUser(message.author.id);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (!user.allianceRank) return message.reply("you haven't joined an alliance yet.");
+        if (user.allianceRank != "M") return message.reply(await toggleStatus(user, false));
+        return message.reply("Only the Leader and the Co-Leaders can set the alliance status");
+    }
+
+    else if(command === "setpublic"){
+        let user: user = await getUser(message.author.id);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (!user.allianceRank) return message.reply("you haven't joined an alliance yet.");
+        if (user.allianceRank != "M") return message.reply(await toggleStatus(user, true));
+        return message.reply("Only the Leader and the Co-Leaders can set the alliance status");
+    }
+
+    else if(command === "upgradealliance" || command === "upalliance"){
+    }
 });
 
 client.login(config.token);
