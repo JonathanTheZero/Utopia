@@ -1,4 +1,4 @@
-import * as config from "../../config.json";
+import * as config from "../../static/config.json";
 import { Client, TextChannel, Channel } from "discord.js";
 import { getBaseLog, Sleep, rangeInt } from "../../utils/utils";
 import { user } from "../../utils/interfaces";
@@ -62,7 +62,7 @@ export async function populationWorkLoop(client: Client) {
         }
         if (u.payoutDMs) {
             try {
-                client.users.get(u._id)?.send("You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!");
+                client.users.get(u._id)?.send("You have succesfully gained money through the work of your population!");
             }
             catch { }
         }
@@ -72,10 +72,10 @@ export async function populationWorkLoop(client: Client) {
     (payoutChannel as TextChannel).send({
         embed: {
             color: 0x00FF00,
-            title: "You have succesfully gained money through the work of your population!\nYour battle token cooldown has been reset!",
+            title: "You have succesfully gained money through the work of your population!",
             timestamp: new Date()
         }
     });
     editConfig("lastPopulationWorkPayout", Math.floor(Date.now() / 1000));
-    setTimeout(populationWorkLoop, 39600000); //11h
+    setTimeout(() => populationWorkLoop(client), 39600000); //11h
 }

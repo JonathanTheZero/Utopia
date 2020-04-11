@@ -1,7 +1,7 @@
 import { MessageEmbed, User, Message, Client } from "discord.js";
 import { getUser } from "../utils/databasehandler";
 import { user } from "../utils/interfaces";
-import { properties } from "../config.json";
+import { properties } from "../static/config.json";
 import "../utils/utils";
 
 /**
@@ -51,15 +51,15 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
         alliance = "Leader of " + alliance;
     }
     var upgrades = (typeof args[0] === "undefined") ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`;
+    const r: string[] = [];
     if (user.upgrades.population.length != 0) {
-        upgrades = "\u200b";
-        if (user.upgrades.population.includes("UK")) upgrades += "UK"
-        if (user.upgrades.population.includes("AE")) upgrades += ", Equipment"
-        if (user.upgrades.population.includes("RU")) upgrades += ", Russia"
-        if (user.upgrades.population.includes("EC")) upgrades += ", Expanded City"
-        if (user.upgrades.population.includes("GL")) upgrades += ", Globalization"
-        if (user.upgrades.population.includes("MS")) upgrades += ", More Soldiers"
-        if (user.upgrades.population.includes("US")) upgrades += ", US"
+        if (user.upgrades.population.includes("UK")) r.push("UK")
+        if (user.upgrades.population.includes("AE")) r.push("Equipment")
+        if (user.upgrades.population.includes("RU")) r.push("Russia");
+        if (user.upgrades.population.includes("EC")) r.push("Expanded City");
+        if (user.upgrades.population.includes("GL")) r.push("Globalization");
+        if (user.upgrades.population.includes("MS")) r.push("More Soldiers");
+        if (user.upgrades.population.includes("US")) r.push("US");
     }
     if (user.resources.food == null) user.resources.food = 0;
     const pf = user.upgrades.pf;
@@ -101,7 +101,7 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                 },
                 {
                     name: "Upgrades:",
-                    value: upgrades,
+                    value: r.length !== 0 ? r.join(", "): upgrades,
                     inline: true
                 }
             ],

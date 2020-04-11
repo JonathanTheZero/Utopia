@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import * as config from "../config.json";
+import * as config from "../static/config.json";
 import "../utils/utils";
 import { user, alliance } from "../utils/interfaces";
 import { getUser, getAlliance } from "../utils/databasehandler";

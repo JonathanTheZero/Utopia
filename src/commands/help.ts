@@ -1,4 +1,4 @@
-import { properties, serverInvite } from "../config.json";
+import { properties, serverInvite } from "../static/config.json";
 
 export const helpMenu = {
     color: parseInt(properties.embedColor),
@@ -12,10 +12,10 @@ export const helpMenu = {
             name: 'Alliance help:',
             value: "type `.help alliance` to view the alliance help menu",
         },
-        {
+        /*{
             name: "Battle help",
             value: "type `.help battle` to view the battle help menu",
-        },
+        },*/
         {
             name: "Miscellaneous help:",
             value: "type `.help misc` to view the help menu for everything else",
@@ -266,7 +266,7 @@ export const guideEmbed = {
                 "You can learn how to manage it by saying `.help a`."
         },
         {
-            name: "**Battles**",
+            name: "**Battles** (Note: battles have been temporarily removed but they will return!)",
             value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" + 
                 "-Infantry: 50 coins per regiment to create and 20 food per regiment per round to feed. Has 30 Def and 25 Atk.\n" +
                 "-Infantry: 100 coins per regiment to create and 300 food per regiment per round to feed. 25 HP, 15 Def and 15 Atk.\n" +

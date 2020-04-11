@@ -1,5 +1,5 @@
 import { Message, Client } from "discord.js";
-import * as config from "../../config.json";
+import * as config from "../../static/config.json";
 import { getUser, getAlliance } from "../../utils/databasehandler";
 import { user, alliance } from "../../utils/interfaces";
 import "../../utils/utils";
@@ -12,7 +12,7 @@ export async function allianceOverview(message: Message, args: string[], client:
     }
     else {
         user = await getUser(message.mentions?.users?.first()?.id || args[0]);
-        url = client.users.get(user._id)?.displayAvatarURL as string;
+        url = client.users.get(user?._id)?.displayAvatarURL as string;
     }
 
     let alliance: alliance = await getAlliance(!user ? args.join(" "): user.alliance as string) as alliance;
@@ -81,7 +81,7 @@ export async function allianceOverview(message: Message, args: string[], client:
                     },
                     {
                         name: 'Upgrades:',
-                        value: "This alliance owns: " + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
+                        value: "This alliance owns: \n" + u.af + "x Arable Farming, " + u.pf + "x Pastoral Farming, " + u.mf + "x Mixed Farming",
                         inline: true,
                     },
                     {

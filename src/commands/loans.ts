@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { user } from "../utils/interfaces";
-import * as config from "../config.json";
+import * as config from "../static/config.json";
 import "../utils/utils";
 import { updateValueForUser } from "../utils/databasehandler";
 

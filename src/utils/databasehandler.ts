@@ -1,8 +1,9 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway } from "./interfaces";
 import * as mongodb from "mongodb";
+import { mongoQuery } from "../static/config.json";
 
-const url: string = "mongodb://localhost:27017/mydb";
-const client = new mongodb.MongoClient(url);
+const url: string = mongoQuery;
+const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
 const dbName = "mydb";
 
 const config: configDB = {
@@ -14,7 +15,7 @@ const config: configDB = {
 export async function addUsers(newUsers: user[]): Promise<void> {
     if (!newUsers || newUsers.length === 0) return;
     let result = await client.db(dbName).collection("users").insertMany(newUsers);
-    if (result) console.log("Successfully added");
+    if (result) console.log("Successfully added " + newUsers[0].tag);
 }
 
 export async function getUser(_id: string): Promise<user> {
@@ -68,7 +69,7 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
     });
 }
 
-export async function updateValueForAlliance(name: string, mode: "money" | "level", newValue: number, updateMode: "$inc" | "$set"): Promise<void>;
+export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "leader", newValue: { _id: string, tag: string }): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "public", newValue: boolean): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "name", newValue: string): Promise<void>;
@@ -86,6 +87,8 @@ export async function updateValueForAlliance(name: string, mode: updateAllianceQ
         newQuery = { $set: { tax: <number>newValue } };
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
+    else if (mode === "tax")
+        newQuery = { $set: { tax: <number>newValue } };
 
     client.db(dbName).collection("alliances").updateOne({ name }, newQuery, err => {
         if (err) throw err;
@@ -101,7 +104,7 @@ export async function addUpgrade(_id: string, upgrade: string, type: "population
 export async function addPF(_id: string, upgrade: "nf" | "sf" | "sef" | "if"): Promise<void> {
     let pfs: user["upgrades"]["pf"] = (await getUser(_id)).upgrades.pf;
     pfs[upgrade] += 1;
-    client.db(dbName).collection("users").updateOne({ _id }, { $set: { upgrades: pfs } });
+    client.db(dbName).collection("users").updateOne({ _id }, { $set: { "upgrades.pf": pfs } });
 }
 
 export async function addAlliance(alliance: alliance): Promise<void> {
@@ -152,12 +155,37 @@ export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout
     });
 }
 
-export function connectToDB(): void {
-    client.connect(err => {
-        if (err) throw err;
-        console.log("Successfully connected");
+export async function getGiveaways(): Promise<giveaway[]> {
+    return client.db(dbName).collection("giveaways").find({}).toArray();
+}
 
-        client.db(dbName).createCollection("users");
-        client.db(dbName).createCollection("alliances");
-    });
+export async function addGiveaway(giveaway: giveaway) {
+    return client.db(dbName).collection("giveaways").insertOne(giveaway);
+}
+
+export async function getGiveaway(_id: string): Promise<giveaway> {
+    let result = await client.db(dbName).collection("giveaways").findOne({ _id });
+    return result;
+}
+
+export async function deleteGiveaway(_id: string) {
+    client.db(dbName).collection("giveaways").deleteOne({ _id });
+}
+
+export async function connectToDB(): Promise<void> {
+    return new Promise(resolve => {
+        client.connect(async err => {
+            if (err) throw err;
+            console.log("Successfully connected");
+
+            client.db(dbName).createCollection("users");
+            client.db(dbName).createCollection("alliances");
+            client.db(dbName).createCollection("giveaways");
+            if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
+                client.db(dbName).collection("config").insertOne(config);
+            }
+            resolve();
+        });
+    })
+
 }

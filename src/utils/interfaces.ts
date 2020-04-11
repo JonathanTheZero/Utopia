@@ -1,3 +1,5 @@
+import { User } from "discord.js";
+
 export interface user {
     tag: string;
     _id: string;
@@ -53,6 +55,19 @@ export interface configDB {
     lastPayout: number;
     lastPopulationWorkPayout: number;
 }
+
+export interface giveaway {
+    channelid: string,
+    _id: string,
+    winners: number,
+    startedAt: number,
+    endingISO: Date,
+    priceAm: string | number,
+    priceCur: string,
+    endingAt: number,
+    embedId: string,
+    users: User[]; 
+  }
 
 export type updateUserQuery = "tag"
     | "money"

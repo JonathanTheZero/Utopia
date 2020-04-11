@@ -1,7 +1,7 @@
 import { Client, TextChannel } from "discord.js";
 import { user, alliance } from "../../utils/interfaces";
 import { getAllUsers, getAllAlliances, updateValueForUser, getUser, editConfig } from "../../utils/databasehandler";
-import * as config from "../../config.json";
+import * as config from "../../static/config.json";
 
 export async function payoutLoop(client: Client) {
     let users: user[] = await getAllUsers();
@@ -86,5 +86,5 @@ export async function payoutLoop(client: Client) {
         }
     });
     editConfig("lastPayout", Math.floor(Date.now() / 1000));
-    setTimeout(payoutLoop, (1000 * 14400));
+    setTimeout(() => payoutLoop(client), (1000 * 14400));
 }

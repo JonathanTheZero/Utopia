@@ -46,13 +46,13 @@ export async function buy(message: Message, args: string[]) {
         return message.reply("you don't have enough money.");
     }
     else if (args[0] == "arable" && args[1] == "farming") {
-        return message.reply(buyItemAlliance("AF", user.alliance as string, 100000, 1));
+        return message.reply(await buyItemAlliance("AF", message.author.id, 100000));
     }
     else if (args[0] == "pastoral" && args[1] == "farming") {
-        return message.reply(buyItemAlliance("PF", user.alliance as string, 1750000, 2));
+        return message.reply(await buyItemAlliance("PF", message.author.id, 1750000));
     }
     else if (args[0] == "mixed" && args[1] == "farming") {
-        return message.reply(buyItemAlliance("MF", user.alliance as string, 7500000, 3));
+        return message.reply(await buyItemAlliance("MF", message.author.id, 7500000));
     }
     /*else if (args[0] == "better" && args[1] == "armors") {
         return message.reply(buyBattleUpgrade(index, 0, 2, 0, 1, 0, 0, 4));
@@ -70,16 +70,16 @@ export async function buy(message: Message, args: string[]) {
         return message.reply(buyBattleUpgrade(index, 1, 1, 0, 0, 1, 0, 6));
     }*/
     else if (args[0] == "nf" || (args[0] == "nomadic") && args[1] == "farming") {
-        return message.reply(buyPersonalfarm("nf", message.author.id, 750000));
+        return message.reply(await buyPersonalfarm("nf", message.author.id, 750000));
     }
     else if (args[0] == "sf" || (args[0] == "subsistence") && args[1] == "farming") {
-        return message.reply(buyPersonalfarm("sf", message.author.id, 2750000));
+        return message.reply(await buyPersonalfarm("sf", message.author.id, 2750000));
     }
     else if (args[0] == "sef" || (args[0] == "sedentary") && args[1] == "farming") {
-        return message.reply(buyPersonalfarm("sef", message.author.id, 7500000));
+        return message.reply(await buyPersonalfarm("sef", message.author.id, 7500000));
     }
     else if (args[0] == "if" || (args[0] == "intensive") && args[1] == "farming") {
-        return message.reply(buyPersonalfarm("if", message.author.id, 15000000));
+        return message.reply(await buyPersonalfarm("if", message.author.id, 15000000));
     }
 }
 
@@ -141,11 +141,10 @@ async function buyItem(item: "UK" | "AE" | "RU" | "EC" | "GL" | "MS" | "US", id:
     return "You don't have enough money to buy that item.";
 }
 
-async function buyItemAlliance(itemShort: "AF" | "PF" | "MF", id: string, price: number, minLevel: number): Promise<string> {
+async function buyItemAlliance(itemShort: "AF" | "PF" | "MF", id: string, price: number): Promise<string> {
     let user: user = await getUser(id);
     let alliance: alliance | null = await getAlliance(user.alliance as string);
     if (!alliance) return "you haven't joined an alliance yet";
-    alliance = alliance as alliance;
     if (user.allianceRank == "M") return "sorry, you rank isn't high enough to buy upgrades.";
 
     if (alliance.money >= price) {
@@ -167,7 +166,7 @@ async function buyItemAlliance(itemShort: "AF" | "PF" | "MF", id: string, price:
         else {
             return "sorry, an error occured."
         }
-        updateValueForAlliance(name, "money", -1 * price, "$inc");
+        updateValueForAlliance(alliance.name, "money", -1 * price, "$inc");
     }
     else {
         return "your alliance doesn't have enough money to buy that item.";

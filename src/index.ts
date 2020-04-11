@@ -1,15 +1,15 @@
 import * as Discord from "discord.js";
-import * as config from "./config.json";
+import * as config from "./static/config.json";
 const DBL = require("dblapi.js");
 import "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers } from "./utils/databasehandler";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { kick } from "./commands/moderation/yeet";
 import { ban } from "./commands/moderation/ban";
 import { purge } from "./commands/moderation/purge";
-import { user } from "./utils/interfaces";
+import { user, configDB } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -17,7 +17,7 @@ import { buy } from "./commands/buy";
 import { payout, alliancePayout } from "./commands/payouts";
 import { kill } from "./commands/populations";
 import { add } from "./commands/moderation/add";
-import { send } from "./commands/send";
+import { send, deposit } from "./commands/send";
 import { joinAlliance } from "./commands/alliances/join";
 import { leaveAlliance } from "./commands/alliances/leave";
 import { promote } from "./commands/alliances/promote";
@@ -27,10 +27,15 @@ import { upgradeAlliance } from "./commands/alliances/upgrade";
 import { invite } from "./commands/alliances/invite";
 import { fire } from "./commands/alliances/fire";
 import { allianceOverview } from "./commands/alliances/overview";
-import { work } from "./commands/work";
+import { work, crime } from "./commands/work";
 import { Sleep } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { PythonShell } from "python-shell";
+import { payoutLoop } from "./commands/payouts/normalpayouts";
+import { populationWorkLoop } from "./commands/payouts/workpayout";
+import { settax } from "./commands/alliances/tax";
+import { allianceMembers } from "./commands/alliances/members";
+import { startGiveaway } from "./commands/giveaways";
 
 const express = require('express');
 const app = express();
@@ -74,10 +79,14 @@ if (config.dbl) {
 
 console.log("My prefix is", config.prefix);
 
-client.on("ready", () => {
+client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
     client.user.setActivity(`.help | Now with voting streaks!`);
-    connectToDB();
+    await connectToDB();
+    let c: configDB = await getConfig();
+    const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];
+    setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
+    setTimeout(() => populationWorkLoop(client), ((39600 - tdiff2) * 1000));
 });
 
 
@@ -215,6 +224,9 @@ client.on("message", async message => {
     else if (command === "send")
         send(message, args);
 
+    else if (command === "deposit")
+        deposit(message, args);
+
     else if (command === "delete") {
         deleteUser(message.author.id);
         return message.reply("you have successfully deleted your account!");
@@ -286,6 +298,9 @@ client.on("message", async message => {
     else if (command === "alliance")
         allianceOverview(message, args, client);
 
+    else if (command === "alliancemembers")
+        allianceMembers(message, args, client);
+
     else if (command === "guide") {
         message.channel.send({
             embed: guideEmbed
@@ -348,6 +363,9 @@ client.on("message", async message => {
     else if (command === "work")
         work(message, client);
 
+    else if (command === "crime")
+        crime(message, client);
+
     else if (command === "statistics") {
         message.channel.send({
             embed: {
@@ -376,8 +394,8 @@ client.on("message", async message => {
     }
 
     else if (command === "utopia") {
-        /*var imgurl: string = "-1";
-        const pyshell = new PythonShell('./imageplotting/plotImage.py', { mode: "text" });
+        var imgurl: string = "-1";
+        const pyshell = new PythonShell('dist/plotImage.py', { mode: "text" });
 
         let user: user = await getUser(message.author.id);
         if (typeof args[0] !== "undefined")
@@ -387,11 +405,13 @@ client.on("message", async message => {
             user.upgrades.population.length + "#" +
             user.resources.population + "#" +
             client.users.get(user._id)?.username;
+
+        console.log(sendString);
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
             console.log(answer);
-            imgurl = `./imageplotting/${answer.toString()}.png`;
+            imgurl = `imageplotting/${answer.toString()}.png`;
 
             const file = new Discord.Attachment(imgurl);
 
@@ -400,7 +420,7 @@ client.on("message", async message => {
             });
 
             await Sleep(5000);
-            const del = new PythonShell('imageplotting/deleteImage.py', { mode: "text" });
+            const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
 
             del.send(imgurl);
             del.end((err, code, signal) => {
@@ -410,10 +430,15 @@ client.on("message", async message => {
 
         pyshell.end((err, code, signal) => {
             if (err) throw err;
-        });*/
-        let p = new PythonShell("x.py");
-        p.on("message", console.log);
+        });
     }
+
+    else if (command === "settax")
+        settax(message, args);
+
+    //.start-giveaway <amount> <currency> <winners> <ending>
+    else if (command === "start-giveaway")
+        startGiveaway(message, args, client);
 });
 
 client.login(config.token);
