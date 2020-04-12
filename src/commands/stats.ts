@@ -1,5 +1,5 @@
 import { MessageEmbed, User, Message, Client } from "discord.js";
-import { getUser } from "../utils/databasehandler";
+import { getUser, updateValueForUser } from "../utils/databasehandler";
 import { user } from "../utils/interfaces";
 import { properties } from "../static/config.json";
 import "../utils/utils";
@@ -61,7 +61,10 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
         if (user.upgrades.population.includes("MS")) r.push("More Soldiers");
         if (user.upgrades.population.includes("US")) r.push("US");
     }
-    if (user.resources.food == null) user.resources.food = 0;
+    if (!user.resources.food){
+        updateValueForUser(user._id, "food", 0, "$set");
+        user.resources.food = 0;
+    } 
     const pf = user.upgrades.pf;
     message.channel.send({
         embed: {

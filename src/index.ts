@@ -42,11 +42,10 @@ const app = express();
 app.use(express.static('public'));
 var server = require('http').createServer(app);
 
-
 const client = new Discord.Client();
 
-app.get('/', (request: any, response: { sendFile: (arg0: string) => void; }) => {
-    response.sendFile(__dirname + '/views/index.html');
+app.get('/', (request: any, response: { sendFile: (arg0: string, arg1: { root: string; }) => void; }) => {
+    response.sendFile("index.html", {root: __dirname})
 });
 
 const listener = app.listen(process.env.PORT, () => {
@@ -82,6 +81,7 @@ console.log("My prefix is", config.prefix);
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
     client.user.setActivity(`.help | Now with voting streaks!`);
+
     await connectToDB();
     let c: configDB = await getConfig();
     const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];

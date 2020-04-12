@@ -40,7 +40,7 @@ export async function buy(message: Message, args: string[]) {
         if (isNaN(<any>amount) || typeof amount == "undefined") amount = 1;
         if (user.money >= amount * 20000) {
             updateValueForUser(message.author.id, "money", -20000 * amount, "$inc");
-            updateValueForUser(message.author.id, "food", amount * 50000, "$inc");
+            updateValueForUser(message.author.id, "food", Math.floor(amount * 50000), "$inc");
             return message.reply(`you successfully bought ${(amount * 50000).commafy()} food for your population.`);
         }
         return message.reply("you don't have enough money.");

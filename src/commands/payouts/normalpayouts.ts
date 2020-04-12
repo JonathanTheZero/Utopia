@@ -22,10 +22,10 @@ export async function payoutLoop(client: Client) {
             updateValueForUser(u._id, "population", 200000, "$inc");
         if (u.upgrades.population.includes("US"))
             updateValueForUser(u._id, "population", 750000, "$inc");
-        updateValueForUser(u._id, "food", u.upgrades.pf.nf * 500000, "$inc");
-        updateValueForUser(u._id, "food", u.upgrades.pf.sf * 1000000, "$inc");
-        updateValueForUser(u._id, "food", u.upgrades.pf.sef * 5000000, "$inc");
-        updateValueForUser(u._id, "food", u.upgrades.pf.if * 10000000, "$inc");
+        updateValueForUser(u._id, "food", Math.floor(u.upgrades.pf.nf * 500000), "$inc");
+        updateValueForUser(u._id, "food", Math.floor(u.upgrades.pf.sf * 1000000), "$inc");
+        updateValueForUser(u._id, "food", Math.floor(u.upgrades.pf.sef * 5000000), "$inc");
+        updateValueForUser(u._id, "food", Math.floor(u.upgrades.pf.if * 10000000), "$inc");
 
         if (u.payoutDMs) {
             try {
@@ -35,7 +35,7 @@ export async function payoutLoop(client: Client) {
                 console.log(e + "\n" + u.tag);
             }
         }
-        if (u.resources.food == null) updateValueForUser(u._id, "food", 0, "$set")
+        if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set")
     }
     (payoutChannel as TextChannel).send({
         embed: {
@@ -74,7 +74,7 @@ export async function payoutLoop(client: Client) {
                 updateValueForUser(c, "food", alliance.upgrades.mf * 250000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
             }
             updateValueForUser(alliance.leader._id, "food", alliance.upgrades.mf * 500000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
-            if(alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", alliance.upgrades.mf * 500000, "$inc");
+            if(alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor(alliance.upgrades.mf * 500000), "$inc");
         }
     }
     //payoutChannel.send("You have succesfully gained food from your alliance upgrades!");

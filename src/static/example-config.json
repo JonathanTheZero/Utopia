@@ -1,19 +1,14 @@
 {
-    "token": "",
+    "token": "your-bot-token-here",
     "dbl": {
       "token": "",
       "auth": "",
       "url": ""
     },
     "prefix": ".",
-    "lastPayout": 0,
-    "lastPopulationWorkPayout": 0,
     "payoutChannel": "your-channel-id-here",
     "botAdmins": [
-      "393137628083388400",
-      "595752455409762300",
-      "369134296230920200",
-      "399565348136812540"
+      "IDs of users who should be able to use admin commands here"
     ],
     "properties": {
       "inviteLink": "https://discordapp.com/oauth2/authorize?client_id=619909215997394955&permissions=8&scope=bot",
@@ -23,5 +18,6 @@
       },
       "embedColor": "0x80a0ff"
     },
-    "serverInvite": "https://discord.gg/d24gpB6"
+    "serverInvite": "https://discord.gg/d24gpB6",
+    "mongoQuery": "your-monogdb-query-here"
   }

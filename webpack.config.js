@@ -1,17 +1,7 @@
 const path = require('path');
-//const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
-    /*plugins: [
-        new CopyWebpackPlugin(
-            [
-                {
-                    from: 'static'
-                }
-            ]
-        )
-    ],*/
     module: {
         rules: [
             {
@@ -32,7 +22,14 @@ module.exports = {
             '.jsx',
             '.js',
             '.json'
-        ]
+        ],
+        alias: {
+            [path.resolve(__dirname, "src/static/config.json")]:
+                path.resolve(
+                    __dirname, 
+                    "src/static/config.prod.json"
+                )
+        }
     },
     output: {
         filename: 'bundle.js',

@@ -58,7 +58,7 @@ export async function populationWorkLoop(client: Client) {
             }
         }
         else {
-            updateValueForUser(u._id, "food", -consumption, "$inc");
+            updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         }
         if (u.payoutDMs) {
             try {
@@ -66,7 +66,7 @@ export async function populationWorkLoop(client: Client) {
             }
             catch { }
         }
-        if (u.resources.food == null) updateValueForUser(u._id, "food", 0, "$set");
+        if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }
 
     (payoutChannel as TextChannel).send({

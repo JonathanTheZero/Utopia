@@ -17,7 +17,7 @@ export async function add(message: Message, args: string[]) {
         message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
     }
     else if (["food", "f"].includes(args[0])) {
-        updateValueForUser(user._id, "food", a, "$inc");
+        updateValueForUser(user._id, "food", Math.floor(a), "$inc");
         message.reply("Succesfully added " + a.commafy() + " " + `food to ${message.mentions.users.first()} balance.`);
     }
     else if (["population", "p"].includes(args[0])) {
