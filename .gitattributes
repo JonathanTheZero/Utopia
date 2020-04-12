@@ -1,3 +1,1 @@
-dist/*.js linguist-generated
-dist/*.d.ts linguist-generated
-dist/*.ts linguist-generated
+dist/* linguist-generated
