@@ -54,6 +54,7 @@ export interface configDB {
     _id: 1;
     lastPayout: number;
     lastPopulationWorkPayout: number;
+    commandsRun: number;
 }
 
 export interface giveaway {
@@ -66,8 +67,13 @@ export interface giveaway {
     priceCur: string,
     endingAt: number,
     embedId: string,
-    users: User[]; 
-  }
+    users: User[];
+}
+
+export interface server {
+    _id: string;
+    prefix: string;
+}
 
 export type updateUserQuery = "tag"
     | "money"
@@ -82,6 +88,7 @@ export type updateUserQuery = "tag"
     | "lastCrime"
     | "lastVoted"
     | "votingStreak";
+    
 export type updateAllianceQuery = "name"
     | "level"
     | "public"

@@ -100,6 +100,10 @@ export const generalHelpMenu = {
         {
             name: "`.payout [mention]`",
             value: "See how many ressources you or another user will receive during the next payout"
+        },
+        {
+            name: "`.delete`",
+            value: "Delete your account"
         }
     ],
     timestamp: new Date(),
@@ -206,6 +210,10 @@ export const miscHelpMenu = {
         {
             name: "`.statistics`",
             value: "View some statistics about the bot"
+        },
+        {
+            name: "`.delete`",
+            value: "Delete your account"
         }
     ],
     timestamp: new Date(),
@@ -260,14 +268,14 @@ export const guideEmbed = {
         },
         {
             name: "**Alliances**",
-            value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." + 
+            value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." +
                 "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
                 "There's also an option to create your own alliance for 250k using `.createalliance <name>`. " +
                 "You can learn how to manage it by saying `.help a`."
         },
         {
             name: "**Battles** (Note: battles have been temporarily removed but they will return!)",
-            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" + 
+            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" +
                 "-Infantry: 50 coins per regiment to create and 20 food per regiment per round to feed. Has 30 Def and 25 Atk.\n" +
                 "-Infantry: 100 coins per regiment to create and 300 food per regiment per round to feed. 25 HP, 15 Def and 15 Atk.\n" +
                 "-Artillery: 1000 coins per regiment to create and 500 food per regiment per round to feed. 50 HP, 30 Def and 25 Atk.\n" +

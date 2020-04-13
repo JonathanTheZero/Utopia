@@ -9,7 +9,8 @@ const dbName = "mydb";
 const config: configDB = {
     _id: 1,
     lastPayout: 0,
-    lastPopulationWorkPayout: 0
+    lastPopulationWorkPayout: 0,
+    commandsRun: 0
 };
 
 export async function addUsers(newUsers: user[]): Promise<void> {
@@ -140,6 +141,12 @@ export async function getGiveaway(_id: string): Promise<giveaway> {
 
 export async function deleteGiveaway(_id: string) {
     client.db(dbName).collection("giveaways").deleteOne({ _id });
+}
+
+export async function addCR(): Promise<void> {
+    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $inc: { commandsRun: 1 } }, err => {
+        if (err) throw err;
+    });
 }
 
 export async function connectToDB(): Promise<void> {

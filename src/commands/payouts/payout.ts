@@ -1,9 +1,9 @@
 import { Message } from "discord.js";
-import { getBaseLog } from "../utils/utils";
-import "../utils/utils";
-import { getUser, getAlliance } from "../utils/databasehandler";
-import { user, alliance } from "../utils/interfaces";
-import * as config from "../static/config.json";
+import { getBaseLog } from "../../utils/utils";
+import "../../utils/utils";
+import { getUser, getAlliance } from "../../utils/databasehandler";
+import { user, alliance } from "../../utils/interfaces";
+import * as config from "../../static/config.json";
 
 export async function payout(message: Message, args: string[]) {
     var user: user;

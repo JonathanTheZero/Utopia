@@ -1,42 +1,27 @@
+declare var require: (path: string) => any;
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
+import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig, getGiveaways } from "./utils/databasehandler";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig, getGiveaways, addCR } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
-import { kick } from "./commands/moderation/yeet";
-import { ban } from "./commands/moderation/ban";
-import { purge } from "./commands/moderation/purge";
 import { user, configDB, giveaway } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
 import { buy } from "./commands/buy";
-import { payout, alliancePayout } from "./commands/payouts";
 import { kill } from "./commands/populations";
-import { add } from "./commands/moderation/add";
 import { send, deposit } from "./commands/send";
-import { joinAlliance } from "./commands/alliances/join";
-import { leaveAlliance } from "./commands/alliances/leave";
-import { promote } from "./commands/alliances/promote";
-import { demote } from "./commands/alliances/demote";
-import { toggleStatus } from "./commands/alliances/setpublic";
-import { upgradeAlliance } from "./commands/alliances/upgrade";
-import { invite } from "./commands/alliances/invite";
-import { fire } from "./commands/alliances/fire";
-import { allianceOverview } from "./commands/alliances/overview";
 import { work, crime } from "./commands/work";
 import { Sleep } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
-import { PythonShell } from "python-shell";
-import { payoutLoop } from "./commands/payouts/normalpayouts";
-import { populationWorkLoop } from "./commands/payouts/workpayout";
-import { settax } from "./commands/alliances/tax";
-import { allianceMembers } from "./commands/alliances/members";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
-import { set } from "./commands/moderation/set";
+import { set, add, ban, purge, kick } from "./commands/moderation";
+import { joinAlliance, leaveAlliance, promote, demote, toggleStatus, upgradeAlliance, invite, fire, allianceMembers, settax, allianceOverview } from "./commands/alliances";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
 
 const express = require('express');
 const app = express();
@@ -69,7 +54,7 @@ if (config.dbl) {
         else {
             updateValueForUser(user._id, "votingStreak", 1, "$set");
         }
-        updateValueForUser(user._id, "lastVoted", Date.now() / 1000);
+        updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
     });
 }
@@ -112,6 +97,8 @@ client.on("message", async message => {
     var args: Array<string> = message.content.slice(config.prefix.length).trim().split(/ +/g);
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
+
+    addCR(); //increase commands run count by one
 
     if (command === "ping") {
         const m = await message.channel.send("Ping?") as Discord.Message;
@@ -235,6 +222,8 @@ client.on("message", async message => {
         deposit(message, args);
 
     else if (command === "delete") {
+        const user: user = await getUser(message.author.id);
+        if (user.alliance != null) return message.reply("You are still member of an alliance, please leave it before deleting your account");
         deleteUser(message.author.id);
         return message.reply("you have successfully deleted your account!");
     }
@@ -374,26 +363,29 @@ client.on("message", async message => {
         crime(message, client);
 
     else if (command === "statistics") {
+        const conf: configDB = await getConfig();
         message.channel.send({
             embed: {
                 title: "Utopia statistics",
                 color: parseInt(config.properties.embedColor),
-                fields: [{
-                    name: "Servers:",
-                    value: `Currently I am active on ${client.guilds.size} servers`
-                },
-                {
-                    name: "Users:",
-                    value: `Currently I have ${client.users.size} users.`
-                },
-                /*{
-                    name: "Commands run:",
-                    value: `I already executed ${data.commandsRun.commafy()} commands.`
-                },*/
-                {
-                    name: "Registered accounts:",
-                    value: `${(await getAllUsers()).length} users already created an account!`
-                }],
+                fields: [
+                    {
+                        name: "Servers:",
+                        value: `Currently I am active on ${client.guilds.size} servers`
+                    },
+                    {
+                        name: "Users:",
+                        value: `Currently I have ${client.users.size} users.`
+                    },
+                    {
+                        name: "Commands run:",
+                        value: `I already executed ${conf.commandsRun.commafy()} commands.`
+                    },
+                    {
+                        name: "Registered accounts:",
+                        value: `${(await getAllUsers()).length} users already created an account!`
+                    }
+                ],
                 footer: config.properties.footer,
                 timestamp: new Date()
             }

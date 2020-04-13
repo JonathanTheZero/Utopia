@@ -15,3 +15,7 @@ export async function demote(author: user, member: user): Promise<string> {
         return `Succesfully demoted ${member.tag} from Co-Leader to **Member**`;
     }
 }
+
+function test(){
+    console.log(false)
+}
