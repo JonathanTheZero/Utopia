@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+    mode: 'production',
     entry: './src/index.ts',
     module: {
         rules: [
@@ -24,19 +25,27 @@ module.exports = {
             '.json'
         ],
         alias: {
-            [path.resolve(__dirname, "src/static/config.json")]:
+            [
                 path.resolve(
                     __dirname, 
-                    "src/static/config.prod.json"
+                    'src/static/config.json'
+                )
+            ]:
+                path.resolve(
+                    __dirname,
+                    'src/static/config.prod.json'
                 )
         }
     },
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, './dist/'),
+        path: path.resolve(
+            __dirname, 
+            './dist/'
+        ),
         libraryTarget: 'commonjs',
     },
-    target: "node",
+    target: 'node',
     externals: [
         /^(?!\.|\/).+/i,
     ],

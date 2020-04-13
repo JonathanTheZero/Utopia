@@ -12,7 +12,7 @@ export async function populationWorkLoop(client: Client) {
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
         if (consumption > u.resources.food) {
             try {
-                client.users.get(u._id)?.send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
+                client.users.get(u._id)!.send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
             }
             catch (e) {
                 console.log(e + `\n${u.tag}`);
@@ -39,6 +39,7 @@ export async function populationWorkLoop(client: Client) {
             updateValueForUser(u._id, "money", money, "$inc");
         }
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+        if(!consumption) continue;
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;
             updateValueForUser(u._id, "food", 0, "$set");

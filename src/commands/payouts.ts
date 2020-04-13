@@ -52,7 +52,7 @@ export async function payout(message: Message, args: string[]) {
         }
     }
 
-    var u = 0;
+    var u: number = 0;
     if (user.upgrades.pf.nf > 0) {
         u += (user.upgrades.pf.nf * 500000);
     }
@@ -91,7 +91,7 @@ export async function payout(message: Message, args: string[]) {
                 },
                 {
                     name: "How much will your population consume next payout?",
-                    value: Math.floor(user.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, user.resources.population))))).commafy()
+                    value: Math.floor(user.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, user.resources.population))))).commafy() || 0
                 }
             ],
             footer: config.properties.footer,
@@ -107,12 +107,7 @@ export async function alliancePayout(message: Message, args: string[]) {
         user = await getUser(message.author.id);
     }
     else {
-        try {
-            user = await getUser(message.mentions.users.first().id);
-        }
-        catch {
-            user = await getUser(args[0]);
-        }
+        user = await getUser(message.mentions?.users?.first()?.id  || args[0]);
     }
 
     if (!user) {
@@ -138,9 +133,9 @@ export async function alliancePayout(message: Message, args: string[]) {
     total[1] = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
         alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
         alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
-    total[2] = Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-        Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-        Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+    total[2] = Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)) +
+        Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)) + 
+        Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1));
     if (alliance.coLeaders.length == 0) {
         total[0] += alliance.upgrades.af * 15000 +
             alliance.upgrades.pf * 100000 +
@@ -149,7 +144,6 @@ export async function alliancePayout(message: Message, args: string[]) {
     }
 
     if (alliance.members.length === 0) {
-        total[0] += total[2];
         total[2] = 0;
     }
 

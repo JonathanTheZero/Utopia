@@ -1,9 +1,6 @@
 # Utopia Rewrite
 
-Bla bla some text
-Rewrite is done with TypeScript
-
-It's deployed using Webpack to bundle the files (tsc can be used as well, tsconfig is present)
+Complete rewrite of the Utopia Bot using MongoDB and TypeScript (instead of JSON files and JavaScript... hell, that was a mess).
 
 ## Get your copy to work
 
@@ -26,11 +23,12 @@ You have two options when compiling the code:
 
 * Use webpack and generate one bundled up file, which contains all the code 
   (hard to debug runtime errors, so I suggest not using that, this is for me when deploying the app).
-  In order to use that, simply run `webpack && node dist/bundle.js`.
-  Another thing have to do first is create a second config file called `config.prod.json` in the same folder as `config.json` first.
+  Befor you compile it, you need to create a second config file called `config.prod.json` in the same folder as `config.json` first.
   For testing you can just paste the data of your `config.json` in the `config.prod.json`.
+  After you have done that, you can compile and run the project using `webpack && node dist/bundle.js`.
 
 * Use the default TypeScript compiler: This will compile each TypeScript file to a corresponding JavaScript file 
   (and a definition file `*.d.ts` but you can ignore these).
   This should not be used during production but makes it much easier to debug when testing.
-  In order to get that, run `tsc && node dist/index.js`.
+  In order to get that, run `tsc && node dist/index.js`.<br />
+  **Note:** When debugging, the errors will be thrown in the JavaScript files so you have to look there and afterwards edit the TypeScript files
