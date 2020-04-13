@@ -5,7 +5,7 @@ import { getUser, updateValueForUser } from "../../utils/databasehandler";
 import "../../utils/utils";
 
 export async function add(message: Message, args: string[]) {
-    //if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+    if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     if (!args[2]) return message.reply("please supply valid parameters following the syntax `.add <type> <mention/ID> <amount>`.");
     let user: user = await getUser(message.mentions.users.first().id);
 

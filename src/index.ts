@@ -36,6 +36,7 @@ import { populationWorkLoop } from "./commands/payouts/workpayout";
 import { settax } from "./commands/alliances/tax";
 import { allianceMembers } from "./commands/alliances/members";
 import { startGiveaway } from "./commands/giveaways";
+import { set } from "./commands/moderation/set";
 
 const express = require('express');
 const app = express();
@@ -44,8 +45,8 @@ var server = require('http').createServer(app);
 
 const client = new Discord.Client();
 
-app.get('/', (request: any, response: { sendFile: (arg0: string, arg1: { root: string; }) => void; }) => {
-    response.sendFile("index.html", {root: __dirname})
+app.get('/', (request: any, response: any) => {
+    response.sendFile(__dirname + "/index.html")
 });
 
 const listener = app.listen(process.env.PORT, () => {
@@ -220,6 +221,9 @@ client.on("message", async message => {
 
     else if (command === "add")
         add(message, args);
+
+    else if(command === "set")
+        set(message, args);
 
     else if (command === "send")
         send(message, args);

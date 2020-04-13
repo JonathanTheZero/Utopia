@@ -40,4 +40,8 @@ module.exports = {
     externals: [
         /^(?!\.|\/).+/i,
     ],
+    node: {
+        __dirname: false,
+        __filename: false
+    }
 };
