@@ -14,14 +14,17 @@ export async function set(message: Message, args: string[]) {
     if (a == null) return message.reply("this isn't a valid amount.");
     if (["money", "m"].includes(args[0])) {
         updateValueForUser(user._id, "money", a, "$set");
-        return message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
+        return message.reply(`Succesfully set the money of ${message.mentions.users.first()} to ${a.commafy()}`);
     }
     else if (["food", "f"].includes(args[0])) {
         updateValueForUser(user._id, "food", Math.floor(a), "$set");
-        return message.reply("Succesfully added " + a.commafy() + " " + `food to ${message.mentions.users.first()} balance.`);
+        return message.reply(`Succesfully set food population of ${message.mentions.users.first()} to ${a.commafy()}`);
     }
     else if (["population", "p"].includes(args[0])) {
         updateValueForUser(user._id, "population", a, "$set");
-        return message.reply("Succesfully added " + a.commafy() + " " + `population to ${message.mentions.users.first()} balance.`);
+        return message.reply(`Succesfully set the population of ${message.mentions.users.first()} to ${a.commafy()}`);
+    }
+    else {
+        return message.reply("the only types allowed are 'food', 'money' and 'population'");
     }
 }

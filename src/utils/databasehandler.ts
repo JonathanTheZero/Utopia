@@ -35,32 +35,12 @@ export async function updateValueForUser(_id: string, mode: "allianceRank", newV
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (mode === "money")
-        newQuery = { [updateMode]: { money: <number>newValue } };
-    else if (mode === "allianceRank")
-        newQuery = { $set: { allianceRank: <string>newValue } };
-    else if (mode === "alliance")
-        newQuery = { $set: { alliance: <string>newValue } };
+    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak"].includes(mode))
+        newQuery = { [updateMode]: { [mode]: newValue } };
     else if (mode === "food")
         newQuery = { [updateMode]: { "resources.food": <number>newValue } };
-    else if (mode === "autoping")
-        newQuery = { $set: { autoping: <boolean>newValue } };
-    else if (mode === "loan")
-        newQuery = { [updateMode]: { loan: <number>newValue } };
     else if (mode === "population")
         newQuery = { [updateMode]: { "resources.population": <number>newValue } };
-    else if (mode === "tag")
-        newQuery = { $set: { tag: <string>newValue } };
-    else if (mode === "payoutDMs")
-        newQuery = { $set: { payoutDMs: <boolean>newValue } };
-    else if (mode === "lastCrime")
-        newQuery = { $set: { lastCrime: <number>newValue } };
-    else if (mode === "lastWorked")
-        newQuery = { $set: { lastWorked: <number>newValue } };
-    else if (mode === "lastVoted")
-        newQuery = { $set: { lastWorked: <number>newValue } };
-    else if (mode === "votingStreak")
-        newQuery = { [updateMode]: { votingStreak: <number>newValue } };
     else
         throw new Error("Invalid parameter passed");
 
@@ -75,20 +55,10 @@ export async function updateValueForAlliance(name: string, mode: "public", newVa
 export async function updateValueForAlliance(name: string, mode: "name", newValue: string): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: updateAllianceQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (mode === "money")
-        newQuery = { [updateMode]: { money: <number>newValue } };
-    else if (mode === "level")
-        newQuery = { [updateMode]: { level: <number>newValue } };
-    else if (mode === "public")
-        newQuery = { $set: { public: <boolean>newValue } };
-    else if (mode === "name")
-        newQuery = { $set: { name: <string>newValue } };
-    else if (mode === "tax")
-        newQuery = { $set: { tax: <number>newValue } };
+    if (["money", "level", "public", "name", "tax"].includes(mode))
+        newQuery = { [updateMode]: { [mode]: newValue } };
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
-    else if (mode === "tax")
-        newQuery = { $set: { tax: <number>newValue } };
 
     client.db(dbName).collection("alliances").updateOne({ name }, newQuery, err => {
         if (err) throw err;
@@ -186,6 +156,5 @@ export async function connectToDB(): Promise<void> {
             }
             resolve();
         });
-    })
-
+    });
 }

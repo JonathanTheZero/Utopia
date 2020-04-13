@@ -4,12 +4,12 @@ const DBL = require("dblapi.js");
 import "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig } from "./utils/databasehandler";
+import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig, getGiveaways } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { kick } from "./commands/moderation/yeet";
 import { ban } from "./commands/moderation/ban";
 import { purge } from "./commands/moderation/purge";
-import { user, configDB } from "./utils/interfaces";
+import { user, configDB, giveaway } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -35,7 +35,7 @@ import { payoutLoop } from "./commands/payouts/normalpayouts";
 import { populationWorkLoop } from "./commands/payouts/workpayout";
 import { settax } from "./commands/alliances/tax";
 import { allianceMembers } from "./commands/alliances/members";
-import { startGiveaway } from "./commands/giveaways";
+import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set } from "./commands/moderation/set";
 
 const express = require('express');
@@ -58,17 +58,16 @@ if (config.dbl) {
         webhookServer: listener,
         webhookAuth: config.dbl.auth
     }, client);
+
     dbl.webhook.on('ready', (hook: { hostname: any; port: any; path: any; }) => console.log(`Webhook running at http://${hook.hostname}:${hook.port}${hook.path}`));
 
     dbl.webhook.on('vote', async (vote: { user: string }) => {
         let user: user = await getUser(vote.user);
         if ((Date.now() / 1000 - user.lastVoted) <= 86400) {
             updateValueForUser(user._id, "votingStreak", 1, "$inc");
-            user.votingStreak++;
         }
         else {
             updateValueForUser(user._id, "votingStreak", 1, "$set");
-            user.votingStreak = 1;
         }
         updateValueForUser(user._id, "lastVoted", Date.now() / 1000);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
@@ -88,6 +87,10 @@ client.on("ready", async () => {
     const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
     setTimeout(() => populationWorkLoop(client), ((39600 - tdiff2) * 1000));
+    const giveaways: giveaway[] = await getGiveaways();
+    for (const g of giveaways) {
+        giveawayCheck(g._id, client);
+    }
 });
 
 
@@ -222,7 +225,7 @@ client.on("message", async message => {
     else if (command === "add")
         add(message, args);
 
-    else if(command === "set")
+    else if (command === "set")
         set(message, args);
 
     else if (command === "send")

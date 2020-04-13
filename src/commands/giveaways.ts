@@ -73,7 +73,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     });
 }
 
-async function giveawayCheck(_id: string, client: Client) {
+export async function giveawayCheck(_id: string, client: Client) {
     let giveaway: giveaway = await getGiveaway(_id);
     if (!giveaway) return;
     const channel = <TextChannel>client.channels.get(giveaway.channelid)!;
