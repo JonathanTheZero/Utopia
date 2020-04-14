@@ -14,7 +14,8 @@ export function createUser(message: Message): user {
         allianceRank: null,
         resources: {
             food: 10000,
-            population: 1000
+            population: 1000,
+            steel: 1000
         },
         upgrades: {
             population: [],

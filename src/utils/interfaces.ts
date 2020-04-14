@@ -13,6 +13,7 @@ export interface user {
     resources: {
         food: number;
         population: number;
+        steel: number;
     },
     upgrades: {
         population: string[];
@@ -88,7 +89,8 @@ export type updateUserQuery = "tag"
     | "lastWorked"
     | "lastCrime"
     | "lastVoted"
-    | "votingStreak";
+    | "votingStreak"
+    | "steel";
     
 export type updateAllianceQuery = "name"
     | "level"

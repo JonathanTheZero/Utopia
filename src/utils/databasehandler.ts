@@ -13,6 +13,8 @@ const config: configDB = {
     commandsRun: 0
 };
 
+export let connected: boolean = false;
+
 export async function addUsers(newUsers: user[]): Promise<void> {
     if (!newUsers || newUsers.length === 0) return;
     let result = await client.db(dbName).collection("users").insertMany(newUsers);
@@ -27,7 +29,7 @@ export async function getAlliance(name: string): Promise<alliance | null> {
     return await client.db(dbName).collection("alliances").findOne({ name });
 }
 
-export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan" | "steel", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastWorked" | "lastVoted", newValue: number): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
@@ -41,6 +43,8 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
         newQuery = { [updateMode]: { "resources.food": <number>newValue } };
     else if (mode === "population")
         newQuery = { [updateMode]: { "resources.population": <number>newValue } };
+    else if(mode === "steel")
+        newQuery = { [updateMode] : { "resources.steel": <number>newValue}};
     else
         throw new Error("Invalid parameter passed");
 
@@ -185,6 +189,7 @@ export async function connectToDB(): Promise<void> {
             if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
                 client.db(dbName).collection("config").insertOne(config);
             }
+            connected = true;
             resolve();
         });
     });

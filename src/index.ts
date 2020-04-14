@@ -24,6 +24,7 @@ import {
     updatePrefix,
     addServer,
     deleteServer,
+    connected,
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { user, configDB, giveaway, server } from "./utils/interfaces";
@@ -50,6 +51,7 @@ import {
     allianceMembers,
     settax,
     allianceOverview,
+    renameAlliance,
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
 
@@ -118,11 +120,12 @@ client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    addServer({
-        _id: guild.id,
-        name: guild.name,
-        prefix: "."
-    });
+    if(connected) 
+        addServer({
+            _id: guild.id,
+            name: guild.name,
+            prefix: "."
+        });
 });
 
 
@@ -130,7 +133,7 @@ client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    deleteServer(guild.id);
+    if(connected) deleteServer(guild.id);
 });
 
 
@@ -334,6 +337,19 @@ client.on("message", async message => {
         if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
         if (user.allianceRank != "L") return message.reply("only the leader can fire members.");
         return message.reply(await fire(user.alliance as string, user, member));
+    }
+
+    else if(command === "renamealliance" || command === "rename"){
+        let user = await getUser(message.author.id);
+        if(!user)
+          return message.reply("you haven't created an account yet, please use the `create` command.");
+        else if(user.allianceRank == "M"){
+          return message.reply("only Co-Leaders and the Leader can use this command!");
+        }
+        else if(user.alliance == null){
+          return message.reply("you haven't joined an alliance yet!");
+        }
+        return message.reply(renameAlliance(message, args));
     }
 
     else if (command === "alliance")

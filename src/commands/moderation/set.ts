@@ -24,7 +24,9 @@ export async function set(message: Message, args: string[]) {
         updateValueForUser(user._id, "population", a, "$set");
         return message.reply(`Succesfully set the population of ${message.mentions.users.first()} to ${a.commafy()}`);
     }
-    else {
-        return message.reply("the only types allowed are 'food', 'money' and 'population'");
+    else if (["steel", "p"].includes(args[0])) {
+        updateValueForUser(user._id, "steel", a, "$set");
+        return message.reply(`Succesfully set the steel of ${message.mentions.users.first()} to ${a.commafy()}`);
     }
+    return message.reply("the only types allowed are 'food', 'money', 'steel' and 'population'");
 }
