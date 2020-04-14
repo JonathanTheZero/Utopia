@@ -72,6 +72,7 @@ export interface giveaway {
 
 export interface server {
     _id: string;
+    name: string;
     prefix: string;
 }
 

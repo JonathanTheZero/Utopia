@@ -104,6 +104,10 @@ export const generalHelpMenu = {
         {
             name: "`.delete`",
             value: "Delete your account"
+        },
+        {
+            name: "`.set-prefix`",
+            value: "Change the prefix of the bot (server admins only)"
         }
     ],
     timestamp: new Date(),
@@ -212,6 +216,10 @@ export const miscHelpMenu = {
             value: "View some statistics about the bot"
         },
         {
+            name: "`.set-prefix`",
+            value: "Change the prefix of the bot (server admins only)"
+        },
+        {
             name: "`.delete`",
             value: "Delete your account"
         }
@@ -222,7 +230,7 @@ export const miscHelpMenu = {
 
 export const modHelpMenu = {
     color: parseInt(properties.embedColor),
-    title: "Moderation help",
+    title: "Moderation help and Set-up",
     description: "The bot role needs to be ranked above the roles of the other users in order for these commands to work.",
     fields: [
         {
@@ -236,6 +244,10 @@ export const modHelpMenu = {
         {
             name: "`.purge <amount>`",
             value: "Delete a specific amount of messages (up to 100 at the same time).",
+        },
+        {
+            name: "`.set-prefix`",
+            value: "Change the prefix of the bot (server admins only)"
         }
     ],
     timestamp: new Date(),
@@ -253,8 +265,9 @@ export const guideEmbed = {
         },
         {
             name: "**Earning money**",
-            value: "Every 30 minutes you can do `.work`, which gives you up to 10,000 money. " +
-                "`.crime` has 5% to give you 50,000+ money but you can also lose up to 2% of your balance. " +
+            value: "Every 30 minutes you can do `.work`, which is the base source of income. " +
+                "You can get between 0 and (10,000 + `population`/1,000) coins from working." +
+                "`.crime` has a 7% chance to give you 50,000+ money but you can also lose up to 2% of your balance. " +
                 "If you're feeling lucky, you can also gamble by saying `.bet <amount>/a`. You have 50% to earn double your bet and 50% to lose it. To see how much money you have, say `.stats`."
         },
         {

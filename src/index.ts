@@ -1,4 +1,5 @@
 declare var require: (path: string) => any;
+
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
@@ -6,9 +7,26 @@ const DBL = require("dblapi.js");
 import "./utils/utils";
 import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
-import { addUsers, getUser, connectToDB, addAlliance, updateValueForUser, deleteUser, getAllUsers, getConfig, getGiveaways, addCR } from "./utils/databasehandler";
+import {
+    addUsers,
+    getUser,
+    connectToDB,
+    addAlliance,
+    updateValueForUser,
+    deleteUser,
+    getAllUsers,
+    getConfig,
+    getGiveaways,
+    addCR,
+    getServers,
+    updateServer,
+    getServer,
+    updatePrefix,
+    addServer,
+    deleteServer,
+} from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
-import { user, configDB, giveaway } from "./utils/interfaces";
+import { user, configDB, giveaway, server } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -20,7 +38,19 @@ import { Sleep } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick } from "./commands/moderation";
-import { joinAlliance, leaveAlliance, promote, demote, toggleStatus, upgradeAlliance, invite, fire, allianceMembers, settax, allianceOverview } from "./commands/alliances";
+import {
+    joinAlliance,
+    leaveAlliance,
+    promote,
+    demote,
+    toggleStatus,
+    upgradeAlliance,
+    invite,
+    fire,
+    allianceMembers,
+    settax,
+    allianceOverview,
+} from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
 
 const express = require('express');
@@ -48,26 +78,31 @@ if (config.dbl) {
 
     dbl.webhook.on('vote', async (vote: { user: string }) => {
         let user: user = await getUser(vote.user);
-        if ((Date.now() / 1000 - user.lastVoted) <= 86400) {
-            updateValueForUser(user._id, "votingStreak", 1, "$inc");
-        }
-        else {
-            updateValueForUser(user._id, "votingStreak", 1, "$set");
-        }
+        updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 86400 ? "$inc" : "$set");
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
+        user = await getUser(vote.user);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
     });
 }
 
 
-
-console.log("My prefix is", config.prefix);
+console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
     client.user.setActivity(`.help | Now with voting streaks!`);
 
     await connectToDB();
+    getServers().then(server => {
+        if (server.length < client.guilds.array().length)
+            client.guilds.array().forEach(async (el) => {
+                updateServer({
+                    _id: el.id,
+                    name: el.name,
+                    prefix: (await getServer(el.id))?.prefix || "."
+                }, true);
+            });
+    });
     let c: configDB = await getConfig();
     const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
@@ -82,19 +117,28 @@ client.on("ready", async () => {
 client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+
+    addServer({
+        _id: guild.id,
+        name: guild.name,
+        prefix: "."
+    });
 });
 
 
 client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+
+    deleteServer(guild.id);
 });
 
 
 client.on("message", async message => {
-    if (message.content.indexOf(config.prefix) !== 0 || message.author.bot) return;
+    const prefix = (await getServer(message.guild.id)).prefix;
+    if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
 
-    var args: Array<string> = message.content.slice(config.prefix.length).trim().split(/ +/g);
+    var args: Array<string> = message.content.slice(prefix.length).trim().split(/ +/g);
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
 
@@ -127,7 +171,7 @@ client.on("message", async message => {
                     "You can increase your voting streak every 12h." +
                     "If you don't vote for more than 24h, you will lose your streak.\n\n" +
                     `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
-                    `You can vote again ${(u.lastVoted === 0 || Date.now() - u.lastVoted * 1000 > 43200000) ? "**now**" : "in" + new Date((43200 - (Math.floor(Date.now() / 1000) - u.lastVoted)) * 1000).toISOString().substr(11, 8)}`
+                    `You can vote again ${(u.lastVoted === 0 || Date.now() - u.lastVoted * 1000 > 43200000) ? "**now**" : "in " + new Date((43200 - (Math.floor(Date.now() / 1000) - u.lastVoted)) * 1000).toISOString().substr(11, 8)}`
             }
         });
     }
@@ -181,7 +225,7 @@ client.on("message", async message => {
         await addAlliance(createAlliance(args.join(" "), message));
         updateValueForUser(message.author.id, "alliance", args.join(" "));
         updateValueForUser(message.author.id, "allianceRank", "L");
-        message.reply("You are now the leader of " + args.join(" "));
+        return message.reply("You are now the leader of " + args.join(" "));
     }
 
     else if (command === "joinalliance" || command === "join") joinAlliance(message, args);
@@ -276,7 +320,8 @@ client.on("message", async message => {
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
+        if (typeof args[0] === 'undefined')
+            return message.reply("please supply a username with `.invite <mention/ID>`. If you are looking on how to invite me to your server, use `.invitelink`");
         if (user._id === member._id) return message.reply("you can't invite yourself!");
         if (user.allianceRank != "M") return message.reply(await invite(user.alliance as string, member));
         return message.reply("only the leader and the co-leaders can send out invites.");
@@ -438,6 +483,13 @@ client.on("message", async message => {
     //.start-giveaway <amount> <currency> <winners> <ending>
     else if (command === "start-giveaway")
         startGiveaway(message, args, client);
+
+    else if (command === "set-prefix") {
+        if (!message.member.hasPermission(["ADMINISTRATOR"], false, true, true)) return message.reply("only server admins can change the prefix!");
+        if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
+        updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
+    }
+
 });
 
 client.login(config.token);

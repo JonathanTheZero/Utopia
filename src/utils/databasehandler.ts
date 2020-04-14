@@ -1,10 +1,10 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server } from "./interfaces";
 import * as mongodb from "mongodb";
-import { mongoQuery } from "../static/config.json";
+import { db } from "../static/config.json";
 
-const url: string = mongoQuery;
+const url: string = db.mongoQuery;
 const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
-const dbName = "mydb";
+const dbName = db.name;
 
 const config: configDB = {
     _id: 1,
@@ -20,8 +20,7 @@ export async function addUsers(newUsers: user[]): Promise<void> {
 }
 
 export async function getUser(_id: string): Promise<user> {
-    let result = await client.db(dbName).collection("users").findOne({ _id });
-    return result;
+    return client.db(dbName).collection("users").findOne({ _id })!;
 }
 
 export async function getAlliance(name: string): Promise<alliance | null> {
@@ -149,6 +148,30 @@ export async function addCR(): Promise<void> {
     });
 }
 
+export async function getServers(): Promise<Array<server>> {
+    return client.db(dbName).collection("servers").find({}).toArray();
+}
+
+export async function getServer(_id: string): Promise<server> {
+    return client.db(dbName).collection("servers").findOne({ _id })!;
+}
+
+export async function addServer(server: server) {
+    client.db(dbName).collection("servers").insertOne(server);
+}
+
+export async function updateServer(server: server, upsert: boolean) {
+    client.db(dbName).collection("servers").updateOne({ _id: server._id }, { $set: server }, { upsert });
+}
+
+export async function deleteServer(_id: string) {
+    client.db(dbName).collection("servers").deleteOne({ _id });
+}
+
+export async function updatePrefix(_id: string, prefix: string) {
+    client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
+}
+
 export async function connectToDB(): Promise<void> {
     return new Promise(resolve => {
         client.connect(async err => {
@@ -158,6 +181,7 @@ export async function connectToDB(): Promise<void> {
             client.db(dbName).createCollection("users");
             client.db(dbName).createCollection("alliances");
             client.db(dbName).createCollection("giveaways");
+            client.db(dbName).createCollection("servers");
             if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
                 client.db(dbName).collection("config").insertOne(config);
             }

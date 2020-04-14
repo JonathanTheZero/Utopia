@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
 
-
 //declarations
 declare global {
     interface Number {
@@ -35,7 +34,7 @@ String.prototype.isNaN = function () {
     return isNaN(<any>this);
 }
 
-export function rangeInt(min: number, max: number) { // min and max included 
+export function rangeInt(min: number, max: number): number { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
