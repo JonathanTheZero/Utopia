@@ -25,6 +25,7 @@ import {
     addServer,
     deleteServer,
     connected,
+    findWarByUser,
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { user, configDB, giveaway, server } from "./utils/interfaces";
@@ -54,6 +55,7 @@ import {
     renameAlliance,
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
+import { startWar, mobilize } from "./commands/wars";
 
 const express = require('express');
 const app = express();
@@ -349,7 +351,7 @@ client.on("message", async message => {
         else if(user.alliance == null){
           return message.reply("you haven't joined an alliance yet!");
         }
-        return message.reply(renameAlliance(message, args));
+        return renameAlliance(message, args);
     }
 
     else if (command === "alliance")
@@ -505,6 +507,18 @@ client.on("message", async message => {
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
         updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
     }
+
+    else if(command === "start-war"){
+        if(!args[0]) return message.reply("please follow the syntax of `.start-war <mention/ID>`");
+        const u: user = await getUser(message.author.id);
+        const o: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
+        if(!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+        if(!o) return message.reply("this user hasn't created an account yet.");
+        startWar(message, u, o);
+    }
+
+    else if(command === "mobilize")
+        mobilize(message, args);
 
 });
 

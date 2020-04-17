@@ -9,14 +9,7 @@ from PIL import ImageDraw
 from io import BytesIO
 
 import config
-
-
-
-def randomString(stringLength=10):
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
-
-
+from shared import randomString
 
 #args[0]: Number of personal farms
 #args[1]: Amount of population upgrades

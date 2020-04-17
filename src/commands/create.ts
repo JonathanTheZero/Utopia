@@ -15,7 +15,8 @@ export function createUser(message: Message): user {
         resources: {
             food: 10000,
             population: 1000,
-            steel: 1000
+            steel: 1000,
+            oil: 1000,
         },
         upgrades: {
             population: [],

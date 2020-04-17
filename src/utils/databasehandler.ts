@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -29,7 +29,7 @@ export async function getAlliance(name: string): Promise<alliance | null> {
     return await client.db(dbName).collection("alliances").findOne({ name });
 }
 
-export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan" | "steel", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan" | "steel" | "oil", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastWorked" | "lastVoted", newValue: number): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
@@ -39,12 +39,10 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
-    else if (mode === "food")
-        newQuery = { [updateMode]: { "resources.food": <number>newValue } };
-    else if (mode === "population")
-        newQuery = { [updateMode]: { "resources.population": <number>newValue } };
-    else if(mode === "steel")
-        newQuery = { [updateMode] : { "resources.steel": <number>newValue}};
+    else if (["food", "population", "steel", "oil"].includes(mode)){
+        const str = "resources." + mode;
+        newQuery = { [updateMode]: { [str]: <number>newValue } };
+    }
     else
         throw new Error("Invalid parameter passed");
 
@@ -176,6 +174,29 @@ export async function updatePrefix(_id: string, prefix: string) {
     client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
 }
 
+export async function addWar(w: war) {
+    client.db(dbName).collection("wars").insertOne(w, err => {
+        if (err) throw err;
+    });
+}
+
+export async function getWar(_id: string): Promise<war> {
+    return client.db(dbName).collection("wars").findOne({ _id })!;
+}
+
+export async function deleteWar(_id: string) {
+    client.db(dbName).collection("wars").deleteOne({ _id });
+}
+
+export async function findWarByUser(_id: string): Promise<war | null> {
+    return client.db(dbName).collection("wars").findOne({
+        $or: [
+            { "p1._id": _id },
+            { "p2._id": _id }
+        ]
+    });
+}
+
 export async function connectToDB(): Promise<void> {
     return new Promise(resolve => {
         client.connect(async err => {
@@ -186,6 +207,7 @@ export async function connectToDB(): Promise<void> {
             client.db(dbName).createCollection("alliances");
             client.db(dbName).createCollection("giveaways");
             client.db(dbName).createCollection("servers");
+            client.db(dbName).createCollection("wars");
             if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
                 client.db(dbName).collection("config").insertOne(config);
             }

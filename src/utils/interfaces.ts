@@ -14,6 +14,7 @@ export interface user {
         food: number;
         population: number;
         steel: number;
+        oil: number;
     },
     upgrades: {
         population: string[];
@@ -90,11 +91,48 @@ export type updateUserQuery = "tag"
     | "lastCrime"
     | "lastVoted"
     | "votingStreak"
-    | "steel";
-    
+    | "steel"
+    | "oil";
+
 export type updateAllianceQuery = "name"
     | "level"
     | "public"
     | "leader"
     | "money"
     | "tax";
+
+export interface war {
+    _id: string;
+    p1: battlePlayer;
+    p2: battlePlayer;
+    field: Array<Array<0 | army>>
+}
+
+interface battlePlayer {
+    _id: string;
+    tag: string;
+    resources: {
+        food: battleResource;
+        money: battleResource;
+        population: battleResource;
+        steel: battleResource;
+        oil: battleResource;
+    };
+    armys: [
+        army?, 
+        army?, 
+        army?
+    ];
+}
+
+interface battleResource {
+    begin: number;
+    consumed: number;
+};
+
+export interface army {
+    if: number;
+    art: number;
+    tnk: number;
+    jet: number;
+}
