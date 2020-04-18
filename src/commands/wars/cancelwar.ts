@@ -19,4 +19,5 @@ export async function cancelWar(message: Message){
     updateValueForUser(w.p2._id, "food", -w.p2.resources.food.consumed, "$inc");
 
     await deleteWar(w._id);
+    return message.reply(`the running war between <@${w.p1._id}> and <@${w.p2._id}> has been cancelled`);
 }

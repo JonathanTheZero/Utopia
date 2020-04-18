@@ -15,6 +15,7 @@ export async function startWar(message: Message, author: user, opponent: user) {
         p1: {
             _id: author._id,
             tag: author.tag,
+            ready: false,
             resources: {
                 food: {
                     begin: author.resources.food,
@@ -37,11 +38,12 @@ export async function startWar(message: Message, author: user, opponent: user) {
                     consumed: 0
                 }
             },
-            armys: []
+            armies: []
         },
         p2: {
             _id: opponent._id,
             tag: opponent.tag,
+            ready: false,
             resources: {
                 food: {
                     begin: opponent.resources.food,
@@ -64,15 +66,15 @@ export async function startWar(message: Message, author: user, opponent: user) {
                     consumed: 0
                 }
             },
-            armys: []
+            armies: []
         },
-        field: Array(20).fill(Array(20).fill(0))
+        field: Array(15).fill(Array(15).fill(0))
     };
 
     message.channel.send({
         embed: {
             color: parseInt(config.properties.embedColor),
-            title: "Duel between " + newWar.p1.tag + " (player 1) and " + newWar.p1.tag + " (player 2).",
+            title: "Duel between " + newWar.p1.tag + " (player 1) and " + newWar.p2.tag + " (player 2).",
             description: "Please mobilize your armies now and get ready for the fight!"
         }
     });
@@ -82,7 +84,7 @@ export async function startWar(message: Message, author: user, opponent: user) {
     var imgurl: string = "-1";
     const pyshell = new PythonShell('dist/war.py', { mode: "text" });
 
-    var sendString = "2"
+    var sendString = JSON.stringify(newWar.field);
 
     pyshell.send(sendString);
 
@@ -92,13 +94,14 @@ export async function startWar(message: Message, author: user, opponent: user) {
 
         const file = new Attachment(imgurl);
 
-        message.channel.send({
+        message.channel.send("This is your battle field:").then(() => message.channel.send({
             files: [file]
-        });
+        }));
+
 
         await Sleep(5000);
-        const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
 
+        const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
         del.send(imgurl);
         del.end((err, code, signal) => {
             if (err) throw err;

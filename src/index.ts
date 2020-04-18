@@ -55,7 +55,7 @@ import {
     renameAlliance,
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
-import { startWar, mobilize } from "./commands/wars";
+import { startWar, mobilize, ready, cancelWar, armies, setPosition } from "./commands/wars";
 
 const express = require('express');
 const app = express();
@@ -122,7 +122,7 @@ client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    if(connected) 
+    if (connected)
         addServer({
             _id: guild.id,
             name: guild.name,
@@ -135,7 +135,7 @@ client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    if(connected) deleteServer(guild.id);
+    if (connected) deleteServer(guild.id);
 });
 
 
@@ -341,15 +341,15 @@ client.on("message", async message => {
         return message.reply(await fire(user.alliance as string, user, member));
     }
 
-    else if(command === "renamealliance" || command === "rename"){
+    else if (command === "renamealliance" || command === "rename") {
         let user = await getUser(message.author.id);
-        if(!user)
-          return message.reply("you haven't created an account yet, please use the `create` command.");
-        else if(user.allianceRank == "M"){
-          return message.reply("only Co-Leaders and the Leader can use this command!");
+        if (!user)
+            return message.reply("you haven't created an account yet, please use the `create` command.");
+        else if (user.allianceRank == "M") {
+            return message.reply("only Co-Leaders and the Leader can use this command!");
         }
-        else if(user.alliance == null){
-          return message.reply("you haven't joined an alliance yet!");
+        else if (user.alliance == null) {
+            return message.reply("you haven't joined an alliance yet!");
         }
         return renameAlliance(message, args);
     }
@@ -508,17 +508,29 @@ client.on("message", async message => {
         updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
     }
 
-    else if(command === "start-war"){
-        if(!args[0]) return message.reply("please follow the syntax of `.start-war <mention/ID>`");
+    else if (command === "start-war" || command === "startwar") {
+        if (!args[0]) return message.reply("please follow the syntax of `.start-war <mention/ID>`");
         const u: user = await getUser(message.author.id);
         const o: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
-        if(!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
-        if(!o) return message.reply("this user hasn't created an account yet.");
+        if (!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+        if (!o) return message.reply("this user hasn't created an account yet.");
         startWar(message, u, o);
     }
 
-    else if(command === "mobilize")
+    else if (command === "mobilize")
         mobilize(message, args);
+
+    else if (command === "ready")
+        ready(message);
+
+    else if (command === "cancel-war" || command === "cancelwar")
+        cancelWar(message);
+
+    else if (command === "armies")
+        armies(message);
+
+    else if (command === "set-position" || command === "setposition")
+        setPosition(message, args);
 
 });
 

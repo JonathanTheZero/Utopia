@@ -111,6 +111,7 @@ export interface war {
 interface battlePlayer {
     _id: string;
     tag: string;
+    ready: boolean;
     resources: {
         food: battleResource;
         money: battleResource;
@@ -118,11 +119,7 @@ interface battlePlayer {
         steel: battleResource;
         oil: battleResource;
     };
-    armys: [
-        army?, 
-        army?, 
-        army?
-    ];
+    armies: army[];
 }
 
 interface battleResource {
@@ -135,4 +132,6 @@ export interface army {
     art: number;
     tnk: number;
     jet: number;
+    field: [number, number] | null;
+    moved: boolean;
 }

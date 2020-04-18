@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -39,7 +39,7 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
-    else if (["food", "population", "steel", "oil"].includes(mode)){
+    else if (["food", "population", "steel", "oil"].includes(mode)) {
         const str = "resources." + mode;
         newQuery = { [updateMode]: { [str]: <number>newValue } };
     }
@@ -195,6 +195,46 @@ export async function findWarByUser(_id: string): Promise<war | null> {
             { "p2._id": _id }
         ]
     });
+}
+
+export async function updateReady(_id: string, p1: boolean): Promise<void> {
+    const str = p1 ? "p1.ready" : "p2.ready";
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $set: { [str]: true }
+    });
+}
+
+export async function addArmy(_id: string, army: army, p1: boolean) {
+    const str = p1 ? "p1.armies" : "p2.armies";
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $push: { [str]: army }
+    });
+}
+
+export async function moveArmy(_id: string, p1: boolean, army: number, newField: [number, number]) {
+    const str = p1 ? `p1.armies.${army}` : `p2.armies.${army}`;
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $set: {
+            [str + ".field"]: newField,
+            [str + "moved"]: true
+        }
+    });
+    await updateField(_id);
+}
+
+export async function updateField(_id: string): Promise<Array<Array<number>>> {
+    let war: war = await client.db(dbName).collection("wars").findOne({ _id })!;
+    let arr: number[][] = JSON.parse(JSON.stringify((Array(15).fill(new Array(15).fill(0)))));
+    for (const a of war.p1.armies) {
+        if (a.field)
+            arr[a.field[0]][a.field[1]] = 1
+    }
+    for (const a of war.p2.armies) {
+        if (a.field)
+            arr[a.field[0]][a.field[1]] = 2
+    }
+    await client.db(dbName).collection("wars").updateOne({ _id }, { $set: { field: arr } });
+    return arr;
 }
 
 export async function connectToDB(): Promise<void> {
