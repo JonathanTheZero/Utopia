@@ -1,6 +1,7 @@
 import { getUser, findWarByUser, updateReady } from "../../utils/databasehandler";
 import { Message } from "discord.js";
 import { user, war } from "../../utils/interfaces";
+import * as config from "../../static/config.json";
 
 export async function ready(message: Message) {
     const user: user = await getUser(message.author.id);
@@ -14,6 +15,14 @@ export async function ready(message: Message) {
     a.ready = true;
     
     if(war.p1.ready && war.p2.ready){
-        message.channel.send("blub")
+        message.channel.send({
+            embed: {
+                title: "Get ready to fight!",
+                description: "Both parties are ready, now deploy your armies on the field using `.setposition <armyindex> <x> <y>`",
+                color: 0x00FF00,
+                footer: config.properties.footer,
+                timestamp: new Date(),
+            }
+        });
     }
 }

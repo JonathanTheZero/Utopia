@@ -1,6 +1,6 @@
 import { user, army, war } from "../../utils/interfaces";
 import { Message } from "discord.js";
-import { getUser, findWarByUser, addArmy } from "../../utils/databasehandler";
+import { getUser, findWarByUser, addArmy, updateCosts } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
 import "../../utils/utils";
 import { prices } from "./consts";
@@ -45,9 +45,12 @@ export async function mobilize(message: Message, args: string[]) {
             description: `This army consists of ${(army.if * 1000).commafy()} Infantry, ${(army.art * 1000).commafy()} Artillery, ${(army.tnk * 1000).commafy()} Tanks, ${(army.jet * 1000).commafy()} Jets.\n` + 
                 `The creation costs ${costs.creation.money.commafy()} money, ${costs.creation.steel.commafy()} steel and ${costs.creation.population.commafy()} population.\n` + 
                 `They will cost you ${costs.perRound.money.commafy()} money, ${costs.perRound.oil.commafy()} oil and ${costs.perRound.food.commafy()} food per Round.\n` + 
-                "If you wish to delete this army, use `.deletearmy <index>`. You can view your armies using `.armies`"
+                "You can view your armies using `.armies`"
         }
     });
+    updateCosts(war._id, "money", user._id === war.p1._id, costs.creation.money);
+    updateCosts(war._id, "steel", user._id === war.p1._id, costs.creation.steel);
+    updateCosts(war._id, "population", user._id === war.p1._id, costs.creation.population);
     return message.reply(a.length === 3 ? "you have successfully mobilized all your armies. Use `.ready` whenever you are ready." : `You still have ${3 - a.length} army slots`);
 }
 

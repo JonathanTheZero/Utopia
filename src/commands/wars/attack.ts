@@ -1,10 +1,9 @@
 import { Message } from "discord.js";
 import { user, war } from "../../utils/interfaces";
 import { getUser, findWarByUser, moveArmy } from "../../utils/databasehandler";
-import { showField } from "./showfield";
 
-export async function move(message: Message, args: string[]) {
-    if (!args[2]) return message.reply("please follow the syntax of `.move <armyindex> <x> <y>`");
+export async function attack(message: Message, args: string){
+    if (!args[2]) return message.reply("please follow the syntax of `.attack <armyindex> <enemy-army>`");
     if (parseInt(args[0]) > 3) return message.reply("you have only 3 armies, please follow the syntax of `.move <armyindex> <x> <y>`");
     const u: user = await getUser(message.author.id);
 
@@ -27,6 +26,4 @@ export async function move(message: Message, args: string[]) {
         if(Math.abs(curr.field![0] - x) > 2 || Math.abs(curr.field![1] - y) > 2) return message.reply("you can't move your army that far!");
         await moveArmy(w._id, p1, parseInt(args[0]) - 1, [x, y]);
     }
-
-    showField(w._id, message);
 }

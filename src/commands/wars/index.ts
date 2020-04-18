@@ -6,3 +6,6 @@ export * from "./consts";
 export * from "./armies";
 export * from "./setposition";
 export * from "./move";
+export * from "./showfield";
+export * from "./attack";
+export * from "./deletearmy";

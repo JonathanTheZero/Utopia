@@ -24,11 +24,10 @@ import {
     updatePrefix,
     addServer,
     deleteServer,
-    connected,
-    findWarByUser,
+    connected
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
-import { user, configDB, giveaway, server } from "./utils/interfaces";
+import { user, configDB, giveaway } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -55,7 +54,7 @@ import {
     renameAlliance,
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
-import { startWar, mobilize, ready, cancelWar, armies, setPosition } from "./commands/wars";
+import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move } from "./commands/wars";
 
 const express = require('express');
 const app = express();
@@ -531,6 +530,12 @@ client.on("message", async message => {
 
     else if (command === "set-position" || command === "setposition")
         setPosition(message, args);
+
+    else if(["showfield", "field"].includes(command as string))
+        showFieldM(message);
+
+    else if(command === "move")
+        move(message, args);
 
 });
 

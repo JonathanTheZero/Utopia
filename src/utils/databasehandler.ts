@@ -216,25 +216,32 @@ export async function moveArmy(_id: string, p1: boolean, army: number, newField:
     client.db(dbName).collection("wars").updateOne({ _id }, {
         $set: {
             [str + ".field"]: newField,
-            [str + "moved"]: true
+            [str + ".moved"]: true
         }
     });
     await updateField(_id);
 }
 
-export async function updateField(_id: string): Promise<Array<Array<number>>> {
+export async function updateField(_id: string): Promise<Array<Array<number | string>>> {
     let war: war = await client.db(dbName).collection("wars").findOne({ _id })!;
-    let arr: number[][] = JSON.parse(JSON.stringify((Array(15).fill(new Array(15).fill(0)))));
-    for (const a of war.p1.armies) {
-        if (a.field)
-            arr[a.field[0]][a.field[1]] = 1
+    let arr: (number | string)[][] = JSON.parse(JSON.stringify((Array(15).fill(new Array(15).fill(0)))));
+    for (let i = 0; i < war.p1.armies.length; ++i) {
+        if (war.p1.armies[i].field)
+            arr[war.p1.armies[i].field![0]][war.p1.armies[i].field![1]] = "1#" + i;
     }
-    for (const a of war.p2.armies) {
-        if (a.field)
-            arr[a.field[0]][a.field[1]] = 2
+    for (let i = 0; i < war.p2.armies.length; ++i) {
+        if (war.p2.armies[i].field)
+            arr[war.p2.armies[i].field![0]][war.p2.armies[i].field![1]] = "2#" + i;
     }
     await client.db(dbName).collection("wars").updateOne({ _id }, { $set: { field: arr } });
     return arr;
+}
+
+export async function updateCosts(_id: string, mode: "money" | "food" | "population" | "oil" | "steel", p1: boolean, amount: number) {
+    const str = p1 ? "p1.resources." + mode + "consumed" : "p2.resources." + mode + "consumed";
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $inc: { [str]: amount }
+    });
 }
 
 export async function connectToDB(): Promise<void> {

@@ -105,7 +105,7 @@ export interface war {
     _id: string;
     p1: battlePlayer;
     p2: battlePlayer;
-    field: Array<Array<0 | army>>
+    field: Array<Array<0 | string>>
 }
 
 interface battlePlayer {
