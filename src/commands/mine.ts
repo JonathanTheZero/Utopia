@@ -64,9 +64,17 @@ export async function mine(message: Message, args: string[]) {
         return message.reply("Wrong mine type, please do `.mine steel` or `.mine oil`")
     }
 
+    if (user.resources.minereturn == 1){
+        return message.reply("Your mines can't make new resources") // Add days
+    }
+
+    if (Math.floor(Date.now() / 1000) - user.lastmine < 3600){
+        return message.reply(`You can mine in ${new Date((3600 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8)}`)
+    }
+
     else {
         if (args[0] == "steel") {
-            let payout = getRandomRange(100, 10000)
+            let payout = getRandomRange(400, 10000)
 
             for (var i = 0; i <= user.resources.steelmine; i++) {
                 user.resources.steel += (payout - (payout * user.resources.minereturn))
@@ -76,7 +84,7 @@ export async function mine(message: Message, args: string[]) {
         }
 
         if (args[0] == "oil") {
-            let payout = getRandomRange(100, 10000)
+            let payout = getRandomRange(400, 10000)
 
             for (var i = 0; i <= user.resources.oilrig; i++) {
                 user.resources.oil += (payout - (payout * user.resources.minereturn))
@@ -85,15 +93,18 @@ export async function mine(message: Message, args: string[]) {
             return message.reply(`Your oil rigs each produced ${(payout - (payout * user.resources.minereturn))} barrels for a total of ${(payout - (payout * user.resources.minereturn)) * user.resources.oilrig} barrels`)
         }
 
-        user.resources.minereturn = user.resources.minereturn - (user.resources.minereturn*getRandomRange(10, user.resources.minereturn/2))
+        user.resources.minereturn = (user.resources.minereturn - (user.resources.minereturn*getRandomRange(10, user.resources.minereturn/2)))/100
+        
+        if (user.resources.minereturn <= 0){
+            user.resources.minereturn = 100/100
+        }
 
         if (user.minereset == 0){
             user.minereset = Math.floor(Date.now() / 1000)
         }
+
+        user.lastmine = Math.floor(Date.now() / 1000)
     }
-
-
-
 
 }
 
