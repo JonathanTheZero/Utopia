@@ -1,0 +1,116 @@
+.button {
+  position: relative;
+  background-color: #565656;
+  border: 4px solid #f44336;
+  font-size: 28px;
+  color: black;
+  padding: 20px;
+  width: 200px;
+  text-align: center;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+}
+  
+.button:hover {
+  background-color: #f44336;
+  color: white;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+  transform: scale(1.1);
+}
+
+.button:after {
+  content: "";
+  background: #f1f1f1;
+  display: block;
+  position: absolute;
+  padding-top: 300%;
+  padding-left: 350%;
+  margin-left: -20px !important;
+  margin-top: -120%;
+  opacity: 0;
+  transition: all 0.8s
+}
+
+.button:active:after {
+  padding: 0;
+  margin: 0;
+  opacity: 1;
+  transition: 0s;
+}
+.button:focus {
+  outline:none !important;
+}
+
+p.center {
+  margin: 20%;
+}
+
+div#statbox {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;;
+  flex: 0 0 100%;
+  margin-bottom: 30%;
+  position: relative;
+}
+
+div#statbox:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-top: 50px solid #012;
+  border-left: 50px none rgba(120, 200, 255, 0.1);;
+}
+
+div#statbox:hover {
+  transform: scale(1.1);
+}
+
+div#statbox hr {
+  border: 1px solid red;
+  margin-right: 40%;
+  margin-top: -2%;
+}
+
+div#featurebox {
+  margin-left: 15%;
+  margin-top: 25%;
+  position: relative;
+  flex: 0 0 100%;
+}
+
+div#featurebox:hover {
+  transform: scale(1.1);
+}
+
+#wrapper {
+  display: flex;
+  margin-top: 10%;
+  margin-left: 20%;
+}
+
+div.cutCorner{
+  position: relative;
+}
+
+div.cutCorner:before {
+  content: '';
+  position: absolute;
+  top: 0; 
+  right: 0;
+  border-top: 50px solid white;
+  border-left: 50px solid pink;
+}
+
+body {
+  background-color: #012;
+  line-height: 1.5;
+}
+
+body > * {
+  width: 24%;
+  margin: 0.4%;
+  vertical-align: top;
+}

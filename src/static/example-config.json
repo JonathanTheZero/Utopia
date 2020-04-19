@@ -1,0 +1,25 @@
+{
+	"token": "your-bot-token-here",
+	"dbl": {
+		"token": "",
+		"auth": "",
+		"url": ""
+	},
+	"payoutChannel": "your-channel-id-here",
+	"botAdmins": [
+		"IDs of users who should be able to use admin commands here"
+	],
+	"properties": {
+		"inviteLink": "https://discordapp.com/oauth2/authorize?client_id=619909215997394955&permissions=8&scope=bot",
+		"footer": {
+			"text": "Developed by Zero#0659  •  Alpha",
+			"icon_url": "https://cdn.discordapp.com/avatars/393137628083388430/859a09db38539b817b67db345274f653.webp?size=512"
+		},
+		"embedColor": "0x80a0ff"
+	},
+	"serverInvite": "https://discord.gg/d24gpB6",
+	"db": {
+		"mongoQuery": "your-mongo-query-here",
+		"name": "name-of-your-database (doesn't really matter as long as you don't have data to work with, the bot will create one with the given name if nonexistent) "
+	}
+}
