@@ -6,6 +6,7 @@ export interface user {
     money: number;
     lastWorked: number;
     lastCrime: number;
+    lastdig: number;
     autoping: boolean;
     payoutDMs: boolean;
     alliance: string | null;
@@ -15,6 +16,10 @@ export interface user {
         population: number;
         steel: number;
         oil: number;
+        totaldigs: number;
+        lastdig: number;
+        steelmine: number;
+        oilrig: number;
     },
     upgrades: {
         population: string[];
