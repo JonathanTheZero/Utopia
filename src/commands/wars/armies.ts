@@ -23,12 +23,12 @@ export async function armies(message: Message) {
 }
 
 function getArmyText(arr: war["p1"]["armies"]): Array<{ value: string; name: string }> {
-    let r = [];
+    let r: Array<{ name: string, value: string }> = [];
     for (let i = 0; i < arr.length; ++i) {
         const army = arr[i];
         r.push({
             name: `Army ${i + 1}:`,
-            value: `This army consists of ${(army.if * 1000).commafy()} Infantry, ${(army.art * 1000).commafy()} Artillery, ${(army.tnk * 1000).commafy()} Tanks, ${(army.jet * 1000).commafy()} Jets.\n` + 
+            value: `This army consists of ${(army.if * 1000).commafy()} Infantry, ${(army.art * 1000).commafy()} Artillery, ${(army.tnk * 1000).commafy()} Tanks, ${(army.jet * 1000).commafy()} Jets.\n` +
                 `It currently ${army.field ? `stands on field ${army.field[0]}-${army.field[1]}` : "isn't positioned on a field."}`
         });
     }

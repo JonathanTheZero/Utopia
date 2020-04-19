@@ -2,28 +2,30 @@ import { Message } from "discord.js";
 import { user, war } from "../../utils/interfaces";
 import { getUser, findWarByUser, moveArmy } from "../../utils/databasehandler";
 
-export async function attack(message: Message, args: string){
-    if (!args[2]) return message.reply("please follow the syntax of `.attack <armyindex> <enemy-army>`");
-    if (parseInt(args[0]) > 3) return message.reply("you have only 3 armies, please follow the syntax of `.move <armyindex> <x> <y>`");
+export async function attack(message: Message, args: string) {
+    if (!args[1]) return message.reply("please follow the syntax of `.attack <armyindex> <enemy-army>`");
     const u: user = await getUser(message.author.id);
 
     let w: war | null = await findWarByUser(u._id);
     if (!w) return message.reply("you are not fighting in any active battles.");
-    if (!(w.p1.ready && w.p2.ready)) return message.reply("not everyone is ready yet!");
+    //if (!(w.p1.ready && w.p2.ready)) return message.reply("not everyone is ready yet!");
 
     const p1 = u._id === w.p1._id;
-    const a = p1 ? w.p1 : w.p2;
+    const [a, b] = p1 ? [w.p1, w.p2] : [w.p2, w.p1];
     const curr = a.armies[parseInt(args[0]) - 1];
-    let x = parseInt(args[1]) - 1,
-        y = parseInt(args[2]) - 1;
+    const opp = b.armies[parseInt(args[1]) -1];
 
-    if(x > 15 || x < 0 || y > 15 || y < 0) return message.reply("you can't position your army outside of the field!");
-    if(curr.moved) return message.reply("you already moved that army this round!");
+    if (curr.moved) return message.reply("you already moved that army this round!");
+    if (!curr.field) return message.reply("you haven't deployed that army yet!");
 
-    if (!curr.field)
-        return message.reply("you haven't deployed that army yet!");
+    if(Math.abs(curr.field![0] - opp.field![0]) > 1 || Math.abs(curr.field![1] - opp.field![1]) > 1){
+        return message.reply("that army is out of range! You can only attack armies on neighbouring fields.");
+    }
     else {
-        if(Math.abs(curr.field![0] - x) > 2 || Math.abs(curr.field![1] - y) > 2) return message.reply("you can't move your army that far!");
-        await moveArmy(w._id, p1, parseInt(args[0]) - 1, [x, y]);
+        message.channel.send({
+            embed: {
+                title: `Battle between Army ${args[0]} of ${a.tag} and Army ${args[1]} of ${b.tag}`
+            }
+        });
     }
 }

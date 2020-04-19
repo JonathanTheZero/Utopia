@@ -10,7 +10,7 @@ export async function move(message: Message, args: string[]) {
 
     let w: war | null = await findWarByUser(u._id);
     if (!w) return message.reply("you are not fighting in any active battles.");
-    if (!(w.p1.ready && w.p2.ready)) return message.reply("not everyone is ready yet!");
+    //if (!(w.p1.ready && w.p2.ready)) return message.reply("not everyone is ready yet!");
 
     const p1 = u._id === w.p1._id;
     const a = p1 ? w.p1 : w.p2;

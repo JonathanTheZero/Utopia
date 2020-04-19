@@ -30,5 +30,14 @@ L4_L3 = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl3-lvl4
 
 FONT = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wars.ttf?v=1577192931151"
 
+
 #urls for war
 BASE_WAR = "../Assets/warbase.png"
+
+HEX_BLUE1 = ""
+HEX_BLUE2 = ""
+HEX_BLUE3 = ""
+
+HEX_RED1 = ""
+HEX_RED2 = ""
+HEX_RED3 = ""

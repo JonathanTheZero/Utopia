@@ -77,7 +77,7 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                 {
                     name: 'Money:',
                     value: user.money.commafy(),
-                    inline: false,
+                    inline: true,
                 },
                 {
                     name: 'Food:',
@@ -93,6 +93,11 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                     name: "Steel:",
                     value: user.resources.steel.commafy(),
                     inline: true
+                },
+                {
+                    name: "Oil",
+                    value: user.resources.oil.commafy(),
+                    inline: true,
                 },
                 {
                     name: 'Alliance:',

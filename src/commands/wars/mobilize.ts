@@ -16,7 +16,7 @@ export async function mobilize(message: Message, args: string[]) {
         tnk: parseInt(args[2]),
         jet: parseInt(args[3]),
         field: null,
-        moved: false,
+        moved: true,
     };
 
     const costs = {

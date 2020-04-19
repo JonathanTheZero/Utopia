@@ -197,10 +197,10 @@ export async function findWarByUser(_id: string): Promise<war | null> {
     });
 }
 
-export async function updateReady(_id: string, p1: boolean): Promise<void> {
+export async function updateReady(_id: string, p1: boolean, newReady = true): Promise<void> {
     const str = p1 ? "p1.ready" : "p2.ready";
     client.db(dbName).collection("wars").updateOne({ _id }, {
-        $set: { [str]: true }
+        $set: { [str]: newReady }
     });
 }
 
@@ -242,6 +242,15 @@ export async function updateCosts(_id: string, mode: "money" | "food" | "populat
     client.db(dbName).collection("wars").updateOne({ _id }, {
         $inc: { [str]: amount }
     });
+}
+
+export async function markAllArmies(_id: string, newVal: boolean) {
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $set: {
+            "p1.armies.$[].moved": newVal,
+            "p2.armies.$[].moved": newVal
+        }
+    }, err => { if (err) throw err });
 }
 
 export async function connectToDB(): Promise<void> {

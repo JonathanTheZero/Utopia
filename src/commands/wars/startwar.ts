@@ -98,7 +98,6 @@ export async function startWar(message: Message, author: user, opponent: user) {
             files: [file]
         }));
 
-
         await Sleep(5000);
 
         const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
