@@ -5,8 +5,10 @@ export interface user {
     _id: string;
     money: number;
     lastWorked: number;
+    minereset: number;
     lastCrime: number;
     lastdig: number;
+    lastmine: number;
     autoping: boolean;
     payoutDMs: boolean;
     alliance: string | null;
@@ -20,6 +22,7 @@ export interface user {
         lastdig: number;
         steelmine: number;
         oilrig: number;
+        minereturn: number;
     },
     upgrades: {
         population: string[];
