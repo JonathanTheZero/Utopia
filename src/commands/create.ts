@@ -12,11 +12,18 @@ export function createUser(message: Message): user {
         payoutDMs: false,
         alliance: null,
         allianceRank: null,
+        lastDig: 0,
+        lastMine: 0,
+        minereset: 0,
         resources: {
             food: 10000,
             population: 1000,
             steel: 1000,
             oil: 1000,
+            totaldigs: 0,
+            steelmine: 0,
+            oilrig: 0,
+            minereturn: 0
         },
         upgrades: {
             population: [],

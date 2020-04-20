@@ -6,6 +6,8 @@ export async function cancelWar(message: Message){
     const w: war | null = await findWarByUser(message.author.id);
     if(!w) return message.reply("you don't participate in any active war!");
 
+    if(w.started) return message.reply("the war lasts too long as that one could end it now!");
+
     updateValueForUser(w.p1._id, "food", -w.p1.resources.food.consumed, "$inc");
     updateValueForUser(w.p1._id, "money", -w.p1.resources.money.consumed, "$inc");
     updateValueForUser(w.p1._id, "steel", -w.p1.resources.steel.consumed, "$inc");

@@ -7,8 +7,8 @@ export interface user {
     lastWorked: number;
     minereset: number;
     lastCrime: number;
-    lastdig: number;
-    lastmine: number;
+    lastDig: number;
+    lastMine: number;
     autoping: boolean;
     payoutDMs: boolean;
     alliance: string | null;
@@ -19,7 +19,6 @@ export interface user {
         steel: number;
         oil: number;
         totaldigs: number;
-        lastdig: number;
         steelmine: number;
         oilrig: number;
         minereturn: number;
@@ -65,6 +64,7 @@ export interface configDB {
     lastPayout: number;
     lastPopulationWorkPayout: number;
     commandsRun: number;
+    lastMineReset: number;
 }
 
 export interface giveaway {
@@ -100,7 +100,14 @@ export type updateUserQuery = "tag"
     | "lastVoted"
     | "votingStreak"
     | "steel"
-    | "oil";
+    | "oil"
+    | "lastDig"
+    | "lastMine"
+    | "totaldigs"
+    | "steelmine"
+    | "oilrig"
+    | "minereturn"
+    | "minereset";
 
 export type updateAllianceQuery = "name"
     | "level"

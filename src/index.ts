@@ -53,8 +53,9 @@ import {
     allianceOverview,
     renameAlliance,
 } from "./commands/alliances";
-import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
-import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack } from "./commands/wars";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
+import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
+import { mine, digmine } from "./commands/mine";
 
 const express = require('express');
 const app = express();
@@ -93,7 +94,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
-    client.user.setActivity(`.help | Now with voting streaks!`);
+    client.user.setActivity(`.help | v2 Blood and Steel out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -107,9 +108,14 @@ client.on("ready", async () => {
             });
     });
     let c: configDB = await getConfig();
-    const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];
+    const [tdiff1, tdiff2, tdiff3] = [
+        Math.floor(Date.now() / 1000) - c.lastPayout, 
+        Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
+        Math.floor((Date.now() - c.lastMineReset) / 1000)
+    ];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
     setTimeout(() => populationWorkLoop(client), ((39600 - tdiff2) * 1000));
+    setTimeout(() => mineReset(client), ((604800 - tdiff3) * 1000))
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) {
         giveawayCheck(g._id, client);
@@ -364,6 +370,16 @@ client.on("message", async message => {
             embed: guideEmbed
         });
     }
+    
+    else if(command === "warguide")
+        message.channel.send({
+            embed: warGuide
+        });
+    
+    else if(command === "troopstats")
+        message.channel.send({
+            embed: troopStats
+        });
 
     else if (command === "shop" || command === "store") {
         var store: any;
@@ -539,6 +555,12 @@ client.on("message", async message => {
     
     else if(command === "attack")
         attack(message, args);
+
+    else if(command === "mine")
+        mine(message, args);
+    
+    else if(command === "digmine")
+        digmine(message, args);
 
 });
 

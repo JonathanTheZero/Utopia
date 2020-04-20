@@ -43,7 +43,7 @@ export async function mobilize(message: Message, args: string[]) {
     if(costs.creation.steel > user.resources.steel) 
         return message.reply(`this would cost you ${costs.creation.steel.commafy()} steel, but you only have ${user.resources.steel.commafy()} steel!`);
     if(costs.creation.population > user.resources.population)
-        return message.reply(`this would cost you ${costs.creation.steel.commafy()} population, but you only have ${user.resources.steel.commafy()} population!`);
+        return message.reply(`this would cost you ${costs.creation.population.commafy()} population, but you only have ${user.resources.population.commafy()} population!`);
 
     await addArmy(war._id, army, user._id === war.p1._id);
     a.push(army);

@@ -10,7 +10,8 @@ const config: configDB = {
     _id: 1,
     lastPayout: 0,
     lastPopulationWorkPayout: 0,
-    commandsRun: 0
+    commandsRun: 0,
+    lastMineReset: 0
 };
 
 export let connected: boolean = false;
@@ -29,7 +30,26 @@ export async function getAlliance(name: string): Promise<alliance | null> {
     return await client.db(dbName).collection("alliances").findOne({ name });
 }
 
-export async function updateValueForUser(_id: string, mode: "money" | "food" | "population" | "votingStreak" | "loan" | "steel" | "oil", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
+export async function updateValueForUser(
+    _id: string,
+    mode:
+        | "money"
+        | "food"
+        | "population"
+        | "votingStreak"
+        | "loan"
+        | "steel"
+        | "oil"
+        | "lastDig"
+        | "lastMine"
+        | "totaldigs"
+        | "steelmine"
+        | "minereset"
+        | "minereturn"
+        | "oilrig",
+    newValue: number,
+    updateMode?: "$inc" | "$set"
+): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastWorked" | "lastVoted", newValue: number): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
@@ -37,11 +57,10 @@ export async function updateValueForUser(_id: string, mode: "allianceRank", newV
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak"].includes(mode))
+    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
-    else if (["food", "population", "steel", "oil"].includes(mode)) {
-        const str = "resources." + mode;
-        newQuery = { [updateMode]: { [str]: <number>newValue } };
+    else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode)) {
+        newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
     }
     else
         throw new Error("Invalid parameter passed");
@@ -121,7 +140,7 @@ export async function getConfig(): Promise<configDB> {
     return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout", val: number) {
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset", val: number) {
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
