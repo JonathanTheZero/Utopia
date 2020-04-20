@@ -25,6 +25,8 @@ export async function move(message: Message, args: string[]) {
         return message.reply("you haven't deployed that army yet!");
     else {
         if(Math.abs(curr.field![0] - x) > 2 || Math.abs(curr.field![1] - y) > 2) return message.reply("you can't move your army that far!");
+        if(p1 && x === 13 && y === 7) return message.reply("you won, bla bla, I'm lazy, yet have to do things");
+        if(!p1 && x === 1 && y === 7) return message.reply("you won, bla bla, player 2")
         await moveArmy(w._id, p1, parseInt(args[0]) - 1, [x, y]);
     }
 

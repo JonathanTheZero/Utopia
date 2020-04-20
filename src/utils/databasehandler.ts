@@ -180,6 +180,10 @@ export async function addWar(w: war) {
     });
 }
 
+export async function setWarStarted(_id: string) {
+    client.db(dbName).collection("wars").updateOne({ _id }, { $set: { started: true } });
+}
+
 export async function getWar(_id: string): Promise<war> {
     return client.db(dbName).collection("wars").findOne({ _id })!;
 }

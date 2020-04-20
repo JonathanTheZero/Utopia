@@ -23,11 +23,11 @@ export async function attack(message: Message, args: string[]) {
         return message.reply("that army is out of range! You can only attack armies on neighbouring fields.");
     }
     else {
-
+        moveArmy(w._id, p1, parseInt(args[0]) - 1, curr.field);
         message.channel.send({
             embed: {
                 title: `Battle between Army ${args[0]} of ${a.tag} and Army ${args[1]} of ${b.tag}`,
-                description: (await battle(curr, opp, w, p1, args[0])).join("\n")
+                description: (await battle(curr, opp, w, p1, args[1])).join("\n")
             }
         });
     }
@@ -46,7 +46,7 @@ async function battle(curr: army, opp: army, war: war, p1: boolean, index: strin
             food: opp.if * prices.infantry.perRound.food + opp.art * prices.artillery.perRound.food
         }
 
-    }
+    };
     const [n, m] = p1 ? [war.p1, war.p2] : [war.p2, war.p1];
     let [x, y] = [1, 1];
     if (n.resources.money.consumed + costs.a.money > n.resources.money.begin
@@ -76,8 +76,7 @@ async function battle(curr: army, opp: army, war: war, p1: boolean, index: strin
             tanks: (curr.tnk * ba.tanks.hp) * x,
             jet: (curr.jet * ba.jets.hp) * x
         }
-    };
-    const def = {
+    }, def = {
         attack: {
             inf: (opp.if * ba.if.attack.if + opp.art * ba.art.attack.if + opp.tnk * ba.art.attack.if + opp.jet * ba.jets.attack.if) * y,
             art: (opp.if * ba.if.attack.art + opp.art * ba.art.attack.art + opp.tnk * ba.art.attack.art + opp.jet * ba.jets.attack.art) * y,
@@ -97,15 +96,15 @@ async function battle(curr: army, opp: army, war: war, p1: boolean, index: strin
             jet: (opp.jet * ba.jets.hp) * y
         }
     };
-    let str: string[] = [];
-    let defenderarmy: army = {
-        if: opp.if,
-        art: opp.art,
-        tnk: opp.tnk,
-        jet: opp.jet,
-        moved: false,
-        field: opp.field
-    }
+    let str: string[] = [],
+        defenderarmy: army = {
+            if: opp.if,
+            art: opp.art,
+            tnk: opp.tnk,
+            jet: opp.jet,
+            moved: opp.moved,
+            field: opp.field
+        };
     if (att.attack.inf > def.defense.inf) {
         str.push("The attackers break through the defense of the Infantry.");
         if (att.attack.inf > def.defense.inf + def.hp.inf) {
@@ -150,6 +149,8 @@ async function battle(curr: army, opp: army, war: war, p1: boolean, index: strin
             defenderarmy.jet = Math.round(((def.defense.jet + def.hp.jet) - att.attack.jet) / ba.if.hp);
         }
     }
-    await replaceArmy(war._id, !p1, Number(index), defenderarmy);
+    if (defenderarmy.if === 0 && defenderarmy.jet === 0 && defenderarmy.art === 0 && defenderarmy.tnk === 0) defenderarmy.field = null;
+    console.log(index);
+    await replaceArmy(war._id, !p1, parseInt(index) - 1, defenderarmy);
     return str;
 }

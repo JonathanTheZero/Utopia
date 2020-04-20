@@ -68,7 +68,8 @@ export async function startWar(message: Message, author: user, opponent: user) {
             },
             armies: []
         },
-        field: Array(15).fill(Array(15).fill(0))
+        field: Array(15).fill(Array(15).fill(0)),
+        started: false
     };
 
     message.channel.send({

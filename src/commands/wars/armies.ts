@@ -9,7 +9,7 @@ export async function armies(message: Message) {
     const w: war | null = await findWarByUser(u._id);
     if (!w) return message.reply("you are not fighting in any active battles.");
 
-    const a = u._id === w._id ? w.p1 : w.p2;
+    const a = u._id === w.p1._id ? w.p1 : w.p2;
 
     message.channel.send({
         embed: {

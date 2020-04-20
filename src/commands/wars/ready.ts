@@ -1,8 +1,8 @@
-import { getUser, findWarByUser, updateReady, markAllArmies, updateCosts, } from "../../utils/databasehandler";
+import { getUser, findWarByUser, updateReady, markAllArmies, updateCosts, setWarStarted, } from "../../utils/databasehandler";
 import { Message, TextChannel, Channel } from "discord.js";
 import { user, war } from "../../utils/interfaces";
 import * as config from "../../static/config.json";
-import { prices } from ".";
+import { prices, showField } from ".";
 
 export async function ready(message: Message) {
     const user: user = await getUser(message.author.id);
@@ -14,10 +14,11 @@ export async function ready(message: Message) {
 
     a.ready = true;
 
-    if (war.p1.ready && war.p2.ready && !war.p1.armies[0].field) {
+    if (!war.started && war.p2.ready && war.p1.ready) {
         await Promise.all([
             updateReady(war._id, true, false),
-            updateReady(war._id, false, false)
+            updateReady(war._id, false, false),
+            setWarStarted(war._id)
         ]);
         message.channel.send({
             embed: {
@@ -29,8 +30,9 @@ export async function ready(message: Message) {
                 timestamp: new Date(),
             }
         });
+        await showField(war._id, message);
     }
-    else if (war.p1.ready && war.p2.ready) {
+    else if (war.started && war.p1.ready && war.p2.ready) {
         await Promise.all([
             markAllArmies(war!._id, false),
             updateReady(war._id, false, false),
