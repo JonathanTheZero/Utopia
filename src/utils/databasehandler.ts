@@ -198,10 +198,9 @@ export async function findWarByUser(_id: string): Promise<war | null> {
 }
 
 export async function updateReady(_id: string, p1: boolean, newReady = true): Promise<void> {
-    const str = p1 ? "p1.ready" : "p2.ready";
     client.db(dbName).collection("wars").updateOne({ _id }, {
-        $set: { [str]: newReady }
-    });
+        $set: { [(p1 ? "p1.ready" : "p2.ready")]: newReady }
+    }, err => { if (err) throw err });
 }
 
 export async function addArmy(_id: string, army: army, p1: boolean) {
@@ -238,10 +237,10 @@ export async function updateField(_id: string): Promise<Array<Array<number | str
 }
 
 export async function updateCosts(_id: string, mode: "money" | "food" | "population" | "oil" | "steel", p1: boolean, amount: number) {
-    const str = p1 ? "p1.resources." + mode + "consumed" : "p2.resources." + mode + "consumed";
+    const str = p1 ? "p1.resources." + mode + ".consumed" : "p2.resources." + mode + ".consumed";
     client.db(dbName).collection("wars").updateOne({ _id }, {
         $inc: { [str]: amount }
-    });
+    }, err => { if (err) throw err });
 }
 
 export async function markAllArmies(_id: string, newVal: boolean) {
@@ -249,6 +248,14 @@ export async function markAllArmies(_id: string, newVal: boolean) {
         $set: {
             "p1.armies.$[].moved": newVal,
             "p2.armies.$[].moved": newVal
+        }
+    }, err => { if (err) throw err });
+}
+
+export async function replaceArmy(_id: string, p1: boolean, index: number, army: army) {
+    client.db(dbName).collection("wars").updateOne({ _id }, {
+        $set: {
+            [(p1 ? "p1" : "p2") + `.armies.${index}`]: army
         }
     }, err => { if (err) throw err });
 }

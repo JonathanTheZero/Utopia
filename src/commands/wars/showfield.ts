@@ -8,7 +8,6 @@ export async function showField(_id: string, message: Message) {
     var imgurl: string = "-1";
     const pyshell = new PythonShell('dist/war.py', { mode: "text" });
     var sendString = JSON.stringify(await updateField(_id));
-    console.log(sendString);
     pyshell.send(sendString);
     pyshell.on('message', async answer => {
         imgurl = `imageplotting/${answer.toString()}.png`;

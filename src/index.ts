@@ -54,7 +54,7 @@ import {
     renameAlliance,
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
-import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move } from "./commands/wars";
+import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack } from "./commands/wars";
 
 const express = require('express');
 const app = express();
@@ -536,6 +536,9 @@ client.on("message", async message => {
 
     else if(command === "move")
         move(message, args);
+    
+    else if(command === "attack")
+        attack(message, args);
 
 });
 

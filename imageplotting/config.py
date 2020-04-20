@@ -32,12 +32,12 @@ FONT = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wa
 
 
 #urls for war
-BASE_WAR = "../Assets/warbase.png"
+BASE_WAR = "https://i.imgur.com/aLs4M3W.png"
 
-HEX_BLUE1 = ""
-HEX_BLUE2 = ""
-HEX_BLUE3 = ""
+HEX_BLUE1 = "https://i.imgur.com/YP90xEA.png"
+HEX_BLUE2 = "https://i.imgur.com/jsRZpWC.png"
+HEX_BLUE3 = "https://i.imgur.com/ryhlh8O.png"
 
-HEX_RED1 = ""
-HEX_RED2 = ""
-HEX_RED3 = ""
+HEX_RED1 = "https://i.imgur.com/zEGZNwT.png"
+HEX_RED2 = "https://i.imgur.com/V6hz1yG.png"
+HEX_RED3 = "https://i.imgur.com/cyhglb4.png"

@@ -75,7 +75,9 @@ export async function startWar(message: Message, author: user, opponent: user) {
         embed: {
             color: parseInt(config.properties.embedColor),
             title: "Duel between " + newWar.p1.tag + " (player 1) and " + newWar.p2.tag + " (player 2).",
-            description: "Please mobilize your armies now and get ready for the fight!"
+            description: "Please mobilize your armies now and get ready for the fight!\n\n" +
+                "**Important:** Prepare yourself for long lasting wars: Keep an eye on your resources! " +
+                "If you run out of food (or other resources) during the war, your troops will perform 50% worse!" 
         }
     });
 
@@ -89,7 +91,6 @@ export async function startWar(message: Message, author: user, opponent: user) {
     pyshell.send(sendString);
 
     pyshell.on('message', async answer => {
-        console.log(answer);
         imgurl = `imageplotting/${answer.toString()}.png`;
 
         const file = new Attachment(imgurl);

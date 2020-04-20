@@ -1,18 +1,18 @@
 export const battleStats = {
-    infantry: {
+    if: {
         attack: {
-            infantry: 20,
-            artillery: 10,
+            if: 20,
+            art: 10,
             tanks: 5,
             jets: 5
         },
         defense: 20,
         hp: 100
     },
-    artillery: {
+    art: {
         attack: {
-            infantry: 50,
-            artillery: 20,
+            if: 50,
+            art: 20,
             tanks: 150,
             jets: 25
         },
@@ -21,8 +21,8 @@ export const battleStats = {
     },
     tanks: {
         attack: {
-            infantry: 100,
-            artillery: 100,
+            if: 100,
+            art: 100,
             tanks: 100,
             jets: 35
         },
@@ -31,8 +31,8 @@ export const battleStats = {
     },
     jets: {
         attack: {
-            infantry: 150,
-            artillery: 100,
+            if: 150,
+            art: 100,
             tanks: 100,
             jets: 50
         },
