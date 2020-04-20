@@ -20,6 +20,14 @@ export function Sleep(milliseconds: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
+
+  export function getRandomRange(min: number, max:number) {
+    return Math.random() * (max - min) + min;
+  }
+
 Number.prototype.commafy = function (): string {
     return String(this).commafy();
 }
