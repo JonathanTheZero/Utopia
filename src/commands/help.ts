@@ -12,10 +12,10 @@ export const helpMenu = {
             name: 'Alliance help:',
             value: "type `.help alliance` to view the alliance help menu",
         },
-        /*{
-            name: "Battle help",
-            value: "type `.help battle` to view the battle help menu",
-        },*/
+        {
+            name: "War help",
+            value: "type `.warguide` to view the guide for the newly introduced wars!",
+        },
         {
             name: "Miscellaneous help:",
             value: "type `.help misc` to view the help menu for everything else",
@@ -52,6 +52,12 @@ export const generalHelpMenu = {
         {
             name: "`.crime`",
             value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
+        },
+        {
+            name: "`.digmine` and `.mine <oil | steel>`",
+            value: "Every 4 hours you can dig and search for a mine. " +
+                "If you are succesful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
+                "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!"
         },
         {
             name: "`.utopia [mention/ID]`",
@@ -287,12 +293,8 @@ export const guideEmbed = {
                 "You can learn how to manage it by saying `.help a`."
         },
         {
-            name: "**Battles** (Note: battles have been temporarily removed but they will return!)",
-            value: "Once you have enough population, money and food you can start dueling. Start a duel by saying `.duel <mention>`, set your troops by saying `.dividetroops <infantry regiments> <cavalry regiments> <artillery regiments>` and confirm it with `.ready`. Each regiment is composed of 1000 troops. The stats for each troop type are:\n" +
-                "-Infantry: 50 coins per regiment to create and 20 food per regiment per round to feed. Has 30 Def and 25 Atk.\n" +
-                "-Infantry: 100 coins per regiment to create and 300 food per regiment per round to feed. 25 HP, 15 Def and 15 Atk.\n" +
-                "-Artillery: 1000 coins per regiment to create and 500 food per regiment per round to feed. 50 HP, 30 Def and 25 Atk.\n" +
-                "You get a token for every battle you win (with a 12h cooldown). Spend them on troop upgrades in `.store b`.\n"
+            name: "**Battles**",
+            value: "The old battle system has been removed and replaced by wars, use `.warguide` to learn how they work."
         }
     ],
     timestamp: new Date(),

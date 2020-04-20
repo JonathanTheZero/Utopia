@@ -1,0 +1,94 @@
+import { Message, Client, User } from "discord.js";
+import { user, alliance } from "../utils/interfaces";
+import { getUser, updateValueForUser } from "../utils/databasehandler";
+import { getRandomInt, getRandomRange } from "../utils/utils";
+import "../utils/utils";
+
+export async function digmine(message: Message, args: string[]) {
+    let user: user = await getUser(message.author.id);
+
+    if (!user)
+        return message.reply("you haven't created an account yet, please use `.create` command");
+
+    if (user.money < 10000 * (user.resources.totaldigs + 1))
+        return message.reply(`you don't have ${(10000 * (user.resources.totaldigs + 1)).commafy()} money`)
+
+    if (Math.floor(Date.now() / 1000) - user.lastDig < 14400)
+        return message.reply(`You can dig a new mine in ${new Date(((14400 - Math.floor(Date.now() / 1000)) - user.lastDig) * 1000).toISOString().substr(11, 8)}`);
+
+    else {
+        let minetype = (getRandomInt(3));
+        updateValueForUser(user._id, "money", -(10000 * (user.resources.totaldigs + 1)), "$inc");
+
+        if (minetype == 0) {
+            updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
+            return message.reply("Your digging has returned no new mines")
+        }
+
+        if (minetype == 1) {
+            updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
+            updateValueForUser(user._id, "steelmine", 1, "$inc");
+            updateValueForUser(user._id, "steel", 100, "$inc");
+            updateValueForUser(user._id, "totaldigs", 1, "$inc");
+            return message.reply("Your digging is successful. You got a new steel mine, and has given a initial return of 100 steel")
+        }
+
+        if (minetype == 2) {
+            updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
+            updateValueForUser(user._id, "oilrig", 1, "$inc");
+            updateValueForUser(user._id, "oil", 100, "$inc");
+            updateValueForUser(user._id, "totaldigs", 1, "$inc");
+            return message.reply("Your digging is successful. You got a new oil rig, and has given a initial return of 100 barrels of oil");
+        }
+    }
+
+}
+
+export async function mine(message: Message, args: string[]) {
+    let user: user = await getUser(message.author.id);
+
+    if (!user) return message.reply("you haven't created an account yet, please use `.create` command");
+
+    if (user.resources.oilrig == 0 && user.resources.steelmine == 0)
+        return message.reply("you don't have any mines to mine");
+
+    if (args[0] !== "steel" && args[0] !== "oil")
+        return message.reply("Wrong mine type, please do `.mine steel` or `.mine oil`");
+
+    if (user.resources.minereturn == 0)
+        return message.reply("Your mines can't make new resources");
+
+    if (Math.floor(Date.now() / 1000) - user.lastMine < 3600)
+        return message.reply(`You can mine in ${new Date((3600 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8)}`);
+
+    else {
+        if (args[0] == "steel") {
+            let payout = getRandomRange(400, 10000);
+            let x = 0;
+            for (var i = 0; i <= user.resources.steelmine; i++) {
+                x += (payout - (payout * user.resources.minereturn));
+            }
+            x = Math.floor(x);
+            updateValueForUser(user._id, "steel", x, "$inc");
+            message.reply(`Your steel mines produced ${x.commafy()} steel, you now have ${(x + user.resources.steel).commafy()} steel.`);
+        }
+
+        if (args[0] == "oil") {
+            let payout = getRandomRange(400, 10000);
+            let x = 0;
+            for (var i = 0; i <= user.resources.oilrig; i++) {
+                x += (payout - (payout * user.resources.minereturn))
+            }
+            x = Math.floor(x);
+            updateValueForUser(user._id, "oil", x, "$inc");
+            message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels`);
+        }
+        const x = (user.resources.minereturn - (user.resources.minereturn * getRandomRange(10, user.resources.minereturn / 2))) / 100;
+        updateValueForUser(user._id, "minereturn", x <= 0 ? 0 : x, "$set");
+
+        if (user.minereset == 0)
+            updateValueForUser(user._id, "minereset", Math.floor(Date.now() / 1000), "$set");
+
+        updateValueForUser(user._id, "lastMine", Math.floor(Date.now() / 1000), "$set");
+    }
+}

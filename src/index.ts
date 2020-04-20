@@ -24,10 +24,10 @@ import {
     updatePrefix,
     addServer,
     deleteServer,
-    connected,
+    connected
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
-import { user, configDB, giveaway, server } from "./utils/interfaces";
+import { user, configDB, giveaway } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
 import { leaderboard } from "./commands/leaderboard";
@@ -53,7 +53,9 @@ import {
     allianceOverview,
     renameAlliance,
 } from "./commands/alliances";
-import { payoutLoop, populationWorkLoop, payout, alliancePayout } from "./commands/payouts";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
+import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
+import { mine, digmine } from "./commands/mine";
 
 const express = require('express');
 const app = express();
@@ -92,7 +94,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
-    client.user.setActivity(`.help | Now with voting streaks!`);
+    client.user.setActivity(`.help | v2 Blood and Steel out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -106,9 +108,14 @@ client.on("ready", async () => {
             });
     });
     let c: configDB = await getConfig();
-    const [tdiff1, tdiff2] = [(Math.floor(Date.now() / 1000) - c.lastPayout), (Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout)];
+    const [tdiff1, tdiff2, tdiff3] = [
+        Math.floor(Date.now() / 1000) - c.lastPayout, 
+        Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
+        Math.floor((Date.now() - c.lastMineReset) / 1000)
+    ];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
     setTimeout(() => populationWorkLoop(client), ((39600 - tdiff2) * 1000));
+    setTimeout(() => mineReset(client), ((604800 - tdiff3) * 1000))
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) {
         giveawayCheck(g._id, client);
@@ -120,7 +127,7 @@ client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    if(connected) 
+    if (connected)
         addServer({
             _id: guild.id,
             name: guild.name,
@@ -133,7 +140,7 @@ client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
 
-    if(connected) deleteServer(guild.id);
+    if (connected) deleteServer(guild.id);
 });
 
 
@@ -339,17 +346,17 @@ client.on("message", async message => {
         return message.reply(await fire(user.alliance as string, user, member));
     }
 
-    else if(command === "renamealliance" || command === "rename"){
+    else if (command === "renamealliance" || command === "rename") {
         let user = await getUser(message.author.id);
-        if(!user)
-          return message.reply("you haven't created an account yet, please use the `create` command.");
-        else if(user.allianceRank == "M"){
-          return message.reply("only Co-Leaders and the Leader can use this command!");
+        if (!user)
+            return message.reply("you haven't created an account yet, please use the `create` command.");
+        else if (user.allianceRank == "M") {
+            return message.reply("only Co-Leaders and the Leader can use this command!");
         }
-        else if(user.alliance == null){
-          return message.reply("you haven't joined an alliance yet!");
+        else if (user.alliance == null) {
+            return message.reply("you haven't joined an alliance yet!");
         }
-        return message.reply(renameAlliance(message, args));
+        return renameAlliance(message, args);
     }
 
     else if (command === "alliance")
@@ -363,6 +370,16 @@ client.on("message", async message => {
             embed: guideEmbed
         });
     }
+    
+    else if(command === "warguide")
+        message.channel.send({
+            embed: warGuide
+        });
+    
+    else if(command === "troopstats")
+        message.channel.send({
+            embed: troopStats
+        });
 
     else if (command === "shop" || command === "store") {
         var store: any;
@@ -505,6 +522,45 @@ client.on("message", async message => {
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
         updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
     }
+
+    else if (command === "start-war" || command === "startwar") {
+        if (!args[0]) return message.reply("please follow the syntax of `.start-war <mention/ID>`");
+        const u: user = await getUser(message.author.id);
+        const o: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
+        if (!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
+        if (!o) return message.reply("this user hasn't created an account yet.");
+        startWar(message, u, o);
+    }
+
+    else if (command === "mobilize")
+        mobilize(message, args);
+
+    else if (command === "ready")
+        ready(message);
+
+    else if (command === "cancel-war" || command === "cancelwar")
+        cancelWar(message);
+
+    else if (command === "armies")
+        armies(message);
+
+    else if (command === "set-position" || command === "setposition")
+        setPosition(message, args);
+
+    else if(["showfield", "field"].includes(command as string))
+        showFieldM(message);
+
+    else if(command === "move")
+        move(message, args);
+    
+    else if(command === "attack")
+        attack(message, args);
+
+    else if(command === "mine")
+        mine(message, args);
+    
+    else if(command === "digmine")
+        digmine(message, args);
 
 });
 

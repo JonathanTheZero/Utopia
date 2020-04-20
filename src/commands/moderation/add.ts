@@ -14,19 +14,23 @@ export async function add(message: Message, args: string[]) {
     if (a == null) return message.reply("this isn't a valid amount.");
     if (["money", "m"].includes(args[0])) {
         updateValueForUser(user._id, "money", a, "$inc");
-        return message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()} balance.`);
+        return message.reply("Succesfully added " + a.commafy() + " " + `money to ${message.mentions.users.first()}'s balance.`);
     }
     else if (["food", "f"].includes(args[0])) {
         updateValueForUser(user._id, "food", Math.floor(a), "$inc");
-        return message.reply("Succesfully added " + a.commafy() + " " + `food to ${message.mentions.users.first()} balance.`);
+        return message.reply("Succesfully added " + a.commafy() + " " + `food to ${message.mentions.users.first()}'s balance.`);
     }
     else if (["population", "p"].includes(args[0])) {
         updateValueForUser(user._id, "population", a, "$inc");
-        return message.reply("Succesfully added " + a.commafy() + " " + `population to ${message.mentions.users.first()} balance.`);
+        return message.reply("Succesfully added " + a.commafy() + " " + `population to ${message.mentions.users.first()}'s balance.`);
     }
     else if(["steel", "s"].includes(args[0])){
         updateValueForUser(user._id, "steel", Math.floor(a), "$inc");
-        return message.reply("Succesfully added " + a.commafy() + " " + `steel to ${message.mentions.users.first()} balance.`);
+        return message.reply("Succesfully added " + a.commafy() + " " + `steel to ${message.mentions.users.first()}'s balance.`);
     }
-    return message.reply("the only types allowed are 'food', 'money', 'steel' and 'population'");
+    else if(["oil", "o"].includes(args[0])){
+        updateValueForUser(user._id, "oil", Math.floor(a), "$inc");
+        return message.reply("Succesfully added " + a.commafy() + " " + `oil to ${message.mentions.users.first()}'s balance.`);
+    }
+    return message.reply("the only types allowed are 'food', 'money', 'steel', 'oil' and 'population'");
 }

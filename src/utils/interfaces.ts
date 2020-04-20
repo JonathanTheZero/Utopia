@@ -5,7 +5,10 @@ export interface user {
     _id: string;
     money: number;
     lastWorked: number;
+    minereset: number;
     lastCrime: number;
+    lastDig: number;
+    lastMine: number;
     autoping: boolean;
     payoutDMs: boolean;
     alliance: string | null;
@@ -14,6 +17,11 @@ export interface user {
         food: number;
         population: number;
         steel: number;
+        oil: number;
+        totaldigs: number;
+        steelmine: number;
+        oilrig: number;
+        minereturn: number;
     },
     upgrades: {
         population: string[];
@@ -56,6 +64,7 @@ export interface configDB {
     lastPayout: number;
     lastPopulationWorkPayout: number;
     commandsRun: number;
+    lastMineReset: number;
 }
 
 export interface giveaway {
@@ -90,11 +99,55 @@ export type updateUserQuery = "tag"
     | "lastCrime"
     | "lastVoted"
     | "votingStreak"
-    | "steel";
-    
+    | "steel"
+    | "oil"
+    | "lastDig"
+    | "lastMine"
+    | "totaldigs"
+    | "steelmine"
+    | "oilrig"
+    | "minereturn"
+    | "minereset";
+
 export type updateAllianceQuery = "name"
     | "level"
     | "public"
     | "leader"
     | "money"
     | "tax";
+
+export interface war {
+    _id: string;
+    p1: battlePlayer;
+    p2: battlePlayer;
+    field: Array<Array<0 | string>>;
+    started: boolean;
+}
+
+interface battlePlayer {
+    _id: string;
+    tag: string;
+    ready: boolean;
+    resources: {
+        food: battleResource;
+        money: battleResource;
+        population: battleResource;
+        steel: battleResource;
+        oil: battleResource;
+    };
+    armies: army[];
+}
+
+interface battleResource {
+    begin: number;
+    consumed: number;
+};
+
+export interface army {
+    if: number;
+    art: number;
+    tnk: number;
+    jet: number;
+    field: [number, number] | null;
+    moved: boolean;
+}

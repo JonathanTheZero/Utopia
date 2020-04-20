@@ -1,5 +1,12 @@
 const path = require('path');
 
+/**
+ * As the mode: 'production' property indicates,
+ * the main usage for webpack is for using it production,
+ * otherwise use the default TypeScript compiler.
+ * 
+ * At least as long as you don't plan on modifying webpack here
+ */
 module.exports = {
     mode: 'production',
     entry: './src/index.ts',
@@ -27,7 +34,7 @@ module.exports = {
         alias: {
             [
                 path.resolve(
-                    __dirname, 
+                    __dirname,
                     'src/static/config.json'
                 )
             ]:
@@ -40,17 +47,33 @@ module.exports = {
     output: {
         filename: 'bundle.js',
         path: path.resolve(
-            __dirname, 
+            __dirname,
             './dist/'
         ),
         libraryTarget: 'commonjs',
     },
     target: 'node',
-    externals: [
-        /^(?!\.|\/).+/i,
-    ],
     node: {
         __dirname: false,
         __filename: false
+    },
+    externals: [
+        /^(?!\.|\/).+/i
+    ],
+    optimization: {
+        minimize: true,
+        namedModules: false,
+        namedChunks: false,
+        moduleIds: 'size',
+        chunkIds: 'size',
+        removeAvailableModules: true,
+        mangleWasmImports: true,
+        removeEmptyChunks: true,
+        mergeDuplicateChunks: true,
+        flagIncludedChunks: true,
+        occurrenceOrder: true,
+        providedExports: true,
+        usedExports: true,
+        concatenateModules: true
     }
 };

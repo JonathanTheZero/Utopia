@@ -3,4 +3,4 @@ config.json
 config.prod.json
 /dist
 /Assets
-/src/commands/wars
+*.png

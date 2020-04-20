@@ -69,7 +69,7 @@ export async function loan(message: Message, args: string[], user: user) {
 
     else if (userloan > 0 && userloan <= maxloan) {
       updateValueForUser(message.author.id, "money", userloan, "$inc");
-      updateValueForUser(message.author.id, "loan", Math.floor(user.money + userloan * 1.25));
+      updateValueForUser(message.author.id, "loan", Math.floor(userloan * 1.25));
       return message.reply("Congrats, you took out " + userloan.commafy() + " coins.");
     }
   }
@@ -82,7 +82,7 @@ export async function payback(message: Message, args: string[], user: user) {
   if ((isNaN(<any>args[0]) || typeof args[0] === "undefined" || <any>args[0] < 1) && args[0] !== "a")
     return message.reply("Please enter valid amount.");
 
-  if (!user || Object.keys(user).length === 0 && user.constructor === Object)
+  if (!user)
     return message.reply("you haven't created an account yet, please use `.create` first");
 
   if (user.loan) {
