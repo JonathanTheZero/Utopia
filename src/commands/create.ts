@@ -23,7 +23,7 @@ export function createUser(message: Message): user {
             totaldigs: 0,
             steelmine: 0,
             oilrig: 0,
-            minereturn: 0
+            minereturn: 1
         },
         upgrades: {
             population: [],
