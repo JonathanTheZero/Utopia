@@ -109,7 +109,7 @@ client.on("ready", async () => {
     });
     let c: configDB = await getConfig();
     const [tdiff1, tdiff2, tdiff3] = [
-        Math.floor(Date.now() / 1000) - c.lastPayout, 
+        Math.floor(Date.now() / 1000) - c.lastPayout,
         Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
         Math.floor((Date.now() - c.lastMineReset) / 1000)
     ];
@@ -134,6 +134,8 @@ client.on("guildCreate", guild => {
             prefix: "."
         });
 });
+
+client.on("debug", console.log);
 
 
 client.on("guildDelete", guild => {
@@ -370,13 +372,13 @@ client.on("message", async message => {
             embed: guideEmbed
         });
     }
-    
-    else if(command === "warguide")
+
+    else if (command === "warguide")
         message.channel.send({
             embed: warGuide
         });
-    
-    else if(command === "troopstats")
+
+    else if (command === "troopstats")
         message.channel.send({
             embed: troopStats
         });
@@ -547,19 +549,19 @@ client.on("message", async message => {
     else if (command === "set-position" || command === "setposition")
         setPosition(message, args);
 
-    else if(["showfield", "field"].includes(command as string))
+    else if (["showfield", "field"].includes(command as string))
         showFieldM(message);
 
-    else if(command === "move")
+    else if (command === "move")
         move(message, args);
-    
-    else if(command === "attack")
+
+    else if (command === "attack")
         attack(message, args);
 
-    else if(command === "mine")
+    else if (command === "mine")
         mine(message, args);
-    
-    else if(command === "digmine")
+
+    else if (command === "digmine")
         digmine(message, args);
 
 });
