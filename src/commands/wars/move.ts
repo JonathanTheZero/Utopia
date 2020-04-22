@@ -27,11 +27,11 @@ export async function move(message: Message, args: string[]) {
         if(Math.abs(curr.field![0] - x) > 2 || Math.abs(curr.field![1] - y) > 2) return message.reply("you can't move your army that far!");
         if(p1 && x === 13 && y === 7){
             await endWar(true, w._id);
-            return message.channel.send(`<@${a._id}> won!`);
+            return message.channel.send(`<@${w.p1._id}> won!`);
         }
         if(!p1 && x === 1 && y === 7){
             await endWar(false, w._id);
-            return message.channel.send(`<@${b._id}> won!`);
+            return message.channel.send(`<@${w.p2._id}> won!`);
         }
         await moveArmy(w._id, p1, parseInt(args[0]) - 1, [x, y]);
     }
@@ -56,13 +56,18 @@ async function endWar(p1Won: boolean, _id: string){
     ]);
     const [winnerId, loserId] = p1Won ? [w.p1._id, w.p2._id] : [w.p2._id, w.p1._id];
     const loser = await getUser(loserId);
-    const random = Math.random() * 0.25;
+    const random = Math.floor(1 + Math.random() * 0.25);
+    console.log(loser.tag);
 
     updateValueForUser(winnerId, "food", Math.floor(loser.resources.food * 0.05 * random), "$inc");
     updateValueForUser(winnerId, "money", Math.floor(loser.money * 0.05 * random), "$inc");
-    updateValueForUser(winnerId, "population", Math.floor(loser.resources.population * 0.05 * random), "$inc");
     updateValueForUser(winnerId, "oil", Math.floor(loser.resources.oil * 0.05 * random), "$inc");
     updateValueForUser(winnerId, "steel", Math.floor(loser.resources.steel * 0.05 * random), "$inc");
+
+    updateValueForUser(loserId, "food", .95 * loser.resources.food, "$set");
+    updateValueForUser(loserId, "oil", .95 * loser.resources.oil, "$set");
+    updateValueForUser(loserId, "steel", .95 * loser.resources.steel, "$set");
+    updateValueForUser(loserId, "money", .95 * loser.money, "$set");
 
     await deleteWar(_id);
 }

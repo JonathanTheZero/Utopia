@@ -185,10 +185,6 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
                 value: "Type `.store alliance` to view the alliance store",
             },
             {
-                name: "Battle store",
-                value: "Type `.store battle` to view the battle store",
-            },
-            {
                 name: "Personal Farm store",
                 value: "Type `.store pf` to view the Personal Farm store",
             },

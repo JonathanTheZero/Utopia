@@ -135,7 +135,7 @@ client.on("guildCreate", guild => {
         });
 });
 
-client.on("debug", console.log);
+//client.on("debug", console.log);
 
 
 client.on("guildDelete", guild => {
@@ -451,11 +451,11 @@ client.on("message", async message => {
                 fields: [
                     {
                         name: "Servers:",
-                        value: `Currently I am active on ${client.guilds.size} servers`
+                        value: `Currently I am active on ${client.guilds.size.commafy()} servers`
                     },
                     {
                         name: "Users:",
-                        value: `Currently I have ${client.users.size} users.`
+                        value: `Currently I have ${client.users.size.commafy()} users.`
                     },
                     {
                         name: "Commands run:",
@@ -520,7 +520,8 @@ client.on("message", async message => {
         startGiveaway(message, args, client);
 
     else if (command === "set-prefix") {
-        if (!message.member.hasPermission(["ADMINISTRATOR"], false, true, true)) return message.reply("only server admins can change the prefix!");
+        if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true)) 
+            return message.reply("you need manage server permissions to change the prefix!");
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
         updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
     }
