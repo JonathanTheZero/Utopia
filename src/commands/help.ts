@@ -54,10 +54,11 @@ export const generalHelpMenu = {
             value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
         },
         {
-            name: "`.digmine` and `.mine <oil | steel>`",
+            name: "`.digmine`, `.minestats` and `.mine <oil | steel>`",
             value: "Every 4 hours you can dig and search for a mine. " +
                 "If you are succesful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
-                "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!"
+                "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!\n" +
+                "For a more comprehensive overview, use `.minestats`"
         },
         {
             name: "`.utopia [mention/ID]`",
@@ -108,12 +109,8 @@ export const generalHelpMenu = {
             value: "See how many ressources you or another user will receive during the next payout"
         },
         {
-            name: "`.delete`",
-            value: "Delete your account"
-        },
-        {
             name: "`.set-prefix`",
-            value: "Change the prefix of the bot (server admins only)"
+            value: "Change the prefix of the bot (only usable by members with 'manage server' permissions)"
         }
     ],
     timestamp: new Date(),
@@ -253,7 +250,7 @@ export const modHelpMenu = {
         },
         {
             name: "`.set-prefix`",
-            value: "Change the prefix of the bot (server admins only)"
+            value: "Change the prefix of the bot (only usable by members with 'manage server' permissions)"
         }
     ],
     timestamp: new Date(),
@@ -272,29 +269,35 @@ export const guideEmbed = {
         {
             name: "**Earning money**",
             value: "Every 30 minutes you can do `.work`, which is the base source of income. " +
-                "You can get between 0 and (10,000 + `population`/1,000) coins from working." +
+                "The maximum amount of coins you can get from working increases with increasing population." +
                 "`.crime` has a 7% chance to give you 50,000+ money but you can also lose up to 2% of your balance. " +
-                "If you're feeling lucky, you can also gamble by saying `.bet <amount>/a`. You have 50% to earn double your bet and 50% to lose it. To see how much money you have, say `.stats`."
+                "If you're feeling lucky, you can also gamble by saying `.bet <amount>/a`. " +
+                "You have 50% to earn double your bet and 50% to lose it. " +
+                "To see how much money you have, say `.stats`."
         },
         {
             name: "**Population**",
-            value: "Your population works once every 12 hours, giving you 1 money per 10-20 people and consuming ~2 food per person in the process. You get population by buying upgrades."
+            value: "Your population works once every 12 hours, giving you 1 money per 10-20 people and consuming ~2 food per person in the process. " +
+                "You get population by buying upgrades."
         },
         {
             name: "**Upgrades**",
-            value: "When you earn enough money, you can go to a store and finally start getting population. You can see the list of upgrades by saying `.store p` and buy something by saying `.buy <name>`." +
-                "Since v1.2 there are also personal farms, which produce food only for you, but alliance farms are still stronger"
+            value: "When you earn enough money, you can go to a store and finally start getting population. " +
+                "You can see the list of upgrades by saying `.store p` and buy something by saying `.buy <name>`." +
+                "Since v1.2 there are also personal farms, which produce food only for you, but alliance farms are still stronger."
         },
         {
             name: "**Alliances**",
             value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." +
-                "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
+                "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). " +
+                "When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
                 "There's also an option to create your own alliance for 250k using `.createalliance <name>`. " +
                 "You can learn how to manage it by saying `.help a`."
         },
         {
             name: "**Battles**",
-            value: "The old battle system has been removed and replaced by wars, use `.warguide` to learn how they work."
+            value: "The old battle system has been removed and replaced by wars, use `.warguide` to learn how they work. " +
+                "(By now wars are the only actions where the new oil and steel resources are used, you can find mroe about those in the mine section when running `.help general`)"
         }
     ],
     timestamp: new Date(),

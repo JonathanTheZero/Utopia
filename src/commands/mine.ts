@@ -3,6 +3,7 @@ import { user, alliance } from "../utils/interfaces";
 import { getUser, updateValueForUser } from "../utils/databasehandler";
 import { getRandomInt, getRandomRange } from "../utils/utils";
 import "../utils/utils";
+import * as config from "../static/config.json";
 
 export async function digmine(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
@@ -89,4 +90,41 @@ export async function mine(message: Message, args: string[]) {
 
         updateValueForUser(user._id, "lastMine", Math.floor(Date.now() / 1000), "$set");
     }
+}
+
+export async function mineStats(message: Message, args: string[]){
+    let user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
+    if(!user) return message.reply(args[0] ? "This user hasn't created an account yet." : "You haven't created an account yet, please use `.create`.");
+
+    return message.channel.send({
+        embed: {
+            title: "Mine stats for " + user.tag,
+            fields: [
+                {
+                    name: "Digging:",
+                    value: "Your next digging for a mine will cost " + ((user.resources.totaldigs + 1) * 10000).commafy() + " money",
+                    inline: true
+                },
+                {
+                    name: "Steelmines:",
+                    value: `You currently have ${user.resources.steelmine.commafy()} steelmines`,
+                    inline: true
+                },
+                {
+                    name: "Oil rigs:",
+                    value: `You currently have ${user.resources.oilrig.commafy()} oil rigs`,
+                    inline: true
+                },
+                {
+                    name: "Production efficency:",
+                    value: `You already mined so much, your mines efficency sank to ${user.resources.minereturn.toLocaleString("en", {style: "percent"})}. ` + 
+                        "(Don't worry, this is reset once a week.)",
+                    inline: true
+                },
+            ],
+            color: parseInt(config.properties.embedColor),
+            footer: config.properties.footer,
+            timestamp: new Date()
+        }
+    });
 }

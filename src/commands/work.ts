@@ -7,66 +7,65 @@ export async function work(message: Message, client: Client) {
     let user: user = await getUser(message.author.id);
     let alliance: alliance = await getAlliance(user.alliance as string) as alliance;
 
-    if (client.users.get(user._id.toString())?.tag != user.tag)
-        updateValueForUser(user._id, "tag", client.users.get(user._id.toString())?.tag as string);
     if (!user)
         return message.reply("you haven't created an account yet, please use the `.create` command.");
 
     if (Math.floor(Date.now() / 1000) - user.lastWorked < 1800)
         return message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8));
-    else {
-        let produced = Math.floor(Math.random() * (10000 + user.resources.population / 1000));
-        if (!alliance) {
-            if (user.loan) {
-                let paid = Math.floor(produced / 2 + 1)
-                produced = Math.floor(produced / 2 - 1)
-                if (paid <= user.loan) {
-                    updateValueForUser(user._id, "loan", -paid, "$inc");
-                    updateValueForUser(user._id, "money", produced, "$inc");
-                    message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You sent " + paid.commafy() + " to your loan.");
-                }
-                else {
-                    paid -= user.loan;
-                    updateValueForUser(user._id, "loan", 0, "$set");
-                    produced += paid;
-                    updateValueForUser(user._id, "money", produced, "$inc");
-                    message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You paid off your loan.");
-                }
+
+    if (client.users.get(user._id.toString())?.tag != user.tag)
+        updateValueForUser(user._id, "tag", client.users.get(user._id.toString())?.tag as string);
+
+    let produced = Math.floor(Math.random() * (10000 + user.resources.population / 1000));
+    if (!alliance) {
+        if (user.loan) {
+            let paid = Math.floor(produced / 2 + 1)
+            produced = Math.floor(produced / 2 - 1)
+            if (paid <= user.loan) {
+                updateValueForUser(user._id, "loan", -paid, "$inc");
+                updateValueForUser(user._id, "money", produced, "$inc");
+                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You sent " + paid.commafy() + " to your loan.");
             }
             else {
+                paid -= user.loan;
+                updateValueForUser(user._id, "loan", 0, "$set");
+                produced += paid;
                 updateValueForUser(user._id, "money", produced, "$inc");
-                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
+                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You paid off your loan.");
             }
         }
         else {
-            var taxed = Math.floor((alliance.tax / 100) * produced);
-            produced -= taxed;
-            alliance.money += taxed;
-            updateValueForAlliance(alliance.name, "money", taxed, "$inc");
-            if (user.loan) {
-                let paid = Math.floor(produced / 2 + 1)
-                produced = Math.floor(produced / 2 - 1)
-                if (paid <= user.loan) {
-                    updateValueForUser(user._id, "loan", -paid, "$inc");
-                    updateValueForUser(user._id, "money", produced, "$inc");
-                    message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You sent " + paid.commafy() + " to your loan.");
-                }
-                else {
-                    paid -= user.loan;
-                    updateValueForUser(user._id, "loan", 0, "$set");
-                    produced += paid;
-                    updateValueForUser(user._id, "money", produced, "$inc");
-                    message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid off your loan.");
-                }
+            updateValueForUser(user._id, "money", produced, "$inc");
+            message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
+        }
+    }
+    else {
+        var taxed = Math.floor((alliance.tax / 100) * produced);
+        produced -= taxed;
+        updateValueForAlliance(alliance.name, "money", taxed, "$inc");
+        if (user.loan) {
+            let paid = Math.floor(produced / 2 + 1)
+            produced = Math.floor(produced / 2 - 1)
+            if (paid <= user.loan) {
+                updateValueForUser(user._id, "loan", -paid, "$inc");
+                updateValueForUser(user._id, "money", produced, "$inc");
+                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You sent " + paid.commafy() + " to your loan.");
             }
             else {
+                paid -= user.loan;
+                updateValueForUser(user._id, "loan", 0, "$set");
+                produced += paid;
                 updateValueForUser(user._id, "money", produced, "$inc");
-                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+                message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid off your loan.");
             }
         }
-        updateValueForUser(user._id, "lastWorked", Math.floor(Date.now() / 1000));
-        if (user.autoping) reminder(message, 1800000, "I'll remind you in 30 minutes that you can work again.", "Reminder: Work again");
+        else {
+            updateValueForUser(user._id, "money", produced, "$inc");
+            message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
+        }
     }
+    updateValueForUser(user._id, "lastWorked", Math.floor(Date.now() / 1000));
+    if (user.autoping) reminder(message, 1800000, "I'll remind you in 30 minutes that you can work again.", "Reminder: Work again");
 }
 
 export async function crime(message: Message, client: Client) {

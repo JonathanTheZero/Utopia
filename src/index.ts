@@ -55,7 +55,7 @@ import {
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
-import { mine, digmine } from "./commands/mine";
+import { mine, digmine, mineStats } from "./commands/mine";
 
 const express = require('express');
 const app = express();
@@ -208,7 +208,7 @@ client.on("message", async message => {
         }
     }
 
-    else if (command === "create") {
+    else if (command === "create" || command === "start") {
         let data = createUser(message);
         if (await getUser(message.author.id)) return message.reply("error, you already have an account!");
         addUsers([data]);
@@ -519,7 +519,7 @@ client.on("message", async message => {
     else if (command === "start-giveaway")
         startGiveaway(message, args, client);
 
-    else if (command === "set-prefix") {
+    else if (["set-prefix", "setprefix", "prefix"].includes(<string>command)) {
         if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true)) 
             return message.reply("you need manage server permissions to change the prefix!");
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
@@ -564,6 +564,9 @@ client.on("message", async message => {
 
     else if (command === "digmine")
         digmine(message, args);
+
+    else if(command === "minestats")
+        mineStats(message, args);
 
 });
 
