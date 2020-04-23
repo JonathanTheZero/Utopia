@@ -58,7 +58,7 @@ export const generalHelpMenu = {
             value: "Every 4 hours you can dig and search for a mine. " +
                 "If you are succesful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
                 "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!\n" +
-                "For a more comprehensive overview, use `.minestats`"
+                "For a more comprehensive overview over your stats, use `.minestats`"
         },
         {
             name: "`.utopia [mention/ID]`",
@@ -66,7 +66,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.lb` or `.leaderboard [type] [page]`",
-            value: "View the global leaderboard. Allowed types are 'allaince', 'wins', 'money', 'food' and 'population'.",
+            value: "View the global leaderboard. Allowed types are 'allaince', 'money', 'food' and 'population'.",
         },
         {
             name: "`.shop` or `.store [category]`",
@@ -85,8 +85,10 @@ export const generalHelpMenu = {
             value: "View the items you purchased but haven't used yet."
         },
         {
-            name: "`.loan`",
-            value: "Using loan, you can take out money to help you further expand your empire. Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. Use `payback [amount]` to pay it back."
+            name: "`.loan`, `.payback` and `.loancalc`",
+            value: "Using loan, you can take out money to help you further expand your empire. " + 
+                "Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. " +
+                "Use `payback [amount]` to pay it back."
         },
         {
             name: "`.send <mention/ID> <amount>`",
@@ -269,11 +271,11 @@ export const guideEmbed = {
         {
             name: "**Earning money**",
             value: "Every 30 minutes you can do `.work`, which is the base source of income. " +
-                "The maximum amount of coins you can get from working increases with increasing population." +
+                "The maximum amount of coins you can get from working increases with increasing population. " +
                 "`.crime` has a 7% chance to give you 50,000+ money but you can also lose up to 2% of your balance. " +
                 "If you're feeling lucky, you can also gamble by saying `.bet <amount>/a`. " +
                 "You have 50% to earn double your bet and 50% to lose it. " +
-                "To see how much money you have, say `.stats`."
+                "To see how much money you have, say `.me` or `.stats`."
         },
         {
             name: "**Population**",
@@ -283,14 +285,14 @@ export const guideEmbed = {
         {
             name: "**Upgrades**",
             value: "When you earn enough money, you can go to a store and finally start getting population. " +
-                "You can see the list of upgrades by saying `.store p` and buy something by saying `.buy <name>`." +
-                "Since v1.2 there are also personal farms, which produce food only for you, but alliance farms are still stronger."
+                "You can see the list of all population upgrades by saying `.store p` and buy something by saying `.buy <name>`.\n" +
+                "Since v1.2 there are also personal farms, which produce food only for you, but alliance farms are still stronger (and cheaper)."
         },
         {
             name: "**Alliances**",
             value: "Alliances give you food, but also tax a percentage of your income (0-90%, set by the owner)." +
                 "To join one, say `.joinalliance <name>` (you'll need an invite if you want to join a private alliance). " +
-                "When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get something. " +
+                "When you're in an alliance, use `.send <mention>` to send money to a fellow member or `.deposit <amount>` if you want to serve the Soviet Union and help your alliance get some upgrades. " +
                 "There's also an option to create your own alliance for 250k using `.createalliance <name>`. " +
                 "You can learn how to manage it by saying `.help a`."
         },

@@ -68,7 +68,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
         var alliance = user.alliance;
 
         if (alliance == null) {
-            alliance = (typeof args[0] === "undefined") ? "You haven't joined an alliance yet." : `${message.mentions.users.first()} hasn't joined an alliance yet.`;
+            alliance = "You haven't joined an alliance yet.";
         }
         if (user.allianceRank == "M") {
             alliance = "Member of " + alliance;
@@ -79,7 +79,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
         else if (user.allianceRank == "L") {
             alliance = "Leader of " + alliance;
         }
-        let alMoney: string = (alliance == null) ? "You haven't joined an alliance yet" : (await (getAlliance(user.alliance as string) as Promise<alliance>)).money.commafy();
+        let alMoney: string = (user.alliance == null) ? "You haven't joined an alliance yet" : (await (getAlliance(user.alliance as string) as Promise<alliance>))?.money?.commafy();
         return {
             color: parseInt(config.properties.embedColor),
             title: 'Alliance store',

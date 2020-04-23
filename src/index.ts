@@ -212,7 +212,11 @@ client.on("message", async message => {
         let data = createUser(message);
         if (await getUser(message.author.id)) return message.reply("error, you already have an account!");
         addUsers([data]);
-        message.reply("You succesfully created an acoount");
+        message.reply(
+            "you succesfully created an acoount!\n" +
+            "You can find info on all commands in the help menu: `.help`.\n" +
+            "If you prefer a broader introduction, use `.guide`."
+        );
     }
 
     else if (["loancalc", "lc"].includes(command as string))
@@ -233,10 +237,13 @@ client.on("message", async message => {
             return message.reply("you haven't created an account yet, please use the `create` command.");
         else if (user.alliance != null)
             return message.reply("you can't create your own alliance, because you already joined one. Leave your alliance with `.leavealliance` first.");
+        if (user.money < 250000)
+            return message.reply("It costs 250,000 money to create an alliance, you don't have so much!");
 
         await addAlliance(createAlliance(args.join(" "), message));
         updateValueForUser(message.author.id, "alliance", args.join(" "));
         updateValueForUser(message.author.id, "allianceRank", "L");
+        updateValueForUser(message.author.id, "money", -250000, "$inc");
         return message.reply("You are now the leader of " + args.join(" "));
     }
 
@@ -332,8 +339,8 @@ client.on("message", async message => {
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        if (typeof args[0] === 'undefined')
-            return message.reply("please supply a username with `.invite <mention/ID>`. If you are looking on how to invite me to your server, use `.invitelink`");
+        if (!member) return message.reply("this user hasn't created an account yet.");
+        if (!args[0]) return message.reply("please supply a username with `.invite <mention/ID>`. If you are looking on how to invite me to your server, use `.invitelink`");
         if (user._id === member._id) return message.reply("you can't invite yourself!");
         if (user.allianceRank != "M") return message.reply(await invite(user.alliance as string, member));
         return message.reply("only the leader and the co-leaders can send out invites.");
@@ -343,21 +350,17 @@ client.on("message", async message => {
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.invite <mention/ID>`.");
+        if (!member) return message.reply("this user hasn't created an account yet.");
+        if (!args[0]) return message.reply("please supply a username with `.fire <mention/ID>`.");
         if (user.allianceRank != "L") return message.reply("only the leader can fire members.");
         return message.reply(await fire(user.alliance as string, user, member));
     }
 
     else if (command === "renamealliance" || command === "rename") {
         let user = await getUser(message.author.id);
-        if (!user)
-            return message.reply("you haven't created an account yet, please use the `create` command.");
-        else if (user.allianceRank == "M") {
-            return message.reply("only Co-Leaders and the Leader can use this command!");
-        }
-        else if (user.alliance == null) {
-            return message.reply("you haven't joined an alliance yet!");
-        }
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (user.allianceRank == "M") return message.reply("only Co-Leaders and the Leader can use this command!");
+        else if (user.alliance == null) return message.reply("you haven't joined an alliance yet!");
         return renameAlliance(message, args);
     }
 
@@ -367,11 +370,10 @@ client.on("message", async message => {
     else if (command === "alliancemembers")
         allianceMembers(message, args, client);
 
-    else if (command === "guide") {
+    else if (command === "guide")
         message.channel.send({
             embed: guideEmbed
         });
-    }
 
     else if (command === "warguide")
         message.channel.send({
@@ -384,23 +386,16 @@ client.on("message", async message => {
         });
 
     else if (command === "shop" || command === "store") {
-        var store: any;
-        if (args[0] == "population" || args[0] == "p") {
-            store = await storeEmbed!(message, "p", args);
-        }
-        else if (["alliance", "alliances", "a"].includes(args[0])) {
-            store = await storeEmbed!(message, "a", args);
-        }
-        else if (["battle", "battles", "b"].includes(args[0])) {
-            store = await storeEmbed!(message, "b", args)
-        }
-        else if (["pf", "personal"].includes(args[0])) {
-            store = await storeEmbed!(message, "pf", args);
-        }
-        else {
-            store = await storeEmbed!(message, "s", args);
-        }
-        if (store) message.channel.send({ embed: store });
+        if (args[0] == "population" || args[0] == "p")
+            return message.channel.send({ embed: await storeEmbed!(message, "p", args) });
+            
+        else if (["alliance", "alliances", "a"].includes(args[0]))
+            return message.channel.send({ embed: await storeEmbed!(message, "a", args) });
+
+        else if (["pf", "personal"].includes(args[0]))
+            return message.channel.send({ embed: await storeEmbed!(message, "pf", args) });
+
+        return message.channel.send({ embed: await storeEmbed!(message, "s", args) });
     }
 
     else if (["patreon", "donate", "paypal"].includes(command as string)) {
@@ -520,7 +515,7 @@ client.on("message", async message => {
         startGiveaway(message, args, client);
 
     else if (["set-prefix", "setprefix", "prefix"].includes(<string>command)) {
-        if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true)) 
+        if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true))
             return message.reply("you need manage server permissions to change the prefix!");
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
         updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
@@ -565,7 +560,7 @@ client.on("message", async message => {
     else if (command === "digmine")
         digmine(message, args);
 
-    else if(command === "minestats")
+    else if (command === "minestats")
         mineStats(message, args);
 
 });

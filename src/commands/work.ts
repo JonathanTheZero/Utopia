@@ -65,7 +65,12 @@ export async function work(message: Message, client: Client) {
         }
     }
     updateValueForUser(user._id, "lastWorked", Math.floor(Date.now() / 1000));
-    if (user.autoping) reminder(message, 1800000, "I'll remind you in 30 minutes that you can work again.", "Reminder: Work again");
+    if (user.autoping) reminder(
+        message,
+        1800000,
+        "I'll remind you in 30 minutes that you can work again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "Reminder: Work again"
+    );
 }
 
 export async function crime(message: Message, client: Client) {
@@ -146,6 +151,11 @@ export async function crime(message: Message, client: Client) {
                 message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
             }
         }
-        if (user.autoping) reminder(message, 14400000, "I'll remind you in 4h to commit a crime again.", "Reminder: Commit a crime.");
+        if (user.autoping) reminder(
+            message,
+            14400000,
+            "I'll remind you in 4h to commit a crime again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+            "Reminder: Commit a crime."
+        );
     }
 }
