@@ -151,3 +151,21 @@ export interface army {
     field: [number, number] | null;
     moved: boolean;
 }
+
+export interface marketOffer {
+    _id: string;
+    seller: {
+        _id: string;
+        tag: string;
+    };
+    offer: {
+        amount: number;
+        currency: resources;
+    };
+    price: {
+        amount: number;
+        currency: resources;
+    };
+}
+
+export type resources = "money" | "food" | "oil" | "steel" | "population";

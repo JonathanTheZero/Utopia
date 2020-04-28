@@ -56,6 +56,7 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
+import { makeOffer, activeOffers } from "./commands/market";
 
 const express = require('express');
 const app = express();
@@ -153,7 +154,8 @@ client.on("message", async message => {
     var args: Array<string> = message.content.slice(prefix.length).trim().split(/ +/g);
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
-
+    if(!command) return;
+ 
     addCR(); //increase commands run count by one
 
     if (command === "ping") {
@@ -219,7 +221,7 @@ client.on("message", async message => {
         );
     }
 
-    else if (["loancalc", "lc"].includes(command as string))
+    else if (["loancalc", "lc"].includes(command))
         loancalc(message, args, await getUser(message.author.id));
 
     else if (command === "loan") loan(message, args, await getUser(message.author.id));
@@ -388,7 +390,7 @@ client.on("message", async message => {
     else if (command === "shop" || command === "store") {
         if (args[0] == "population" || args[0] == "p")
             return message.channel.send({ embed: await storeEmbed!(message, "p", args) });
-            
+
         else if (["alliance", "alliances", "a"].includes(args[0]))
             return message.channel.send({ embed: await storeEmbed!(message, "a", args) });
 
@@ -398,7 +400,7 @@ client.on("message", async message => {
         return message.channel.send({ embed: await storeEmbed!(message, "s", args) });
     }
 
-    else if (["patreon", "donate", "paypal"].includes(command as string)) {
+    else if (["patreon", "donate", "paypal"].includes(command)) {
         //message.reply("support the bot on Patreon here: https://www.patreon.com/utopiabot\nOr support on PayPal: https://paypal.me/JonathanTheZero");
         return message.channel.send({
             embed: {
@@ -545,7 +547,7 @@ client.on("message", async message => {
     else if (command === "set-position" || command === "setposition")
         setPosition(message, args);
 
-    else if (["showfield", "field"].includes(command as string))
+    else if (["showfield", "field"].includes(command!))
         showFieldM(message);
 
     else if (command === "move")
@@ -562,6 +564,12 @@ client.on("message", async message => {
 
     else if (command === "minestats")
         mineStats(message, args);
+
+    else if(["make-offer", "offer", "makeoffer"].includes(command!))
+        makeOffer(message, args);
+
+    else if(command === "market")
+        activeOffers(message, args);
 
 });
 

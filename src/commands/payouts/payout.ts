@@ -10,14 +10,9 @@ export async function payout(message: Message, args: string[]) {
     if (typeof args[0] === "undefined") {
         user = await getUser(message.author.id);
     }
-    else {
-        try {
-            user = await getUser(message.mentions.users.first().id);
-        }
-        catch {
-            user = await getUser(args[0]);
-        }
-    }
+    else 
+        user = await getUser(message.mentions.users?.first()?.id || args[0]);
+        
     var userPop = 0;
     if (user.upgrades.population.length != 0) {
         if (user.upgrades.population.includes("UK")) userPop += 5000;

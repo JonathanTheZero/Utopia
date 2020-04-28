@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -283,17 +283,33 @@ export async function replaceArmy(_id: string, p1: boolean, index: number, army:
     }, err => { if (err) throw err });
 }
 
+export async function getOffer(_id: string): Promise<marketOffer> {
+    return client.db(dbName).collection("market").findOne({ _id })!;
+}
+
+export async function getAllOffers(): Promise<Array<marketOffer>> {
+    return client.db(dbName).collection("market").find().toArray();
+}
+
+export async function addOffer(offer: marketOffer): Promise<void> {
+    client.db(dbName).collection("market").insertOne(offer);
+}
+
+export async function findOffer(query: { [key: string]: any}): Promise<marketOffer[]> {
+    return client.db(dbName).collection("market").find(query).toArray();
+}
+
 export async function connectToDB(): Promise<void> {
     return new Promise(resolve => {
         client.connect(async err => {
             if (err) throw err;
             console.log("Successfully connected");
-
             client.db(dbName).createCollection("users");
             client.db(dbName).createCollection("alliances");
             client.db(dbName).createCollection("giveaways");
             client.db(dbName).createCollection("servers");
             client.db(dbName).createCollection("wars");
+            client.db(dbName).createCollection("market");
             if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
                 client.db(dbName).collection("config").insertOne(config);
             }

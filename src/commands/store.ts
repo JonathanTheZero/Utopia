@@ -79,7 +79,9 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
         else if (user.allianceRank == "L") {
             alliance = "Leader of " + alliance;
         }
-        let alMoney: string = (user.alliance == null) ? "You haven't joined an alliance yet" : (await (getAlliance(user.alliance as string) as Promise<alliance>))?.money?.commafy();
+        let alMoney: string = (user.alliance == null) ? 
+            "You haven't joined an alliance yet" : 
+            (await (getAlliance(user.alliance as string) as Promise<alliance>))?.money.commafy() || "You haven't joined an alliance yet.";
         return {
             color: parseInt(config.properties.embedColor),
             title: 'Alliance store',

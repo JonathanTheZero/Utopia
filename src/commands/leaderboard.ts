@@ -99,9 +99,7 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
 
     if (type == "p") {
         var lb = await getLeaderboardList("p");
-        var index = lb.findIndex((item: user, i: number) => {
-            return item._id == message.author.id;
-        });
+        var index = lb.findIndex(item => item._id == message.author.id);
         lbEmbed = {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by population, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
@@ -114,9 +112,7 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
 
     else if (type == "f") {
         var lb = await getLeaderboardList("f");
-        var index = lb.findIndex((item, i) => {
-            return item._id == message.author.id;
-        });
+        var index = lb.findIndex(item => item._id == message.author.id);
         lbEmbed = {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by food, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
@@ -130,9 +126,7 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
     else if (type == "a") {
         var lba = await getLeaderboardList("a");
         let u: user = await getUser(message.author.id);
-        let i = lba.findIndex((item, i) => {
-            return item.name == u.alliance;
-        });
+        let i = lba.findIndex(item => item.name == u.alliance);
         var ind = (i == -1) ? "-" : ++i;
         lbEmbed = {
             color: parseInt(config.properties.embedColor),
@@ -144,26 +138,9 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
         };
     }
 
-    else if (type == "w") {
-        var lb = await getLeaderboardList("w");
-        var index = lb.findIndex((item, i) => {
-            return item._id == message.author.id;
-        });
-        lbEmbed = {
-            color: parseInt(config.properties.embedColor),
-            title: `Leaderboard sorted by wins, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
-            description: `Your rank: \`#${index + 1}\``,
-            fields: leaderBoardEmbedFields(p, lb, "w"),
-            timestamp: new Date(),
-            footer: config.properties.footer,
-        };
-    }
-
     else {
         var lb = await getLeaderboardList("m");
-        var index = lb.findIndex((item, i) => {
-            return item._id == message.author.id;
-        });
+        var index = lb.findIndex(item => item._id == message.author.id);
         lbEmbed = {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by money, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
@@ -180,44 +157,39 @@ function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f
     var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
     var fields = [];
     if (type == "p") {
-        for (var i = 0; i < h; i++) {
+        for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].resources.population.commafy() + " population"
             });
-        }
     }
     else if (type == "a") {
-        for (var i = 0; i < h; i++) {
+        for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].name,
                 value: lb[i + p * 10].money.commafy() + " coins",
             });
-        }
     }
     else if (type == "f") {
-        for (var i = 0; i < h; i++) {
+        for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].resources.food.commafy() + " food",
             });
-        }
     }
     else if (type == "w") {
-        for (var i = 0; i < h; i++) {
+        for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].duelsWon.commafy() + " wins",
             });
-        }
     }
     else {
-        for (var i = 0; i < h; i++) {
+        for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].money.commafy() + " coins"
             });
-        }
     }
     return fields;
 }
