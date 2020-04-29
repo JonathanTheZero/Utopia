@@ -65,6 +65,7 @@ export interface configDB {
     lastPopulationWorkPayout: number;
     commandsRun: number;
     lastMineReset: number;
+    totalOffers: number;
 }
 
 export interface giveaway {
@@ -169,3 +170,8 @@ export interface marketOffer {
 }
 
 export type resources = "money" | "food" | "oil" | "steel" | "population";
+
+export interface trade {
+    _id: string;
+    
+}

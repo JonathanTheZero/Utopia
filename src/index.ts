@@ -56,7 +56,7 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers } from "./commands/market";
+import { makeOffer, activeOffers, buyOffer, myOffers } from "./commands/trade";
 
 const express = require('express');
 const app = express();
@@ -570,6 +570,12 @@ client.on("message", async message => {
 
     else if(command === "market")
         activeOffers(message, args);
+
+    else if(command === "buy-offer")
+        buyOffer(message, args);
+
+    else if(command === "my-offers")
+        myOffers(message);
 
 });
 

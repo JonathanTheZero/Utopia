@@ -11,7 +11,8 @@ const config: configDB = {
     lastPayout: 0,
     lastPopulationWorkPayout: 0,
     commandsRun: 0,
-    lastMineReset: 0
+    lastMineReset: 0,
+    totalOffers: 0
 };
 
 export let connected: boolean = false;
@@ -140,7 +141,7 @@ export async function getConfig(): Promise<configDB> {
     return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset", val: number) {
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers", val: number) {
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
@@ -295,8 +296,19 @@ export async function addOffer(offer: marketOffer): Promise<void> {
     client.db(dbName).collection("market").insertOne(offer);
 }
 
-export async function findOffer(query: { [key: string]: any}): Promise<marketOffer[]> {
+export async function findOffer(query: { [key: string]: any }): Promise<marketOffer[]> {
     return client.db(dbName).collection("market").find(query).toArray();
+}
+
+export async function deleteOffer(_id: string){
+    client.db(dbName).collection("market").deleteOne({_id});
+}
+
+export async function getOfferID(): Promise<number> {
+    const conf = await getConfig();
+    const id = conf.totalOffers + 1;
+    editConfig("totalOffers", id);
+    return id;
 }
 
 export async function connectToDB(): Promise<void> {
@@ -310,6 +322,7 @@ export async function connectToDB(): Promise<void> {
             client.db(dbName).createCollection("servers");
             client.db(dbName).createCollection("wars");
             client.db(dbName).createCollection("market");
+            client.db(dbName).createCollection("trades");
             if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
                 client.db(dbName).collection("config").insertOne(config);
             }

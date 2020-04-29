@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { marketOffer, resources } from "../../utils/interfaces";
-import { addOffer } from "../../utils/databasehandler";
+import { marketOffer, resources, user } from "../../utils/interfaces";
+import { addOffer, updateValueForUser, getUser, getOfferID } from "../../utils/databasehandler";
 
 //.make-offer <amount> <currency> <price> <price-currency>
 export async function makeOffer(message: Message, args: string[]) {
@@ -23,11 +23,15 @@ export async function makeOffer(message: Message, args: string[]) {
         default: return message.reply("please choose a valid currency for selling!");
     }
 
+    const user: user = await getUser(message.author.id);
+    if ((oc === "money" && parseInt(args[0]) > user.money) || oc != "money" && parseInt(args[0]) > user.resources[oc])
+        return message.reply("you can't offer more than you own!");
+
     const offer: marketOffer = {
-        _id: message.id,
-        seller: { 
-            _id: message.author.id, 
-            tag: message.author.tag 
+        _id: (await getOfferID()).toString(),
+        seller: {
+            _id: message.author.id,
+            tag: message.author.tag
         },
         offer: {
             amount: parseInt(args[0]),
@@ -39,5 +43,6 @@ export async function makeOffer(message: Message, args: string[]) {
         }
     };
 
+    updateValueForUser(message.author.id, offer.offer.currency, -offer.offer.amount, "$inc");
     addOffer(offer).then(() => message.reply("you succesfully added your offer to the market!"));
 }
