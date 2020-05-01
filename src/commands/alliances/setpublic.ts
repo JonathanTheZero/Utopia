@@ -1,5 +1,5 @@
-import { user, alliance } from "../../utils/interfaces";
-import { getAlliance, updateValueForAlliance } from "../../utils/databasehandler";
+import { user } from "../../utils/interfaces";
+import { updateValueForAlliance } from "../../utils/databasehandler";
 
 export async function toggleStatus(user: user, mode: boolean): Promise<string> {
     updateValueForAlliance(user.alliance as string, "public", mode);

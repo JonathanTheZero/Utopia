@@ -1,4 +1,4 @@
-import { Message, User } from "discord.js";
+import { Message } from "discord.js";
 import * as config from "../static/config.json";
 import { user, alliance } from "../utils/interfaces";
 import { getAllUsers, getAllAlliances, getUser } from "../utils/databasehandler";

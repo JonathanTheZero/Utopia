@@ -2,7 +2,7 @@ import * as config from "../../static/config.json";
 import { Client, TextChannel, Channel } from "discord.js";
 import { getBaseLog, Sleep, rangeInt } from "../../utils/utils";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editConfig, addToUSB } from "../../utils/databasehandler";
 
 export async function populationWorkLoop(client: Client) {
     let payoutChannel: Channel = client.channels.get(config.payoutChannel)!;
@@ -31,13 +31,12 @@ export async function populationWorkLoop(client: Client) {
                 updateValueForUser(u._id, "loan", 0, "$set");
                 updateValueForUser(u._id, "money", -diff, "$inc");
             }
-            else {
-                updateValueForUser(u._id, "loan", -diff, "$inc");
-            }
+            else updateValueForUser(u._id, "loan", -diff, "$inc");
         }
-        else {
+        else{
             updateValueForUser(u._id, "money", money, "$inc");
-        }
+            addToUSB(-money);
+        } 
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
         if(!consumption) continue;
         if (consumption > u.resources.food) {
@@ -54,13 +53,9 @@ export async function populationWorkLoop(client: Client) {
                 }
                 catch { }
             }
-            else {
-                updateValueForUser(u._id, "population", -diff, "$inc");
-            }
+            else updateValueForUser(u._id, "population", -diff, "$inc");
         }
-        else {
-            updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
-        }
+        else updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         if (u.payoutDMs) {
             try {
                 client.users.get(u._id)?.send("You have succesfully gained money through the work of your population!");

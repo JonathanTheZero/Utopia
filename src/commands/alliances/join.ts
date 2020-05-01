@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { user, alliance } from "../../utils/interfaces";
-import { getUser, getAlliance, editAllianceArray, updateValueForUser, deleteAlliance } from "../../utils/databasehandler";
+import { getUser, getAlliance, editAllianceArray, updateValueForUser } from "../../utils/databasehandler";
 
 export async function joinAlliance(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);

@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import { getUser, getAlliance, editAllianceArray, updateValueForUser, deleteAlliance } from "../../utils/databasehandler";
 import { user, alliance } from "../../utils/interfaces";
 
-export async function leaveAlliance(message: Message, args: string[]) {
+export async function leaveAlliance(message: Message, _args: string[]) {
     let user: user = await getUser(message.author.id);
     let alliance: alliance = await getAlliance(user.alliance as string) as alliance;
     let memberRank = user.allianceRank;

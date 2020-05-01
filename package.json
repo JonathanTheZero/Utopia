@@ -2,7 +2,7 @@
   "name": "discordbot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "dist/bundle.js",
   "dependencies": {
     "@types/mongodb": "^3.5.5",
     "better-arrays.js": "^1.0.3",

@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { user, alliance } from "../../utils/interfaces";
+import { user } from "../../utils/interfaces";
 import { getUser, getAlliance, updateValueForAlliance, customUpdateQuery } from "../../utils/databasehandler";
 
 export async function renameAlliance(message: Message, args: string[]) {

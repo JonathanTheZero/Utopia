@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { user, alliance } from "../utils/interfaces";
-import { getUser, updateValueForUser, getAlliance, updateValueForAlliance } from "../utils/databasehandler";
+import { user } from "../utils/interfaces";
+import { getUser, updateValueForUser, updateValueForAlliance } from "../utils/databasehandler";
 import "../utils/utils";
 
 export async function send(message: Message, args: string[]) {
@@ -28,7 +28,6 @@ export async function send(message: Message, args: string[]) {
 
 export async function deposit(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
-    let alliance: alliance = await getAlliance(user.alliance as string) as alliance;
     var a = (args[0] == "a") ? user.money : parseInt(args[0]);
     if (typeof args[0] === "undefined" || isNaN(a)) return message.reply("please supply valid parameters following the syntax `.deposit <amount>`.");
     if (!user || JSON.stringify(user) === "{}") return message.reply("you haven't created an account yet, please use `.create` to create one.");

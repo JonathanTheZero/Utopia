@@ -97,7 +97,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2 Blood and Steel out now!`);
+    client.user.setActivity(`.help | v2.1 Artis et Divitiae out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -573,9 +573,9 @@ client.on("message", async message => {
     else if (command === "blitz") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("you are not allowed to use that.");
         if (!args[0]) return message.reply("please specify an amount.");
-        const a = parseInt(args[0]);
         const u = await getUser(message.author.id);
-        if (a > u.money || a < 0) return message.reply("no.");
+        const a: number = args[0] === "a" ? u.money : parseInt(args[0]);
+        if (a > u.money || a < 0 || isNaN(a)) return message.reply("no.");
         updateValueForUser(u._id, "money", -a, "$inc");
         addToUSB(a);
         message.reply("you lucky bastard donated " + a.commafy());

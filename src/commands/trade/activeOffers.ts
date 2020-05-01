@@ -32,7 +32,7 @@ export async function activeOffers(message: Message, args: string[]) {
         fields.push({
             name: `Offer by ${offers[i].seller.tag} (ID: ${offers[i]._id})`,
             value: `${offers[i].offer.amount.commafy()} ${offers[i].offer.currency} for ${offers[i].price.amount.commafy()} ${offers[i].price.currency} ` +
-                `(${(offers[i].offer.amount / offers[i].price.amount).toFixed(4).commafy()} per unit)`
+                `(${(offers[i].price.amount / offers[i].offer.amount).toFixed(2).commafy()} per unit)`
         });
 
     return message.channel.send({

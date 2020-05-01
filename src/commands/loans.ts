@@ -12,16 +12,17 @@ export async function loancalc(message: Message, args: string[], user: user) {
       embed: {
         color: parseInt(config.properties.embedColor),
         title: `Maximum loan for ${message.author.tag}`,
-        fields: [{
-          name: "Maximum Loan:",
-          value: maxloan.commafy(),
-          inline: true
-        },
-        {
-          name: "Total repayment:",
-          value: repayment.commafy(),
-          inline: true
-        },
+        fields: [
+          {
+            name: "Maximum Loan:",
+            value: maxloan.commafy(),
+            inline: true
+          },
+          {
+            name: "Total repayment:",
+            value: repayment.commafy(),
+            inline: true
+          },
         ],
         footer: config.properties.footer,
         timestamp: new Date()
