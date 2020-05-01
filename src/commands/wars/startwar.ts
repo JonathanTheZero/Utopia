@@ -78,7 +78,7 @@ export async function startWar(message: Message, author: user, opponent: user) {
             title: "Duel between " + newWar.p1.tag + " (player 1) and " + newWar.p2.tag + " (player 2).",
             description: "Please mobilize your armies now and get ready for the fight!\n\n" +
                 "**Important:** Prepare yourself for long lasting wars: Keep an eye on your resources! " +
-                "If you run out of food (or other resources) during the war, your troops will perform 50% worse!" 
+                "If you run out of food (or other resources) during the war, your troops will perform 50% worse!"
         }
     });
 
@@ -87,29 +87,25 @@ export async function startWar(message: Message, author: user, opponent: user) {
     var imgurl: string = "-1";
     const pyshell = new PythonShell('dist/war.py', { mode: "text" });
 
-    var sendString = JSON.stringify(newWar.field);
-
-    pyshell.send(sendString);
+    pyshell.send(JSON.stringify(newWar.field));
 
     pyshell.on('message', async answer => {
         imgurl = `imageplotting/${answer.toString()}.png`;
 
-        const file = new Attachment(imgurl);
-
         message.channel.send("This is your battle field:").then(() => message.channel.send({
-            files: [file]
+            files: [new Attachment(imgurl)]
         }));
 
         await Sleep(5000);
 
-        const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
-        del.send(imgurl);
-        del.end((err, code, signal) => {
-            if (err) throw err;
-        });
+        new PythonShell('dist/deleteImage.py', { mode: "text" })
+            .send(imgurl)
+            .end(err => {
+                if (err) throw err;
+            });
     });
 
-    pyshell.end((err, code, signal) => {
+    pyshell.end(err => {
         if (err) throw err;
     });
 }

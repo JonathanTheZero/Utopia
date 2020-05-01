@@ -1,6 +1,6 @@
 import { Client, TextChannel } from "discord.js";
 import { user, alliance } from "../../utils/interfaces";
-import { getAllUsers, getAllAlliances, updateValueForUser, getUser, editConfig } from "../../utils/databasehandler";
+import { getAllUsers, getAllAlliances, updateValueForUser, editConfig } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
 
 export async function payoutLoop(client: Client) {

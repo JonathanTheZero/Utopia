@@ -66,6 +66,7 @@ export interface configDB {
     commandsRun: number;
     lastMineReset: number;
     totalOffers: number;
+    centralBalance: number;
 }
 
 export interface giveaway {

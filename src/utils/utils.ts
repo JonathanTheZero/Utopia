@@ -33,7 +33,7 @@ Number.prototype.commafy = function (): string {
 }
 
 String.prototype.commafy = function (): string {
-    return this.replace(/(^|[^\w.])(\d{4,})/g, function ($0, $1, $2) {
+    return this.replace(/(^|[^\w.])(\d{4,})/g, function (_$0, $1, $2) {
         return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
     });
 }

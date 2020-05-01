@@ -13,7 +13,7 @@ export async function work(message: Message, client: Client) {
     if (Math.floor(Date.now() / 1000) - user.lastWorked < 1800)
         return message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8));
 
-    if (client.users.get(user._id.toString())?.tag != user.tag)
+    if (client.users.get(user._id.toString())?.tag !== user.tag)
         updateValueForUser(user._id, "tag", client.users.get(user._id.toString())?.tag as string);
 
     let produced = Math.floor(Math.random() * (10000 + user.resources.population / 1000));
@@ -73,11 +73,10 @@ export async function work(message: Message, client: Client) {
     );
 }
 
-export async function crime(message: Message, client: Client) {
+export async function crime(message: Message) {
     let user: user = await getUser(message.author.id);
     let alliance: alliance | null = await getAlliance(user.alliance as string);
-    if (!user)
-        return message.reply("you haven't created an account yet, please use the `.create` command.");
+    if (!user) return message.reply("you haven't created an account yet, please use the `.create` command.");
     if (Math.floor(Date.now() / 1000) - user.lastCrime < 14400)
         return message.reply("You can commit a crime again in " + new Date((14400 - (Math.floor(Date.now() / 1000) - user.lastCrime)) * 1000).toISOString().substr(11, 8));
     else {
@@ -87,9 +86,7 @@ export async function crime(message: Message, client: Client) {
             var p = Math.floor(oldBalance * Math.random() * 0.03);
             produced = (p > 50000) ? p : 50000;
         }
-        else {
-            produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
-        }
+        else produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
         updateValueForUser(user._id, "lastCrime", Math.floor(Date.now() / 1000));
         if (!alliance) {
             updateValueForUser(user._id, "money", produced, "$inc");
@@ -100,7 +97,9 @@ export async function crime(message: Message, client: Client) {
                     if (paid < user.loan) {
                         updateValueForUser(user._id, "loan", -paid, "$inc");
                         updateValueForUser(user._id, "money", produced, "$inc");
-                        message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
+                        message.reply(
+                            "You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins."
+                        );
                     }
                     else {
                         paid -= user.loan;

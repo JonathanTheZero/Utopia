@@ -12,7 +12,8 @@ const config: configDB = {
     lastPopulationWorkPayout: 0,
     commandsRun: 0,
     lastMineReset: 0,
-    totalOffers: 0
+    totalOffers: 0,
+    centralBalance: 1000000000
 };
 
 export let connected: boolean = false;
@@ -145,6 +146,10 @@ export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
+}
+
+export async function addToUSB(amount: number) {
+    return client.db(dbName).collection("config").updateOne({ _id: 1 }, { $inc: { centralBalance: amount } });
 }
 
 export async function getGiveaways(): Promise<giveaway[]> {
@@ -300,8 +305,8 @@ export async function findOffer(query: { [key: string]: any }): Promise<marketOf
     return client.db(dbName).collection("market").find(query).toArray();
 }
 
-export async function deleteOffer(_id: string){
-    client.db(dbName).collection("market").deleteOne({_id});
+export async function deleteOffer(_id: string) {
+    client.db(dbName).collection("market").deleteOne({ _id });
 }
 
 export async function getOfferID(): Promise<number> {

@@ -1,5 +1,5 @@
 import { getUser, findWarByUser, updateReady, markAllArmies, updateCosts, setWarStarted, } from "../../utils/databasehandler";
-import { Message, TextChannel, Channel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { user, war } from "../../utils/interfaces";
 import * as config from "../../static/config.json";
 import { prices, showField } from ".";

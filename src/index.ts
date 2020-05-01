@@ -5,7 +5,7 @@ import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -24,7 +24,8 @@ import {
     updatePrefix,
     addServer,
     deleteServer,
-    connected
+    connected,
+    addToUSB
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -53,19 +54,20 @@ import {
     allianceOverview,
     renameAlliance,
 } from "./commands/alliances";
-import { payoutLoop, populationWorkLoop, payout, alliancePayout, mineReset } from "./commands/payouts";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers } from "./commands/trade";
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer } from "./commands/trade";
 
 const express = require('express');
 const app = express();
 app.use(express.static('public'));
-var server = require('http').createServer(app);
+//@ts-ignore
+var _server = require('http').createServer(app);
 
 const client = new Discord.Client();
 
-app.get('/', (request: any, response: any) => {
+app.get('/', (_request: any, response: any) => {
     response.sendFile(__dirname + "/index.html")
 });
 
@@ -94,7 +96,7 @@ if (config.dbl) {
 console.log("Application has started");
 
 client.on("ready", async () => {
-    console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
+    console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
     client.user.setActivity(`.help | v2 Blood and Steel out now!`);
 
     await connectToDB();
@@ -109,63 +111,58 @@ client.on("ready", async () => {
             });
     });
     let c: configDB = await getConfig();
-    const [tdiff1, tdiff2, tdiff3] = [
+    const tdiff = [
         Math.floor(Date.now() / 1000) - c.lastPayout,
         Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
         Math.floor((Date.now() - c.lastMineReset) / 1000)
     ];
-    setTimeout(() => payoutLoop(client), ((14400 - tdiff1) * 1000));
-    setTimeout(() => populationWorkLoop(client), ((39600 - tdiff2) * 1000));
-    setTimeout(() => mineReset(client), ((604800 - tdiff3) * 1000))
+    setTimeout(() => payoutLoop(client), ((14400 - tdiff[0]) * 1000));
+    setTimeout(() => populationWorkLoop(client), ((39600 - tdiff[1]) * 1000));
+    setTimeout(() => weeklyReset(client), ((604800 - tdiff[2]) * 1000))
     const giveaways: giveaway[] = await getGiveaways();
-    for (const g of giveaways) {
-        giveawayCheck(g._id, client);
-    }
+    for (const g of giveaways) giveawayCheck(g._id, client);
 });
 
 
 client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-
-    if (connected)
-        addServer({
-            _id: guild.id,
-            name: guild.name,
-            prefix: "."
-        });
+    if (connected) addServer({
+        _id: guild.id,
+        name: guild.name,
+        prefix: "."
+    });
 });
 
 //client.on("debug", console.log);
 
-
 client.on("guildDelete", guild => {
-    console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
+    console.log(`I have been removed from: ${guild?.name} (id: ${guild?.id})`);
     client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
-
-    if (connected) deleteServer(guild.id);
+    if (connected) deleteServer(guild?.id);
 });
 
 
 client.on("message", async message => {
-    const prefix = (await getServer(message.guild.id)).prefix;
+    const prefix = (await getServer(message.guild?.id))?.prefix;
+    if (!prefix) return;
     if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
 
     var args: Array<string> = message.content.slice(prefix.length).trim().split(/ +/g);
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
-    if(!command) return;
- 
+    if (!command) return;
+
     addCR(); //increase commands run count by one
 
     if (command === "ping") {
-        const m = await message.channel.send("Ping?") as Discord.Message;
+        const m: Discord.Message = await message.channel.send("Ping?") as Discord.Message;
         m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
     }
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
-        message.delete().catch(null);
+        message.delete().catch(console.log);
         message.channel.send(sayMessage);
     }
 
@@ -176,7 +173,7 @@ client.on("message", async message => {
     else if (command === "purge" || command === "clear") purge(message, args);
 
     else if (command === "vote") {
-        let u: user = await getUser(message.author.id);
+        let u: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         message.channel.send({
             embed: {
                 color: parseInt(config.properties.embedColor),
@@ -193,44 +190,40 @@ client.on("message", async message => {
     else if (command === "bet" || command === "coinflip") bet(message, args);
 
     else if (command === "help") {
-        if (["general", "g"].includes(args[0])) {
-            message.channel.send({ embed: generalHelpMenu });
-        }
-        else if (["alliance", "alliances", "a"].includes(args[0])) {
-            message.channel.send({ embed: allianceHelpMenu });
-        }
-        else if (args[0] == "misc") {
-            message.channel.send({ embed: miscHelpMenu });
-        }
-        else if (args[0] == "mod") {
-            message.channel.send({ embed: modHelpMenu });
-        }
-        else {
-            message.channel.send({ embed: helpMenu });
-        }
+        if (["general", "g"].includes(args[0]))
+            return message.channel.send({ embed: generalHelpMenu });
+        else if (["alliance", "alliances", "a"].includes(args[0]))
+            return message.channel.send({ embed: allianceHelpMenu });
+        else if (args[0] == "misc")
+            return message.channel.send({ embed: miscHelpMenu });
+        else if (args[0] == "mod")
+            return message.channel.send({ embed: modHelpMenu });
+        else if (["market", "m"].includes(args[0]))
+            return message.channel.send({ embed: marketHelp });
+        else
+            return message.channel.send({ embed: helpMenu });
     }
 
     else if (command === "create" || command === "start") {
         let data = createUser(message);
         if (await getUser(message.author.id)) return message.reply("error, you already have an account!");
-        addUsers([data]);
+        await addUsers([data]);
         message.reply(
-            "you succesfully created an acoount!\n" +
+            "you succesfully created an account!\n" +
             "You can find info on all commands in the help menu: `.help`.\n" +
             "If you prefer a broader introduction, use `.guide`."
         );
     }
 
     else if (["loancalc", "lc"].includes(command))
-        loancalc(message, args, await getUser(message.author.id));
+        loancalc(message, args, await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id));
 
     else if (command === "loan") loan(message, args, await getUser(message.author.id));
 
     else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
-    else if (command === "me" || command === "stats") {
+    else if (command === "me" || command === "stats")
         statsEmbed(message, args, client);
-    }
 
     else if (command === "createalliance") {
         if (!args[0]) return message.reply("please specify a name for your alliance");
@@ -294,21 +287,21 @@ client.on("message", async message => {
     }
 
     else if (command === "promote") {
+        if (!args[0]) return message.reply("please supply a username with `.promote <mention/ID>`.");
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.promote <mention/ID>`.");
         if (member._id == message.author.id) return message.reply("you can't promote yourself!");
         if (user.allianceRank != "L") return message.reply("only the leader can promote members.");
         return message.reply(await promote(user, member));
     }
 
     else if (command === "demote") {
+        if (!args[0]) return message.reply("please supply a username with `.demote <mention/ID>`.");
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (member._id == message.author.id) return message.reply("you can't demote yourself!");
-        if (typeof args[0] === 'undefined') return message.reply("please supply a username with `.demote <mention/ID>`.");
         if (user.allianceRank != "L") return message.reply("only the leader can demote members.");
         return message.reply(await demote(user, member));
     }
@@ -333,16 +326,16 @@ client.on("message", async message => {
         let user: user = await getUser(message.author.id);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (user.allianceRank != "M")
-            return message.reply(await upgradeAlliance(user.alliance as string));
+            return message.reply(await upgradeAlliance(user.alliance!));
         return message.reply("Only the Leader and the Co-Leaders can upgrade the alliance status");
     }
 
     else if (command === "invite") {
+        if (!args[0]) return message.reply("please supply a username with `.invite <mention/ID>`. If you are looking on how to invite me to your server, use `.invitelink`");
         let user: user = await getUser(message.author.id);
         let member: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         if (!member) return message.reply("this user hasn't created an account yet.");
-        if (!args[0]) return message.reply("please supply a username with `.invite <mention/ID>`. If you are looking on how to invite me to your server, use `.invitelink`");
         if (user._id === member._id) return message.reply("you can't invite yourself!");
         if (user.allianceRank != "M") return message.reply(await invite(user.alliance as string, member));
         return message.reply("only the leader and the co-leaders can send out invites.");
@@ -367,37 +360,37 @@ client.on("message", async message => {
     }
 
     else if (command === "alliance")
-        allianceOverview(message, args, client);
+        return allianceOverview(message, args, client);
 
     else if (command === "alliancemembers")
-        allianceMembers(message, args, client);
+        return allianceMembers(message, args, client);
 
     else if (command === "guide")
-        message.channel.send({
+        return message.channel.send({
             embed: guideEmbed
         });
 
     else if (command === "warguide")
-        message.channel.send({
+        return message.channel.send({
             embed: warGuide
         });
 
     else if (command === "troopstats")
-        message.channel.send({
+        return message.channel.send({
             embed: troopStats
         });
 
     else if (command === "shop" || command === "store") {
         if (args[0] == "population" || args[0] == "p")
-            return message.channel.send({ embed: await storeEmbed!(message, "p", args) });
+            return message.channel.send({ embed: await storeEmbed!(message, "p") });
 
         else if (["alliance", "alliances", "a"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "a", args) });
+            return message.channel.send({ embed: await storeEmbed!(message, "a") });
 
         else if (["pf", "personal"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "pf", args) });
+            return message.channel.send({ embed: await storeEmbed!(message, "pf") });
 
-        return message.channel.send({ embed: await storeEmbed!(message, "s", args) });
+        return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
 
     else if (["patreon", "donate", "paypal"].includes(command)) {
@@ -437,11 +430,11 @@ client.on("message", async message => {
         work(message, client);
 
     else if (command === "crime")
-        crime(message, client);
+        crime(message);
 
     else if (command === "statistics") {
         const conf: configDB = await getConfig();
-        message.channel.send({
+        return message.channel.send({
             embed: {
                 title: "Utopia statistics",
                 color: parseInt(config.properties.embedColor),
@@ -472,41 +465,30 @@ client.on("message", async message => {
     else if (command === "utopia") {
         var imgurl: string = "-1";
         const pyshell = new PythonShell('dist/plotImage.py', { mode: "text" });
+        const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
+        if (!user)
+            return message.reply(args[0] ? "this user hasn't created an account yet." : "You haven't created an account yet, please use `.create` first.");
 
-        let user: user = await getUser(message.author.id);
-        if (typeof args[0] !== "undefined")
-            user = await getUser(message.mentions?.users?.first()?.id || args[0]);
-
-        var sendString = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" +
+        var sendString: string = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" +
             user.upgrades.population.length + "#" +
             user.resources.population + "#" +
             client.users.get(user._id)?.username;
 
-        console.log(sendString);
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
             console.log(answer);
             imgurl = `imageplotting/${answer.toString()}.png`;
 
-            const file = new Discord.Attachment(imgurl);
-
-            message.channel.send({
-                files: [file]
-            });
+            message.channel.send({ files: [new Discord.Attachment(imgurl)] });
 
             await Sleep(5000);
-            const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
-
-            del.send(imgurl);
-            del.end((err, code, signal) => {
-                if (err) throw err;
-            });
+            new PythonShell('dist/deleteImage.py', { mode: "text" })
+                .send(imgurl)
+                .end(err => { if (err) throw err });
         });
 
-        pyshell.end((err, code, signal) => {
-            if (err) throw err;
-        });
+        pyshell.end(err => { if (err) throw err });
     }
 
     else if (command === "settax")
@@ -516,7 +498,7 @@ client.on("message", async message => {
     else if (command === "start-giveaway")
         startGiveaway(message, args, client);
 
-    else if (["set-prefix", "setprefix", "prefix"].includes(<string>command)) {
+    else if (["set-prefix", "setprefix", "prefix"].includes(command)) {
         if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true))
             return message.reply("you need manage server permissions to change the prefix!");
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
@@ -547,7 +529,7 @@ client.on("message", async message => {
     else if (command === "set-position" || command === "setposition")
         setPosition(message, args);
 
-    else if (["showfield", "field"].includes(command!))
+    else if (["showfield", "field"].includes(command))
         showFieldM(message);
 
     else if (command === "move")
@@ -560,23 +542,64 @@ client.on("message", async message => {
         mine(message, args);
 
     else if (command === "digmine")
-        digmine(message, args);
+        digmine(message);
 
     else if (command === "minestats")
         mineStats(message, args);
 
-    else if(["make-offer", "offer", "makeoffer"].includes(command!))
+    else if (["make-offer", "offer", "makeoffer"].includes(command))
         makeOffer(message, args);
 
-    else if(command === "market")
+    else if (command === "market")
         activeOffers(message, args);
 
-    else if(command === "buy-offer")
-        buyOffer(message, args);
+    else if (command === "buy-offer")
+        buyOffer(message, args, client);
 
-    else if(command === "my-offers")
-        myOffers(message);
+    else if (["my-offers", "myoffers"].includes(command))
+        myOffers(message, args);
 
+    else if (["cancel-offer", "canceloffer", "deleteoffer", "delete-offer"].includes(command))
+        deleteOffer(message, args);
+
+    else if (command === "usb" || command === "central-bank")
+        return message.channel.send({
+            embed: {
+                title: "Utopian Super Bank",
+                description: "At the moment, the bank still holds " + (await getConfig()).centralBalance.commafy()
+            }
+        });
+
+    else if (command === "blitz") {
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("you are not allowed to use that.");
+        if (!args[0]) return message.reply("please specify an amount.");
+        const a = parseInt(args[0]);
+        const u = await getUser(message.author.id);
+        if (a > u.money || a < 0) return message.reply("no.");
+        updateValueForUser(u._id, "money", -a, "$inc");
+        addToUSB(a);
+        message.reply("you lucky bastard donated " + a.commafy());
+    }
+
+    else if (command === "taxes")
+        return message.channel.send({
+            embed: {
+                title: "Tax classes",
+                color: parseInt(config.properties.embedColor),
+                fields: [
+                    { name: "Class 1", value: "Balance smaller than 100,000, 2% tax" },
+                    { name: "Class 2", value: "Balance smaller than 1,000,000, 5% tax" },
+                    { name: "Class 3", value: "Balance smaller than 10,000,000, 10% tax" },
+                    { name: "Class 4", value: "Balance smaller than 100,000,000, 20% tax" },
+                    { name: "Class 5", value: "Balance smaller than 500,000,000, 35% tax" },
+                    { name: "Class 6", value: "Balance smaller than 1,000,000,000, 50% tax" },
+                    { name: "Class 7", value: "Bigger than 1,000,000,000, 60% tax" },
+
+                ],
+                timestamp: new Date(),
+                footer: config.properties.footer
+            }
+        });
 });
 
 client.login(config.token);

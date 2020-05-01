@@ -4,7 +4,7 @@ import "../utils/utils";
 import { user, alliance } from "../utils/interfaces";
 import { getUser, getAlliance } from "../utils/databasehandler";
 
-export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" | "pf", args: string[]): Promise<Object> {
+export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" | "pf"): Promise<Object> {
     if (type === "p") {
         var user: user = await getUser(message.author.id);
         return {

@@ -5,15 +5,8 @@ import { user, alliance } from "../../utils/interfaces";
 import "../../utils/utils";
 
 export async function allianceOverview(message: Message, args: string[], client: Client) {
-    var user: user, url: string;
-    if (typeof args[0] === "undefined") {
-        user = await getUser(message.author.id);
-        url = `${message.author.displayAvatarURL}`;
-    }
-    else {
-        user = await getUser(message.mentions?.users?.first()?.id || args[0]);
-        url = client.users.get(user?._id)?.displayAvatarURL as string;
-    }
+    const user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
+    const url = client?.users?.get(user._id.toString())?.displayAvatarURL;
 
     let alliance: alliance = await getAlliance(!user ? args.join(" ") : user.alliance as string) as alliance;
     if (!alliance) {

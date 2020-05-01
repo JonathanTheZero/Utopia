@@ -28,8 +28,7 @@ export async function activeOffers(message: Message, args: string[]) {
     let offers: marketOffer[] = await findOffer(query);
     const fields = [];
     if (page!) offers = offers.splice((page! - 1) * 10);
-    let max = offers.length > 10 ? 10 : offers.length;
-    for (let i = 0; i < max; ++i)
+    for (let i = 0; i < Math.min(10, offers.length); ++i)
         fields.push({
             name: `Offer by ${offers[i].seller.tag} (ID: ${offers[i]._id})`,
             value: `${offers[i].offer.amount.commafy()} ${offers[i].offer.currency} for ${offers[i].price.amount.commafy()} ${offers[i].price.currency} ` +

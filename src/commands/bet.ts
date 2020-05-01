@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { getUser, updateValueForUser } from "../utils/databasehandler";
+import { getUser, updateValueForUser, getConfig, addToUSB } from "../utils/databasehandler";
 import { user } from "../utils/interfaces";
 import "../utils/utils";
 
@@ -29,8 +29,12 @@ export async function bet(message: Message, args: string[]) {
 
     if (money > user.money) return message.reply("you can't bet more money than you own!");
 
+    if(money > (await getConfig()).centralBalance) 
+        return message.reply("you can't bet more than the Utopian Super Bank owns");
+
     let addedMoney = won ? money : -1 * money;
     if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");
     else message.reply("you lost " + money.commafy() + " coins. Try again next time!");
     updateValueForUser(message.author.id, "money", addedMoney, "$inc");
+    addToUSB(-addedMoney);
 }

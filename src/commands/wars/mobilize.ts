@@ -1,7 +1,6 @@
 import { user, army, war } from "../../utils/interfaces";
 import { Message } from "discord.js";
 import { getUser, findWarByUser, addArmy, updateCosts } from "../../utils/databasehandler";
-import * as config from "../../static/config.json";
 import "../../utils/utils";
 import { prices } from "./consts";
 
@@ -65,7 +64,7 @@ export async function mobilize(message: Message, args: string[]) {
     return message.reply(a.length === 3 ? "you have successfully mobilized all your armies. Use `.ready` whenever you are ready." : `You still have ${3 - a.length} army slots`);
 }
 
-export async function deployTrrops(message: Message, args: string[]) {
+export async function deployTrrops(message: Message, _args: string[]) {
     const user: user = await getUser(message.author.id);
 
     let war: war | null = await findWarByUser(user._id);

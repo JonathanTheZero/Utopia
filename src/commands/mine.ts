@@ -1,11 +1,11 @@
-import { Message, Client, User } from "discord.js";
-import { user, alliance } from "../utils/interfaces";
-import { getUser, updateValueForUser } from "../utils/databasehandler";
-import { getRandomInt, getRandomRange } from "../utils/utils";
+import { Message } from "discord.js";
+import { user } from "../utils/interfaces";
+import { getUser, updateValueForUser, getConfig, addToUSB } from "../utils/databasehandler";
+import { getRandomInt, getRandomRange, reminder } from "../utils/utils";
 import "../utils/utils";
 import * as config from "../static/config.json";
 
-export async function digmine(message: Message, args: string[]) {
+export async function digmine(message: Message) {
     let user: user = await getUser(message.author.id);
 
     if (!user)
@@ -19,6 +19,7 @@ export async function digmine(message: Message, args: string[]) {
 
     let minetype = (getRandomInt(3));
     updateValueForUser(user._id, "money", -(10000 * (user.resources.totaldigs + 1)), "$inc");
+    addToUSB(10000 * (user.resources.totaldigs + 1));
     updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
 
     if (minetype == 0) return message.reply("Your digging has returned no new mines");
@@ -70,18 +71,24 @@ export async function mine(message: Message, args: string[]) {
         message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels`);
     }
     const x = user.resources.minereturn + (user.resources.minereturn - (user.resources.minereturn * getRandomRange(10, user.resources.minereturn / 2))) / 100;
-    console.log(x);
     updateValueForUser(user._id, "minereturn", x <= 0 ? 0 : x, "$set");
 
     if (user.minereset == 0)
         updateValueForUser(user._id, "minereset", Math.floor(Date.now() / 1000), "$set");
 
     updateValueForUser(user._id, "lastMine", Math.floor(Date.now() / 1000), "$set");
+    if (user.autoping) reminder(
+        message,
+        1800000 * 2,
+        "I'll remind you in 1 hour that you can mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "Reminder: Mine again"
+    );
 }
 
 export async function mineStats(message: Message, args: string[]) {
     let user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
     if (!user) return message.reply(args[0] ? "This user hasn't created an account yet." : "You haven't created an account yet, please use `.create`.");
+    const c = await getConfig();
 
     return message.channel.send({
         embed: {
@@ -106,8 +113,12 @@ export async function mineStats(message: Message, args: string[]) {
                     name: "Production efficency:",
                     value: `You already mined so much, your mines efficency sank to ${user.resources.minereturn.toLocaleString("en", { style: "percent" })}. ` +
                         "(Don't worry, this is reset once a week.)",
-                    inline: true
+                    inline: false
                 },
+                {
+                    name: "Next reset:",
+                    value: "The next mine reset will be in " + new Date((604800 - (Math.floor(Date.now() / 1000) - (c.lastMineReset / 1000))) * 1000).toISOString().substr(9, 10)
+                }
             ],
             color: parseInt(config.properties.embedColor),
             footer: config.properties.footer,

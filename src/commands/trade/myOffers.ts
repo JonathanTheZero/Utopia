@@ -1,9 +1,29 @@
 import { Message } from "discord.js";
-import { getUser, findOffer } from "../../utils/databasehandler";
-import { user, marketOffer } from "../../utils/interfaces";
+import { findOffer } from "../../utils/databasehandler";
+import { marketOffer } from "../../utils/interfaces";
+import * as config from "../../static/config.json";
 
-export async function myOffers(message: Message) {
-    const offers: marketOffer[] = await findOffer({ "seller._id": message.author.id });
-    offers.length = 10;
-    message.channel.send(JSON.stringify(offers));
+export async function myOffers(message: Message, args: string[]) {
+    let offers: marketOffer[] = await findOffer({ "seller._id": message.author.id });
+    if (args[0]) offers = offers.splice((parseInt(args[0]) - 1) * 10);
+    const fields = [];
+    for (let i = 0; i < Math.min(offers.length, 10); ++i)
+        fields.push({
+            name: `Offer ID: ${offers[i]._id}`,
+            value: `${offers[i].offer.amount.commafy()} ${offers[i].offer.currency} for ${offers[i].price.amount.commafy()} ${offers[i].price.currency} ` +
+                `(${(offers[i].offer.amount / offers[i].price.amount).toFixed(4).commafy()} per unit)`
+        });
+
+    return message.channel.send({
+        embed: {
+            title: "View your offers. Page 1 of " + (Math.floor((offers.length + (parseInt(args[0]) || 1)) / 10) + 1),
+            description: fields.length === 0 ?
+                "There are no offers matching your criteria" :
+                "If you wish to cancel an offer, use `.cancel-offer <id>`",
+            fields,
+            footer: config.properties.footer,
+            color: parseInt(config.properties.embedColor),
+            timestamp: new Date()
+        }
+    });
 }

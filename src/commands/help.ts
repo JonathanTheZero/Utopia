@@ -5,28 +5,32 @@ export const helpMenu = {
     title: "Welcome to the help menu. Please choose a category",
     fields: [
         {
+            name: "To view an in-depth guide, use `.guide` (recommended for new players)",
+            value: "\u200b"
+        },
+        {
             name: 'General help:',
-            value: "type `.help general` to view the help menu for the general commands",
+            value: "Type `.help general` to view the help menu for the general commands",
         },
         {
             name: 'Alliance help:',
-            value: "type `.help alliance` to view the alliance help menu",
+            value: "Type `.help alliance` to view the alliance help menu",
         },
         {
             name: "War help",
-            value: "type `.warguide` to view the guide for the newly introduced wars!",
+            value: "Type `.warguide` to view the guide for the newly introduced wars!",
+        },
+        {
+            name: "Market help",
+            value: "Type `.help market` to view all commands related to the trade market and the new economics and taxes system"
         },
         {
             name: "Miscellaneous help:",
-            value: "type `.help misc` to view the help menu for everything else",
+            value: "Type `.help misc` to view the help menu for everything else",
         },
         {
             name: "Moderation help:",
-            value: "type `.help mod` to view the help menu for everything else",
-        },
-        {
-            name: "To view an in-depth guide, use `.guide`",
-            value: "\u200b"
+            value: "Type `.help mod` to view the help menu for everything else",
         }
     ],
     timestamp: new Date(),
@@ -307,4 +311,48 @@ export const guideEmbed = {
         text: properties.footer.text + "  •   Written by Astilimos#6295",
         icon_url: properties.footer.icon_url
     }
+};
+
+export const marketHelp = {
+    title: "Market help",
+    description: "Here you will find anything related to markets and the new economy system introduced in v2.1.\n" + 
+        "All offers are available to every other player.\n" +
+        "Note: There is a fee of 2% on all market offers.",
+    fields: [
+        {
+            name: "`.market [search query]`",
+            value: "Show the market offers. If no search criteria are given, everything is given out." + 
+                "There are three search criteria: minimum amount, currency and page. The syntax for a query is `criteria:value`.\n" + 
+                "For example `.market currency:food min:10000 page:3` would give page 3 of the all food offers over 10,000. " + 
+                "All words can be changed to their starting letter for shorter writing (`currency:food` => `c:f`)."
+        },
+        {
+            name: "`.make-offer <amount> <currency> <price amount> <price currency>`",
+            value: "This command allows you to place an offer to the market.\n" +
+                "For example: `.make-offer 1000 food 200 money` means, that you offer 1000 food for 200 money."
+        },
+        {
+            name: "`.my-offers [page]`",
+            value: "Shows all your offers. If you have more than 10 offers, you can view your additional offers using the page argument."
+        },
+        {
+            name: "`.cancel-offer <id>`",
+            value: "Cancel the offer with the given ID. (You will still pay the fee)"
+        },
+        {
+            name: "`.buy-offer <id>`",
+            value: "Buy the offer with the given ID."
+        },
+        {
+            name: "Taxes and the Utopian Super Bank",
+            value: "v2.1 also introduced the Utopian Super Bank (USB) in order to control the economy a bit better.\n" +
+                "The USB gives out the money for betting for example: if the USB is empty, there will no more money available for betting." + 
+                "Another new feature are taxes: Once a week every player will be taxed based on their balance (you can check the tax classes with `.taxes`), this money will be given to the USB." +
+                "Basically every time you spend money on buying upgrades, betting, mine digging etc. will be given to the USB.\n" +
+                "You can check the USB balance with `.usb`.\n" 
+        }
+    ],
+    timestamp: new Date(),
+    color: parseInt(properties.embedColor),
+    footer: properties.footer
 };

@@ -13,7 +13,7 @@ export async function move(message: Message, args: string[]) {
     //if (!(w.p1.ready && w.p2.ready)) return message.reply("not everyone is ready yet!");
 
     const p1 = u._id === w.p1._id;
-    const [a, b] = p1 ? [w.p1, w.p2] : [w.p2, w.p1];
+    const a = p1 ? w.p1 : w.p2;
     const curr = a.armies[parseInt(args[0]) - 1];
     let x = parseInt(args[1]) - 1,
         y = parseInt(args[2]) - 1;

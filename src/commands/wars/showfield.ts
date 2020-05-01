@@ -20,10 +20,10 @@ export async function showField(_id: string, message: Message) {
 
         const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
         del.send(imgurl);
-        del.end((err, code, signal) => { if (err) throw err });
+        del.end(err => { if (err) throw err });
     });
 
-    pyshell.end((err, code, signal) => { if (err) throw err });
+    pyshell.end(err => { if (err) throw err });
 }
 
 export async function showFieldM(message: Message) {
