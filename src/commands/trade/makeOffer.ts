@@ -24,7 +24,10 @@ export async function makeOffer(message: Message, args: string[]) {
     }
 
     const user: user = await getUser(message.author.id);
-    if ((oc === "money" && parseInt(args[0]) > user.money) || oc != "money" && parseInt(args[0]) > user.resources[oc] || parseInt(args[0]) < 0 || parseInt(args[2]) < 0)
+    if ((oc === "money" && parseInt(args[0]) > user.money) ||
+        oc !== "money" && parseInt(args[0]) > user.resources[oc] ||
+        parseInt(args[0]) < 0 || parseInt(args[2]) < 0 ||
+        isNaN(parseInt(args[0])) || isNaN(parseInt(args[2])))
         return message.reply("this is an invalid amount!");
 
     const offer: marketOffer = {
