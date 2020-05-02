@@ -29,7 +29,7 @@ You have two options when compiling the code:
 
 * Use webpack and generate one bundled up file, which contains all the code 
   (hard to debug runtime errors, so I suggest not using that, this is for me when deploying the app).
-  Befor you compile it, you need to create a second config file called `config.prod.json` in the same folder as `config.json` first.
+  Before you compile it, you need to create a second config file called `config.prod.json` in the same folder as `config.json`.
   For testing you can just paste the data of your `config.json` in the `config.prod.json`.
   After you have done that, you can compile and run the project using `webpack && node dist/bundle.js`.
 

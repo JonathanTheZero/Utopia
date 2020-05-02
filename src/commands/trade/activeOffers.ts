@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { marketOffer, resources } from "../../utils/interfaces";
-import { findOffer, getAllOffers } from "../../utils/databasehandler";
+import { findOffer } from "../../utils/databasehandler";
 import "../../utils/utils";
 import * as config from "../../static/config.json";
 
@@ -37,7 +37,7 @@ export async function activeOffers(message: Message, args: string[]) {
 
     return message.channel.send({
         embed: {
-            title: `Welcome to the market. You are on page ${page! || 1} of ${Math.floor((await getAllOffers()).length / 10) + 1}`,
+            title: `Welcome to the market. You are on page ${page! || 1} of ${Math.floor((await findOffer(query)).length / 10) + 1}`,
             description: fields.length === 0 ?
                 "There are no offers matching your criteria" :
                 "If you want to buy an item you are intersted in, use `.buy-offer <id>`",

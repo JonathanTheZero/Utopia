@@ -3,11 +3,8 @@ import { properties, serverInvite } from "../static/config.json";
 export const helpMenu = {
     color: parseInt(properties.embedColor),
     title: "Welcome to the help menu. Please choose a category",
+    description: "To view an in-depth guide, use `.guide` (recommended for new players)",
     fields: [
-        {
-            name: "To view an in-depth guide, use `.guide` (recommended for new players)",
-            value: "\u200b"
-        },
         {
             name: 'General help:',
             value: "Type `.help general` to view the help menu for the general commands",

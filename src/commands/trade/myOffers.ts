@@ -16,7 +16,7 @@ export async function myOffers(message: Message, args: string[]) {
 
     return message.channel.send({
         embed: {
-            title: "View your offers. Page 1 of " + (Math.floor((offers.length + (parseInt(args[0]) || 1)) / 10) + 1),
+            title: `View your offers. Page ${args[0] || 1} of ${(Math.floor(((offers.length + (parseInt(args[0]) * 10) || 1)) / 10) + 1)}`,
             description: fields.length === 0 ?
                 "There are no offers matching your criteria" :
                 "If you wish to cancel an offer, use `.cancel-offer <id>`",
