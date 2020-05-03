@@ -36,5 +36,5 @@ export async function bet(message: Message, args: string[]) {
     if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");
     else message.reply("you lost " + money.commafy() + " coins. Try again next time!");
     updateValueForUser(message.author.id, "money", addedMoney, "$inc");
-    addToUSB(-addedMoney);
+    addToUSB(-Math.floor(addedMoney * 1.2));
 }

@@ -89,6 +89,7 @@ if (config.dbl) {
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         user = await getUser(vote.user);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
+        addToUSB(user.votingStreak * 20000);
     });
 }
 
