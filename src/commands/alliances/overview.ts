@@ -56,7 +56,7 @@ export async function allianceOverview(message: Message, args: string[], client:
                 },
                 {
                     name: "Privacy settings:",
-                    value: "This alliance is " + (alliance.public) ? "public" : "private",
+                    value: "This alliance is " + ((alliance.public) ? "public" : "private"),
                     inline: true
                 },
                 {

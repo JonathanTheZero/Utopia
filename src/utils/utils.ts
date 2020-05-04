@@ -22,11 +22,11 @@ export function Sleep(milliseconds: number): Promise<void> {
 
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
-  }
+}
 
-  export function getRandomRange(min: number, max:number) {
+export function getRandomRange(min: number, max: number) {
     return Math.random() * (max - min) + min;
-  }
+}
 
 Number.prototype.commafy = function (): string {
     return String(this).commafy();
@@ -50,4 +50,17 @@ export async function reminder(message: Message, duration: number, preText: stri
     message.channel.send(preText);
     await Sleep(duration);
     message.reply(postText);
+}
+
+export function secondsToDhms(seconds: number) {
+    var d = Math.floor(seconds / (3600 * 24)),
+        h = Math.floor(seconds % (3600 * 24) / 3600),
+        m = Math.floor(seconds % 3600 / 60),
+        s = Math.floor(seconds % 60);
+
+    var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
+    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
+    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+    return dDisplay + hDisplay + mDisplay + sDisplay;
 }

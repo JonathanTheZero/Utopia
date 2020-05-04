@@ -105,7 +105,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.bet <amount>` or `.coinflip <amount>`",
-            value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money or `.bet h` to bet half of your money)"
+            value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money or `.bet h` to bet half of your money). Percentages (like `.bet 10%` are also valid)"
         },
         {
             name: "`.payout [mention]`",

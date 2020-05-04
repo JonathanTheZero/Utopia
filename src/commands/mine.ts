@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { user } from "../utils/interfaces";
 import { getUser, updateValueForUser, getConfig, addToUSB } from "../utils/databasehandler";
-import { getRandomInt, getRandomRange, reminder } from "../utils/utils";
+import { getRandomInt, getRandomRange, reminder, secondsToDhms } from "../utils/utils";
 import "../utils/utils";
 import * as config from "../static/config.json";
 
@@ -22,21 +22,28 @@ export async function digmine(message: Message) {
     addToUSB(10000 * (user.resources.totaldigs + 1));
     updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
 
-    if (minetype == 0) return message.reply("Your digging has returned no new mines");
+    if (minetype == 0) message.reply("Your digging has returned no new mines");
 
     if (minetype == 1) {
         updateValueForUser(user._id, "steelmine", 1, "$inc");
         updateValueForUser(user._id, "steel", 100, "$inc");
         updateValueForUser(user._id, "totaldigs", 1, "$inc");
-        return message.reply("Your digging is successful. You got a new steel mine, and has given a initial return of 100 steel")
+        message.reply("Your digging is successful. You got a new steel mine, and has given a initial return of 100 steel")
     }
 
     if (minetype == 2) {
         updateValueForUser(user._id, "oilrig", 1, "$inc");
         updateValueForUser(user._id, "oil", 100, "$inc");
         updateValueForUser(user._id, "totaldigs", 1, "$inc");
-        return message.reply("Your digging is successful. You got a new oil rig, and has given a initial return of 100 barrels of oil");
+        message.reply("Your digging is successful. You got a new oil rig, and has given a initial return of 100 barrels of oil");
     }
+
+    if (user.autoping) reminder(
+        message,
+        14400000,
+        "I'll remind you in 4h to dig a mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "Reminder: Dig a mine."
+    );
 }
 
 export async function mine(message: Message, args: string[]) {
@@ -47,7 +54,7 @@ export async function mine(message: Message, args: string[]) {
     if (user.resources.oilrig == 0 && user.resources.steelmine == 0)
         return message.reply("you don't have any mines to mine");
 
-    if (args[0] !== "steel" && args[0] !== "oil")
+    if (args[0][0] !== "s" && args[0][0] !== "o")
         return message.reply("Wrong mine type, please do `.mine steel` or `.mine oil`");
 
     if (user.resources.minereturn == 0)
@@ -56,17 +63,15 @@ export async function mine(message: Message, args: string[]) {
     if (Math.floor(Date.now() / 1000) - user.lastMine < 3600)
         return message.reply("You can mine again in " + new Date((3600 - (Math.floor(Date.now() / 1000) - user.lastMine)) * 1000).toISOString().substr(11, 8));
 
-    if (args[0] == "steel") {
+    if (args[0][0] == "s") {
         if (!user.resources.steelmine) return message.reply("you don't have any steel mines.");
-        let payout = getRandomRange(400, 10000);
-        let x = Math.floor(user.resources.steelmine * payout * user.resources.minereturn);
+        let x = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "steel", x, "$inc");
         message.reply(`Your steel mines produced ${x.commafy()} steel, you now have ${(x + user.resources.steel).commafy()} steel.`);
     }
-    if (args[0] == "oil") {
+    if (args[0][0] == "o") {
         if (!user.resources.oilrig) return message.reply("you don't have any oil rigs.");
-        let payout = getRandomRange(400, 10000);
-        let x = Math.floor(user.resources.oilrig * payout * user.resources.minereturn);
+        let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "oil", x, "$inc");
         message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels`);
     }
@@ -117,7 +122,7 @@ export async function mineStats(message: Message, args: string[]) {
                 },
                 {
                     name: "Next reset:",
-                    value: "The next mine reset will be in " + new Date((604800 - (Math.floor(Date.now() / 1000) - (c.lastMineReset / 1000))) * 1000).toISOString().substr(9, 10)
+                    value: "The next mine reset will be in " + secondsToDhms(Math.floor((Date.now() - c.lastMineReset) / 1000))
                 }
             ],
             color: parseInt(config.properties.embedColor),

@@ -542,7 +542,7 @@ client.on("message", async message => {
     else if (command === "mine")
         mine(message, args);
 
-    else if (command === "digmine")
+    else if (command === "digmine" || command === "detroitbecomedwarf")
         digmine(message);
 
     else if (command === "minestats")
@@ -579,7 +579,7 @@ client.on("message", async message => {
         if (a > u.money || a < 0 || isNaN(a)) return message.reply("no.");
         updateValueForUser(u._id, "money", -a, "$inc");
         addToUSB(a);
-        message.reply("you lucky bastard donated " + a.commafy());
+        return message.reply("you lucky bastard donated " + a.commafy());
     }
 
     else if (command === "taxes")

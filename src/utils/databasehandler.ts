@@ -79,7 +79,7 @@ export async function updateValueForAlliance(name: string, mode: "name", newValu
 export async function updateValueForAlliance(name: string, mode: updateAllianceQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "level", "public", "name", "tax"].includes(mode))
-        newQuery = { [updateMode]: { [mode]: newValue } };
+        newQuery = { [updateMode || "$set"]: { [mode]: newValue } };
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
 

@@ -7,8 +7,7 @@
     },
     "restart": {
       "exclude": [
-        "^public/",
-        "^dist/"
+        "^public/"
       ],
       "include": [
         "\\.js$",

@@ -22,14 +22,13 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
 
     var alliance = user.alliance;
 
-    if (!alliance)
+    if (alliance == null)
         alliance = (!args[0]) ? "You haven't joined an alliance yet." : user.tag + ` hasn't joined an alliance yet.`;
-    if (user.allianceRank == "M")
-        alliance = "Member of " + alliance;
-    else if (user.allianceRank == "C")
-        alliance = "Co-leader of " + alliance;
-    else if (user.allianceRank == "L")
-        alliance = "Leader of " + alliance;
+
+    if (user.allianceRank == "M") alliance = "Member of " + alliance;
+    else if (user.allianceRank == "C") alliance = "Co-leader of " + alliance;
+    else if (user.allianceRank == "L") alliance = "Leader of " + alliance;
+    
     var upgrades = (!args[0]) ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`;
     const r: string[] = [];
     if (user.upgrades.population.length !== 0) {
