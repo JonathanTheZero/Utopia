@@ -6,7 +6,7 @@ import "../../utils/utils";
 
 export async function allianceOverview(message: Message, args: string[], client: Client) {
     const user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
-    const url = client?.users?.get(user._id.toString())?.displayAvatarURL;
+    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
 
     let alliance: alliance = await getAlliance(!user ? args.join(" ") : user.alliance as string) as alliance;
     if (!alliance) {
@@ -22,7 +22,7 @@ export async function allianceOverview(message: Message, args: string[], client:
     else if (cl.length == 2)
         coLeaders = "The Co-Leaders of this alliance are <@" + cl[0] + "> and <@" + cl[1] + ">";
     const u = alliance.upgrades;
-    message.channel.send({
+    return message.channel.send({
         embed: {
             color: parseInt(config.properties.embedColor),
             title: "Data for " + alliance.name,

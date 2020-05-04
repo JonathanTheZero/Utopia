@@ -11,7 +11,7 @@ import "../utils/utils";
  */
 export async function statsEmbed(message: Message, args: string[], client: Client): Promise<any | void> {
     const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
-    const url = client?.users?.get(user._id.toString())?.displayAvatarURL;
+    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
 
     if (!user) {
         if (!args[0])

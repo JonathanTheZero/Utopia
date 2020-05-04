@@ -3,6 +3,7 @@ import { user } from "../../utils/interfaces";
 import { getUser, getAlliance, updateValueForAlliance, customUpdateQuery } from "../../utils/databasehandler";
 
 export async function renameAlliance(message: Message, args: string[]) {
+    if(!args[0]) return message.reply("you need to add a name!")
     let user: user = await getUser(message.author.id);
 
     const old = (' ' + user.alliance).slice(1);

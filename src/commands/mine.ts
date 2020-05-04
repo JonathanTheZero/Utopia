@@ -122,7 +122,7 @@ export async function mineStats(message: Message, args: string[]) {
                 },
                 {
                     name: "Next reset:",
-                    value: "The next mine reset will be in " + secondsToDhms(Math.floor((Date.now() - c.lastMineReset) / 1000))
+                    value: "The next mine reset will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000))
                 }
             ],
             color: parseInt(config.properties.embedColor),

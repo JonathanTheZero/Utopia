@@ -582,25 +582,47 @@ client.on("message", async message => {
         return message.reply("you lucky bastard donated " + a.commafy());
     }
 
-    else if (command === "taxes")
+    else if (command === "taxes") {
+        const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
                 title: "Tax classes",
                 color: parseInt(config.properties.embedColor),
                 fields: [
-                    { name: "Class 1", value: "Balance smaller than 100,000, 2% tax" },
-                    { name: "Class 2", value: "Balance smaller than 1,000,000, 5% tax" },
-                    { name: "Class 3", value: "Balance smaller than 10,000,000, 10% tax" },
-                    { name: "Class 4", value: "Balance smaller than 100,000,000, 20% tax" },
-                    { name: "Class 5", value: "Balance smaller than 500,000,000, 35% tax" },
-                    { name: "Class 6", value: "Balance smaller than 1,000,000,000, 50% tax" },
-                    { name: "Class 7", value: "Bigger than 1,000,000,000, 60% tax" },
-
+                    {
+                        name: "Class 1" + (u.money < 100000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 100,000, 2% tax",
+                    },
+                    {
+                        name: "Class 2" + (u.money > 100000 && u.money < 1000000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 1,000,000, 5% tax",
+                    },
+                    {
+                        name: "Class 3" + (u.money < 10000000 && u.money > 1000000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 10,000,000, 10% tax",
+                    },
+                    {
+                        name: "Class 4" + (u.money > 10000000 && u.money < 100000000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 100,000,000, 20% tax",
+                    },
+                    {
+                        name: "Class 5" + (u.money < 500000000 && u.money > 100000000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 500,000,000, 35% tax",
+                    },
+                    {
+                        name: "Class 6"  + (u.money > 500000000 && u.money < 1000000000 ? " (Your class)" : ""),
+                        value: "Balance smaller than 1,000,000,000, 50% tax",
+                    },
+                    {
+                        name: "Class 7"  + (u.money > 1000000000 ? " (Your class)" : ""),
+                        value: "Bigger than 1,000,000,000, 60% tax"
+                    },
                 ],
                 timestamp: new Date(),
-                footer: config.properties.footer
-            }
+                footer: config.properties.footer,
+            },
         });
+    }
 });
 
 client.login(config.token);
