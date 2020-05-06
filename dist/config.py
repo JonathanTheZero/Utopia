@@ -32,7 +32,7 @@ FONT = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wa
 
 
 #urls for war
-BASE_WAR = "https://i.imgur.com/aLs4M3W.png"
+BASE_WAR = "https://i.imgur.com/BGDhGB9.png"
 
 HEX_BLUE1 = "https://i.imgur.com/YP90xEA.png"
 HEX_BLUE2 = "https://i.imgur.com/jsRZpWC.png"
