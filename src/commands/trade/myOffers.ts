@@ -4,8 +4,8 @@ import { marketOffer } from "../../utils/interfaces";
 import * as config from "../../static/config.json";
 
 export async function myOffers(message: Message, args: string[]) {
-    let offers: marketOffer[] = await findOffer({ "seller._id": message.author.id });
-    if (args[0]) offers = offers.splice((parseInt(args[0]) - 1) * 10);
+    let page: number = Number(args[0]?.match(/\d+/)?.[0]) || 1;
+    let offers: marketOffer[] = (await findOffer({ "seller._id": message.author.id })).splice((page - 1) * 10);
     const fields = [];
     for (let i = 0; i < Math.min(offers.length, 10); ++i)
         fields.push({
@@ -16,7 +16,7 @@ export async function myOffers(message: Message, args: string[]) {
 
     return message.channel.send({
         embed: {
-            title: `View your offers. Page ${args[0] || 1} of ${Math.floor((await findOffer({ "seller._id": message.author.id })).length / 10) + 1}`,
+            title: `View your offers. Page ${page} of ${Math.floor((await findOffer({ "seller._id": message.author.id })).length / 10) + 1}`,
             description: fields.length === 0 ?
                 "There are no offers matching your criteria" :
                 "If you wish to cancel an offer, use `.cancel-offer <id>`",

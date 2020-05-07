@@ -77,5 +77,5 @@ export async function upgradeAlliance(name: string): Promise<string> {
         updateValueForAlliance(name, "level", 10, "$set");
         return "Succesfully upgraded your alliance to level 10. Your alliance can now own each farm 10 times.";
     }
-    return "Error";
+    return "Your alliance is already on level 10, which is the current maximum level!";
 }
