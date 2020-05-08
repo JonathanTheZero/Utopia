@@ -7,7 +7,7 @@ import * as config from "../../static/config.json";
 //.market [currency] [minAmount] [page]
 export async function activeOffers(message: Message, args: string[]) {
     const inp = args.join(" ");
-    let page: number, currency: resources, min: number, query: any = {};
+    let page: number = 1, currency: resources, min: number, query: any = {};
     if (inp.match(/p(age)?:\d{1,}/))
         page = Number(inp.match(/p(age)?:\d{1,}/)![0].match(/\d+/)![0]);
     if (inp.match(/c(urrency)?:(p(opulation)?|s(teel)?|m(oney)?|o(il)?|f(ood)?)/)) {
@@ -25,9 +25,30 @@ export async function activeOffers(message: Message, args: string[]) {
         min = Number(inp.match(/m(in)?:\d{1,}/)![0].match(/\d+/)![0]);
     if (currency!) query["offer.currency"] = currency!;
     if (min!) query["offer.amount"] = { $gt: min! };
-    let offers: marketOffer[] = await findOffer(query);
+
+    const m = <Message>(await message.channel.send({ embed: await marketEmbed(query, page!) }));
+    await m.react("⬅")
+    await m.react("➡");
+    const backwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '⬅' && user.id === message.author.id;
+    const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '➡' && user.id === message.author.id;
+
+    const backwards = m.createReactionCollector(backwardsFilter, { time: 100000 });
+    const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });
+
+    backwards.on('collect', async () => {
+        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.edit({ embed: await marketEmbed(query, --page) });
+    });
+    forwards.on('collect', async () => {
+        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.edit({ embed: await marketEmbed(query, ++page) });
+    });
+}
+
+async function marketEmbed(query: { [key: string]: string }, page: number = 1) {
+    page = page < 1 ? 1 : page;
+    let offers: marketOffer[] = (await findOffer(query)).splice((page - 1) * 10);
     const fields = [];
-    if (page!) offers = offers.splice((page! - 1) * 10);
     for (let i = 0; i < Math.min(10, offers.length); ++i)
         fields.push({
             name: `Offer by ${offers[i].seller.tag} (ID: ${offers[i]._id})`,
@@ -35,17 +56,14 @@ export async function activeOffers(message: Message, args: string[]) {
                 `(${(offers[i].price.amount / offers[i].offer.amount).toFixed(2).commafy()} per unit)`
         });
 
-    return message.channel.send({
-        embed: {
-            title: `Welcome to the market. You are on page ${page! || 1} of ${Math.floor((await findOffer(query)).length / 10) + 1}`,
-            description: fields.length === 0 ?
-                "There are no offers matching your criteria" :
-                "If you want to buy an item you are intersted in, use `.buy-offer <id>`",
-            fields,
-            footer: config.properties.footer,
-            color: parseInt(config.properties.embedColor),
-            timestamp: new Date()
-        }
-    });
+    return {
+        title: `Welcome to the market. You are on page ${page! || 1} of ${Math.floor((await findOffer(query)).length / 10) + 1}`,
+        description: fields.length === 0 ?
+            "There are no offers matching your criteria" :
+            "If you want to buy an item you are intersted in, use `.buy-offer <id>`",
+        fields,
+        footer: config.properties.footer,
+        color: parseInt(config.properties.embedColor),
+        timestamp: new Date()
+    }
 }
-

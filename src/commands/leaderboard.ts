@@ -5,102 +5,56 @@ import { getAllUsers, getAllAlliances, getUser } from "../utils/databasehandler"
 import "../utils/utils";
 
 export async function leaderboard(message: Message, args: Array<any>) {
-    var lbEmbed;
-    if (args[0] == "p" || args[0] == "population") {
-        try {
-            lbEmbed = (typeof args[1] === "undefined") ? await generateLeaderboardEmbed("p", 1, message) : await generateLeaderboardEmbed("p", args[1], message);
-            if (args[1] > Math.floor((await getLeaderboardList("p")).length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-        }
-        catch (e) {
-            console.error(e);
-            return message.reply("that isn't a valid page number!")
-        }
+    let symbol: "m" | "p" | "f" | "a" | "o" | "s" = "m", page: number = typeof args[1] === "undefined" ? isNaN(parseInt(args[0])) ? 1 : parseInt(args[0]) : args[1];;
+    switch (args[0]?.[0]) {
+        case "p": symbol = "p"; break;
+        case "f": symbol = "f"; break;
+        case "a": symbol = "a"; break;
+        case "o": symbol = "o"; break;
+        case "s": symbol = "s"; break;
+        default: symbol = "m";
     }
-    else if (args[0] == "f" || args[0] == "food") {
-        try {
-            lbEmbed = (typeof args[1] === "undefined") ? await generateLeaderboardEmbed("f", 1, message) : await generateLeaderboardEmbed("f", args[1], message);
-            if (args[1] > Math.floor((await getLeaderboardList("f")).length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-        }
-        catch (e) {
-            console.error(e);
-            return message.reply("that isn't a valid page number!")
-        }
-    }
-    else if (args[0] == "alliances" || args[0] == "alliance" || args[0] == "a") {
-        try {
-            lbEmbed = (typeof args[1] === "undefined") ? await generateLeaderboardEmbed("a", 1, message) : await generateLeaderboardEmbed("a", args[1], message);
-            if (args[1] > Math.floor((await getLeaderboardList("a")).length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-        }
-        catch (e) {
-            console.error(e);
-            return message.reply("that isn't a valid page number!")
-        }
-    }
-    else if (["wins", "duels", "w"].includes(args[0])) {
-        try {
-            lbEmbed = (typeof args[1] === "undefined") ? await generateLeaderboardEmbed("w", 1, message) : await generateLeaderboardEmbed("w", args[1], message);
-            if (args[1] > Math.floor((await getLeaderboardList("w")).length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-        }
-        catch (e) {
-            console.error(e);
-            return message.reply("that isn't a valid page number!")
-        }
-    }
-    else {
-        if (!isNaN(args[0])) {
-            try {
-                lbEmbed = await generateLeaderboardEmbed("m", args[0], message);
-                if (args[0] > Math.floor((await getLeaderboardList("m")).length / 10) + 1) return message.reply("this isn't a valid page number!");
-            }
-            catch (e) {
-                console.error(e);
-                return message.reply("that isn't a valid page number!")
-            }
-        }
-        else {
-            try {
-                lbEmbed = (typeof args[1] === "undefined") ? await generateLeaderboardEmbed("m", 1, message) : await generateLeaderboardEmbed("m", args[1], message);
-                if (args[1] > Math.floor((await getLeaderboardList("m")).length / 10) + 1 || isNaN(args[1]) && typeof args[1] !== "undefined") return message.reply("this isn't a valid page number!");
-            }
-            catch (e) {
-                console.error(e);
-                return message.reply("that isn't a valid page number!")
-            }
-        }
-    }
-    message.channel.send({ embed: lbEmbed });
+    if (page > Math.floor((await getLeaderboardList("m")).length / 10) + 1 || isNaN(page) && typeof page !== "undefined")
+        return message.reply("this isn't a valid page number!");
+    const m: Message = <Message>(await message.channel.send({ embed: await generateLeaderboardEmbed(symbol, page, message) }));
+
+    await m.react("⬅")
+    await m.react("➡");
+    const backwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '⬅' && user.id === message.author.id;
+    const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '➡' && user.id === message.author.id;
+
+    const backwards = m.createReactionCollector(backwardsFilter, { time: 100000 });
+    const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });
+
+    backwards.on('collect', async () => {
+        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.edit({ embed: await generateLeaderboardEmbed(symbol, --page, message) });
+    });
+    forwards.on('collect', async () => {
+        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.edit({ embed: await generateLeaderboardEmbed(symbol, ++page, message) });
+    });
 }
 
-function getLeaderboardList(type: "p" | "f" | "w" | "m"): Promise<user[]>;
-function getLeaderboardList(type: "a"): Promise<alliance[]>;
-async function getLeaderboardList(type: "p" | "f" | "a" | "w" | "m"): Promise<user[] | alliance[]> {
+async function getLeaderboardList(type: "p" | "f" | "m" | "o" | "s"): Promise<user[]>;
+async function getLeaderboardList(type: "a"): Promise<alliance[]>;
+async function getLeaderboardList(type: "p" | "f" | "a" | "o" | "m" | "s"): Promise<user[] | alliance[]> {
     let allUsers = await getAllUsers();
     let allAlliances = await getAllAlliances();
-    if (type == "p") {
-        return allUsers.sort((a: user, b: user) => b.resources.population - a.resources.population);
-    }
-    else if (type == "f") {
-        return allUsers.sort((a: user, b: user) => (b.resources.food) - (a.resources.food));
-    }
-    else if (type == "a") {
-        return allAlliances.sort((a: alliance, b: alliance) => (b.money) - (a.money));
-    }
-    /*else if (type == "w") {
-        return parsedData.sort((a: user, b: user) => (b.duelsWon) - (a.duelsWon));
-    }*/
-    else {
-        return allUsers.sort((a: user, b: user) => (b.money) - (a.money));
-    }
+    if (type === "p") return allUsers.sort((a: user, b: user) => b.resources.population - a.resources.population);
+    else if (type === "f") return allUsers.sort((a: user, b: user) => (b.resources.food) - (a.resources.food));
+    else if (type === "a") return allAlliances.sort((a: alliance, b: alliance) => (b.money) - (a.money));
+    else if (type === "o") return allUsers.sort((a, b) => b.resources.oil - a.resources.oil);
+    else if (type === "s") return allUsers.sort((a, b) => b.resources.steel - a.resources.steel);
+    else return allUsers.sort((a: user, b: user) => (b.money) - (a.money));
 }
 
-async function generateLeaderboardEmbed(type: string, page: number, message: Message): Promise<object> {
+async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s", page: number, message: Message): Promise<object> {
     var p = page - 1;
-    var lbEmbed;
-
-    if (type == "p") {
+    if (type === "p") {
         var lb = await getLeaderboardList("p");
         var index = lb.findIndex(item => item._id == message.author.id);
-        lbEmbed = {
+        return {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by population, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
             description: `Your rank: \`#${index + 1}\``,
@@ -108,12 +62,10 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
             timestamp: new Date(),
             footer: config.properties.footer,
         };
-    }
-
-    else if (type == "f") {
+    } else if (type === "f") {
         var lb = await getLeaderboardList("f");
         var index = lb.findIndex(item => item._id == message.author.id);
-        lbEmbed = {
+        return {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by food, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
             description: `Your rank: \`#${index + 1}\``,
@@ -121,14 +73,12 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
             timestamp: new Date(),
             footer: config.properties.footer,
         }
-    }
-
-    else if (type == "a") {
+    } else if (type === "a") {
         var lba = await getLeaderboardList("a");
         let u: user = await getUser(message.author.id);
         let i = lba.findIndex(item => item.name == u.alliance);
-        var ind = (i == -1) ? "-" : ++i;
-        lbEmbed = {
+        var ind = (i === -1) ? "-" : ++i;
+        return {
             color: parseInt(config.properties.embedColor),
             title: `Alliance leaderboard sorted by money, ${page} of ${(Math.floor(lba.length / 10) + 1)}`,
             fields: leaderBoardEmbedFields(p, lba, "a"),
@@ -136,12 +86,32 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
             timestamp: new Date(),
             footer: config.properties.footer,
         };
-    }
-
-    else {
+    } else if (type === "o") {
+        var lb = await getLeaderboardList("o");
+        var index = lb.findIndex(item => item._id == message.author.id);
+        return {
+            color: parseInt(config.properties.embedColor),
+            title: `Leaderboard sorted by oil, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
+            description: `Your rank: \`#${index + 1}\``,
+            fields: leaderBoardEmbedFields(p, lb, "o"),
+            timestamp: new Date(),
+            footer: config.properties.footer,
+        }
+    } else if (type === "s") {
+        var lb = await getLeaderboardList("s");
+        var index = lb.findIndex(item => item._id == message.author.id);
+        return {
+            color: parseInt(config.properties.embedColor),
+            title: `Leaderboard sorted by oil, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
+            description: `Your rank: \`#${index + 1}\``,
+            fields: leaderBoardEmbedFields(p, lb, "s"),
+            timestamp: new Date(),
+            footer: config.properties.footer,
+        }
+    } else {
         var lb = await getLeaderboardList("m");
         var index = lb.findIndex(item => item._id == message.author.id);
-        lbEmbed = {
+        return {
             color: parseInt(config.properties.embedColor),
             title: `Leaderboard sorted by money, ${page} of ${(Math.floor(lb.length / 10) + 1)}`,
             description: `Your rank: \`#${index + 1}\``,
@@ -150,41 +120,42 @@ async function generateLeaderboardEmbed(type: string, page: number, message: Mes
             footer: config.properties.footer,
         };
     }
-    return lbEmbed;
 }
 
-function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f" | "w"): Array<{ name: string; value: string }> {
+function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f" | "o" | "s"): Array<{ name: string; value: string }> {
     var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
-    var fields = [];
-    if (type == "p") {
+    const fields = [];
+    if (type === "p") {
         for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].resources.population.commafy() + " population"
             });
-    }
-    else if (type == "a") {
+    } else if (type === "a") {
         for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].name,
                 value: lb[i + p * 10].money.commafy() + " coins",
             });
-    }
-    else if (type == "f") {
+    } else if (type === "f") {
         for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].tag,
                 value: lb[i + p * 10].resources.food.commafy() + " food",
             });
-    }
-    else if (type == "w") {
+    } else if (type === "o") {
         for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].tag,
-                value: lb[i + p * 10].duelsWon.commafy() + " wins",
+                value: lb[i + p * 10].resources.oil.commafy() + " oil",
             });
-    }
-    else {
+    } else if (type === "s") {
+        for (var i = 0; i < h; i++)
+            fields.push({
+                name: "`#" + ((i + 1) + (p * 10)) + "` " + lb[i + p * 10].tag,
+                value: lb[i + p * 10].resources.steel.commafy() + " steel",
+            });
+    } else {
         for (var i = 0; i < h; i++)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,

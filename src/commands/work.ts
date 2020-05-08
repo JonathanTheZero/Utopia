@@ -69,7 +69,7 @@ export async function work(message: Message, client: Client) {
     if (user.autoping) reminder(
         message,
         1800000,
-        "I'll remind you in 30 minutes that you can work again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "I'll remind you in 30 minutes that you can work again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending reminders)",
         "Reminder: Work again"
     );
 }
@@ -152,7 +152,7 @@ export async function crime(message: Message) {
     if (user.autoping) reminder(
         message,
         14400000,
-        "I'll remind you in 4h to commit a crime again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "I'll remind you in 4h to commit a crime again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending reminders)",
         "Reminder: Commit a crime."
     );
 }

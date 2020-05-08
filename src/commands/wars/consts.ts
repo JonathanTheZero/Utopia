@@ -159,7 +159,7 @@ export const troopStats = {
             name: "Artillery:",
             value: `Creating one regiment of Artillery costs ${prices.artillery.creation.steel.commafy()} steel, ${prices.artillery.creation.money.commafy()} money and ${prices.artillery.creation.population.commafy()} population.\n` +
                 `They will cost and consume ${prices.artillery.perRound.money.commafy()} money, ${prices.artillery.perRound.food.commafy()} food and per round.\n` +
-                `Infantry has the following Stats:\n` +
+                `Artillery has the following Stats:\n` +
                 `HP: ${battleStats.art.hp}\n` +
                 `Defense: ${battleStats.art.defense}\n` +
                 `Attack: ${battleStats.art.attack.if} against Infantry, ${battleStats.art.attack.art} against Artillery, ${battleStats.art.attack.tanks} against Tanks and ${battleStats.art.attack.jets} against Jets.`
@@ -168,7 +168,7 @@ export const troopStats = {
             name: "Tanks:",
             value: `Creating one regiment of Tanks costs ${prices.tanks.creation.steel.commafy()} steel, ${prices.tanks.creation.money.commafy()} money and ${prices.tanks.creation.population.commafy()} population.\n` +
                 `They will cost and consume ${prices.tanks.perRound.money.commafy()} money, ${prices.tanks.perRound.oil.commafy()} oil and per round.\n` +
-                `Infantry has the following Stats:\n` +
+                `Tanks have the following Stats:\n` +
                 `HP: ${battleStats.tanks.hp}\n` +
                 `Defense: ${battleStats.tanks.defense}\n` +
                 `Attack: ${battleStats.tanks.attack.if} against Infantry, ${battleStats.tanks.attack.art} against Artillery, ${battleStats.tanks.attack.tanks} against Tanks and ${battleStats.tanks.attack.jets} against Jets.`
@@ -177,7 +177,7 @@ export const troopStats = {
             name: "Jets:",
             value: `Creating one regiment of Jets costs ${prices.jets.creation.steel.commafy()} steel, ${prices.jets.creation.money.commafy()} money and ${prices.jets.creation.population.commafy()} population.\n` +
                 `They will cost and consume ${prices.jets.perRound.money.commafy()} money, ${prices.jets.perRound.oil.commafy()} oil and per round.\n` +
-                `Infantry has the following Stats:\n` +
+                `Jets have the following Stats:\n` +
                 `HP: ${battleStats.jets.hp}\n` +
                 `Defense: ${battleStats.jets.defense}\n` +
                 `Attack: ${battleStats.jets.attack.if} against Infantry, ${battleStats.jets.attack.art} against Artillery, ${battleStats.jets.attack.tanks} against Tanks and ${battleStats.jets.attack.jets} against Jets.`

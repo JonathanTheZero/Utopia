@@ -41,7 +41,7 @@ export async function digmine(message: Message) {
     if (user.autoping) reminder(
         message,
         14400000,
-        "I'll remind you in 4h to dig a mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "I'll remind you in 4h to dig a mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending reminders)",
         "Reminder: Dig a mine."
     );
 }
@@ -85,7 +85,7 @@ export async function mine(message: Message, args: string[]) {
     if (user.autoping) reminder(
         message,
         1800000 * 2,
-        "I'll remind you in 1 hour that you can mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending remnders)",
+        "I'll remind you in 1 hour that you can mine again.\nIf you wish to disable reminders, use `.autoping`. (Note: this won't cancel all currently pending reminders)",
         "Reminder: Mine again"
     );
 }

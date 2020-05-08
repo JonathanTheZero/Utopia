@@ -67,7 +67,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.lb` or `.leaderboard [type] [page]`",
-            value: "View the global leaderboard. Allowed types are 'allaince', 'money', 'food' and 'population'.",
+            value: "View the global leaderboard. Allowed types are 'alliance', 'money', 'food' and 'population'.",
         },
         {
             name: "`.shop` or `.store [category]`",
@@ -76,14 +76,6 @@ export const generalHelpMenu = {
         {
             name: "`.buy <item>`",
             value: "Buy an item from the shop."
-        },
-        {
-            name: "`.use <item>`",
-            value: "Use on of your purchased items."
-        },
-        {
-            name: "`.inventory` or `.inv`",
-            value: "View the items you purchased but haven't used yet."
         },
         {
             name: "`.loan`, `.payback` and `.loancalc`",
@@ -104,7 +96,7 @@ export const generalHelpMenu = {
             value: "View the stats of your alliance or of the alliance of another user."
         },
         {
-            name: "`.bet <amount>` or `.coinflip <amount>`",
+            name: "`.bet <amount>`",
             value: "You either gain the amount you bet or you lose it. (Note: use `.bet a` to bet all your money or `.bet h` to bet half of your money). Percentages (like `.bet 10%` are also valid)"
         },
         {
