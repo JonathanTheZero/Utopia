@@ -38,3 +38,7 @@ You have two options when compiling the code:
   This should not be used during production but makes it much easier to debug when testing.
   In order to get that, run `tsc && node dist/index.js`.<br />
   **Note:** When debugging, the errors will be thrown in the JavaScript files so you have to look there and afterwards edit the TypeScript files
+
+Another Note when editing the Python files: The main files are in `/imageplotting/` but the version the compiled programm acesses is in `/dist/` as well 
+(it's marked as Generated for the GitHub linguist and the whole `/dist` folder won't get pushed). 
+This means: If you edit the Python files, do this in `/imageplotting/` and copy them into `/dist/` before running the program.
