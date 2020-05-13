@@ -37,6 +37,8 @@ export interface user {
     inventory: Array<string>;
     votingStreak: number;
     lastVoted: number;
+    income: number;
+    clientStates: Array<clientState>;
 }
 
 export interface alliance {
@@ -109,7 +111,8 @@ export type updateUserQuery = "tag"
     | "steelmine"
     | "oilrig"
     | "minereturn"
-    | "minereset";
+    | "minereset"
+    | "income";
 
 export type updateAllianceQuery = "name"
     | "level"
@@ -172,7 +175,12 @@ export interface marketOffer {
 
 export type resources = "money" | "food" | "oil" | "steel" | "population";
 
-export interface trade {
-    _id: string;
-    
+export interface clientState {
+    money: number;
+    resources: {
+        food: number;
+        oil: number;
+        steel: number;
+        population: number;
+    };
 }

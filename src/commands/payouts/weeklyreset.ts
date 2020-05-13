@@ -15,49 +15,50 @@ export async function weeklyReset(client: Client) {
             } catch { }
         }
         //taxing
-        if (u.money < 100000) {
-            updateValueForUser(u._id, "money", ~~(.98 * u.money), "$set");
-            addToUSB(~~(.02 * u.money));
+        if (u.income < 100000) {
+            updateValueForUser(u._id, "money", ~(.98 * u.income), "$inc");
+            addToUSB(~~(.02 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 1: 2% tax).");
             } catch { }
         } else if (u.money < 1000000) {
-            updateValueForUser(u._id, "money", ~~(.95 * u.money), "$set");
-            addToUSB(~~(.05 * u.money));
+            updateValueForUser(u._id, "money", ~(.95 * u.income), "$set");
+            addToUSB(~~(.05 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 2: 5% tax).");
             } catch { }
         } else if (u.money < 10000000) {
-            updateValueForUser(u._id, "money", ~~(.9 * u.money), "$set");
-            addToUSB(~~(.1 * u.money));
+            updateValueForUser(u._id, "money", ~(.9 * u.income), "$set");
+            addToUSB(~~(.1 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 3: 10% tax).");
             } catch { }
         } else if (u.money < 100000000) {
-            updateValueForUser(u._id, "money", Math.floor(.8 * u.money), "$set");
-            addToUSB(Math.floor(.2 * u.money));
+            updateValueForUser(u._id, "money", -Math.floor(.8 * u.income), "$set");
+            addToUSB(Math.floor(.2 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 4: 20% tax).");
             } catch { }
         } else if (u.money < 500000000) {
-            updateValueForUser(u._id, "money", Math.floor(.65 * u.money), "$set");
-            addToUSB(Math.floor(.35 * u.money));
+            updateValueForUser(u._id, "money", Math.floor(.65 * u.income), "$set");
+            addToUSB(Math.floor(.35 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 5: 35% tax).");
             } catch { }
         } else if (u.money < 1000000000) {
-            updateValueForUser(u._id, "money", Math.floor(.5 * u.money), "$set");
-            addToUSB(Math.floor(.5 * u.money));
+            updateValueForUser(u._id, "money", Math.floor(.5 * u.income), "$set");
+            addToUSB(Math.floor(.5 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 6: 50% tax).");
             } catch { }
         } else {
-            updateValueForUser(u._id, "money", Math.floor(.4 * u.money), "$set");
-            addToUSB(Math.floor(.6 * u.money));
+            updateValueForUser(u._id, "money", Math.floor(.4 * u.income), "$set");
+            addToUSB(Math.floor(.6 * u.income));
             try {
                 client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 7: 60% tax).");
             } catch { }
         }
+        updateValueForUser(u._id, "income", 0, "$set");
     }
     channel.send({
         embed: {

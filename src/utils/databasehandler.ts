@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -48,7 +48,8 @@ export async function updateValueForUser(
         | "steelmine"
         | "minereset"
         | "minereturn"
-        | "oilrig",
+        | "oilrig"
+        | "income",
     newValue: number,
     updateMode?: "$inc" | "$set"
 ): Promise<void>;
@@ -59,17 +60,19 @@ export async function updateValueForUser(_id: string, mode: "allianceRank", newV
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset"].includes(mode))
+    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
-    else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode)) {
+    else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
-    }
-    else
-        throw new Error("Invalid parameter passed");
+    else throw new Error("Invalid parameter passed");
 
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
         if (err) throw err;
     });
+}
+
+export async function addClientState(_id: string, cls: clientState): Promise<void> {
+    client.db(dbName).collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
 }
 
 export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;

@@ -66,6 +66,7 @@ export async function work(message: Message, client: Client) {
         }
     }
     updateValueForUser(user._id, "lastWorked", Math.floor(Date.now() / 1000));
+    updateValueForUser(message.author.id, "income", produced, "$inc");
     if (user.autoping) reminder(
         message,
         1800000,
@@ -149,6 +150,7 @@ export async function crime(message: Message) {
             message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
         }
     }
+    updateValueForUser(message.author.id, "income", produced, "$inc");
     if (user.autoping) reminder(
         message,
         14400000,

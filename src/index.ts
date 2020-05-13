@@ -58,6 +58,7 @@ import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset } f
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer } from "./commands/trade";
+import { createCLS } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -89,10 +90,10 @@ if (config.dbl) {
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         user = await getUser(vote.user);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
-        addToUSB(user.votingStreak * 20000);
+        updateValueForUser(user._id, "income", user.votingStreak * 15000, "$inc");
+        addToUSB(-(user.votingStreak * 20000));
     });
 }
-
 
 console.log("Application has started");
 
@@ -554,7 +555,7 @@ client.on("message", async message => {
     else if (command === "market")
         activeOffers(message, args);
 
-    else if (command === "buy-offer")
+    else if (command === "buy-offer" || command === "buyoffer")
         buyOffer(message, args, client);
 
     else if (["my-offers", "myoffers"].includes(command))
@@ -582,39 +583,40 @@ client.on("message", async message => {
         return message.reply("you lucky bastard donated " + a.commafy());
     }
 
-    else if (command === "taxes") {
+    else if (command === "taxes" || command === "income") {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
                 title: "Tax classes",
                 color: parseInt(config.properties.embedColor),
+                description: "Your weekly income: " + u.income.commafy(),
                 fields: [
                     {
-                        name: "Class 1" + (u.money < 100000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 100,000, 2% tax",
+                        name: "Class 1" + (u.income < 100000 ? " (Your class)" : ""),
+                        value: "Income smaller than 100,000, 2% tax",
                     },
                     {
-                        name: "Class 2" + (u.money > 100000 && u.money < 1000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 1,000,000, 5% tax",
+                        name: "Class 2" + (u.income > 100000 && u.income < 1000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 1,000,000, 5% tax",
                     },
                     {
-                        name: "Class 3" + (u.money < 10000000 && u.money > 1000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 10,000,000, 10% tax",
+                        name: "Class 3" + (u.income < 10000000 && u.income > 1000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 10,000,000, 10% tax",
                     },
                     {
-                        name: "Class 4" + (u.money > 10000000 && u.money < 100000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 100,000,000, 20% tax",
+                        name: "Class 4" + (u.income > 10000000 && u.income < 100000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 100,000,000, 20% tax",
                     },
                     {
-                        name: "Class 5" + (u.money < 500000000 && u.money > 100000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 500,000,000, 35% tax",
+                        name: "Class 5" + (u.income < 500000000 && u.income > 100000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 500,000,000, 35% tax",
                     },
                     {
-                        name: "Class 6"  + (u.money > 500000000 && u.money < 1000000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 1,000,000,000, 50% tax",
+                        name: "Class 6" + (u.income > 500000000 && u.income < 1000000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 1,000,000,000, 50% tax",
                     },
                     {
-                        name: "Class 7"  + (u.money > 1000000000 ? " (Your class)" : ""),
+                        name: "Class 7" + (u.income > 1000000000 ? " (Your class)" : ""),
                         value: "Bigger than 1,000,000,000, 60% tax"
                     },
                 ],
@@ -623,6 +625,9 @@ client.on("message", async message => {
             },
         });
     }
+
+    else if (command === "create-cls")
+        createCLS(message);
 });
 
 client.login(config.token);

@@ -38,7 +38,9 @@ export function createUser(message: Message): user {
         loan: 0,
         inventory: [],
         votingStreak: 1,
-        lastVoted: 0
+        lastVoted: 0,
+        income: 0,
+        clientStates: []
     }
 }
 

@@ -34,7 +34,10 @@ export async function bet(message: Message, args: string[]) {
         return message.reply("you can't bet more than the Utopian Super Bank owns");
 
     let addedMoney = won ? money : -1 * money;
-    if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");
+    if (won){ 
+        updateValueForUser(message.author.id, "income", addedMoney, "$inc");
+        message.reply("congratulations! You won " + money.commafy() + " coins!");
+    }
     else message.reply("you lost " + money.commafy() + " coins. Try again next time!");
     updateValueForUser(message.author.id, "money", addedMoney, "$inc");
     addToUSB(won ? -Math.floor(addedMoney * 1.2) : -addedMoney);
