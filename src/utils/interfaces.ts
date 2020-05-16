@@ -176,6 +176,7 @@ export interface marketOffer {
 export type resources = "money" | "food" | "oil" | "steel" | "population";
 
 export interface clientState {
+    name: string;
     money: number;
     resources: {
         food: number;
