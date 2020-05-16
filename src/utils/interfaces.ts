@@ -177,11 +177,11 @@ export type resources = "money" | "food" | "oil" | "steel" | "population";
 
 export interface clientState {
     name: string;
-    money: number;
     resources: {
         food: number;
         oil: number;
         steel: number;
         population: number;
+        money: number;
     };
 }

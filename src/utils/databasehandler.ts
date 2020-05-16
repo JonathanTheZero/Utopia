@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -73,6 +73,13 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
 
 export async function addClientState(_id: string, cls: clientState): Promise<void> {
     client.db(dbName).collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
+}
+
+export async function updateCLS(_id: string, currency: resources, index: number, amount: number, mode: "$set" | "$inc" = "$set") {
+    client.db(dbName).collection("users").updateOne({ _id },
+        { [mode]: { ["clientStates." + index + ".resources." + currency]: amount } },
+        err => { if (err) throw err }
+    );
 }
 
 export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
