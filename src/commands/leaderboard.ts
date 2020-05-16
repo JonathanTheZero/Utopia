@@ -3,6 +3,7 @@ import * as config from "../static/config.json";
 import { user, alliance } from "../utils/interfaces";
 import { getAllUsers, getAllAlliances, getUser } from "../utils/databasehandler";
 import "../utils/utils";
+import { backwardsFilter, forwardsFilter } from "../utils/utils";
 
 export async function leaderboard(message: Message, args: Array<any>) {
     let symbol: "m" | "p" | "f" | "a" | "o" | "s" = "m", page: number = typeof args[1] === "undefined" ? isNaN(parseInt(args[0])) ? 1 : parseInt(args[0]) : args[1];;
@@ -17,11 +18,8 @@ export async function leaderboard(message: Message, args: Array<any>) {
     if (page > Math.floor((await getLeaderboardList("m")).length / 10) + 1 || isNaN(page) && typeof page !== "undefined")
         return message.reply("this isn't a valid page number!");
     const m: Message = <Message>(await message.channel.send({ embed: await generateLeaderboardEmbed(symbol, page, message) }));
-
     await m.react("⬅")
     await m.react("➡");
-    const backwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '⬅' && user.id === message.author.id;
-    const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: { id: string; }) => reaction.emoji.name === '➡' && user.id === message.author.id;
 
     const backwards = m.createReactionCollector(backwardsFilter, { time: 100000 });
     const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });

@@ -1,4 +1,4 @@
-import { Message, ReactionCollector, User } from "discord.js";
+import { Message } from "discord.js";
 
 //declarations
 declare global {
@@ -64,5 +64,6 @@ export function secondsToDhms(seconds: number) {
     let sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
     return dDisplay + hDisplay + mDisplay + sDisplay;
 }
-//@ts-ignore
-export const filter = (reaction: ReactionCollector, user: User) => [];
+
+export const backwardsFilter = (reaction: { emoji: { name: string; }; }, _user: { id: string; }) => reaction.emoji.name === '⬅';
+export const forwardsFilter = (reaction: { emoji: { name: string; }; }, _user: { id: string; }) => reaction.emoji.name === '➡'

@@ -1,8 +1,9 @@
-import { Message, CollectorFilter } from "discord.js";
+import { Message } from "discord.js";
 import { marketOffer, resources } from "../../utils/interfaces";
 import { findOffer } from "../../utils/databasehandler";
 import "../../utils/utils";
 import * as config from "../../static/config.json";
+import { backwardsFilter, forwardsFilter } from "../../utils/utils";
 
 //.market [currency] [minAmount] [page]
 export async function activeOffers(message: Message, args: string[]) {
@@ -29,8 +30,6 @@ export async function activeOffers(message: Message, args: string[]) {
     const m = <Message>(await message.channel.send({ embed: await marketEmbed(query, page!) }));
     await m.react("⬅")
     await m.react("➡");
-    const backwardsFilter: CollectorFilter = (reaction, user) => reaction.emoji.name === '⬅' && user.id === message.author.id;
-    const forwardsFilter: CollectorFilter = (reaction, user) => reaction.emoji.name === '➡' && user.id === message.author.id;
 
     const backwards = m.createReactionCollector(backwardsFilter, { time: 100000 });
     const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });

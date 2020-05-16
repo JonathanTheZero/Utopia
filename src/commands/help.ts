@@ -336,7 +336,7 @@ export const marketHelp = {
             name: "Taxes and the Utopian Super Bank",
             value: "v2.1 also introduced the Utopian Super Bank (USB) in order to control the economy a bit better.\n" +
                 "The USB gives out the money for betting for example: if the USB is empty, there will no more money available for betting." + 
-                "Another new feature are taxes: Once a week every player will be taxed based on their balance (you can check the tax classes with `.taxes`), this money will be given to the USB." +
+                "Another new feature are taxes: Once a week every player will be taxed based on their weekly income (you can check your income and tax classes classes with `.taxes`), this money will be given to the USB." +
                 "Basically every time you spend money on buying upgrades, betting, mine digging etc. will be given to the USB.\n" +
                 "You can check the USB balance with `.usb`.\n" 
         }
