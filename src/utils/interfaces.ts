@@ -11,6 +11,7 @@ export interface user {
     lastMine: number;
     autoping: boolean;
     payoutDMs: boolean;
+    taxDMs: boolean;
     alliance: string | null;
     allianceRank: "M" | "L" | "C" | null
     resources: {
@@ -112,7 +113,8 @@ export type updateUserQuery = "tag"
     | "oilrig"
     | "minereturn"
     | "minereset"
-    | "income";
+    | "income" 
+    | "taxDMs";
 
 export type updateAllianceQuery = "name"
     | "level"

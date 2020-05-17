@@ -40,7 +40,8 @@ export function createUser(message: Message): user {
         votingStreak: 1,
         lastVoted: 0,
         income: 0,
-        clientStates: []
+        clientStates: [],
+        taxDMs: true
     }
 }
 

@@ -414,18 +414,23 @@ client.on("message", async message => {
 
     else if (command === "autoping") {
         let user: user = await getUser(message.author.id);
-        if (!user)
-            return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         message.reply((user.autoping) ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
         updateValueForUser(user._id, "autoping", !user.autoping);
     }
 
     else if (command === "payoutdms") {
         let user: user = await getUser(message.author.id);
-        if (!user)
-            return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         message.reply(user.payoutDMs ? "you successfully disabled payout DMs." : "you succesfully enabled payout DMS.");
         updateValueForUser(user._id, "payoutDMs", !user.payoutDMs);
+    }
+
+    else if (command === "taxdms") {
+        let user: user = await getUser(message.author.id);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        message.reply(user.payoutDMs ? "you successfully disabled tax DMs." : "you succesfully tax payout DMS.");
+        updateValueForUser(user._id, "taxDMs", !user.payoutDMs);
     }
 
     else if (command === "work")
