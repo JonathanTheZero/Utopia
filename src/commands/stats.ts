@@ -102,3 +102,73 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
         }
     });
 }
+
+
+export async function time(message: Message, args: string[], client: Client): Promise<any | void> {
+    const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
+    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
+
+    if (!user) {
+        if (!args[0])
+            return message.reply("you haven't created an account yet, please use `.create` first");
+        else
+            return message.reply("this user hasn't created an account yet!");
+    }
+    
+    message.channel.send({
+        embed: {
+            color: parseInt(properties.embedColor),
+            title: `Data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
+            thumbnail: {
+                url: url,
+            },
+            fields: [
+                {
+                    name: 'Money:',
+                    value: user.money.commafy(),
+                    inline: true,
+                },
+                {
+                    name: 'Food:',
+                    value: user.resources.food.commafy(),
+                    inline: true,
+                },
+                {
+                    name: "Population:",
+                    value: user.resources.population.commafy(),
+                    inline: true
+                },
+                {
+                    name: "Steel:",
+                    value: user.resources.steel.commafy(),
+                    inline: true
+                },
+                {
+                    name: "Oil",
+                    value: user.resources.oil.commafy(),
+                    inline: true,
+                },
+                {
+                    name: 'Alliance:',
+                    value: alliance,
+                    inline: true
+                },
+                {
+                    name: "Personal Farms:",
+                    value: `${pf.nf} Nomadic Farming\n` +
+                        `${pf.sf} Subsistence Farming\n` +
+                        `${pf.sef} Sedentary Farming\n` +
+                        `${pf.if} Intensive Farming\n`,
+                    inline: true
+                },
+                {
+                    name: "Upgrades:",
+                    value: r.length !== 0 ? r.join(", ") : upgrades,
+                    inline: true
+                }
+            ],
+            timestamp: new Date(),
+            footer: properties.footer,
+        }
+    });
+}
