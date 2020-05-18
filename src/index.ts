@@ -27,7 +27,7 @@ import {
     connected,
     addToUSB
 } from "./utils/databasehandler";
-import { statsEmbed } from "./commands/stats";
+import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
 import { bet } from "./commands/bet";
 import { loancalc, loan, payback } from "./commands/loans";
@@ -225,6 +225,10 @@ client.on("message", async message => {
 
     else if (command === "me" || command === "stats")
         statsEmbed(message, args, client);
+    
+    else if (command === "time" || command === "timestats"){
+        time(message, args, client);
+    }
 
     else if (command === "createalliance") {
         if (!args[0]) return message.reply("please specify a name for your alliance");
