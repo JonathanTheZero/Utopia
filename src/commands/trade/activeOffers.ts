@@ -8,7 +8,7 @@ import { backwardsFilter, forwardsFilter } from "../../utils/utils";
 //.market [currency] [minAmount] [page]
 export async function activeOffers(message: Message, args: string[]) {
     const inp = args.join(" ");
-    let page: number = 1, currency: resources, min: number, query: any = {};
+    let page: number = 1, currency: resources, min: number, query: any = {}, func: (a: marketOffer, b: marketOffer) => number;
     if (inp.match(/p(age)?:\d{1,}/))
         page = Number(inp.match(/p(age)?:\d{1,}/)![0].match(/\d+/)![0]);
     if (inp.match(/c(urrency)?:(p(opulation)?|s(teel)?|m(oney)?|o(il)?|f(ood)?)/)) {
@@ -26,6 +26,19 @@ export async function activeOffers(message: Message, args: string[]) {
         min = Number(inp.match(/m(in)?:\d{1,}/)![0].match(/\d+/)![0]);
     if (currency!) query["offer.currency"] = currency!;
     if (min!) query["offer.amount"] = { $gt: min! };
+    // /o(rder)?:(s(teel)?|p(opulation)?|m(oney)D?|o(il)?|f(ood)?)(:(a(sc)?|d(esc)?))?/;
+    if (inp.match(/(o[^:]{0,}):(p[^:]{0,}|o[^:]{0,})(:(a.{0,}|d.{0,}))?/)) {
+        let x = inp.match(/(o[^:]{0,}):(p[^:]{0,}|o[^:]{0,})(:(a.{0,}|d.{0,}))?/)!;
+        if (x[4][0] === "a") {
+            if (x[2][0] === "p") func = (a: marketOffer, b: marketOffer) => a.price.amount - b.price.amount;
+            else if (x[2][0] === "o") func = (a: marketOffer, b: marketOffer) => a.offer.amount - b.offer.amount;
+            else return message.reply("this isn't a valid sorting order!");
+        } else if (x[4][0] === "d") {
+            if (x[2][0] === "p") func = (a: marketOffer, b: marketOffer) => b.price.amount - a.price.amount;
+            else if (x[2][0] === "o") func = (a: marketOffer, b: marketOffer) => b.offer.amount - a.offer.amount;
+            else return message.reply("this isn't a valid sorting order!");
+        } else return message.reply("this isn't a valid sorting order!");
+    }
 
     const m = <Message>(await message.channel.send({ embed: await marketEmbed(query, page!) }));
     await m.react("⬅")
@@ -36,17 +49,17 @@ export async function activeOffers(message: Message, args: string[]) {
 
     backwards.on('collect', async () => {
         m.reactions.forEach(reaction => reaction.remove(message.author.id));
-        m.edit({ embed: await marketEmbed(query, --page) });
+        m.edit({ embed: await marketEmbed(query, --page, func) });
     });
     forwards.on('collect', async () => {
         m.reactions.forEach(reaction => reaction.remove(message.author.id));
-        m.edit({ embed: await marketEmbed(query, ++page) });
+        m.edit({ embed: await marketEmbed(query, ++page, func) });
     });
 }
 
-async function marketEmbed(query: { [key: string]: string }, page: number = 1) {
+async function marketEmbed(query: { [key: string]: string }, page: number = 1, orderFunc?: (a: marketOffer, b: marketOffer) => number) {
     page = page < 1 ? 1 : page;
-    let offers: marketOffer[] = (await findOffer(query)).splice((page - 1) * 10);
+    let offers: marketOffer[] = (await findOffer(query)).sort(orderFunc).splice((page - 1) * 10);
     const fields = [];
     for (let i = 0; i < Math.min(10, offers.length); ++i)
         fields.push({

@@ -7,15 +7,13 @@ import * as config from "../static/config.json";
 
 export async function digmine(message: Message) {
     let user: user = await getUser(message.author.id);
-
-    if (!user)
-        return message.reply("you haven't created an account yet, please use `.create` command");
-
-    if (user.money < 10000 * (user.resources.totaldigs + 1))
-        return message.reply(`you don't have ${(10000 * (user.resources.totaldigs + 1)).commafy()} money`)
+    if (!user) return message.reply("you haven't created an account yet, please use `.create` command");
 
     if (Math.floor(Date.now() / 1000) - user.lastDig < 14400)
         return message.reply(`You can dig a new mine in ${new Date((14400 - (Math.floor(Date.now() / 1000) - user.lastDig)) * 1000).toISOString().substr(11, 8)}`);
+
+    if (user.money < 10000 * (user.resources.totaldigs + 1))
+        return message.reply(`you don't have ${(10000 * (user.resources.totaldigs + 1)).commafy()} money`);
 
     let minetype = (getRandomInt(3));
     updateValueForUser(user._id, "money", -(10000 * (user.resources.totaldigs + 1)), "$inc");
