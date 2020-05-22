@@ -40,7 +40,7 @@ export async function activeOffers(message: Message, args: string[]) {
         } else return message.reply("this isn't a valid sorting order!");
     }
 
-    const m = <Message>(await message.channel.send({ embed: await marketEmbed(query, page!) }));
+    const m = <Message>(await message.channel.send({ embed: await marketEmbed(query, page!, func!) }));
     await m.react("⬅")
     await m.react("➡");
 
@@ -57,7 +57,7 @@ export async function activeOffers(message: Message, args: string[]) {
     });
 }
 
-async function marketEmbed(query: { [key: string]: string }, page: number = 1, orderFunc?: (a: marketOffer, b: marketOffer) => number) {
+async function marketEmbed(query: { [key: string]: string }, page: number = 1, orderFunc: (a: marketOffer, b: marketOffer) => number = (_a, _b) => 0) {
     page = page < 1 ? 1 : page;
     let offers: marketOffer[] = (await findOffer(query)).sort(orderFunc).splice((page - 1) * 10);
     const fields = [];

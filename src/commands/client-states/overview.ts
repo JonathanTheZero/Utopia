@@ -10,6 +10,7 @@ export async function clsOverview(message: Message, args: string[]) {
     message.channel.send({
         embed: {
             title: "Client states of " + user.tag,
+            description: user.clientStates.length === 0 ? "No client states": null,
             fields
         }
     })

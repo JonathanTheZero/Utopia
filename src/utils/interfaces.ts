@@ -60,6 +60,7 @@ export interface alliance {
         mf: number;
     };
     invitedUsers: string[];
+    clientStates: number;
 }
 
 export interface configDB {
@@ -121,7 +122,8 @@ export type updateAllianceQuery = "name"
     | "public"
     | "leader"
     | "money"
-    | "tax";
+    | "tax"
+    | "clientStates";
 
 export interface war {
     _id: string;
@@ -186,4 +188,6 @@ export interface clientState {
         population: number;
         money: number;
     };
+    alliance: string | null;
+    loyality: number;
 }

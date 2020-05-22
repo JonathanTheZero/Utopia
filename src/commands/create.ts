@@ -63,6 +63,7 @@ export function createAlliance(name: string, message: Message): alliance {
             pf: 0,
             mf: 0
         },
-        invitedUsers: []
+        invitedUsers: [],
+        clientStates: 0
     }
 }

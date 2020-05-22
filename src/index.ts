@@ -57,8 +57,8 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer } from "./commands/trade";
-import { createCLS, clsOverview, sendToCls } from "./commands/client-states";
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
+import { createCLS, clsOverview, sendToCls, deleteCLS } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -521,32 +521,23 @@ client.on("message", async message => {
         startWar(message, u, o);
     }
 
-    else if (command === "mobilize")
-        mobilize(message, args);
+    else if (command === "mobilize") mobilize(message, args);
 
-    else if (command === "ready")
-        ready(message);
+    else if (command === "ready") ready(message);
 
-    else if (command === "cancel-war" || command === "cancelwar")
-        cancelWar(message);
+    else if (command === "cancel-war" || command === "cancelwar") cancelWar(message);
 
-    else if (command === "armies")
-        armies(message);
+    else if (command === "armies") armies(message);
 
-    else if (command === "set-position" || command === "setposition")
-        setPosition(message, args);
+    else if (command === "set-position" || command === "setposition") setPosition(message, args);
 
-    else if (["showfield", "field"].includes(command))
-        showFieldM(message);
+    else if (["showfield", "field"].includes(command)) showFieldM(message);
 
-    else if (command === "move")
-        move(message, args);
+    else if (command === "move") move(message, args);
 
-    else if (command === "attack")
-        attack(message, args);
+    else if (command === "attack") attack(message, args);
 
-    else if (command === "mine")
-        mine(message, args);
+    else if (command === "mine") mine(message, args);
 
     else if (command === "digmine" || command === "detroitbecomedwarf")
         digmine(message);
@@ -554,8 +545,10 @@ client.on("message", async message => {
     else if (command === "minestats")
         mineStats(message, args);
 
-    else if (["make-offer", "offer", "makeoffer"].includes(command))
+    else if (["make-offer", "makeoffer"].includes(command))
         makeOffer(message, args);
+
+    else if (command === "offer") offer(message, args);
 
     else if (command === "market")
         activeOffers(message, args);
@@ -635,7 +628,9 @@ client.on("message", async message => {
 
     else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
 
-    else if(command === "send-to-cls") sendToCls(message, args);
+    else if (command === "send-to-cls") sendToCls(message, args);
+
+    else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
 });
 
 client.login(config.token);

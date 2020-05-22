@@ -60,7 +60,7 @@ export async function updateValueForUser(_id: string, mode: "allianceRank", newV
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", 
+    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
         "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
     else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
@@ -76,6 +76,10 @@ export async function addClientState(_id: string, cls: clientState): Promise<voi
     client.db(dbName).collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
 }
 
+export async function deleteClientState(_id: string, name: string): Promise<void> {
+    client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
+}
+
 export async function updateCLS(_id: string, currency: resources, index: number, amount: number, mode: "$set" | "$inc" = "$set") {
     client.db(dbName).collection("users").updateOne({ _id },
         { [mode]: { ["clientStates." + index + ".resources." + currency]: amount } },
@@ -83,13 +87,13 @@ export async function updateCLS(_id: string, currency: resources, index: number,
     );
 }
 
-export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
+export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax" | "clientStates", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "leader", newValue: { _id: string, tag: string }): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "public", newValue: boolean): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "name", newValue: string): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: updateAllianceQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "level", "public", "name", "tax"].includes(mode))
+    if (["money", "level", "public", "name", "tax", "clientStates"].includes(mode))
         newQuery = { [updateMode || "$set"]: { [mode]: newValue } };
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
