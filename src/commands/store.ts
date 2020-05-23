@@ -58,6 +58,17 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
                     value: '+750k population every 4h\nPrice: 50,000,000',
                     inline: true,
                 },
+                {
+                    name: '\u200b',
+                    value: '\u200b',
+                    inline: true
+                },
+                {
+                    name: "Hospital",
+                    value: "-10% plague deaths:\n" +
+                        `${((user.upgrades.hospitals + 1) * 100000).commafy()} money and ${((user.upgrades.hospitals + 1) * 20000).commafy()} steel`,
+                    inline: true
+                }
             ],
             timestamp: new Date(),
             footer: config.properties.footer,
@@ -79,8 +90,8 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "b" |
         else if (user.allianceRank == "L") {
             alliance = "Leader of " + alliance;
         }
-        let alMoney: string = (user.alliance == null) ? 
-            "You haven't joined an alliance yet" : 
+        let alMoney: string = (user.alliance == null) ?
+            "You haven't joined an alliance yet" :
             (await (getAlliance(user.alliance as string) as Promise<alliance>))?.money.commafy() || "You haven't joined an alliance yet.";
         return {
             color: parseInt(config.properties.embedColor),

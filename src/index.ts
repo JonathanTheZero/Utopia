@@ -54,7 +54,7 @@ import {
     allianceOverview,
     renameAlliance,
 } from "./commands/alliances";
-import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset } from "./commands/payouts";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
@@ -116,11 +116,13 @@ client.on("ready", async () => {
     const tdiff = [
         Math.floor(Date.now() / 1000) - c.lastPayout,
         Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
-        Math.floor((Date.now() - c.lastMineReset) / 1000)
+        Math.floor((Date.now() - c.lastMineReset) / 1000),
+        Math.floor(Date.now() / 1000) - c.lastDailyReset
     ];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff[0]) * 1000));
     setTimeout(() => populationWorkLoop(client), ((39600 - tdiff[1]) * 1000));
-    setTimeout(() => weeklyReset(client), ((604800 - tdiff[2]) * 1000))
+    setTimeout(() => weeklyReset(client), ((604800 - tdiff[2]) * 1000));
+    setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
 });
@@ -404,8 +406,9 @@ client.on("message", async message => {
                 thumbnail: {
                     url: message.author.avatarURL,
                 },
-                description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" +
-                    "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",
+                /*description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" +
+                    "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",*/
+                description: "PayPal and Patreon are inactive at the moment but will come back later",
                 footer: config.properties.footer,
                 timestamp: new Date()
             }

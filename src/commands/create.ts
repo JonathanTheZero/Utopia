@@ -33,7 +33,8 @@ export function createUser(message: Message): user {
                 sf: 0,
                 sef: 0,
                 if: 0
-            }
+            },
+            hospitals: 0
         },
         loan: 0,
         inventory: [],

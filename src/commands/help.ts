@@ -321,6 +321,10 @@ export const marketHelp = {
                 "For example: `.make-offer 1000 food 200 money` means, that you offer 1000 food for 200 money."
         },
         {
+            name: "`.offer <id>`",
+            value: "View detailed information about a specific offer",
+        },
+        {
             name: "`.my-offers [page]`",
             value: "Shows all your offers. If you have more than 10 offers, you can view your additional offers using the page argument."
         },

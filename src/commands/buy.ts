@@ -21,6 +21,8 @@ export async function buy(message: Message, args: string[]) {
         return message.reply(await buyItem("MS", message.author.id, 10000000));
     else if (args[0] == "us" || (args[0] == "invade") && args[1] == "the" && args[2] == "us")
         return message.reply(await buyItem("US", message.author.id, 50000000));
+    else if (args[0].startsWith("hospital"))
+        return message.reply(await buyHospital(message.author.id));
     else if (args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food") {
         let amount;
         if (typeof args[1] != "undefined" && !isNaN(parseInt(args[1]))) amount = parseInt(args[1]);
@@ -125,4 +127,20 @@ async function buyItemAlliance(itemShort: "AF" | "PF" | "MF", id: string, price:
         case "PF": return "you successfully bought the pastoral farming upgrade for your alliance.";
         case "MF": return "you successfully bought the mixed farming upgrade for your alliance.";
     }
+}
+
+async function buyHospital(id: string): Promise<string> {
+    const u: user = await getUser(id);
+    const price = {
+        money: (u.upgrades.hospitals + 1) * 100000,
+        steel: (u.upgrades.hospitals + 1) * 20000
+    };
+    if (u.money < price.money) return `you don't have enough money, you need ${price.money.commafy()} but you only have ${u.money.commafy()}.`;
+    if (u.resources.steel < price.steel) return `you don't have enough money, you need ${price.steel.commafy()} but you only have ${u.resources.steel.commafy()}.`;
+    if (u.upgrades.hospitals >= 5) return `you already own the maximum amount of 5 hospitals.`;
+    updateValueForUser(id, "money", -price.money, "$inc");
+    updateValueForUser(id, "steel", -price.steel, "$inc");
+    updateValueForUser(id, "hospitals");
+    addToUSB(price.money + price.steel);
+    return "you succesfully bought a new hospital for your population!";
 }

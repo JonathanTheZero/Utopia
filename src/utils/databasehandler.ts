@@ -12,6 +12,7 @@ const config: configDB = {
     lastPopulationWorkPayout: 0,
     commandsRun: 0,
     lastMineReset: 0,
+    lastDailyReset: 0,
     totalOffers: 0,
     centralBalance: 1000000000
 };
@@ -58,13 +59,16 @@ export async function updateValueForUser(_id: string, mode: "alliance", newValue
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
-export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
+export async function updateValueForUser(_id: string, mode: "hospitals"): Promise<void>;
+export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue?: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
         "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
     else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
+    else if (mode === "hospitals")
+        newQuery = { $inc: { "upgrades.hospitals": 1 } };
     else throw new Error("Invalid parameter passed");
 
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
@@ -83,6 +87,13 @@ export async function deleteClientState(_id: string, name: string): Promise<void
 export async function updateCLS(_id: string, currency: resources, index: number, amount: number, mode: "$set" | "$inc" = "$set") {
     client.db(dbName).collection("users").updateOne({ _id },
         { [mode]: { ["clientStates." + index + ".resources." + currency]: amount } },
+        err => { if (err) throw err }
+    );
+}
+
+export async function editCLSLoyality(_id: string, index: number, val: number, mode: "$inc" | "$set") {
+    client.db(dbName).collection("users").updateOne({ _id }, 
+        { [mode]: { [`clientStates.${index}.loyality`]: val } }, 
         err => { if (err) throw err }
     );
 }
@@ -157,7 +168,7 @@ export async function getConfig(): Promise<configDB> {
     return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers", val: number) {
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset", val: number) {
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });

@@ -14,22 +14,17 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
     const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
 
     if (!user) {
-        if (!args[0])
-            return message.reply("you haven't created an account yet, please use `.create` first");
-        else
-            return message.reply("this user hasn't created an account yet!");
+        if (!args[0]) return message.reply("you haven't created an account yet, please use `.create` first");
+        else return message.reply("this user hasn't created an account yet!");
     }
-
     var alliance = user.alliance;
-
     if (alliance == null)
         alliance = (!args[0]) ? "You haven't joined an alliance yet." : user.tag + ` hasn't joined an alliance yet.`;
 
     if (user.allianceRank == "M") alliance = "Member of " + alliance;
     else if (user.allianceRank == "C") alliance = "Co-leader of " + alliance;
     else if (user.allianceRank == "L") alliance = "Leader of " + alliance;
-    
-    var upgrades = (!args[0]) ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`;
+
     const r: string[] = [];
     if (user.upgrades.population.length !== 0) {
         if (user.upgrades.population.includes("UK")) r.push("UK")
@@ -93,7 +88,12 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                 },
                 {
                     name: "Upgrades:",
-                    value: r.length !== 0 ? r.join(", ") : upgrades,
+                    value: r.length !== 0 ? r.join(", ") : ((!args[0]) ? "You haven't purchased any upgrades yet." : `${user.tag} hasn't purchased any upgrades yet.`),
+                    inline: true
+                },
+                {
+                    name: "Hospitals",
+                    value: args[0] ? `${user.tag} owns ${user.upgrades.hospitals} Hospitals` : `You own ${user.upgrades.hospitals} hospitals`,
                     inline: true
                 }
             ],

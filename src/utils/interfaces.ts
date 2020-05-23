@@ -33,6 +33,7 @@ export interface user {
             sef: number;
             if: number;
         };
+        hospitals: number;
     };
     loan: number;
     inventory: Array<string>;
@@ -69,6 +70,7 @@ export interface configDB {
     lastPopulationWorkPayout: number;
     commandsRun: number;
     lastMineReset: number;
+    lastDailyReset: number;
     totalOffers: number;
     centralBalance: number;
 }
@@ -115,7 +117,8 @@ export type updateUserQuery = "tag"
     | "minereturn"
     | "minereset"
     | "income" 
-    | "taxDMs";
+    | "taxDMs"
+    | "hospitals";
 
 export type updateAllianceQuery = "name"
     | "level"
