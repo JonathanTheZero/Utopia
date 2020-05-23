@@ -1,6 +1,6 @@
 import { Client, TextChannel } from "discord.js";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editCLSLoyality } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editCLSLoyality, editConfig } from "../../utils/databasehandler";
 import { rangeInt } from "../../utils/utils";
 import * as config from "../../static/config.json";
 
@@ -9,11 +9,10 @@ export async function dailyPayout(client: Client) {
     const payoutChannel = <TextChannel>client.channels.get(config.payoutChannel)!;
     for (const u of users) {
         if (!u.clientStates.length) continue;
-        for(let i = 0; i < u.clientStates.length; i++) editCLSLoyality(u._id, i, -(Math.random() * .7), "$inc");
-
+        for(let i = 0; i < u.clientStates.length; i++) editCLSLoyality(u._id, i, -(Math.random() * .07), "$inc");
     }
 
-    const plagueAffected: user[] = users.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, 1));
+    const plagueAffected: user[] = users.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, Math.floor(users.length / 100)));
     const names: string = plagueAffected.map<string>(el => el.tag).join(", ");
     for (const p of plagueAffected) {
         const rate = Math.random() * .5 * (1 - p.upgrades.hospitals / 10);
@@ -35,4 +34,6 @@ export async function dailyPayout(client: Client) {
             timestamp: new Date()
         }
     });
+    editConfig("lastDailyReset", Math.floor(Date.now() / 1000));
+    setTimeout(() => dailyPayout(client), 86400000);
 }
