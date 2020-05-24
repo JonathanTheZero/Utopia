@@ -1,6 +1,7 @@
 import { Message } from "discord.js";
 import { user } from "../../utils/interfaces";
 import { getUser } from "../../utils/databasehandler";
+import * as config from "../../static/config.json";
 
 export async function clsOverview(message: Message, args: string[]) {
     const user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
@@ -11,7 +12,10 @@ export async function clsOverview(message: Message, args: string[]) {
         embed: {
             title: "Client states of " + user.tag,
             description: user.clientStates.length === 0 ? "No client states": null,
-            fields
+            fields,
+            footer: config.properties.footer,
+            color: parseInt(config.properties.embedColor),
+            timestamp: new Date()
         }
     })
 }

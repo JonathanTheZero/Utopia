@@ -136,7 +136,7 @@ async function buyHospital(id: string): Promise<string> {
         steel: (u.upgrades.hospitals + 1) * 20000
     };
     if (u.money < price.money) return `you don't have enough money, you need ${price.money.commafy()} but you only have ${u.money.commafy()}.`;
-    if (u.resources.steel < price.steel) return `you don't have enough money, you need ${price.steel.commafy()} but you only have ${u.resources.steel.commafy()}.`;
+    if (u.resources.steel < price.steel) return `you don't have enough steel, you need ${price.steel.commafy()} but you only have ${u.resources.steel.commafy()}.`;
     if (u.upgrades.hospitals >= 5) return `you already own the maximum amount of 5 hospitals.`;
     updateValueForUser(id, "money", -price.money, "$inc");
     updateValueForUser(id, "steel", -price.steel, "$inc");

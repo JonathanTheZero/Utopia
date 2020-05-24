@@ -116,7 +116,7 @@ export type updateUserQuery = "tag"
     | "oilrig"
     | "minereturn"
     | "minereset"
-    | "income" 
+    | "income"
     | "taxDMs"
     | "hospitals";
 
@@ -191,6 +191,14 @@ export interface clientState {
         population: number;
         money: number;
     };
-    alliance: string | null;
     loyality: number;
+    upgrades: {
+        mines: number;
+        rigs: number;
+        farms: number;
+        pops: number;
+    };
+    focus: resources | null;
 }
+
+export type clsEdits = "loyality" | "focus" | "mines" | "rigs" | "farms" | "pops";

@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { user, resources } from "../../utils/interfaces";
-import { getUser, updateCLS, updateValueForUser } from "../../utils/databasehandler";
+import { getUser, updateValueForUser, editCLSVal } from "../../utils/databasehandler";
 import "../../utils/utils";
 
 export async function sendToCls(message: Message, args: string[]) {
@@ -21,7 +21,7 @@ export async function sendToCls(message: Message, args: string[]) {
     if ((res === "money" && parseInt(args[0]) > user.money) || res !== "money" && parseInt(args[0]) > user.resources[res])
         return message.reply("you can't offer more than you own!");
     Promise.all([
-        updateCLS(user._id, res!, index, a, "$inc"),
+        editCLSVal(user._id, index, res!, a,"$inc"),
         updateValueForUser(user._id, res, -a, "$inc")
     ]).then(() => message.reply(`succesfully sent ${a.commafy()} ${res} to ${args[0]}`));
 }

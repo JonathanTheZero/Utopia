@@ -19,8 +19,14 @@ export async function createCLS(message: Message, args: string[]) {
             population: 0,
             money: 0
         },
-        alliance: user.alliance,
-        loyality: 1
+        loyality: 1,
+        upgrades: {
+            mines: 0,
+            rigs: 0,
+            pops: 0,
+            farms: 0
+        },
+        focus: null
     }
     updateValueForUser(user._id, "money", -price, "$inc");
     if (user.alliance) updateValueForAlliance(user.alliance, "clientStates", 1, "$inc");

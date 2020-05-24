@@ -58,7 +58,7 @@ import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, da
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
-import { createCLS, clsOverview, sendToCls, deleteCLS } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -627,13 +627,17 @@ client.on("message", async message => {
         });
     }
 
-    else if (command === "create-cls") createCLS(message, args);
+    else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
 
     else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
 
     else if (command === "send-to-cls") sendToCls(message, args);
 
     else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
+
+    else if(command === "clientstate" || command === "client-state") singleStateOverview(message, args);
+
+    else if(["setfocus", "set-focus"].includes(command)) setFocus(message, args);
 });
 
 client.login(config.token);
