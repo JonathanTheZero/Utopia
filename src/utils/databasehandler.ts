@@ -84,13 +84,13 @@ export async function deleteClientState(_id: string, name: string): Promise<void
     client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
-export async function editCLSVal(_id: string, index: number, type: "loyality" | "mines" | "rigs" | "farms" | "pops" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "loyality" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
     if (["loyality", "focus"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
-    else if (["mines", "rigs", "farms", "pops"].includes(type))
+    else if (["mines", "rigs", "farms"].includes(type))
         query = { [mode]: { [`clientStates.${index}.upgrades.${type}`]: val } };
     else if (["steel", "oil", "food", "population", "money"].includes(type))
         query = { [mode]: { ["clientStates." + index + ".resources." + type]: val } };

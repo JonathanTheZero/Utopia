@@ -9,7 +9,7 @@ export async function populationWorkLoop(client: Client) {
     let users: user[] = await getAllUsers();
     for (const u of users) {
         let pop = u.resources.population;
-        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop))))) || 0;
         if (consumption > u.resources.food) {
             try {
                 client.users.get(u._id)!.send("**Alert**: Your population will die within in the next hour if you don't buy more food!");

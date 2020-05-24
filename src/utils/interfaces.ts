@@ -196,9 +196,9 @@ export interface clientState {
         mines: number;
         rigs: number;
         farms: number;
-        pops: number;
     };
     focus: resources | null;
 }
 
-export type clsEdits = "loyality" | "focus" | "mines" | "rigs" | "farms" | "pops";
+export type clsEdits = "loyality" | "focus" | clsUpgrades;
+export type clsUpgrades = "mines" | "rigs" | "farms";

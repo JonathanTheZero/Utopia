@@ -3,7 +3,7 @@ import { resources } from "../../utils/interfaces";
 import { getUser, editCLSVal } from "../../utils/databasehandler";
 
 export async function setFocus(message: Message, args: string[]) {
-    let res: resources = "money";
+    let res: resources | null = "money";
     const user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet please use `.create`.");
     if (!args[1]) return message.reply("please follow the syntax of `.set-focus <state> <type>`.");
@@ -13,10 +13,11 @@ export async function setFocus(message: Message, args: string[]) {
         case "o": res = "oil"; break;
         case "s": res = "steel"; break;
         case "p": res = "population"; break;
+        case "n": res = null; break;
         default: return message.reply("this isn't a valid resource!");
     }
-    const index = user.clientStates.findIndex(el => el.name === args[0]);
+    const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     if (index === -1) return message.reply("you have no client state called " + args[0]);
     editCLSVal(user._id, index, "focus", res);
-    return message.reply(`succesfully set the focus of ${args[0]} to ${res}`);
+    return message.reply(`succesfully set the focus of ${user.clientStates[index].name} to ${res}`);
 }

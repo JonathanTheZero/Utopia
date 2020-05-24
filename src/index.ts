@@ -58,7 +58,7 @@ import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, da
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -418,7 +418,7 @@ client.on("message", async message => {
     else if (command === "autoping") {
         let user: user = await getUser(message.author.id);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        message.reply((user.autoping) ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
+        message.reply(user.autoping ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
         updateValueForUser(user._id, "autoping", !user.autoping);
     }
 
@@ -432,8 +432,8 @@ client.on("message", async message => {
     else if (command === "taxdms") {
         let user: user = await getUser(message.author.id);
         if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
-        message.reply(user.payoutDMs ? "you successfully disabled tax DMs." : "you succesfully tax payout DMS.");
-        updateValueForUser(user._id, "taxDMs", !user.payoutDMs);
+        message.reply(user.taxDMs ? "you successfully disabled tax DMs." : "you succesfully enabled tax payout DMS.");
+        updateValueForUser(user._id, "taxDMs", !user.taxDMs);
     }
 
     else if (command === "work")
@@ -487,7 +487,6 @@ client.on("message", async message => {
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
-            console.log(answer);
             imgurl = `imageplotting/${answer.toString()}.png`;
 
             message.channel.send({ files: [new Discord.Attachment(imgurl)] });
@@ -635,9 +634,11 @@ client.on("message", async message => {
 
     else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
 
-    else if(command === "clientstate" || command === "client-state") singleStateOverview(message, args);
+    else if (command === "clientstate" || command === "client-state") singleStateOverview(message, args);
 
-    else if(["setfocus", "set-focus"].includes(command)) setFocus(message, args);
+    else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
+
+    else if(["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
 });
 
 client.login(config.token);

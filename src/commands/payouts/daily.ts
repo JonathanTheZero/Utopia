@@ -12,7 +12,7 @@ export async function dailyPayout(client: Client) {
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
             editCLSVal(u._id, i, "loyality", -(Math.random() * .07), "$inc");
-            const consumption = -Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population)))));
+            const consumption = -Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
                 editCLSVal(u._id, i, "loyality", -(Math.random() * .15), "$inc")

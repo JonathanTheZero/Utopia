@@ -83,7 +83,7 @@ export async function payout(message: Message, args: string[]) {
                 {
                     name: "Next Food consumption and Money payout",
                     value: secondsToDhms((14400 * 3) + (c.lastPopulationWorkPayout - Math.floor(Date.now() / 1000))) ||
-                        "*if you see this something went wrong and the payouts stopped, please contact the owner ASAP*",
+                        "During the next hour",
                     inline: true
                 }
             ],

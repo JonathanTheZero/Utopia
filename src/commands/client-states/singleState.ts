@@ -7,13 +7,13 @@ import "../../utils/utils";
 export async function singleStateOverview(message: Message, args: string[]) {
     const user: user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet, please use `.create`!");
-    const index = user.clientStates.findIndex(el => el.name === args[0]);
+    const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     if (index === -1) return message.reply("you have no client state called " + args[0]);
     const cls = user.clientStates[index];
     return message.channel.send({
         embed: {
             color: parseInt(config.properties.embedColor),
-            title: args[0],
+            title: cls.name,
             fields: [
                 {
                     name: "Money",
@@ -41,8 +41,8 @@ export async function singleStateOverview(message: Message, args: string[]) {
                     inline: true
                 },
                 {
-                    value: "\u200b",
-                    name: "\u200b",
+                    value: "Focus",
+                    name: cls.focus ? `This state's focus is set to ${cls.focus}` : `This state isn't focussed on a producing a special resource`,
                     inline: true
                 },
                 {
@@ -52,7 +52,7 @@ export async function singleStateOverview(message: Message, args: string[]) {
                 },
                 {
                     name: "Oil Rigs",
-                    value: `This state owns ${cls.upgrades.mines} rigs`,
+                    value: `This state owns ${cls.upgrades.rigs} rigs`,
                     inline: true
                 },
                 {
