@@ -30,10 +30,10 @@ export async function upgradeCLS(message: Message, args: string[]) {
     editCLSVal(user._id, index, "money", -price.money, "$inc");
     editCLSVal(user._id, index, "steel", -price.steel, "$inc");
     editCLSVal(user._id, index, "oil", -price.oil, "$inc");
-    if (cls.loyality < .9) editCLSVal(user._id, index, "loyality", .1, "$inc");
-    else editCLSVal(user._id, index, "loyality", 1, "$set");
+    if (cls.loyalty < .9) editCLSVal(user._id, index, "loyalty", .1, "$inc");
+    else editCLSVal(user._id, index, "loyalty", 1, "$set");
     return message.reply(
         `Upgrade bought successfully! ${user.clientStates[index].name} now owns ${cls.upgrades[r] + 1} ${r}.\n` + 
-        "This increased their loyality by 10%!"
+        "This increased their loyalty by 10%!"
     );
 }

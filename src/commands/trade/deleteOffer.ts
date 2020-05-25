@@ -11,6 +11,6 @@ export async function deleteOffer(message: Message, args: string[]) {
     Promise.all([
         updateValueForUser(message.author.id, offer.offer.currency, Math.floor(0.98 * offer.offer.amount), "$inc"),
         delOffer(offer._id),
-        addToUSB(Math.floor(.02 * offer.price.amount)),
+        addToUSB(Math.floor(.02 * offer.offer.amount)),
     ]).then(() => message.reply("you succesfully deleted offer " + args[0]));
 }

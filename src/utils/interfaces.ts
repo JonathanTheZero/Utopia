@@ -191,7 +191,7 @@ export interface clientState {
         population: number;
         money: number;
     };
-    loyality: number;
+    loyalty: number;
     upgrades: {
         mines: number;
         rigs: number;
@@ -200,5 +200,5 @@ export interface clientState {
     focus: resources | null;
 }
 
-export type clsEdits = "loyality" | "focus" | clsUpgrades;
+export type clsEdits = "loyalty" | "focus" | clsUpgrades;
 export type clsUpgrades = "mines" | "rigs" | "farms";

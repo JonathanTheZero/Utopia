@@ -102,23 +102,20 @@ export async function crime(message: Message) {
                     message.reply(
                         "You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins."
                     );
-                }
-                else {
+                } else {
                     paid -= user.loan;
                     updateValueForUser(user._id, "loan", 0, "$set");
                     produced += paid;
                     updateValueForUser(user._id, "money", produced, "$inc");
                     message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
                 }
-            }
-            else {
+            } else {
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
             }
         }
         else message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
-    }
-    else {
+    } else {
         if (produced > 1) {
             var taxed = Math.floor((alliance.tax / 100) * produced);
             produced -= taxed;
@@ -131,21 +128,18 @@ export async function crime(message: Message) {
                     updateValueForUser(user._id, "loan", -paid, "$inc");
                     updateValueForUser(user._id, "money", produced, "$inc");
                     message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You paid " + paid.commafy() + " towards your loan.");
-                }
-                else {
+                } else {
                     paid -= user.loan;
                     updateValueForUser(user._id, "loan", 0, "$set");
                     produced += paid;
                     updateValueForUser(user._id, "money", produced, "$inc");
                     message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You paid of your loan");
                 }
-            }
-            else {
+            } else {
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
             }
-        }
-        else {
+        } else {
             updateValueForUser(user._id, "money", produced, "$inc");
             message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
         }

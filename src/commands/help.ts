@@ -22,6 +22,10 @@ export const helpMenu = {
             value: "Type `.help market` to view all commands related to the trade market and the new economics and taxes system"
         },
         {
+            name: "Client-state help",
+            value: "Type `.help client-states` to view all commands related to client-states"
+        },
+        {
             name: "Miscellaneous help:",
             value: "Type `.help misc` to view the help menu for everything else",
         },
@@ -79,7 +83,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.loan`, `.payback` and `.loancalc`",
-            value: "Using loan, you can take out money to help you further expand your empire. " + 
+            value: "Using loan, you can take out money to help you further expand your empire. " +
                 "Use `.loancalc` to see the maximum you can take as a loan, or `.loancalc <number>` to see how much you might owe if you take out a smaller sum. " +
                 "Use `payback [amount]` to pay it back."
         },
@@ -158,7 +162,7 @@ export const allianceHelpMenu = {
         },
         {
             name: "`.upgradealliance` (Leader and Co-Leaders only)",
-            value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 4."
+            value: "Level up your alliance in order to buy more upgrades. A level two alliance can own every farm two times for example. The current maximum is level 15."
         },
         {
             name: "`.alliance [mention/ID/alliance name]`",
@@ -192,6 +196,10 @@ export const miscHelpMenu = {
         {
             name: '`.payoutdms`',
             value: "Enable/Disable DMs when the payouts are given out. (Disabled by default)",
+        },
+        {
+            name: "`.taxdms",
+            value: "Enabled/Disable DMs whent taxes happen. (Enabled by default)."
         },
         {
             name: "`.invitelink`",
@@ -293,6 +301,11 @@ export const guideEmbed = {
             name: "**Battles**",
             value: "The old battle system has been removed and replaced by wars, use `.warguide` to learn how they work. " +
                 "(By now wars are the only actions where the new oil and steel resources are used, you can find mroe about those in the mine section when running `.help general`)"
+        },
+        {
+            name: "**Plagues**",
+            value: "Once a day up to 1% of all player's Utopias are struck by a plague, these can kill up to 40% of their population. " +
+                "This seems a bit high but the factor can be lowered with buying hospitals in the population store."
         }
     ],
     timestamp: new Date(),
@@ -304,16 +317,16 @@ export const guideEmbed = {
 
 export const marketHelp = {
     title: "Market help",
-    description: "Here you will find anything related to markets and the new economy system introduced in v2.1.\n" + 
+    description: "Here you will find anything related to markets and the new economy system introduced in v2.1.\n" +
         "All offers are available to every other player.\n" +
         "Note: There is a fee of 2% on all market offers.",
     fields: [
         {
             name: "`.market [search query]`",
-            value: "Show the market offers. If no search criteria are given, everything is given out." + 
-                "There are three search criteria: minimum amount, currency and page. The syntax for a query is `criteria:value`.\n" + 
-                "For example `.market currency:food min:10000 page:3` would give page 3 of the all food offers over 10,000. " + 
-                "All words can be changed to their starting letter for shorter writing (`currency:food` => `c:f`)."
+            value: "Show the market offers. If no search criteria are given, everything is given out." +
+                "There are three search criteria: minimum amount, currency and page. The syntax for a query is `criteria:value`.\n" +
+                "For example `.market currency:food min:10000 page:3 order:price:asc` would give page 3 of the all food offers over 10,000, sorted by price in ascending order. " +
+                "All words can be changed to their starting letter for shorter writing (`currency:food` => `c:f`). Sorting follows the syntax `order:<price | offer>:<asc | desc>`."
         },
         {
             name: "`.make-offer <amount> <currency> <price amount> <price currency>`",
@@ -339,13 +352,59 @@ export const marketHelp = {
         {
             name: "Taxes and the Utopian Super Bank",
             value: "v2.1 also introduced the Utopian Super Bank (USB) in order to control the economy a bit better.\n" +
-                "The USB gives out the money for betting for example: if the USB is empty, there will no more money available for betting." + 
+                "The USB gives out the money for betting for example: if the USB is empty, there will no more money available for betting." +
                 "Another new feature are taxes: Once a week every player will be taxed based on their weekly income (you can check your income and tax classes classes with `.taxes`), this money will be given to the USB." +
                 "Basically every time you spend money on buying upgrades, betting, mine digging etc. will be given to the USB.\n" +
-                "You can check the USB balance with `.usb`.\n" 
+                "You can check the USB balance with `.usb`.\n"
         }
     ],
     timestamp: new Date(),
     color: parseInt(properties.embedColor),
     footer: properties.footer
+};
+
+export const clsHelp = {
+    color: parseInt(properties.embedColor),
+    footer: properties.footer,
+    timestamp: new Date(),
+    title: "Clientstate help",
+    description: "Here you find everything related to the client-state system introduced in v2.2.\n" +
+        "Client states are another source of passive income: Each state can have upgrades which boosts their productivity. Each state has its own loyalty factor: " +
+        "Loyalitly affects their productivity. They will receive resources once a day.\n" +
+        "Client-states also have an own population which they need to feed, it will also grow passively, so investing in their farms is useful.",
+    fields: [
+        {
+            name: "`.create-cls <name>`.",
+            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance."
+        },
+        {
+            name: "`.delete-cls <name>`",
+            value: "Delete the client-state with the given name."
+        },
+        {
+            name: "`.clientstates`",
+            value: "View a comprehensive list of all your client-states."
+        },
+        {
+            name: "`.clientstate <name>`",
+            value: "View a detailed overview over a specific client-state."
+        },
+        {
+            name: "`.send-to-cls <name> <amount> <resource>`.",
+            value: "Send your client-states resource so you can invest in them, this will boost their loyalty."
+        },
+        {
+            name: "`.withdraw <name> <amount> <resource>`",
+            value: "Take resources from a client-state, this will lower their productivity."
+        },
+        {
+            name: "`.setfocus <name> <resource>`",
+            value: "Sets a specific production focus: They will receive a boost of 200% in the specific sector but will produce 50% of everything else." +
+                "Use `.setfocus <name> none` to remove the focus of a client-state."
+        },
+        {
+            name: "`.buy-cls <name> <mine | rig | farm>`",
+            value: "Buy an upgrade for your client-state, for more see the client-state shop."
+        }
+    ]
 };

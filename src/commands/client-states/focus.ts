@@ -19,5 +19,5 @@ export async function setFocus(message: Message, args: string[]) {
     const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     if (index === -1) return message.reply("you have no client state called " + args[0]);
     editCLSVal(user._id, index, "focus", res);
-    return message.reply(`succesfully set the focus of ${user.clientStates[index].name} to ${res}`);
+    return message.reply(`succesfully set the focus of ${user.clientStates[index].name} to ${res || "nothing"}`);
 }

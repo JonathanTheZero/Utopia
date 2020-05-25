@@ -30,7 +30,7 @@ export async function bet(message: Message, args: string[]) {
     if (money > user.money) return message.reply("you can't bet more money than you own!");
 
     if (money > (await getConfig()).centralBalance)
-        return message.reply("you can't bet more than the Utopian Super Bank owns");
+        return message.reply("you can't bet more than the Central Bank owns. Check the central balance with `.usb`.");
 
     let addedMoney = won ? money : -1 * money;
     if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");

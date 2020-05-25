@@ -5,7 +5,7 @@ import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -25,7 +25,9 @@ import {
     addServer,
     deleteServer,
     connected,
-    addToUSB
+    addToUSB,
+    addClientState,
+    deleteClientState
 } from "./utils/databasehandler";
 import { statsEmbed } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -58,7 +60,7 @@ import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, da
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -204,6 +206,8 @@ client.on("message", async message => {
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
+        else if (args[0][0] === "c")
+            return message.channel.send({ embed: clsHelp });
         else
             return message.channel.send({ embed: helpMenu });
     }
@@ -385,14 +389,10 @@ client.on("message", async message => {
         });
 
     else if (command === "shop" || command === "store") {
-        if (args[0] == "population" || args[0] == "p")
-            return message.channel.send({ embed: await storeEmbed!(message, "p") });
-
-        else if (["alliance", "alliances", "a"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "a") });
-
-        else if (["pf", "personal"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "pf") });
+        if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
+        else if (["alliance", "alliances", "a"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "a") });
+        else if (["pf", "personal"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "pf") });
+        else if (args[0][0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
 
         return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
@@ -638,7 +638,9 @@ client.on("message", async message => {
 
     else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
 
-    else if(["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
+    else if (["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
+
+    else if (command === "withdraw") withdraw(message, args);
 });
 
 client.login(config.token);

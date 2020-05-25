@@ -11,13 +11,13 @@ export async function dailyPayout(client: Client) {
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
-            editCLSVal(u._id, i, "loyality", -(Math.random() * .07), "$inc");
-            const consumption = -Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
+            editCLSVal(u._id, i, "loyalty", -(Math.random() * .07), "$inc");
+            const consumption = Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
-                editCLSVal(u._id, i, "loyality", -(Math.random() * .15), "$inc")
+                editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc")
                 try {
-                    client.users.get(u._id)?.send(`Your client state ${c.name} ran out of food, it's population starved to death. This lowered their loyality to you.`);
+                    client.users.get(u._id)?.send(`Your client state ${c.name} ran out of food, it's population starved to death. This lowered their loyalty to you.`);
                 } catch { }
             } else {
                 editCLSVal(u._id, i, "food", -consumption, "$inc");
@@ -25,37 +25,37 @@ export async function dailyPayout(client: Client) {
             }
             if (c.focus) {
                 if (c.focus === "money") {
-                    editCLSVal(u._id, i, "money", Math.floor(3 * (c.resources.population * Math.random() * .5)), "$inc");
-                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 500000), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(3 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 1000000) * (c.loyalty + .5), "$inc");
                 } else if (c.focus === "steel") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5)), "$inc");
-                    editCLSVal(u._id, i, "steel", Math.floor(3 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 500000), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(3 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 1000000) * (c.loyalty + .5), "$inc");
                 } else if (c.focus === "oil") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5)), "$inc");
-                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "oil", Math.floor(3 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 500000), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(3 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 1000000 * (c.loyalty + .5)), "$inc");
                 } else if (c.focus === "food") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5)), "$inc");
-                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "food", Math.floor(3 * (c.upgrades.farms) * Math.random() * 500000), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(3 * (c.upgrades.farms) * Math.random() * 1000000 * (c.loyalty + .5)), "$inc");
                 } else if (c.focus === "population") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5)), "$inc");
-                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 500000), "$inc");
-                    editCLSVal(u._id, i, "population", 2 * Math.floor(Math.random() * .1 * c.resources.population), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * 1000000 * (c.loyalty + .5)), "$inc");
+                    editCLSVal(u._id, i, "population", 2 * Math.floor(Math.random() * .1 * c.resources.population * (c.loyalty + .5)), "$inc");
                 }
             } else {
                 editCLSVal(u._id, i, "money", Math.floor(c.resources.population * Math.random() * .5), "$inc");
-                editCLSVal(u._id, i, "steel", Math.floor(c.upgrades.mines * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                editCLSVal(u._id, i, "oil", Math.floor(c.upgrades.rigs * Math.random() * 50000 * (1 + c.resources.population * .005)), "$inc");
-                editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * 500000), "$inc");
+                editCLSVal(u._id, i, "steel", Math.floor(c.upgrades.mines * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                editCLSVal(u._id, i, "oil", Math.floor(c.upgrades.rigs * Math.random() * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)), "$inc");
+                editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * 1000000 * (c.loyalty + .5)), "$inc");
             }
         }
     }

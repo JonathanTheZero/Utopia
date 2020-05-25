@@ -50,7 +50,8 @@ export async function updateValueForUser(
         | "minereset"
         | "minereturn"
         | "oilrig"
-        | "income",
+        | "income"
+        | "hospitals",
     newValue: number,
     updateMode?: "$inc" | "$set"
 ): Promise<void>;
@@ -59,8 +60,7 @@ export async function updateValueForUser(_id: string, mode: "alliance", newValue
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "hospitals"): Promise<void>;
-export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue?: any, updateMode: "$inc" | "$set" = "$set") {
+export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
         "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs"].includes(mode))
@@ -68,7 +68,7 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
     else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
     else if (mode === "hospitals")
-        newQuery = { $inc: { "upgrades.hospitals": 1 } };
+        newQuery = { [mode]: { "upgrades.hospitals": newValue } };
     else throw new Error("Invalid parameter passed");
 
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
@@ -84,11 +84,11 @@ export async function deleteClientState(_id: string, name: string): Promise<void
     client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
-export async function editCLSVal(_id: string, index: number, type: "loyality" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
-    if (["loyality", "focus"].includes(type))
+    if (["loyalty", "focus"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
     else if (["mines", "rigs", "farms"].includes(type))
         query = { [mode]: { [`clientStates.${index}.upgrades.${type}`]: val } };

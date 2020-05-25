@@ -140,7 +140,7 @@ async function buyHospital(id: string): Promise<string> {
     if (u.upgrades.hospitals >= 5) return `you already own the maximum amount of 5 hospitals.`;
     updateValueForUser(id, "money", -price.money, "$inc");
     updateValueForUser(id, "steel", -price.steel, "$inc");
-    updateValueForUser(id, "hospitals");
+    updateValueForUser(id, "hospitals", 1, "$inc");
     addToUSB(price.money + price.steel);
     return "you succesfully bought a new hospital for your population!";
 }
