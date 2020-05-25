@@ -52,7 +52,7 @@ export async function mine(message: Message, args: string[]) {
     if (user.resources.oilrig == 0 && user.resources.steelmine == 0)
         return message.reply("you don't have any mines to mine");
 
-    if (args[0][0] !== "s" && args[0][0] !== "o")
+    if (args[0][0] !== "s" && args[0][0] !== "o" && args[0][0] !== "a")
         return message.reply("Wrong mine type, please do `.mine steel` or `.mine oil`");
 
     if (user.resources.minereturn == 0)
@@ -71,8 +71,22 @@ export async function mine(message: Message, args: string[]) {
         if (!user.resources.oilrig) return message.reply("you don't have any oil rigs.");
         let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "oil", x, "$inc");
-        message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels`);
+        message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels of oil.`);
     }
+
+    if (args[0][0] == "a"){
+        if (!user.resources.oilrig && !user.resources.steelmine) return message.reply("you don't have any mines and oil rigs.");
+        let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
+        let y = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
+
+        let steel = getRandomRange((Math.floor(x*0.25)), (Math.floor(x/2)))
+        let oil = getRandomRange((Math.floor(x*0.25)), (Math.floor(x/2)))
+        updateValueForUser(user._id, "oil", oil, "$inc");
+        updateValueForUser(user._id, "steel", steel, "$inc");
+
+        message.reply(`Your oil rigs produced ${oil.commafy()} barrels, you now have ${(oil + user.resources.oil).commafy()} barrels of oil\nYour steel mines produced ${steel.commafy()} steel, you now have ${(steel + user.resources.steel).commafy()} steel.`);
+    }
+
     const x = user.resources.minereturn + (user.resources.minereturn - (user.resources.minereturn * getRandomRange(10, user.resources.minereturn / 2))) / 100;
     updateValueForUser(user._id, "minereturn", x <= 0 ? 0 : x, "$set");
 
