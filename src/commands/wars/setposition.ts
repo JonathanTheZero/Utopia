@@ -27,8 +27,7 @@ export async function setPosition(message: Message, args: string[]) {
     else {
         if (p1) {
             if (x > 7) return message.reply("you can only deploy your armies on your half of the field")
-        }
-        else {
+        } else {
             if (x < 8) return message.reply("you can only deploy your armies on your half of the field");
         }
         await moveArmy(w._id, p1, parseInt(args[0]) - 1, [x, y]);

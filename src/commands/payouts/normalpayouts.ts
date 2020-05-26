@@ -30,58 +30,59 @@ export async function payoutLoop(client: Client) {
         if (u.payoutDMs) {
             try {
                 client.users.get(u._id)!.send("You have succesfully gained population from your upgrades!");
-            }
-            catch (e) {
-                console.log(e + "\n" + u.tag);
-            }
-        }
-        if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set")
+            } catch (e) { console.log(e + "\n" + u.tag) }
+        } if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }
-    (payoutChannel as TextChannel).send({
-        embed: {
-            color: 0x00FF00,
-            title: "You have succesfully gained population from your upgrades!",
-            timestamp: new Date()
-        }
-    });
-
     for (const alliance of alliances) {
         if (alliance.upgrades.af > 0) {
             for (const m of alliance.members) {
-                updateValueForUser(m, "food", Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+                updateValueForUser(m, "food",
+                    Math.floor((Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
             }
-            for(const c of alliance.coLeaders){
-                updateValueForUser(c, "food", alliance.upgrades.af * 7500 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+            for (const c of alliance.coLeaders) {
+                updateValueForUser(c, "food",
+                    Math.floor((alliance.upgrades.af * 7500 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
             }
-            updateValueForUser(alliance.leader._id, "food", alliance.upgrades.af * 15000 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
-            if(alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", alliance.upgrades.af * 15000, "$inc");
+            updateValueForUser(alliance.leader._id, "food",
+                Math.floor((alliance.upgrades.af * 15000 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
+            if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((alliance.upgrades.af * 15000) * 1.2 ** alliance.clientStates), "$inc");
         }
-        if(alliance.upgrades.pf > 0){
+        if (alliance.upgrades.pf > 0) {
             for (const m of alliance.members) {
-                updateValueForUser(m, "food", Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+                updateValueForUser(m, "food",
+                    Math.floor((Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
             }
-            for(const c of alliance.coLeaders){
-                updateValueForUser(c, "food", alliance.upgrades.pf * 50000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+            for (const c of alliance.coLeaders) {
+                updateValueForUser(c, "food",
+                    Math.floor((alliance.upgrades.pf * 50000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates)
+                    , "$inc");
             }
-            updateValueForUser(alliance.leader._id, "food", alliance.upgrades.pf * 100000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
-            if(alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", alliance.upgrades.pf * 100000, "$inc");
+            updateValueForUser(alliance.leader._id, "food",
+                Math.floor((alliance.upgrades.pf * 100000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
+            if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((alliance.upgrades.pf * 100000) * 1.2 ** alliance.clientStates), "$inc");
         }
-        if(alliance.upgrades.mf > 0){
+        if (alliance.upgrades.mf > 0) {
             for (const m of alliance.members) {
-                updateValueForUser(m, "food", Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+                updateValueForUser(m, "food",
+                    Math.floor((Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates), "$inc");
             }
-            for(const c of alliance.coLeaders){
-                updateValueForUser(c, "food", alliance.upgrades.mf * 250000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
+            for (const c of alliance.coLeaders) {
+                updateValueForUser(c, "food",
+                    Math.floor((alliance.upgrades.mf * 250000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates),
+                    "$inc");
             }
-            updateValueForUser(alliance.leader._id, "food", alliance.upgrades.mf * 500000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)), "$inc");
-            if(alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor(alliance.upgrades.mf * 500000), "$inc");
+            updateValueForUser(alliance.leader._id, "food",
+                Math.floor((alliance.upgrades.mf * 500000 + Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates),
+                "$inc");
+            if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((Math.floor(alliance.upgrades.mf * 500000)) * 1.2 ** alliance.clientStates), "$inc");
         }
     }
     //payoutChannel.send("You have succesfully gained food from your alliance upgrades!");
     (payoutChannel as TextChannel).send({
         embed: {
             color: 0x00FF00,
-            title: "You have succesfully gained food from your alliance upgrades!",
+            title: "You have succesfully gained population from your upgrades!\n" +
+                "You have succesfully gained food from your alliance upgrades!",
             timestamp: new Date()
         }
     });

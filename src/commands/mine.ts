@@ -7,15 +7,13 @@ import * as config from "../static/config.json";
 
 export async function digmine(message: Message) {
     let user: user = await getUser(message.author.id);
-
-    if (!user)
-        return message.reply("you haven't created an account yet, please use `.create` command");
-
-    if (user.money < 10000 * (user.resources.totaldigs + 1))
-        return message.reply(`you don't have ${(10000 * (user.resources.totaldigs + 1)).commafy()} money`)
+    if (!user) return message.reply("you haven't created an account yet, please use `.create` command");
 
     if (Math.floor(Date.now() / 1000) - user.lastDig < 14400)
         return message.reply(`You can dig a new mine in ${new Date((14400 - (Math.floor(Date.now() / 1000) - user.lastDig)) * 1000).toISOString().substr(11, 8)}`);
+
+    if (user.money < 10000 * (user.resources.totaldigs + 1))
+        return message.reply(`you don't have ${(10000 * (user.resources.totaldigs + 1)).commafy()} money`);
 
     let minetype = (getRandomInt(3));
     updateValueForUser(user._id, "money", -(10000 * (user.resources.totaldigs + 1)), "$inc");
@@ -55,7 +53,7 @@ export async function mine(message: Message, args: string[]) {
         return message.reply("you don't have any mines to mine");
 
     if (args[0][0] !== "s" && args[0][0] !== "o" && args[0][0] !== "a")
-        return message.reply("Wrong mine type, please do `.mine steel` or `.mine oil`");
+        return message.reply("Wrong mine type, please do `.mine steel`, `.mine oil` or `.mine all`.");
 
     if (user.resources.minereturn == 0)
         return message.reply("Your mines can't make new resources");
@@ -68,21 +66,18 @@ export async function mine(message: Message, args: string[]) {
         let x = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "steel", x, "$inc");
         message.reply(`Your steel mines produced ${x.commafy()} steel, you now have ${(x + user.resources.steel).commafy()} steel.`);
-    }
-    if (args[0][0] == "o") {
+    } else if (args[0][0] == "o") {
         if (!user.resources.oilrig) return message.reply("you don't have any oil rigs.");
         let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "oil", x, "$inc");
         message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels of oil.`);
-    }
-
-    if (args[0][0] == "a"){
+    } else if (args[0][0] == "a") {
         if (!user.resources.oilrig && !user.resources.steelmine) return message.reply("you don't have any mines and oil rigs.");
         let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         let y = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
 
-        let steel = getRandomRange((Math.floor(x*0.25)), (Math.floor(x/2)))
-        let oil = getRandomRange((Math.floor(x*0.25)), (Math.floor(x/2)))
+        let steel = Math.floor(getRandomRange((Math.floor(x * 0.25)), (Math.floor(x / 2))));
+        let oil = Math.floor(getRandomRange((Math.floor(y * 0.25)), (Math.floor(y / 2))));
         updateValueForUser(user._id, "oil", oil, "$inc");
         updateValueForUser(user._id, "steel", steel, "$inc");
 

@@ -11,6 +11,7 @@ export interface user {
     lastMine: number;
     autoping: boolean;
     payoutDMs: boolean;
+    taxDMs: boolean;
     alliance: string | null;
     allianceRank: "M" | "L" | "C" | null
     resources: {
@@ -32,11 +33,14 @@ export interface user {
             sef: number;
             if: number;
         };
+        hospitals: number;
     };
     loan: number;
     inventory: Array<string>;
     votingStreak: number;
     lastVoted: number;
+    income: number;
+    clientStates: Array<clientState>;
 }
 
 export interface alliance {
@@ -57,6 +61,7 @@ export interface alliance {
         mf: number;
     };
     invitedUsers: string[];
+    clientStates: number;
 }
 
 export interface configDB {
@@ -65,6 +70,7 @@ export interface configDB {
     lastPopulationWorkPayout: number;
     commandsRun: number;
     lastMineReset: number;
+    lastDailyReset: number;
     totalOffers: number;
     centralBalance: number;
 }
@@ -109,14 +115,18 @@ export type updateUserQuery = "tag"
     | "steelmine"
     | "oilrig"
     | "minereturn"
-    | "minereset";
+    | "minereset"
+    | "income"
+    | "taxDMs"
+    | "hospitals";
 
 export type updateAllianceQuery = "name"
     | "level"
     | "public"
     | "leader"
     | "money"
-    | "tax";
+    | "tax"
+    | "clientStates";
 
 export interface war {
     _id: string;
@@ -172,7 +182,23 @@ export interface marketOffer {
 
 export type resources = "money" | "food" | "oil" | "steel" | "population";
 
-export interface trade {
-    _id: string;
-    
+export interface clientState {
+    name: string;
+    resources: {
+        food: number;
+        oil: number;
+        steel: number;
+        population: number;
+        money: number;
+    };
+    loyalty: number;
+    upgrades: {
+        mines: number;
+        rigs: number;
+        farms: number;
+    };
+    focus: resources | null;
 }
+
+export type clsEdits = "loyalty" | "focus" | clsUpgrades;
+export type clsUpgrades = "mines" | "rigs" | "farms";

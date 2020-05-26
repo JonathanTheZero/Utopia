@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { user, alliance } from "../../utils/interfaces";
-import { getUser, getAlliance, editAllianceArray, updateValueForUser } from "../../utils/databasehandler";
+import { getUser, getAlliance, editAllianceArray, updateValueForUser, updateValueForAlliance } from "../../utils/databasehandler";
 
 export async function joinAlliance(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
@@ -14,16 +14,14 @@ export async function joinAlliance(message: Message, args: string[]) {
         if (!alliance) return message.reply("this alliance doesn't exist, you can form it with `.createalliance " + allianceName + "`.");
 
         if (alliance.public || alliance.invitedUsers.includes(message.author.id)) {
-            if (alliance.invitedUsers.includes(message.author.id)) {
+            if (alliance.invitedUsers.includes(message.author.id))
                 editAllianceArray(allianceName, "invitedUsers", "$pull", message.author.id);
-            }
             updateValueForUser(message.author.id, "allianceRank", "M");
             updateValueForUser(message.author.id, "alliance", allianceName);
             editAllianceArray(allianceName, "members", "$push", message.author.id);
+            updateValueForAlliance(alliance.name, "clientStates", user.clientStates.length, "$inc");
             return message.reply("you are now a member of " + allianceName);
         }
-        else {
-            return message.reply("You can't join this alliance because it's set to private. Ask the Leader or a Co-Leader to invite you.");
-        }
+        else return message.reply("You can't join this alliance because it's set to private. Ask the Leader or a Co-Leader to invite you.");
     }
 }

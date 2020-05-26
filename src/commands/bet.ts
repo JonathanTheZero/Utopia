@@ -5,8 +5,7 @@ import "../utils/utils";
 
 export async function bet(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
-    if (!user || Object.keys(user).length === 0 && user.constructor === Object)
-        return message.reply("you haven't created an account yet, please use `.create` first");
+    if (!user) return message.reply("you haven't created an account yet, please use `.create` first");
 
     let money = (args[0].toLowerCase() == "a") ? user.money : parseInt(args[0]);
     if(args[0].match(/\d{1,2}%/)) money = Math.floor((Number(args[0]!.match(/\d{1,2}%/)![0].match(/\d+/)![0]) / 100) * user.money);
@@ -31,7 +30,7 @@ export async function bet(message: Message, args: string[]) {
     if (money > user.money) return message.reply("you can't bet more money than you own!");
 
     if (money > (await getConfig()).centralBalance)
-        return message.reply("you can't bet more than the Utopian Super Bank owns");
+        return message.reply("you can't bet more than the Central Bank owns. Check the central balance with `.usb`.");
 
     let addedMoney = won ? money : -1 * money;
     if (won) message.reply("congratulations! You won " + money.commafy() + " coins!");

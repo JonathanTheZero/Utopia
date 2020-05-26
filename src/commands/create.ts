@@ -33,12 +33,16 @@ export function createUser(message: Message): user {
                 sf: 0,
                 sef: 0,
                 if: 0
-            }
+            },
+            hospitals: 0
         },
         loan: 0,
         inventory: [],
         votingStreak: 1,
-        lastVoted: 0
+        lastVoted: 0,
+        income: 0,
+        clientStates: [],
+        taxDMs: true
     }
 }
 
@@ -60,6 +64,7 @@ export function createAlliance(name: string, message: Message): alliance {
             pf: 0,
             mf: 0
         },
-        invitedUsers: []
+        invitedUsers: [],
+        clientStates: 0
     }
 }

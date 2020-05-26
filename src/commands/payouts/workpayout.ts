@@ -2,21 +2,18 @@ import * as config from "../../static/config.json";
 import { Client, TextChannel, Channel } from "discord.js";
 import { getBaseLog, Sleep, rangeInt } from "../../utils/utils";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig, addToUSB } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editConfig } from "../../utils/databasehandler";
 
 export async function populationWorkLoop(client: Client) {
     let payoutChannel: Channel = client.channels.get(config.payoutChannel)!;
     let users: user[] = await getAllUsers();
     for (const u of users) {
         let pop = u.resources.population;
-        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop))))) || 0;
         if (consumption > u.resources.food) {
             try {
                 client.users.get(u._id)!.send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
-            }
-            catch (e) {
-                console.log(e + `\n${u.tag}`);
-            }
+            } catch (e) { console.log(e + `\n${u.tag}`) }
         }
     }
     await Sleep(3600000);
@@ -30,37 +27,31 @@ export async function populationWorkLoop(client: Client) {
             if (diff < 0) {
                 updateValueForUser(u._id, "loan", 0, "$set");
                 updateValueForUser(u._id, "money", -diff, "$inc");
-            }
-            else updateValueForUser(u._id, "loan", -diff, "$inc");
-        }
-        else{
+            } else updateValueForUser(u._id, "loan", -diff, "$inc");
+        } else {
             updateValueForUser(u._id, "money", money, "$inc");
-            addToUSB(-money);
-        } 
+            updateValueForUser(u._id, "income", money, "$inc");
+        }
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
-        if(!consumption) continue;
+        if (!consumption) continue;
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;
             updateValueForUser(u._id, "food", 0, "$set");
             try {
                 client.users.get(u._id)?.send("**Alert**: You don't have any food left, your population is dying!");
-            }
-            catch { }
+            } catch { }
             if (diff > pop) {
                 updateValueForUser(u._id, "population", 0, "$set");
                 try {
                     client.users.get(u._id)?.send("**Alert**: All of your population died");
-                }
-                catch { }
-            }
-            else updateValueForUser(u._id, "population", -diff, "$inc");
+                } catch { }
+            } else updateValueForUser(u._id, "population", -diff, "$inc");
         }
         else updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         if (u.payoutDMs) {
             try {
                 client.users.get(u._id)?.send("You have succesfully gained money through the work of your population!");
-            }
-            catch { }
+            } catch { }
         }
         if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }

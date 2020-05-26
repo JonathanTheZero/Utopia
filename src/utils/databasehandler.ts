@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -12,6 +12,7 @@ const config: configDB = {
     lastPopulationWorkPayout: 0,
     commandsRun: 0,
     lastMineReset: 0,
+    lastDailyReset: 0,
     totalOffers: 0,
     centralBalance: 1000000000
 };
@@ -48,7 +49,9 @@ export async function updateValueForUser(
         | "steelmine"
         | "minereset"
         | "minereturn"
-        | "oilrig",
+        | "oilrig"
+        | "income"
+        | "hospitals",
     newValue: number,
     updateMode?: "$inc" | "$set"
 ): Promise<void>;
@@ -56,36 +59,57 @@ export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastW
 export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs", newValue: boolean): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted", "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset"].includes(mode))
+    if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
+        "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
-    else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode)) {
+    else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
-    }
-    else
-        throw new Error("Invalid parameter passed");
+    else if (mode === "hospitals")
+        newQuery = { [updateMode]: { ["upgrades.hospitals"]: <number>newValue } };
+    else throw new Error("Invalid parameter passed");
 
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
         if (err) throw err;
     });
 }
 
-export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
+export async function addClientState(_id: string, cls: clientState): Promise<void> {
+    client.db(dbName).collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
+}
+
+export async function deleteClientState(_id: string, name: string): Promise<void> {
+    client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
+}
+
+export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
+    let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
+    if (["loyalty", "focus"].includes(type))
+        query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
+    else if (["mines", "rigs", "farms"].includes(type))
+        query = { [mode]: { [`clientStates.${index}.upgrades.${type}`]: val } };
+    else if (["steel", "oil", "food", "population", "money"].includes(type))
+        query = { [mode]: { ["clientStates." + index + ".resources." + type]: val } };
+
+    client.db(dbName).collection("users").updateOne({ _id }, query!, err => { if (err) throw err });
+}
+
+export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax" | "clientStates", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "leader", newValue: { _id: string, tag: string }): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "public", newValue: boolean): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: "name", newValue: string): Promise<void>;
 export async function updateValueForAlliance(name: string, mode: updateAllianceQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
-    if (["money", "level", "public", "name", "tax"].includes(mode))
+    if (["money", "level", "public", "name", "tax", "clientStates"].includes(mode))
         newQuery = { [updateMode || "$set"]: { [mode]: newValue } };
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
 
-    client.db(dbName).collection("alliances").updateOne({ name }, newQuery, err => {
-        if (err) throw err;
-    });
+    client.db(dbName).collection("alliances").updateOne({ name }, newQuery, err => { if (err) throw err });
 }
 
 export async function addUpgrade(_id: string, upgrade: string, type: "population" | "misc"): Promise<void> {
@@ -142,7 +166,7 @@ export async function getConfig(): Promise<configDB> {
     return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers", val: number) {
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset", val: number) {
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });

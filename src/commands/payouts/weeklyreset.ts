@@ -7,55 +7,53 @@ export async function weeklyReset(client: Client) {
     let users: user[] = await getAllUsers();
     const channel = <TextChannel>client.channels.get(config.payoutChannel);
     for (const u of users) {
+        let tax: number, cl: number;
         updateValueForUser(u._id, "minereturn", 1, "$set");
-
         if (u.payoutDMs) {
             try {
                 client.users.get(u._id)?.send("Your mines have been reset, happy mining!");
             } catch { }
         }
         //taxing
-        if (u.money < 100000) {
-            updateValueForUser(u._id, "money", ~~(.98 * u.money), "$set");
-            addToUSB(~~(.02 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 1: 2% tax).");
-            } catch { }
-        } else if (u.money < 1000000) {
-            updateValueForUser(u._id, "money", ~~(.95 * u.money), "$set");
-            addToUSB(~~(.05 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 2: 5% tax).");
-            } catch { }
-        } else if (u.money < 10000000) {
-            updateValueForUser(u._id, "money", ~~(.9 * u.money), "$set");
-            addToUSB(~~(.1 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 3: 10% tax).");
-            } catch { }
-        } else if (u.money < 100000000) {
-            updateValueForUser(u._id, "money", Math.floor(.8 * u.money), "$set");
-            addToUSB(Math.floor(.2 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 4: 20% tax).");
-            } catch { }
-        } else if (u.money < 500000000) {
-            updateValueForUser(u._id, "money", Math.floor(.65 * u.money), "$set");
-            addToUSB(Math.floor(.35 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 5: 35% tax).");
-            } catch { }
-        } else if (u.money < 1000000000) {
-            updateValueForUser(u._id, "money", Math.floor(.5 * u.money), "$set");
-            addToUSB(Math.floor(.5 * u.money));
-            try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 6: 50% tax).");
-            } catch { }
+        if (u.income < 100000) {
+            updateValueForUser(u._id, "money", ~(.98 * u.income), "$inc");
+            addToUSB(~~(.02 * u.income));
+            cl = 1, tax = 2;
+        } else if (u.income < 1000000) {
+            updateValueForUser(u._id, "money", ~(.95 * u.income), "$inc");
+            addToUSB(~~(.05 * u.income));
+            cl = 2, tax = 5;
+        } else if (u.income < 10000000) {
+            updateValueForUser(u._id, "money", ~(.9 * u.income), "$inc");
+            addToUSB(~~(.1 * u.income));
+            cl = 3, tax = 10;
+        } else if (u.income < 100000000) {
+            updateValueForUser(u._id, "money", -Math.floor(.8 * u.income), "$inc");
+            addToUSB(Math.floor(.2 * u.income));
+            cl = 4, tax = 20;
+        } else if (u.income < 500000000) {
+            updateValueForUser(u._id, "money", Math.floor(.65 * u.income), "$inc");
+            addToUSB(Math.floor(.35 * u.income));
+            cl = 5, tax = 35;
+        } else if (u.income < 1000000000) {
+            updateValueForUser(u._id, "money", Math.floor(.5 * u.income), "$inc");
+            addToUSB(Math.floor(.5 * u.income));
+            cl = 6, tax = 50;
         } else {
-            updateValueForUser(u._id, "money", Math.floor(.4 * u.money), "$set");
-            addToUSB(Math.floor(.6 * u.money));
+            updateValueForUser(u._id, "money", Math.floor(.4 * u.income), "$inc");
+            addToUSB(Math.floor(.6 * u.income));
+            cl = 7, tax = 60;
+        }
+        updateValueForUser(u._id, "income", 0, "$set");
+        updateValueForUser(u._id, "money", Math.floor(.98 * u.money), "$set");
+        addToUSB(Math.floor(.02 * u.money));
+        if (u.taxDMs) {
             try {
-                client.users.get(u._id)?.send("You have payed your weekly taxes (you are in class 7: 60% tax).");
+                client.users.get(u._id)?.send(
+                    `You have payed your weekly income taxes (you are in class ${cl!}: ${tax!}% tax).\n` +
+                    "Additionally 2% of your balance has been taxed.\n\n" + 
+                    `If you wish to disable tax DMs, use \`.taxdms\`.`
+                );
             } catch { }
         }
     }

@@ -24,21 +24,21 @@ export async function payout(message: Message, args: string[]) {
     if (user.alliance != null) {
         let alliance: alliance = await getAlliance(user.alliance) as alliance;
         if (user.allianceRank == "L") {
-            userFood = alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+            userFood = Math.floor((alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+                alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
             if (alliance.coLeaders.length == 0)
-                userFood += alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000;
+                userFood += Math.floor((alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000) * 1.2 ** alliance.clientStates);
         }
         else if (user.allianceRank == "C") {
-            userFood = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+            userFood = Math.floor((alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+                alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
         }
         else if (user.allianceRank == "M") {
-            userFood = Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+            userFood = Math.floor((Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)));
+                Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
         }
     }
 
@@ -83,7 +83,7 @@ export async function payout(message: Message, args: string[]) {
                 {
                     name: "Next Food consumption and Money payout",
                     value: secondsToDhms((14400 * 3) + (c.lastPopulationWorkPayout - Math.floor(Date.now() / 1000))) ||
-                        "*if you see this something went wrong and the payouts stopped, please contact the owner ASAP*",
+                        "During the next hour",
                     inline: true
                 }
             ],
@@ -102,19 +102,19 @@ export async function alliancePayout(message: Message, args: string[]) {
     var alliance: alliance | null = await getAlliance(<string>user.alliance);
     if (!alliance) return message.reply((!args[0]) ? "you haven't joined an alliance yet" : "this user hasn't joined an alliance yet");
 
-    total[0] = alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+    total[0] = Math.floor((alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
         alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-        alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
-    total[1] = alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
+        alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
+    total[1] = Math.floor((alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
         alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-        alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)));
-    total[2] = Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)) +
+        alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
+    total[2] = Math.floor((Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1)) +
         Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)) +
-        Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1));
+        Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * 1.2 ** alliance.clientStates);
     if (alliance.coLeaders.length == 0) {
-        total[0] += alliance.upgrades.af * 15000 +
+        total[0] += Math.floor((alliance.upgrades.af * 15000 +
             alliance.upgrades.pf * 100000 +
-            alliance.upgrades.mf * 500000;
+            alliance.upgrades.mf * 500000) * 1.2 ** alliance.clientStates);
         total[1] = 0;
     }
 

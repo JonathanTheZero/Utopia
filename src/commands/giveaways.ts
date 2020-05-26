@@ -65,7 +65,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
             embedId: (sent as Message).id,
             users: []
         }
-        
+
         await addGiveaway(giveaway);
         let msg = await message.channel.fetchMessage(giveaway!.embedId);
         msg.react("🎉");
@@ -87,20 +87,16 @@ export async function giveawayCheck(_id: string, client: Client) {
 
     giveaway.users = voteCollection!.first().users.array();
     giveaway.users.shift();
-    if (giveaway.users.length == 0) {
+    if (giveaway.users.length === 0) {
         let y: User[] = (await voteCollection!.first().fetchUsers()).array();
         y.pop();
         giveaway.users = y;
     }
     let x: User[] = giveaway.users.sort(() => 0.5 - Math.random()).slice(0, giveaway.winners); //winners
-    var winnerMentions = `<@${x[0].id}>`;
-    for (let i = 1; i < x.length; i++) {
-        winnerMentions += `, <@${x[i].id}>`;
-    }
+    let winnerMentions = `<@${x[0].id}>`;
+    for (let i = 1; i < x.length; i++) winnerMentions += `, <@${x[i].id}>`;
 
-    channel.send(winnerMentions).then((msg: any) => {
-        msg.delete();
-    });
+    channel.send(winnerMentions).then((msg: any) => msg.delete());
 
     channel.send({
         embed: {
@@ -113,19 +109,11 @@ export async function giveawayCheck(_id: string, client: Client) {
     });
 
     if (giveaway.priceCur == "Food") {
-        for (const u of giveaway.users) {
-            updateValueForUser(u.id, "food", Math.floor(giveaway.priceAm as number), "$inc");
-        }
-    }
-    else if (giveaway.priceCur == "Population") {
-        for (const u of giveaway.users) {
-            updateValueForUser(u.id, "population", Math.floor(giveaway.priceAm as number), "$inc");
-        }
-    }
-    if (giveaway.priceCur == "Money") {
-        for (const u of giveaway.users) {
-            updateValueForUser(u.id, "money", Math.floor(giveaway.priceAm as number), "$inc");
-        }
+        for (const u of giveaway.users) updateValueForUser(u.id, "food", Math.floor(giveaway.priceAm as number), "$inc");
+    } else if (giveaway.priceCur == "Population") {
+        for (const u of giveaway.users) updateValueForUser(u.id, "population", Math.floor(giveaway.priceAm as number), "$inc");
+    } else if (giveaway.priceCur == "Money") {
+        for (const u of giveaway.users) updateValueForUser(u.id, "money", Math.floor(giveaway.priceAm as number), "$inc");
     }
     deleteGiveaway(giveaway._id);
 }

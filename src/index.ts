@@ -5,7 +5,7 @@ import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -54,10 +54,11 @@ import {
     allianceOverview,
     renameAlliance,
 } from "./commands/alliances";
-import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset } from "./commands/payouts";
+import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer } from "./commands/trade";
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -89,16 +90,16 @@ if (config.dbl) {
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         user = await getUser(vote.user);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
-        addToUSB(user.votingStreak * 20000);
+        updateValueForUser(user._id, "income", user.votingStreak * 15000, "$inc");
+        addToUSB(-(user.votingStreak * 20000));
     });
 }
-
 
 console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2.1 Artis et Divitiae out now!`);
+    client.user.setActivity(`.help | v2.2 Confederations out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -115,11 +116,13 @@ client.on("ready", async () => {
     const tdiff = [
         Math.floor(Date.now() / 1000) - c.lastPayout,
         Math.floor(Date.now() / 1000) - c.lastPopulationWorkPayout,
-        Math.floor((Date.now() - c.lastMineReset) / 1000)
+        Math.floor((Date.now() - c.lastMineReset) / 1000),
+        Math.floor(Date.now() / 1000) - c.lastDailyReset
     ];
     setTimeout(() => payoutLoop(client), ((14400 - tdiff[0]) * 1000));
     setTimeout(() => populationWorkLoop(client), ((39600 - tdiff[1]) * 1000));
-    setTimeout(() => weeklyReset(client), ((604800 - tdiff[2]) * 1000))
+    setTimeout(() => weeklyReset(client), ((604800 - tdiff[2]) * 1000));
+    setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
 });
@@ -201,6 +204,8 @@ client.on("message", async message => {
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
+        else if (args[0][0] === "c")
+            return message.channel.send({ embed: clsHelp });
         else
             return message.channel.send({ embed: helpMenu });
     }
@@ -225,10 +230,8 @@ client.on("message", async message => {
 
     else if (command === "me" || command === "stats")
         statsEmbed(message, args, client);
-    
-    else if (command === "time" || command === "timestats"){
-        time(message, args, client);
-    }
+
+    else if (command === "time" || command === "timestats") time(message, args, client);
 
     else if (command === "createalliance") {
         if (!args[0]) return message.reply("please specify a name for your alliance");
@@ -386,14 +389,10 @@ client.on("message", async message => {
         });
 
     else if (command === "shop" || command === "store") {
-        if (args[0] == "population" || args[0] == "p")
-            return message.channel.send({ embed: await storeEmbed!(message, "p") });
-
-        else if (["alliance", "alliances", "a"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "a") });
-
-        else if (["pf", "personal"].includes(args[0]))
-            return message.channel.send({ embed: await storeEmbed!(message, "pf") });
+        if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
+        else if (["alliance", "alliances", "a"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "a") });
+        else if (["pf", "personal"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "pf") });
+        else if (args[0][0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
 
         return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
@@ -407,8 +406,9 @@ client.on("message", async message => {
                 thumbnail: {
                     url: message.author.avatarURL,
                 },
-                description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" +
-                    "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",
+                /*description: "Either on [Patreon](https://www.patreon.com/utopiabot) or on [PayPal](https://paypal.me/JonathanTheZero)\n\n" +
+                    "100% of the income will used to keep the bot running and pay other fees. (Also note that there are no special patreon ranks)",*/
+                description: "PayPal and Patreon are inactive at the moment but will come back later",
                 footer: config.properties.footer,
                 timestamp: new Date()
             }
@@ -417,18 +417,23 @@ client.on("message", async message => {
 
     else if (command === "autoping") {
         let user: user = await getUser(message.author.id);
-        if (!user)
-            return message.reply("you haven't created an account yet, please use the `create` command.");
-        message.reply((user.autoping) ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        message.reply(user.autoping ? "you successfully disabled autopings." : "you succesfully enabled autopings.");
         updateValueForUser(user._id, "autoping", !user.autoping);
     }
 
     else if (command === "payoutdms") {
         let user: user = await getUser(message.author.id);
-        if (!user)
-            return message.reply("you haven't created an account yet, please use the `create` command.");
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
         message.reply(user.payoutDMs ? "you successfully disabled payout DMs." : "you succesfully enabled payout DMS.");
         updateValueForUser(user._id, "payoutDMs", !user.payoutDMs);
+    }
+
+    else if (command === "taxdms") {
+        let user: user = await getUser(message.author.id);
+        if (!user) return message.reply("you haven't created an account yet, please use the `create` command.");
+        message.reply(user.taxDMs ? "you successfully disabled tax DMs." : "you succesfully enabled tax payout DMS.");
+        updateValueForUser(user._id, "taxDMs", !user.taxDMs);
     }
 
     else if (command === "work")
@@ -482,7 +487,6 @@ client.on("message", async message => {
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
-            console.log(answer);
             imgurl = `imageplotting/${answer.toString()}.png`;
 
             message.channel.send({ files: [new Discord.Attachment(imgurl)] });
@@ -519,32 +523,23 @@ client.on("message", async message => {
         startWar(message, u, o);
     }
 
-    else if (command === "mobilize")
-        mobilize(message, args);
+    else if (command === "mobilize") mobilize(message, args);
 
-    else if (command === "ready")
-        ready(message);
+    else if (command === "ready") ready(message);
 
-    else if (command === "cancel-war" || command === "cancelwar")
-        cancelWar(message);
+    else if (command === "cancel-war" || command === "cancelwar") cancelWar(message);
 
-    else if (command === "armies")
-        armies(message);
+    else if (command === "armies") armies(message);
 
-    else if (command === "set-position" || command === "setposition")
-        setPosition(message, args);
+    else if (command === "set-position" || command === "setposition") setPosition(message, args);
 
-    else if (["showfield", "field"].includes(command))
-        showFieldM(message);
+    else if (["showfield", "field"].includes(command)) showFieldM(message);
 
-    else if (command === "move")
-        move(message, args);
+    else if (command === "move") move(message, args);
 
-    else if (command === "attack")
-        attack(message, args);
+    else if (command === "attack") attack(message, args);
 
-    else if (command === "mine")
-        mine(message, args);
+    else if (command === "mine") mine(message, args);
 
     else if (command === "digmine" || command === "detroitbecomedwarf")
         digmine(message);
@@ -552,13 +547,15 @@ client.on("message", async message => {
     else if (command === "minestats")
         mineStats(message, args);
 
-    else if (["make-offer", "offer", "makeoffer"].includes(command))
+    else if (["make-offer", "makeoffer"].includes(command))
         makeOffer(message, args);
+
+    else if (command === "offer") offer(message, args);
 
     else if (command === "market")
         activeOffers(message, args);
 
-    else if (command === "buy-offer")
+    else if (command === "buy-offer" || command === "buyoffer")
         buyOffer(message, args, client);
 
     else if (["my-offers", "myoffers"].includes(command))
@@ -575,50 +572,40 @@ client.on("message", async message => {
             }
         });
 
-    else if (command === "blitz") {
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("you are not allowed to use that.");
-        if (!args[0]) return message.reply("please specify an amount.");
-        const u = await getUser(message.author.id);
-        const a: number = args[0] === "a" ? u.money : parseInt(args[0]);
-        if (a > u.money || a < 0 || isNaN(a)) return message.reply("no.");
-        updateValueForUser(u._id, "money", -a, "$inc");
-        addToUSB(a);
-        return message.reply("you lucky bastard donated " + a.commafy());
-    }
-
-    else if (command === "taxes") {
+    else if (command === "taxes" || command === "income") {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
                 title: "Tax classes",
                 color: parseInt(config.properties.embedColor),
+                description: "Your weekly income: " + u.income.commafy(),
                 fields: [
                     {
-                        name: "Class 1" + (u.money < 100000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 100,000, 2% tax",
+                        name: "Class 1" + (u.income < 100000 ? " (Your class)" : ""),
+                        value: "Income smaller than 100,000, 2% tax",
                     },
                     {
-                        name: "Class 2" + (u.money > 100000 && u.money < 1000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 1,000,000, 5% tax",
+                        name: "Class 2" + (u.income > 100000 && u.income < 1000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 1,000,000, 5% tax",
                     },
                     {
-                        name: "Class 3" + (u.money < 10000000 && u.money > 1000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 10,000,000, 10% tax",
+                        name: "Class 3" + (u.income < 10000000 && u.income > 1000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 10,000,000, 10% tax",
                     },
                     {
-                        name: "Class 4" + (u.money > 10000000 && u.money < 100000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 100,000,000, 20% tax",
+                        name: "Class 4" + (u.income > 10000000 && u.income < 100000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 100,000,000, 20% tax",
                     },
                     {
-                        name: "Class 5" + (u.money < 500000000 && u.money > 100000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 500,000,000, 35% tax",
+                        name: "Class 5" + (u.income < 500000000 && u.income > 100000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 500,000,000, 35% tax",
                     },
                     {
-                        name: "Class 6"  + (u.money > 500000000 && u.money < 1000000000 ? " (Your class)" : ""),
-                        value: "Balance smaller than 1,000,000,000, 50% tax",
+                        name: "Class 6" + (u.income > 500000000 && u.income < 1000000000 ? " (Your class)" : ""),
+                        value: "Income smaller than 1,000,000,000, 50% tax",
                     },
                     {
-                        name: "Class 7"  + (u.money > 1000000000 ? " (Your class)" : ""),
+                        name: "Class 7" + (u.income > 1000000000 ? " (Your class)" : ""),
                         value: "Bigger than 1,000,000,000, 60% tax"
                     },
                 ],
@@ -627,6 +614,22 @@ client.on("message", async message => {
             },
         });
     }
+
+    else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
+
+    else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
+
+    else if (command === "send-to-cls") sendToCls(message, args);
+
+    else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
+
+    else if (command === "clientstate" || command === "client-state") singleStateOverview(message, args);
+
+    else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
+
+    else if (["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
+
+    else if (command === "withdraw") withdraw(message, args);
 });
 
 client.login(config.token);
