@@ -25,9 +25,7 @@ import {
     addServer,
     deleteServer,
     connected,
-    addToUSB,
-    addClientState,
-    deleteClientState
+    addToUSB
 } from "./utils/databasehandler";
 import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -101,7 +99,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2.1 Artis et Divitiae out now!`);
+    client.user.setActivity(`.help | v2.2 Confederations out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -232,10 +230,8 @@ client.on("message", async message => {
 
     else if (command === "me" || command === "stats")
         statsEmbed(message, args, client);
-    
-    else if (command === "time" || command === "timestats"){
-        time(message, args, client);
-    }
+
+    else if (command === "time" || command === "timestats") time(message, args, client);
 
     else if (command === "createalliance") {
         if (!args[0]) return message.reply("please specify a name for your alliance");
@@ -575,17 +571,6 @@ client.on("message", async message => {
                 description: "At the moment, the bank still holds " + (await getConfig()).centralBalance.commafy()
             }
         });
-
-    else if (command === "blitz") {
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("you are not allowed to use that.");
-        if (!args[0]) return message.reply("please specify an amount.");
-        const u = await getUser(message.author.id);
-        const a: number = args[0] === "a" ? u.money : parseInt(args[0]);
-        if (a > u.money || a < 0 || isNaN(a)) return message.reply("no.");
-        updateValueForUser(u._id, "money", -a, "$inc");
-        addToUSB(a);
-        return message.reply("you lucky bastard donated " + a.commafy());
-    }
 
     else if (command === "taxes" || command === "income") {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);

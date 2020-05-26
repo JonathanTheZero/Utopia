@@ -68,7 +68,7 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
     else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };
     else if (mode === "hospitals")
-        newQuery = { [mode]: { "upgrades.hospitals": newValue } };
+        newQuery = { [updateMode]: { ["upgrades.hospitals"]: <number>newValue } };
     else throw new Error("Invalid parameter passed");
 
     client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {

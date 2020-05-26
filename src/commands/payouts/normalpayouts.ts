@@ -33,14 +33,6 @@ export async function payoutLoop(client: Client) {
             } catch (e) { console.log(e + "\n" + u.tag) }
         } if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }
-    (payoutChannel as TextChannel).send({
-        embed: {
-            color: 0x00FF00,
-            title: "You have succesfully gained population from your upgrades!",
-            timestamp: new Date()
-        }
-    });
-
     for (const alliance of alliances) {
         if (alliance.upgrades.af > 0) {
             for (const m of alliance.members) {
@@ -89,7 +81,8 @@ export async function payoutLoop(client: Client) {
     (payoutChannel as TextChannel).send({
         embed: {
             color: 0x00FF00,
-            title: "You have succesfully gained food from your alliance upgrades!",
+            title: "You have succesfully gained population from your upgrades!\n" +
+                "You have succesfully gained food from your alliance upgrades!",
             timestamp: new Date()
         }
     });

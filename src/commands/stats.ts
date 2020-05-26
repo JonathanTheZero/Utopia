@@ -109,7 +109,6 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
 export async function time(message: Message, args: string[], client: Client): Promise<any | void> {
     let user: user = await getUser(message.mentions.users?.first()?.id || args[0] || message.author.id);
     const c: configDB = await getConfig();
-    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
 
     if (!user) {
         if (!args[0])
@@ -117,67 +116,61 @@ export async function time(message: Message, args: string[], client: Client): Pr
         else
             return message.reply("this user hasn't created an account yet!");
     }
-    if (Math.floor(Date.now() / 1000) - user.lastWorked < 1800){
-        var workmessage = `You can work in ${String(new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8))}`
-    }
 
-    else{
-        var workmessage = "You can work now!"
-    }
-        
-        //return message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8));
-    
-        message.channel.send({
+    message.channel.send({
         embed: {
             color: parseInt(properties.embedColor),
-            title: `Time data for ` + ((typeof args[0] === "undefined") ? `${message.author.tag}` : `${user.tag}`),
+            title: `Time data for ${user.tag}`,
             thumbnail: {
-                url: url,
+                url: client?.users?.get(user?._id.toString())?.displayAvatarURL,
             },
             fields: [
                 {
                     name: 'Can work again:',
-                    value: workmessage,
+                    value: secondsToDhms(1800 + (user.lastWorked - Math.floor(Date.now() / 1000))) || "You can work again now",
                     inline: true,
                 },
                 {
-                    name: 'Can commit crim again:',
-                    value: `You can commit a crime again in ${new Date((14400 - (Math.floor(Date.now() / 1000) - user.lastCrime)) * 1000).toISOString().substr(11, 8)}`,
+                    name: 'Can commit a crime again:',
+                    value: secondsToDhms(14400 + (user.lastCrime - Math.floor(Date.now() / 1000))) || "You can commit a crime again now",
                     inline: true,
                 },
                 {
                     name: 'Can mine again:',
-                    value: `You can mine again in " + ${new Date((3600 - (Math.floor(Date.now() / 1000) - user.lastMine)) * 1000).toISOString().substr(11, 8)}`,
+                    value: secondsToDhms(3600 + (user.lastMine - Math.floor(Date.now() / 1000))) || "You can mine again now",
                     inline: true,
                 },
                 {
                     name: 'Can dig a mine again:',
-                    value: `You can dig a new mine in ${new Date((14400 - (Math.floor(Date.now() / 1000) - user.lastDig)) * 1000).toISOString().substr(11, 8)}`,
+                    value: secondsToDhms(14400 + (user.lastDig - Math.floor(Date.now() / 1000))) || "You can dig for a mine again now",
                     inline: true,
                 },
                 {
                     name: "Food and population payout:",
                     value: secondsToDhms(14400 + (c.lastPayout - Math.floor(Date.now() / 1000))) ||
-                    "*if you see this something went wrong and the payouts stopped, please contact the owner ASAP*",
+                        "*if you see this something went wrong and the payouts stopped, please contact the owner ASAP*",
                     inline: true
                 },
                 {
                     name: "Next work payout",
                     value: secondsToDhms((14400 * 3) + (c.lastPopulationWorkPayout - Math.floor(Date.now() / 1000))) ||
-                        "*if you see this something went wrong and the payouts stopped, please contact the owner ASAP*",
+                        "During the next hour",
                     inline: true
                 },
                 {
                     name: "Next mine reset:",
-                    value: "The next mine reset will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000))
+                    value: "The next mine reset will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    inline: true
                 },
                 {
                     name: "Next Tax:",
-                    value: "The next  taxation will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000))
+                    value: "The next  taxation will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    inline: true
                 },
                 {
                     name: "Can vote again:",
-                    value: `You can vote again ${(user.lastVoted === 0 || Date.now() - user.lastVoted * 1000 > 43200000) ? "**now**" : "in " + new Date((43200 - (Math.floor(Date.now() / 1000) - user.lastVoted)) * 1000).toISOString().substr(11, 8)}`
+                    value: `You can vote again ${(user.lastVoted === 0 || Date.now() - user.lastVoted * 1000 > 43200000) ? "**now**" : "in " + new Date((43200 - (Math.floor(Date.now() / 1000) - user.lastVoted)) * 1000).toISOString().substr(11, 8)}`,
+                    inline: true
                 },
             ],
             timestamp: new Date(),

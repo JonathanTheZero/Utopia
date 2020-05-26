@@ -77,8 +77,8 @@ export async function dailyPayout(client: Client) {
         embed: {
             color: names ? 0xFF0000 : 0x00FF00,
             title: "The daily reset has been made.",
-            description: ((names ? `The Utopias of ${names} have been struck by plagues.` : "None Utopias have been struck by plagues today.") + "\n" +
-                "Your client states gained some more autnomy."),
+            description: ((names ? `The Utopias of ${names} have been struck by plagues.` : "No Utopias have been struck by plagues today.") + "\n" +
+                "Your client states gained some more autonomy and produced some goods."),
             timestamp: new Date()
         }
     });

@@ -59,7 +59,7 @@ export const generalHelpMenu = {
             value: "You can commit a crime every 4 hours. You have a 5% chance to increase your networth by 50,000 coins or up to 5% (whichever is higher), but be careful: you can also lose up to 2% of your current networth.",
         },
         {
-            name: "`.digmine`, `.minestats` and `.mine <oil | steel>`",
+            name: "`.digmine`, `.minestats` and `.mine <oil | steel | all>`",
             value: "Every 4 hours you can dig and search for a mine. " +
                 "If you are succesful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
                 "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!\n" +
@@ -110,6 +110,10 @@ export const generalHelpMenu = {
         {
             name: "`.set-prefix`",
             value: "Change the prefix of the bot (only usable by members with 'manage server' permissions)"
+        },
+        { 
+            name: "`.time`", 
+            value: "A comprehensive overview over all cooldowns" 
         }
     ],
     timestamp: new Date(),
