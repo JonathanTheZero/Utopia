@@ -204,10 +204,9 @@ client.on("message", async message => {
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
-        else if (args[0][0] === "c")
+        else if (args[0]?.[0] === "c")
             return message.channel.send({ embed: clsHelp });
-        else
-            return message.channel.send({ embed: helpMenu });
+        return message.channel.send({ embed: helpMenu });
     }
 
     else if (command === "create" || command === "start") {

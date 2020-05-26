@@ -73,48 +73,49 @@ export async function singleStateOverview(message: Message, args: string[]) {
  * @returns a tuple having the scheme [money, steel, oil, farms]
  */
 function generateProductionRates(c: clientState): [number, number, number, number] {
+    const f = (f: number) => Math.log((f + 1) * .01) / 1000;
     if (c.focus) {
         if (c.focus === "money") {
             return [
                 Math.floor(3 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
                 Math.floor(.5 * (c.upgrades.farms) * 1000000) * (c.loyalty + .5)
             ];
         } else if (c.focus === "food") {
             return [
                 Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
                 Math.floor(3 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
             ];
         } else if (c.focus === "oil") {
             return [
                 Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-                Math.floor(3 * (c.upgrades.rigs) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(3 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
                 Math.floor(.5 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
             ];
         } else if (c.focus === "steel") {
             return [
                 Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(3 * (c.upgrades.mines) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+                Math.floor(3 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
                 Math.floor(.5 * (c.upgrades.farms) * 1000000) * (c.loyalty + .5)
             ];
         } else if (c.focus === "population") {
             return [
                 Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
                 Math.floor(.5 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
             ];
         }
     }
     return [
         Math.floor(c.resources.population * .5 * (c.loyalty + .5)),
-        Math.floor(c.upgrades.mines * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
-        Math.floor(c.upgrades.rigs * 50000 * (1 + c.resources.population * .005) * (c.loyalty + .5)),
+        Math.floor(c.upgrades.mines * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+        Math.floor(c.upgrades.rigs * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
         Math.floor(c.upgrades.farms * 1000000 * (c.loyalty + .5))
     ];
 }
