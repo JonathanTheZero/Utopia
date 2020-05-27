@@ -14,7 +14,8 @@ const config: configDB = {
     lastMineReset: 0,
     lastDailyReset: 0,
     totalOffers: 0,
-    centralBalance: 1000000000
+    centralBalance: 1000000000,
+    upmsg: ""
 };
 
 export let connected: boolean = false;
@@ -164,6 +165,12 @@ export async function customUpdateQuery(collection: string, filter: { [key: stri
 
 export async function getConfig(): Promise<configDB> {
     return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
+}
+
+export async function addUpmsg(words: string[]) {
+    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { upmsg: words } }, err => {
+        if (err) throw err;
+    });
 }
 
 export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset", val: number) {

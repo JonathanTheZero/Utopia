@@ -25,7 +25,8 @@ import {
     addServer,
     deleteServer,
     connected,
-    addToUSB
+    addToUSB,
+    addUpmsg
 } from "./utils/databasehandler";
 import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -176,6 +177,29 @@ client.on("message", async message => {
     else if (command === "ban") ban(message, args);
 
     else if (command === "purge" || command === "clear") purge(message, args);
+
+    else if (command === "updatemessage" || command === "upmsg"){
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+
+        addUpmsg(args)
+
+        message.reply(`Added update message of ${args}`)
+    }
+
+    else if (command === "testmsg"){
+        let c: configDB = await getConfig();
+        let output = "";
+        for (let x = 0; x < c.upmsg.length; x++){
+            output += c.upmsg[x] + " "
+        }
+
+        message.channel.send(output);
+        client.users.get("517067779145334795")?.send(output)
+        client.users.get("370633705091497985")?.send(output)
+        client.users.get("239516219445608449")?.send(output)
+        
+        
+    }
 
     else if (command === "vote") {
         let u: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
