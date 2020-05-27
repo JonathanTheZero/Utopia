@@ -1,6 +1,7 @@
 declare var require: (path: string) => any;
 
 import * as Discord from "discord.js";
+
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
@@ -187,6 +188,7 @@ client.on("message", async message => {
     }
 
     else if (command === "testmsg"){
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
         let output = "";
         for (let x = 0; x < c.upmsg.length; x++){
@@ -194,11 +196,37 @@ client.on("message", async message => {
         }
 
         message.channel.send(output);
-        client.users.get("517067779145334795")?.send(output)
-        client.users.get("370633705091497985")?.send(output)
-        client.users.get("239516219445608449")?.send(output)
+        //client.users.get("517067779145334795")?.send(output)
+        //client.users.get("370633705091497985")?.send(output)
+        //client.users.get("239516219445608449")?.send(output)
+        //client.users.get("393137628083388430")?.send(output)
         
         
+    }
+
+    else if (command === "sendupmsg"){
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+        let c: configDB = await getConfig();
+        let output = "";
+        for (let x = 0; x < c.upmsg.length; x++){
+            output += c.upmsg[x] + " "
+        }
+        let u: user[] = await getAllUsers();
+
+        let channel = <Discord.TextChannel>client.channels.get("715280487106478172"); //Change this to the announcement channel id
+        channel.send(output);
+        
+
+        let lister: string[] = [];
+        const list = await client.guilds.get("621044091056029696")!;
+        list.members.forEach(member => lister.push(member.id)!);
+        
+        for (let i = 0; i < u.length; i++){
+            if (!lister.includes(u[i]._id)){
+                client.users.get(u[i]._id)!.send(output)
+                //console.log("OK ")
+            }
+        }
     }
 
     else if (command === "vote") {
