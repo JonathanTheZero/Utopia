@@ -57,7 +57,8 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer} from "./commands/trade";
+import {propose} from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
@@ -550,6 +551,9 @@ client.on("message", async message => {
         makeOffer(message, args);
 
     else if (command === "offer") offer(message, args);
+
+    else if (command === "propose")
+        propose(message, args)
 
     else if (command === "market")
         activeOffers(message, args);

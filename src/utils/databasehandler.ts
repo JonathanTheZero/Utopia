@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract_interface } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -221,6 +221,10 @@ export async function deleteServer(_id: string) {
 
 export async function updatePrefix(_id: string, prefix: string) {
     client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
+}
+
+export async function addContracts(newcontract: contract_interface) {
+    await client.db(dbName).collection("contracts").insertOne({newcontract})
 }
 
 export async function addWar(w: war) {

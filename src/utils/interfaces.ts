@@ -200,5 +200,17 @@ export interface clientState {
     focus: resources | null;
 }
 
+export interface contract_interface {
+    proposal: boolean;
+    users: [string, string];
+    contractid: string;
+    info: { 
+        totaltime: number;
+        selling: resources;
+        price: resources;
+        //renew: boolean;
+    }
+}
+
 export type clsEdits = "loyalty" | "focus" | clsUpgrades;
 export type clsUpgrades = "mines" | "rigs" | "farms";
