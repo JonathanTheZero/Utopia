@@ -553,7 +553,7 @@ client.on("message", async message => {
     else if (command === "offer") offer(message, args);
 
     else if (command === "propose")
-        propose(message, args)
+        propose(message, args, client)
 
     else if (command === "market")
         activeOffers(message, args);

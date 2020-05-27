@@ -223,8 +223,8 @@ export async function updatePrefix(_id: string, prefix: string) {
     client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
 }
 
-export async function addContracts(newcontract: contract_interface) {
-    await client.db(dbName).collection("contracts").insertOne({newcontract})
+export async function addContracts(contractid: string, newcontract: contract_interface) {
+    await client.db(dbName).collection("contracts").insertOne({contractid, newcontract})
 }
 
 export async function addWar(w: war) {
