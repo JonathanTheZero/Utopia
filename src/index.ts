@@ -102,7 +102,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2.2 Confederations out now!`);
+    
 
     await connectToDB();
     getServers().then(server => {
@@ -128,6 +128,8 @@ client.on("ready", async () => {
     setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
+
+    client.user.setActivity(`.help | v2.2 Confederations out now!`);
 });
 
 
@@ -214,7 +216,18 @@ client.on("message", async message => {
         let u: user[] = await getAllUsers();
 
         let channel = <Discord.TextChannel>client.channels.get("715280487106478172"); //Change this to the announcement channel id
-        channel.send(output);
+
+        if (["everyone", "e", "Everyone", "E"].includes(args[0])){
+            channel.send(`@everyone ${output}`);
+        }
+        
+        else if(["help", "h", "Help", "H"].includes(args[0])){
+            message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone")
+        }
+
+        else{
+            channel.send(`${output}`);
+        }
         
 
         let lister: string[] = [];

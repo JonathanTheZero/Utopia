@@ -208,7 +208,9 @@ export interface contract_interface {
     info: { 
         totaltime: number;
         selling: resources;
-        price: resources;
+        sellingprice: number;
+        priceresource: resources;
+        price: number;
         //renew: boolean;
     }
 }
