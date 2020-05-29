@@ -1,6 +1,7 @@
 import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract_interface } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
+//import { propose } from "../commands/trade/contracts";
 
 const url: string = db.mongoQuery;
 const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
@@ -231,16 +232,31 @@ export async function updatePrefix(_id: string, prefix: string) {
 }
 
 export async function addContracts(contractid: string, newcontract: contract_interface) {
-    await client.db(dbName).collection("contracts").insertOne({contractid, newcontract})
+    await client.db(dbName).collection("contracts").insertOne({_id: contractid, newcontract})
 }
 
-export async function getContract(contractid: string): Promise<contract_interface>{
+export async function getContract(contractid: string): Promise<any>{
     //return 
-    let info = await client.db(dbName).collection("contracts").findOne( { contractid } )!
-    console.log(info)
-    console.log(info.newcontract)
-    return info.newcontract
-    
+    return await client.db(dbName).collection("contracts").findOne( { _id:contractid } )!
+}
+
+// export async function getContract_ID(contractid: string){
+//     let contract = await client.db(dbName).collection("contracts").findOne( { contractid } )!
+//     return contract._id
+// }
+
+export async function deleteContract(contractid: string){
+    await await client.db(dbName).collection("contracts").deleteOne( { _id:contractid })
+    return `cancelled`
+}
+
+//, proposalvalue: boolean
+export async function ContractAccepted(contractid: string){
+    //let query: any = {} 
+    //query = { ["newcontract.proposal"]: false } 
+    // let _id = await getContract_ID(contractid)
+    await client.db(dbName).collection("contracts").updateOne( { _id:contractid }, {$set: {["newcontract.proposal"]: false}})!
+    return "FUCK"
 }
 
 export async function addWar(w: war) {

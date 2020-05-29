@@ -1,8 +1,8 @@
-import { Client, Message, User} from "discord.js";
+import { Client, Message} from "discord.js";
 import * as config from "../../static/config.json";
 import { resources, contract_interface, user} from "../../utils/interfaces";
-import { getUser, addContracts, getContract} from "../../utils/databasehandler";
-import { rangeInt } from "../../utils/utils";
+import { getUser, addContracts, getContract, ContractAccepted, deleteContract} from "../../utils/databasehandler";
+import { getRandomInt } from "../../utils/utils";
 //import { buy } from "../buy";
 
 //This is to make a contract
@@ -51,8 +51,8 @@ export async function propose(message: Message, args: string[], client: Client) 
         if (selling !== "money" && u.resources[selling] < sellingprice || sellingprice <= 0){
             return message.reply("You can't sell more than you own")
         }
-        let contractid = ((message.author.id.slice(0, 3))+
-        (buyer._id.slice(0, 3)) + Math.floor(rangeInt(0, 100000000000000000000)).toString()).slice(0, 5)
+        let contractid = ((message.author.id.slice(0, 2))+
+        (buyer._id.slice(0, 2)) + ((Math.floor(getRandomInt(100000000000000000000)).toString()).slice(0, 2)))
 
         const contract: contract_interface = {
             proposal: true,
@@ -84,27 +84,29 @@ export async function viewContract(message: Message, args: string[], client: Cli
     
     let contract = await getContract(contractid)
     
-    console.log(typeof(contract))
-    console.log(contract)
-    console.log(typeof((contract.info)))
-    console.log(contract.users)
+    let contractinfo = contract.newcontract
+    
+    // console.log(typeof(contract))
+    // console.log(contract)
+    // console.log(typeof((contractinfo.info)))
+    // console.log(contractinfo.users)
     
     
 
     //return message.channel.send(contract + " suck")
     
     return message.channel.send({embed:{
-        title: `Contract #${client.users.get(contract.users[0])?.tag}`,
+        title: `Contract #${client.users.get(contractid)?.tag}`,
         description: `A contract proposal between ${contractid}`,
         fields: [
             {
-                name: `${client.users.get(contract.users[0])?.tag} offer`,
-                value: `${contract.info.sellingprice} ${contract.info.selling}`,
+                name: `${client.users.get(contractinfo.users[0])?.tag} offer`,
+                value: `${contractinfo.info.sellingprice} ${contractinfo.info.selling}`,
                 inline: true
             }, 
             {
                 name: `Price`,
-                value: `${contract.info.price} ${contract.info.priceresource}`,
+                value: `${contractinfo.info.price} ${contractinfo.info.priceresource}`,
                 inline: true
             }
         ],
@@ -114,4 +116,29 @@ export async function viewContract(message: Message, args: string[], client: Cli
     }});
 
     
+}
+
+
+export async function acceptedContract(message: Message, args: string[]){
+    let contractid = args[0]
+    let contract = await getContract(contractid)
+    
+    let contractinfo = contract.newcontract
+    
+    if(["no", "n", "N", "No"].includes(args[1])){
+        return message.channel.send(`Contract between <@${contractinfo.users[0]}> and <@${contractinfo.users[1]}> ${await deleteContract(contractid)}`)
+    }
+
+    else if (message.author.id === contractinfo.users[1]){
+        if(["yes", "y", "Y", "Yes"].includes(args[1])){
+            await ContractAccepted(contractid)
+            return message.reply(`<@${contractinfo.users[0]}> contract has been accepted.`)
+        }
+    
+    }
+
+    else{
+        return message.reply("You can't accept a contract that you proposed!")
+    }
+
 }

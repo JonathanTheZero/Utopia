@@ -60,7 +60,7 @@ import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, da
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer} from "./commands/trade";
-import {propose, viewContract} from "./commands/trade/contracts"
+import {propose, viewContract, acceptedContract} from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
@@ -187,6 +187,12 @@ client.on("message", async message => {
         addUpmsg(args)
 
         message.reply(`Added update message of ${args}`)
+    }
+
+    else if(command === "accept"){
+        message.reply("OK")
+        acceptedContract(message, args)
+        // message.reply("OK")
     }
 
     else if (command === "testmsg"){
