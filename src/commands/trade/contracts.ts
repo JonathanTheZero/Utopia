@@ -1,9 +1,9 @@
-import { Client, Message } from "discord.js";
-
+import { Client, Message} from "discord.js";
+import * as config from "../../static/config.json";
 import { resources, contract_interface, user} from "../../utils/interfaces";
-import { getUser, addContracts} from "../../utils/databasehandler";
+import { getUser, addContracts, getContract} from "../../utils/databasehandler";
 import { rangeInt } from "../../utils/utils";
-import { buy } from "../buy";
+//import { buy } from "../buy";
 
 //This is to make a contract
 export async function propose(message: Message, args: string[], client: Client) {
@@ -75,6 +75,40 @@ export async function propose(message: Message, args: string[], client: Client) 
         return message.reply(`Your proposal has been sent to ${buyer.tag} for a contract of ${sellingprice} ${selling} everday for the price of ${price} ${priceresource}.\nYour contract id is ${contractid}`);
     }
 
-    
 
+}
+
+export async function viewContract(message: Message, args: string[]){
+    let contractid = args[0]
+    console.log(contractid)
+    
+    let contract = await getContract(contractid)
+    
+    console.log(typeof(contract))
+    console.log(contract)
+    console.log(contract.users[0])
+
+    return message.channel.send(contract)
+    
+    // return message.channel.send({embed:{
+    //     title: `Contract #${contractid}`,
+    //     description: `A contract proposal between ${contractid}`,
+    //     fields: [
+    //         // {
+    //         //     name: `${contract.users[0]!} offer`,
+    //         //     value: `${contract.info.sellingprice!} ${contract.info.selling!}`,
+    //         //     inline: true
+    //         // }, 
+    //         // {
+    //         //     name: `Price`,
+    //         //     value: `${contract.info.price} ${contract.info.priceresource}`,
+    //         //     inline: true
+    //         // }
+    //     ],
+    //     footer: config.properties.footer,
+    //     timestamp: new Date(),
+    //     color: parseInt(config.properties.embedColor)
+    // }});
+
+    
 }

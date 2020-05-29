@@ -204,7 +204,7 @@ export interface clientState {
 
 export interface contract_interface {
     proposal: boolean;
-    users: [string, string];
+    users: string[];
     info: { 
         totaltime: number;
         selling: resources;

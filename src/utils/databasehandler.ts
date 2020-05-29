@@ -234,6 +234,10 @@ export async function addContracts(contractid: string, newcontract: contract_int
     await client.db(dbName).collection("contracts").insertOne({contractid, newcontract})
 }
 
+export async function getContract(contractid: string): Promise<contract_interface>{
+    return client.db(dbName).collection("contracts").findOne({contractid})!;
+}
+
 export async function addWar(w: war) {
     client.db(dbName).collection("wars").insertOne(w, err => {
         if (err) throw err;
