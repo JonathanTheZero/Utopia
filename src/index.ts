@@ -621,7 +621,7 @@ client.on("message", async message => {
         propose(message, args, client)
     
     else if (command === "viewcontract" || command === "view-contract"){
-        await viewContract(message, args)
+        await viewContract(message, args, client)
     }
 
     else if (command === "market")

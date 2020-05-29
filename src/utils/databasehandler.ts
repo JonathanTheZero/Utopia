@@ -235,7 +235,12 @@ export async function addContracts(contractid: string, newcontract: contract_int
 }
 
 export async function getContract(contractid: string): Promise<contract_interface>{
-    return client.db(dbName).collection("contracts").findOne({contractid})!;
+    //return 
+    let info = await client.db(dbName).collection("contracts").findOne( { contractid } )!
+    console.log(info)
+    console.log(info.newcontract)
+    return info.newcontract
+    
 }
 
 export async function addWar(w: war) {

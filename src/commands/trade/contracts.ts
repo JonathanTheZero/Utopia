@@ -1,4 +1,4 @@
-import { Client, Message} from "discord.js";
+import { Client, Message, User} from "discord.js";
 import * as config from "../../static/config.json";
 import { resources, contract_interface, user} from "../../utils/interfaces";
 import { getUser, addContracts, getContract} from "../../utils/databasehandler";
@@ -10,7 +10,7 @@ export async function propose(message: Message, args: string[], client: Client) 
     if (!args[3]) return message.reply("plese follow the syntax of `.contract <user> <amount> <currency> <price> <price-currency> <time in hours>`");
     var sellingprice: number, price: number;
     let priceresource: resources, selling: resources;
-
+    
     let u: user = await getUser(message.author.id)
     sellingprice = parseInt(args[1])
     price = parseInt(args[3])
@@ -78,7 +78,7 @@ export async function propose(message: Message, args: string[], client: Client) 
 
 }
 
-export async function viewContract(message: Message, args: string[]){
+export async function viewContract(message: Message, args: string[], client: Client){
     let contractid = args[0]
     console.log(contractid)
     
@@ -86,29 +86,32 @@ export async function viewContract(message: Message, args: string[]){
     
     console.log(typeof(contract))
     console.log(contract)
-    console.log(contract.users[0])
-
-    return message.channel.send(contract)
+    console.log(typeof((contract.info)))
+    console.log(contract.users)
     
-    // return message.channel.send({embed:{
-    //     title: `Contract #${contractid}`,
-    //     description: `A contract proposal between ${contractid}`,
-    //     fields: [
-    //         // {
-    //         //     name: `${contract.users[0]!} offer`,
-    //         //     value: `${contract.info.sellingprice!} ${contract.info.selling!}`,
-    //         //     inline: true
-    //         // }, 
-    //         // {
-    //         //     name: `Price`,
-    //         //     value: `${contract.info.price} ${contract.info.priceresource}`,
-    //         //     inline: true
-    //         // }
-    //     ],
-    //     footer: config.properties.footer,
-    //     timestamp: new Date(),
-    //     color: parseInt(config.properties.embedColor)
-    // }});
+    
+
+    //return message.channel.send(contract + " suck")
+    
+    return message.channel.send({embed:{
+        title: `Contract #${client.users.get(contract.users[0])?.tag}`,
+        description: `A contract proposal between ${contractid}`,
+        fields: [
+            {
+                name: `${client.users.get(contract.users[0])?.tag} offer`,
+                value: `${contract.info.sellingprice} ${contract.info.selling}`,
+                inline: true
+            }, 
+            {
+                name: `Price`,
+                value: `${contract.info.price} ${contract.info.priceresource}`,
+                inline: true
+            }
+        ],
+        footer: config.properties.footer,
+        timestamp: new Date(),
+        color: parseInt(config.properties.embedColor)
+    }});
 
     
 }
