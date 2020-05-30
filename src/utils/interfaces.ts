@@ -44,6 +44,7 @@ export interface user {
     lastMessage: {
         channelID: string;
         messageID: string;
+        alreadyPinged: boolean;
     };
 }
 

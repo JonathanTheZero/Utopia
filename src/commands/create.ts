@@ -45,7 +45,8 @@ export function createUser(message: Message): user {
         taxDMs: true,
         lastMessage: {
             channelID: message.channel.id,
-            messageID: message.id
+            messageID: message.id,
+            alreadyPinged: false
         }
     }
 }

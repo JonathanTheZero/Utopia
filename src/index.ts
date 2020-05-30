@@ -127,7 +127,7 @@ client.on("ready", async () => {
     for (const g of giveaways) giveawayCheck(g._id, client);
     const users: user[] = await getAllUsers();
     for (const u of users) {
-        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID) continue;
+        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage.alreadyPinged) continue;
         const msg = await (<Discord.TextChannel>client.channels.get(u.lastMessage.channelID)).fetchMessage(u.lastMessage.messageID)!;
         const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
             crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
@@ -138,6 +138,7 @@ client.on("ready", async () => {
         if (crimeTime > -57600000) delayReminder(msg, crimeTime, "Reminder: Commit a crime.");
         if (mineTime > -57600000) delayReminder(msg, mineTime, "Reminder: Mine again.");
         if (digTime > -57600000) delayReminder(msg, digTime, "Reminder: Dig a mine.");
+        updateValueForUser(u._id, "lastMessage", { messageID: u.lastMessage.messageID, channelID: u.lastMessage.channelID, alreadyPinged: true });
     }
 });
 
@@ -180,6 +181,7 @@ client.on("message", async message => {
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
+        if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
         message.delete().catch(console.log);
         message.channel.send(sayMessage);
     }
