@@ -26,16 +26,14 @@ export async function work(message: Message, client: Client) {
                 updateValueForUser(user._id, "loan", -paid, "$inc");
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You sent " + paid.commafy() + " to your loan.");
-            }
-            else {
+            } else {
                 paid -= user.loan;
                 updateValueForUser(user._id, "loan", 0, "$set");
                 produced += paid;
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. You paid off your loan.");
             }
-        }
-        else {
+        } else {
             updateValueForUser(user._id, "money", produced, "$inc");
             message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
         }
@@ -51,22 +49,21 @@ export async function work(message: Message, client: Client) {
                 updateValueForUser(user._id, "loan", -paid, "$inc");
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You sent " + paid.commafy() + " to your loan.");
-            }
-            else {
+            } else {
                 paid -= user.loan;
                 updateValueForUser(user._id, "loan", 0, "$set");
                 produced += paid;
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance. You paid off your loan.");
             }
-        }
-        else {
+        } else {
             updateValueForUser(user._id, "money", produced, "$inc");
             message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins. " + taxed.commafy() + " coins were sent to your alliance.");
         }
     }
     updateValueForUser(user._id, "lastWorked", Math.floor(Date.now() / 1000));
     updateValueForUser(message.author.id, "income", produced, "$inc");
+    updateValueForUser(message.author.id, "lastMessage", { channelID: message.channel.id, messageID: message.id });
     if (user.autoping) reminder(
         message,
         1800000,
@@ -145,6 +142,7 @@ export async function crime(message: Message) {
         }
     }
     updateValueForUser(message.author.id, "income", produced, "$inc");
+    updateValueForUser(message.author.id, "lastMessage", { channelID: message.channel.id, messageID: message.id });
     if (user.autoping) reminder(
         message,
         14400000,

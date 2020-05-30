@@ -36,6 +36,7 @@ export async function digmine(message: Message) {
         message.reply("Your digging is successful. You got a new oil rig, and has given a initial return of 100 barrels of oil");
     }
 
+    updateValueForUser(message.author.id, "lastMessage", { channelID: message.channel.id, messageID: message.id });
     if (user.autoping) reminder(
         message,
         14400000,
@@ -91,6 +92,7 @@ export async function mine(message: Message, args: string[]) {
         updateValueForUser(user._id, "minereset", Math.floor(Date.now() / 1000), "$set");
 
     updateValueForUser(user._id, "lastMine", Math.floor(Date.now() / 1000), "$set");
+    updateValueForUser(message.author.id, "lastMessage", { channelID: message.channel.id, messageID: message.id });
     if (user.autoping) reminder(
         message,
         1800000 * 2,

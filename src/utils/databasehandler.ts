@@ -60,10 +60,11 @@ export async function updateValueForUser(_id: string, mode: "alliance", newValue
 export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
 export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
+export async function updateValueForUser(_id: string, mode: "lastMessage", newValue: { channelID: string; messageID: string; }): Promise<void>
 export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
-        "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs"].includes(mode))
+        "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs", "lastMessage"].includes(mode))
         newQuery = { [updateMode]: { [mode]: newValue } };
     else if (["food", "population", "steel", "oil", "totaldigs", "steelmine", "minereturn", "oilrig"].includes(mode))
         newQuery = { [updateMode]: { [("resources." + mode)]: <number>newValue } };

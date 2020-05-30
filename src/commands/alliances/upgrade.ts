@@ -14,7 +14,7 @@ export async function upgradeAlliance(name: string): Promise<string> {
         case 6: price = 50000000; break;
         case 7: price = 100000000; break;
         case 8: price = 200000000; break;
-        case 9: price = 5000000000; break;
+        case 9: price = 500000000; break;
         case 10: price = 1000000000; break;
         case 11: price = 2000000000; break;
         case 12: price = 3000000000; break;

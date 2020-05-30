@@ -36,7 +36,7 @@ import { buy } from "./commands/buy";
 import { kill } from "./commands/populations";
 import { send, deposit } from "./commands/send";
 import { work, crime } from "./commands/work";
-import { Sleep } from "./utils/utils";
+import { Sleep, delayReminder } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick } from "./commands/moderation";
@@ -125,6 +125,20 @@ client.on("ready", async () => {
     setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
+    const users: user[] = await getAllUsers();
+    for (const u of users) {
+        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID) continue;
+        const msg = await (<Discord.TextChannel>client.channels.get(u.lastMessage.channelID)).fetchMessage(u.lastMessage.messageID)!;
+        const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
+            crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
+            mineTime = (3600 - (Math.floor(Date.now() / 1000) - u.lastMine)) * 1000,
+            digTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastDig)) * 1000;
+
+        if (workTime > -57600000) delayReminder(msg, workTime, "Reminder: Work again.");
+        if (crimeTime > -57600000) delayReminder(msg, crimeTime, "Reminder: Commit a crime.");
+        if (mineTime > -57600000) delayReminder(msg, mineTime, "Reminder: Mine again.");
+        if (digTime > -57600000) delayReminder(msg, digTime, "Reminder: Dig a mine.");
+    }
 });
 
 
@@ -391,7 +405,7 @@ client.on("message", async message => {
         if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
         else if (["alliance", "alliances", "a"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "a") });
         else if (["pf", "personal"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "pf") });
-        else if (args[0][0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
+        else if (args[0]?.[0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
 
         return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
@@ -575,9 +589,9 @@ client.on("message", async message => {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
-                title: "Tax classes",
+                title: "Tax classes for " + u.tag,
                 color: parseInt(config.properties.embedColor),
-                description: "Your weekly income: " + u.income.commafy(),
+                description: "Weekly income: " + u.income.commafy(),
                 fields: [
                     {
                         name: "Class 1" + (u.income < 100000 ? " (Your class)" : ""),
