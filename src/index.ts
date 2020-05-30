@@ -38,7 +38,7 @@ import { buy } from "./commands/buy";
 import { kill } from "./commands/populations";
 import { send, deposit } from "./commands/send";
 import { work, crime } from "./commands/work";
-import { Sleep } from "./utils/utils";
+import { Sleep, delayReminder } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick } from "./commands/moderation";
@@ -102,8 +102,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    
-
+    client.user.setActivity(`.help | v2.2 Confederations out now!`);
     await connectToDB();
     getServers().then(server => {
         if (server.length < client.guilds.array().length)
@@ -128,9 +127,21 @@ client.on("ready", async () => {
     setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
+    const users: user[] = await getAllUsers();
+    for (const u of users) {
+        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage.alreadyPinged) continue;
+        const msg = await (<Discord.TextChannel>client.channels.get(u.lastMessage.channelID)).fetchMessage(u.lastMessage.messageID)!;
+        const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
+            crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
+            mineTime = (3600 - (Math.floor(Date.now() / 1000) - u.lastMine)) * 1000,
+            digTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastDig)) * 1000;
 
-    client.user.setActivity(`.help | v2.2 Confederations out now!`);
-    
+        if (workTime > -57600000) delayReminder(msg, workTime, "Reminder: Work again.");
+        if (crimeTime > -57600000) delayReminder(msg, crimeTime, "Reminder: Commit a crime.");
+        if (mineTime > -57600000) delayReminder(msg, mineTime, "Reminder: Mine again.");
+        if (digTime > -57600000) delayReminder(msg, digTime, "Reminder: Dig a mine.");
+        updateValueForUser(u._id, "lastMessage", { messageID: u.lastMessage.messageID, channelID: u.lastMessage.channelID, alreadyPinged: true });
+    }
 });
 
 
@@ -173,11 +184,8 @@ client.on("message", async message => {
     else if (command === "say") {
         const sayMessage = args.join(" ");
         if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
-        else{
-            message.delete().catch(console.log);
-            message.channel.send(sayMessage);
-        }
-
+        message.delete().catch(console.log);
+        message.channel.send(sayMessage);
     }
 
     else if (command === "kick" || command === "yeet") kick(message, args);
@@ -464,7 +472,7 @@ client.on("message", async message => {
         if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
         else if (["alliance", "alliances", "a"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "a") });
         else if (["pf", "personal"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "pf") });
-        else if (args[0][0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
+        else if (args[0]?.[0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
 
         return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
@@ -667,9 +675,9 @@ client.on("message", async message => {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
-                title: "Tax classes",
+                title: "Tax classes for " + u.tag,
                 color: parseInt(config.properties.embedColor),
-                description: "Your weekly income: " + u.income.commafy(),
+                description: "Weekly income: " + u.income.commafy(),
                 fields: [
                     {
                         name: "Class 1" + (u.income < 100000 ? " (Your class)" : ""),

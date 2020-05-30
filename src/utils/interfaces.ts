@@ -41,6 +41,11 @@ export interface user {
     lastVoted: number;
     income: number;
     clientStates: Array<clientState>;
+    lastMessage: {
+        channelID: string;
+        messageID: string;
+        alreadyPinged: boolean;
+    };
 }
 
 export interface alliance {
@@ -120,7 +125,8 @@ export type updateUserQuery = "tag"
     | "minereset"
     | "income"
     | "taxDMs"
-    | "hospitals";
+    | "hospitals"
+    | "lastMessage";
 
 export type updateAllianceQuery = "name"
     | "level"
