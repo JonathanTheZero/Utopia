@@ -3,7 +3,6 @@ import { user } from "../../utils/interfaces";
 import { getAllUsers, updateValueForUser, editConfig, editCLSVal } from "../../utils/databasehandler";
 import { rangeInt, getBaseLog } from "../../utils/utils";
 import * as config from "../../static/config.json";
-import { contractPayout } from "../trade/contracts";
 
 export async function dailyPayout(client: Client) {
     const users: user[] = await getAllUsers();
@@ -61,17 +60,6 @@ export async function dailyPayout(client: Client) {
             }
         }
     }
-
-    let contractpayoutmsg = await contractPayout()
-
-    payoutChannel.send({
-        embed: {
-            color: 0x00FF00,
-            title: "Contracts",
-            description: (`${contractpayoutmsg}`),
-            timestamp: new Date()
-        }
-    });
 
     const plagueAffected: user[] = users.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, Math.floor(users.length / 100)));
     const names: string = plagueAffected.map<string>(el => el.tag).join(", ");

@@ -64,9 +64,8 @@ async function marketEmbed(query: { [key: string]: string }, page: number = 1, o
     for (let i = 0; i < Math.min(10, offers.length); ++i)
         fields.push({
             name: `Offer by ${offers[i].seller.tag} (ID: ${offers[i]._id})`,
-            value: `Offering: ${offers[i].offer.amount.commafy()} ${offers[i].offer.currency}\n 
-                Price: ${offers[i].price.amount.commafy()} ${offers[i].price.currency}\n ` +
-                `(${(offers[i].price.amount / offers[i].offer.amount).toFixed(2).commafy()} ${offers[i].offer.currency} per ${offers[i].price.currency})`
+            value: `${offers[i].offer.amount.commafy()} ${offers[i].offer.currency} for ${offers[i].price.amount.commafy()} ${offers[i].price.currency} ` +
+                `(${(offers[i].price.amount / offers[i].offer.amount).toFixed(2).commafy()} per unit)`
         });
 
     return {

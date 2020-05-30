@@ -78,8 +78,6 @@ export interface configDB {
     lastDailyReset: number;
     totalOffers: number;
     centralBalance: number;
-    upmsg: string;
-    
 }
 
 export interface giveaway {
@@ -206,19 +204,6 @@ export interface clientState {
         farms: number;
     };
     focus: resources | null;
-}
-
-export interface contract_interface {
-    proposal: boolean;
-    users: string[];
-    info: { 
-        totaltime: number;
-        selling: resources;
-        sellingprice: number;
-        priceresource: resources;
-        price: number;
-        //renew: boolean;
-    }
 }
 
 export type clsEdits = "loyalty" | "focus" | clsUpgrades;
