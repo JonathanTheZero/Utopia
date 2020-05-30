@@ -130,6 +130,7 @@ client.on("ready", async () => {
     for (const g of giveaways) giveawayCheck(g._id, client);
 
     client.user.setActivity(`.help | v2.2 Confederations out now!`);
+    
 });
 
 
@@ -171,8 +172,14 @@ client.on("message", async message => {
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
-        message.delete().catch(console.log);
-        message.channel.send(sayMessage);
+        if (sayMessage.includes("@everyone")){
+            message.reply("This is illegal and will cause a mute")
+        }
+        else{
+            message.delete().catch(console.log);
+            message.channel.send(sayMessage);
+        }
+
     }
 
     else if (command === "kick" || command === "yeet") kick(message, args);
