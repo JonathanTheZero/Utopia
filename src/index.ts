@@ -1,7 +1,6 @@
 declare var require: (path: string) => any;
 
 import * as Discord from "discord.js";
-
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
@@ -26,8 +25,7 @@ import {
     addServer,
     deleteServer,
     connected,
-    addToUSB,
-    addUpmsg
+    addToUSB
 } from "./utils/databasehandler";
 import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -59,8 +57,7 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer} from "./commands/trade";
-import {propose, viewContract, acceptedContract} from "./commands/trade/contracts"
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
@@ -103,6 +100,7 @@ console.log("Application has started");
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
     client.user.setActivity(`.help | v2.2 Confederations out now!`);
+
     await connectToDB();
     getServers().then(server => {
         if (server.length < client.guilds.array().length)
@@ -193,69 +191,6 @@ client.on("message", async message => {
     else if (command === "ban") ban(message, args);
 
     else if (command === "purge" || command === "clear") purge(message, args);
-
-    else if (command === "updatemessage" || command === "upmsg"){
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-
-        addUpmsg(args)
-
-        message.reply(`Added update message of ${args}`)
-    }
-
-
-
-    else if (command === "testmsg"){
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-        let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
-
-        message.channel.send(output);
-        //client.users.get("517067779145334795")?.send(output)
-        //client.users.get("370633705091497985")?.send(output)
-        //client.users.get("239516219445608449")?.send(output)
-        //client.users.get("393137628083388430")?.send(output)
-        
-        
-    }
-
-    else if (command === "sendupmsg"){
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-        let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
-        let u: user[] = await getAllUsers();
-
-        let channel = <Discord.TextChannel>client.channels.get("715280487106478172"); //Change this to the announcement channel id
-
-        if (["everyone", "e", "Everyone", "E"].includes(args[0])){
-            channel.send(`@everyone ${output}`);
-        }
-        
-        else if(["help", "h", "Help", "H"].includes(args[0])){
-            message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone")
-        }
-
-        else{
-            channel.send(`${output}`);
-        }
-        
-
-        let lister: string[] = [];
-        const list = await client.guilds.get("621044091056029696")!;
-        list.members.forEach(member => lister.push(member.id)!);
-        
-        for (let i = 0; i < u.length; i++){
-            if (!lister.includes(u[i]._id)){
-                client.users.get(u[i]._id)!.send(output)
-                //console.log("OK ")
-            }
-        }
-    }
 
     else if (command === "vote") {
         let u: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
@@ -631,25 +566,6 @@ client.on("message", async message => {
         makeOffer(message, args);
 
     else if (command === "offer") offer(message, args);
-
-    else if (command === "propose")
-        propose(message, args, client)
-    
-    
-    else if (command === "viewcontract" || command === "view-contract"){
-        await viewContract(message, args, client)
-    }
-
-    else if(command === "accept"){
-        message.reply("OK")
-        acceptedContract(message, args)
-        // message.reply("OK")
-    }
-
-    // else if(command === "testcontractpayout"){
-    //     message.channel.send(await contractPayout())
-    // }
-
 
     else if (command === "market")
         activeOffers(message, args);
