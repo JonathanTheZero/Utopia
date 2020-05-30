@@ -63,18 +63,23 @@ import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setF
 const express = require('express');
 const app = express();
 app.use(express.static('public'));
+const http = require('http');
 //@ts-ignore
-var _server = require('http').createServer(app);
-
+var _server = http.createServer(app);
 const client = new Discord.Client();
 
 app.get('/', (_request: any, response: any) => {
-    response.sendFile(__dirname + "/index.html")
+    response.sendFile(__dirname + "/index.html");
+    console.log(Date.now() + " Ping Received");
+    response.sendStatus(200);
 });
 
 const listener = app.listen(process.env.PORT, () => {
     console.log('Your app is listening on port ' + listener.address().port);
 });
+setInterval(() => {
+    http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+}, 280000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
