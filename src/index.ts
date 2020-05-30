@@ -27,7 +27,7 @@ import {
     deleteServer,
     connected,
     addToUSB,
-    addUpmsg
+    editConfig
 } from "./utils/databasehandler";
 import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -59,8 +59,8 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer} from "./commands/trade";
-import {propose, viewContract, acceptedContract} from "./commands/trade/contracts"
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
+import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
@@ -80,9 +80,8 @@ app.get('/', (_request: any, response: any) => {
 const listener = app.listen(process.env.PORT, () => {
     console.log('Your app is listening on port ' + listener.address().port);
 });
-setInterval(() => {
-    http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
+
+setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 280000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
@@ -199,66 +198,33 @@ client.on("message", async message => {
 
     else if (command === "purge" || command === "clear") purge(message, args);
 
-    else if (command === "updatemessage" || command === "upmsg"){
+    else if (command === "updatemessage" || command === "upmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-
-        addUpmsg(args)
-
-        message.reply(`Added update message of ${args}`)
+        editConfig("upmsg", args.join(" "));
+        message.reply(`Added update message of ${args.join(" ")}`);
     }
 
-
-
-    else if (command === "testmsg"){
+    else if (command === "sendupmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
-
-        message.channel.send(output);
-        //client.users.get("517067779145334795")?.send(output)
-        //client.users.get("370633705091497985")?.send(output)
-        //client.users.get("239516219445608449")?.send(output)
-        //client.users.get("393137628083388430")?.send(output)
-        
-        
-    }
-
-    else if (command === "sendupmsg"){
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-        let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
+        let output = c.upmsg;
         let u: user[] = await getAllUsers();
 
-        let channel = <Discord.TextChannel>client.channels.get("715280487106478172"); //Change this to the announcement channel id
+        let channel = <Discord.TextChannel>client.channels.get("624964388557684756"); //Change this to the announcement channel id
 
-        if (["everyone", "e", "Everyone", "E"].includes(args[0])){
-            channel.send(`@everyone ${output}`);
-        }
-        
-        else if(["help", "h", "Help", "H"].includes(args[0])){
-            message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone")
-        }
+        if (["everyone", "e", "Everyone", "E"].includes(args[0])) channel.send(`@everyone ${output}`);
 
-        else{
-            channel.send(`${output}`);
-        }
-        
+        else if (["help", "h", "Help", "H"].includes(args[0])) message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone");
+
+        else channel.send(`${output}`);
+
 
         let lister: string[] = [];
-        const list = await client.guilds.get("621044091056029696")!;
+        const list = client.guilds.get("621044091056029696")!;
         list.members.forEach(member => lister.push(member.id)!);
-        
-        for (let i = 0; i < u.length; i++){
-            if (!lister.includes(u[i]._id)){
-                client.users.get(u[i]._id)!.send(output)
-                //console.log("OK ")
-            }
+
+        for (let i = 0; i < u.length; i++) {
+            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
         }
     }
 
@@ -639,13 +605,13 @@ client.on("message", async message => {
 
     else if (command === "propose")
         propose(message, args, client)
-    
-    
-    else if (command === "viewcontract" || command === "view-contract"){
+
+
+    else if (command === "viewcontract" || command === "view-contract") {
         await viewContract(message, args, client)
     }
 
-    else if(command === "accept"){
+    else if (command === "accept") {
         message.reply("OK")
         acceptedContract(message, args)
         // message.reply("OK")
