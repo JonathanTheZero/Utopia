@@ -1,14 +1,14 @@
 import { Client, Message} from "discord.js";
 import * as config from "../../static/config.json";
 import { resources, contract_interface, user} from "../../utils/interfaces";
-import { getUser, addContracts, getContract, ContractAccepted, deleteContract} from "../../utils/databasehandler";
+import { getUser, addContracts, getContract, ContractAccepted, deleteContract, getAllContracts, updateValueForUser, ContractTime} from "../../utils/databasehandler";
 import { getRandomInt } from "../../utils/utils";
 //import { buy } from "../buy";
 
 //This is to make a contract
 export async function propose(message: Message, args: string[], client: Client) {
-    if (!args[3]) return message.reply("plese follow the syntax of `.contract <user> <amount> <currency> <price> <price-currency> <time in hours>`");
-    var sellingprice: number, price: number;
+    if (!args[3]) return message.reply("plese follow the syntax of `.contract <user> <amount> <currency> <price> <price-currency> <time in days>`");
+    var sellingprice: number, price: number, time: number = parseInt(args[5]);
     let priceresource: resources, selling: resources;
     
     let u: user = await getUser(message.author.id)
@@ -23,7 +23,15 @@ export async function propose(message: Message, args: string[], client: Client) 
         default: return message.reply("please choose a valid currency for selling!");
     }
 
-    
+    if (time > 14 || time < 0){
+        if(time < 0){
+            return message.reply("Your time can't be negative")
+        }
+
+        else if(time > 14){
+            return message.reply("Your time can't be greater than 2 weeks")
+        }
+    }
 
     switch (args[4][0]) {
         case "p": priceresource = "population"; break;
@@ -58,7 +66,7 @@ export async function propose(message: Message, args: string[], client: Client) 
             proposal: true,
             users: [message.author.id, buyer._id],
             info: { 
-                totaltime: 48,
+                totaltime: time,
                 selling: selling,
                 sellingprice: sellingprice,
                 priceresource: priceresource,
@@ -118,7 +126,6 @@ export async function viewContract(message: Message, args: string[], client: Cli
     
 }
 
-
 export async function acceptedContract(message: Message, args: string[]){
     let contractid = args[0]
     let contract = await getContract(contractid)
@@ -141,4 +148,46 @@ export async function acceptedContract(message: Message, args: string[]){
         return message.reply("You can't accept a contract that you proposed!")
     }
 
+}
+
+export async function contractPayout(){
+    //user[0] is the buyer <--- gets selling loses price
+    //user[1] sells <--- gets price loses selling
+
+
+    let allContracts = await getAllContracts()
+    console.log(allContracts.length)
+
+    for (const contracts of allContracts){
+        // console.log(contracts)
+        // console.log(contracts.newcontract.users[0])
+        
+        if (!contracts.proposal){
+            //console.log(contracts)
+            let u1 = await getUser(contracts.newcontract.users[0])
+            let u2 = await getUser(contracts.newcontract.users[1])
+            let selling = contracts.newcontract.info.selling
+            let sellingprice = contracts.newcontract.info.sellingprice
+            let price = contracts.newcontract.info.price
+            let priceresource = contracts.newcontract.info.priceresource
+
+            await updateValueForUser(u1._id, selling, sellingprice, "$inc");
+            await updateValueForUser(u1._id, priceresource, price, "$inc");
+
+            await updateValueForUser(u2._id, selling, sellingprice, "$inc");
+            await updateValueForUser(u2._id, priceresource, price, "$inc");
+
+            if (contracts.newcontract.info.totaltime-1 > 0){
+                await ContractTime(contracts._id, contracts.newcontract.info.totaltime-1)
+            }
+            
+            else{
+                await deleteContract(contracts._id)
+            }
+
+        }
+
+    }
+
+    return `All contracts have been fulfilled.`
 }

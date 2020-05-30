@@ -189,11 +189,7 @@ client.on("message", async message => {
         message.reply(`Added update message of ${args}`)
     }
 
-    else if(command === "accept"){
-        message.reply("OK")
-        acceptedContract(message, args)
-        // message.reply("OK")
-    }
+
 
     else if (command === "testmsg"){
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
@@ -626,9 +622,21 @@ client.on("message", async message => {
     else if (command === "propose")
         propose(message, args, client)
     
+    
     else if (command === "viewcontract" || command === "view-contract"){
         await viewContract(message, args, client)
     }
+
+    else if(command === "accept"){
+        message.reply("OK")
+        acceptedContract(message, args)
+        // message.reply("OK")
+    }
+
+    // else if(command === "testcontractpayout"){
+    //     message.channel.send(await contractPayout())
+    // }
+
 
     else if (command === "market")
         activeOffers(message, args);

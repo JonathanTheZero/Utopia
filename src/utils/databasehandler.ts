@@ -240,6 +240,12 @@ export async function getContract(contractid: string): Promise<any>{
     return await client.db(dbName).collection("contracts").findOne( { _id:contractid } )!
 }
 
+export async function getAllContracts(): Promise<any[]> {
+    //console.log(await client.db(dbName).collection("contracts").find({}).toArray());
+    return client.db(dbName).collection("contracts").find({}).toArray();
+}
+
+
 // export async function getContract_ID(contractid: string){
 //     let contract = await client.db(dbName).collection("contracts").findOne( { contractid } )!
 //     return contract._id
@@ -256,6 +262,14 @@ export async function ContractAccepted(contractid: string){
     //query = { ["newcontract.proposal"]: false } 
     // let _id = await getContract_ID(contractid)
     await client.db(dbName).collection("contracts").updateOne( { _id:contractid }, {$set: {["newcontract.proposal"]: false}})!
+    return "FUCK"
+}
+
+export async function ContractTime(contractid: string, value: number){
+    //let query: any = {} 
+    //query = { ["newcontract.proposal"]: false } 
+    // let _id = await getContract_ID(contractid)
+    await client.db(dbName).collection("contracts").updateOne( { _id:contractid }, {$set: {["newcontract.info.totaltime"]: value}})!
     return "FUCK"
 }
 
