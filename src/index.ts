@@ -172,9 +172,7 @@ client.on("message", async message => {
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
-        if (sayMessage.includes("@everyone")){
-            message.reply("This is illegal and will cause a mute")
-        }
+        if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
         else{
             message.delete().catch(console.log);
             message.channel.send(sayMessage);
