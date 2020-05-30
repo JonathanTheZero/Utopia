@@ -50,3 +50,5 @@ export async function makeOffer(message: Message, args: string[]) {
     updateValueForUser(message.author.id, offer.offer.currency, -offer.offer.amount, "$inc");
     addOffer(offer).then(() => message.reply("you succesfully added your offer to the market!"));
 }
+
+
