@@ -41,6 +41,11 @@ export interface user {
     lastVoted: number;
     income: number;
     clientStates: Array<clientState>;
+    lastMessage: {
+        channelID: string;
+        messageID: string;
+        alreadyPinged: boolean;
+    };
 }
 
 export interface alliance {
@@ -120,7 +125,8 @@ export type updateUserQuery = "tag"
     | "minereset"
     | "income"
     | "taxDMs"
-    | "hospitals";
+    | "hospitals"
+    | "lastMessage";
 
 export type updateAllianceQuery = "name"
     | "level"
@@ -202,18 +208,18 @@ export interface clientState {
     focus: resources | null;
 }
 
-export interface contract_interface {
+export type clsEdits = "loyalty" | "focus" | clsUpgrades;
+export type clsUpgrades = "mines" | "rigs" | "farms";
+
+export interface contract {
+    _id: string;
     proposal: boolean;
-    users: string[];
+    users: [string, string];
     info: { 
         totaltime: number;
         selling: resources;
         sellingprice: number;
         priceresource: resources;
         price: number;
-        //renew: boolean;
     }
 }
-
-export type clsEdits = "loyalty" | "focus" | clsUpgrades;
-export type clsUpgrades = "mines" | "rigs" | "farms";

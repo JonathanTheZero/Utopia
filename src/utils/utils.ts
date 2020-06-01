@@ -52,6 +52,11 @@ export async function reminder(message: Message, duration: number, preText: stri
     message.reply(postText);
 }
 
+export async function delayReminder(message: Message, duration: number, text: string){
+    await Sleep(duration);
+    message.reply(text).catch(console.log);
+}
+
 export function secondsToDhms(seconds: number) {
     let d = Math.floor(seconds / (3600 * 24)),
         h = Math.floor(seconds % (3600 * 24) / 3600),

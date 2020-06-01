@@ -27,7 +27,7 @@ import {
     deleteServer,
     connected,
     addToUSB,
-    addUpmsg
+    editConfig
 } from "./utils/databasehandler";
 import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
@@ -38,7 +38,7 @@ import { buy } from "./commands/buy";
 import { kill } from "./commands/populations";
 import { send, deposit } from "./commands/send";
 import { work, crime } from "./commands/work";
-import { Sleep } from "./utils/utils";
+import { Sleep, delayReminder } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick } from "./commands/moderation";
@@ -59,25 +59,29 @@ import {
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
 import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer} from "./commands/trade";
-import {propose, viewContract, acceptedContract} from "./commands/trade/contracts"
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
+import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
 app.use(express.static('public'));
+const http = require('http');
 //@ts-ignore
-var _server = require('http').createServer(app);
-
+var _server = http.createServer(app);
 const client = new Discord.Client();
 
 app.get('/', (_request: any, response: any) => {
-    response.sendFile(__dirname + "/index.html")
+    response.sendFile(__dirname + "/index.html");
+    console.log(Date.now() + " Ping Received");
+    response.sendStatus(200);
 });
 
 const listener = app.listen(process.env.PORT, () => {
     console.log('Your app is listening on port ' + listener.address().port);
 });
+
+setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 280000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
@@ -102,8 +106,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    
-
+    client.user.setActivity(`.help | v2.2 Confederations out now!`);
     await connectToDB();
     getServers().then(server => {
         if (server.length < client.guilds.array().length)
@@ -128,9 +131,21 @@ client.on("ready", async () => {
     setTimeout(() => dailyPayout(client), ((86400 - tdiff[3]) * 1000));
     const giveaways: giveaway[] = await getGiveaways();
     for (const g of giveaways) giveawayCheck(g._id, client);
+    const users: user[] = await getAllUsers();
+    for (const u of users) {
+        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage.alreadyPinged) continue;
+        const msg = await (<Discord.TextChannel>client.channels.get(u.lastMessage.channelID)).fetchMessage(u.lastMessage.messageID)!;
+        const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
+            crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
+            mineTime = (3600 - (Math.floor(Date.now() / 1000) - u.lastMine)) * 1000,
+            digTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastDig)) * 1000;
 
-    client.user.setActivity(`.help | v2.2 Confederations out now!`);
-    
+        if (workTime > -57600000) delayReminder(msg, workTime, "Reminder: Work again.");
+        if (crimeTime > -57600000) delayReminder(msg, crimeTime, "Reminder: Commit a crime.");
+        if (mineTime > -57600000) delayReminder(msg, mineTime, "Reminder: Mine again.");
+        if (digTime > -57600000) delayReminder(msg, digTime, "Reminder: Dig a mine.");
+        updateValueForUser(u._id, "lastMessage", { messageID: u.lastMessage.messageID, channelID: u.lastMessage.channelID, alreadyPinged: true });
+    }
 });
 
 
@@ -173,11 +188,8 @@ client.on("message", async message => {
     else if (command === "say") {
         const sayMessage = args.join(" ");
         if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
-        else{
-            message.delete().catch(console.log);
-            message.channel.send(sayMessage);
-        }
-
+        message.delete().catch(console.log);
+        message.channel.send(sayMessage);
     }
 
     else if (command === "kick" || command === "yeet") kick(message, args);
@@ -186,66 +198,33 @@ client.on("message", async message => {
 
     else if (command === "purge" || command === "clear") purge(message, args);
 
-    else if (command === "updatemessage" || command === "upmsg"){
+    else if (command === "updatemessage" || command === "upmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-
-        addUpmsg(args)
-
-        message.reply(`Added update message of ${args}`)
+        editConfig("upmsg", args.join(" "));
+        message.reply(`Added update message of ${args.join(" ")}`);
     }
 
-
-
-    else if (command === "testmsg"){
+    else if (command === "sendupmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
-
-        message.channel.send(output);
-        //client.users.get("517067779145334795")?.send(output)
-        //client.users.get("370633705091497985")?.send(output)
-        //client.users.get("239516219445608449")?.send(output)
-        //client.users.get("393137628083388430")?.send(output)
-        
-        
-    }
-
-    else if (command === "sendupmsg"){
-        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-        let c: configDB = await getConfig();
-        let output = "";
-        for (let x = 0; x < c.upmsg.length; x++){
-            output += c.upmsg[x] + " "
-        }
+        let output = c.upmsg;
         let u: user[] = await getAllUsers();
 
-        let channel = <Discord.TextChannel>client.channels.get("715280487106478172"); //Change this to the announcement channel id
+        let channel = <Discord.TextChannel>client.channels.get("624964388557684756"); //Change this to the announcement channel id
 
-        if (["everyone", "e", "Everyone", "E"].includes(args[0])){
-            channel.send(`@everyone ${output}`);
-        }
-        
-        else if(["help", "h", "Help", "H"].includes(args[0])){
-            message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone")
-        }
+        if (["everyone", "e", "Everyone", "E"].includes(args[0])) channel.send(`@everyone ${output}`);
 
-        else{
-            channel.send(`${output}`);
-        }
-        
+        else if (["help", "h", "Help", "H"].includes(args[0])) message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone");
+
+        else channel.send(`${output}`);
+
 
         let lister: string[] = [];
-        const list = await client.guilds.get("621044091056029696")!;
+        const list = client.guilds.get("621044091056029696")!;
         list.members.forEach(member => lister.push(member.id)!);
-        
-        for (let i = 0; i < u.length; i++){
-            if (!lister.includes(u[i]._id)){
-                client.users.get(u[i]._id)!.send(output)
-                //console.log("OK ")
-            }
+
+        for (let i = 0; i < u.length; i++) {
+            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
         }
     }
 
@@ -464,7 +443,7 @@ client.on("message", async message => {
         if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
         else if (["alliance", "alliances", "a"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "a") });
         else if (["pf", "personal"].includes(args[0])) return message.channel.send({ embed: await storeEmbed!(message, "pf") });
-        else if (args[0][0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
+        else if (args[0]?.[0] === "c") return message.channel.send({ embed: await storeEmbed(message, "c") });
 
         return message.channel.send({ embed: await storeEmbed!(message, "s") });
     }
@@ -626,13 +605,13 @@ client.on("message", async message => {
 
     else if (command === "propose")
         propose(message, args, client)
-    
-    
-    else if (command === "viewcontract" || command === "view-contract"){
+
+
+    else if (command === "viewcontract" || command === "view-contract") {
         await viewContract(message, args, client)
     }
 
-    else if(command === "accept"){
+    else if (command === "accept") {
         message.reply("OK")
         acceptedContract(message, args)
         // message.reply("OK")
@@ -667,9 +646,9 @@ client.on("message", async message => {
         const u = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         return message.channel.send({
             embed: {
-                title: "Tax classes",
+                title: "Tax classes for " + u.tag,
                 color: parseInt(config.properties.embedColor),
-                description: "Your weekly income: " + u.income.commafy(),
+                description: "Weekly income: " + u.income.commafy(),
                 fields: [
                     {
                         name: "Class 1" + (u.income < 100000 ? " (Your class)" : ""),

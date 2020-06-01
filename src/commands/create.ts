@@ -42,7 +42,12 @@ export function createUser(message: Message): user {
         lastVoted: 0,
         income: 0,
         clientStates: [],
-        taxDMs: true
+        taxDMs: true,
+        lastMessage: {
+            channelID: message.channel.id,
+            messageID: message.id,
+            alreadyPinged: false
+        }
     }
 }
 
