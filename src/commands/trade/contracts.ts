@@ -1,12 +1,12 @@
 import { Client, Message } from "discord.js";
 import * as config from "../../static/config.json";
 import { resources, contract, user } from "../../utils/interfaces";
-import { getUser, addContract, getContract, deleteContract, getAllContracts, updateValueForUser, ContractTime, ContractAccepted } from "../../utils/databasehandler";
+import { getUser, addContract, getContract, deleteContract, getAllContracts, updateValueForUser, ContractTime, ContractAccepted, getContractID } from "../../utils/databasehandler";
 
 //This is to make a contract
 export async function propose(message: Message, args: string[], client: Client) {
-    if (!args[3]) return message.reply("plese follow the syntax of `.contract <user> <amount> <currency> <price> <price-currency> <time in days>`");
-    var sellingprice: number, price: number, time: number = parseInt(args[5]);
+    if (!args[5]) return message.reply("plese follow the syntax of `.contract <user> <amount> <currency> <price> <price-currency> <time in days>`");
+    let sellingprice: number, price: number, time: number = parseInt(args[5]);
     let priceresource: resources, selling: resources;
 
     let u: user = await getUser(message.author.id)
@@ -42,9 +42,11 @@ export async function propose(message: Message, args: string[], client: Client) 
     if (!buyer) return message.reply("This user hasn't created an account yet");
     if (selling !== "money" && u.resources[selling] < sellingprice || sellingprice <= 0)
         return message.reply("You can't sell more than you own");
+    
+    const _id: string = (await getContractID()).toString();
 
     const contract: contract = {
-        _id: message.id,
+        _id,
         proposal: true,
         users: [message.author.id, buyer._id],
         info: {
@@ -53,37 +55,36 @@ export async function propose(message: Message, args: string[], client: Client) 
             sellingprice: sellingprice,
             priceresource: priceresource,
             price: price
-            //renew: boolean;
         }
     };
 
     addContract(contract);
     try {
-        client.users.get(buyer._id)?.send(`You have been given a contract proposal.\nThe contract id is ${contract._id}`);
+        client.users.get(buyer._id)?.send(`You have been given a contract proposal.\nThe contract id is ${_id.commafy()}`);
     } catch { }
     return message.reply(
-        `Your proposal has been sent to ${buyer.tag} for a contract of ${sellingprice} ${selling} everday for the price of ${price} ${priceresource}.\nYour contract id is ${contract._id}`
+        `Your proposal has been sent to ${buyer.tag} for a contract of ${sellingprice} ${selling} everday for the price of ${price} ${priceresource}.\nYour contract id is ${_id.commafy()}`
     );
 }
 
 export async function viewContract(message: Message, args: string[], client: Client) {
-    let contractid = args[0]
+    if(!args[0]) return message.reply("please follow the syntax of `.view-contract <contractID>`.");
 
-    let contractinfo: contract = await getContract(contractid);
+    let contract: contract = await getContract(args[0]);
 
     return message.channel.send({
         embed: {
-            title: `Contract #${client.users.get(contractid)?.tag}`,
-            description: `A contract proposal between ${contractid}`,
+            title: `Contract #${contract._id}`,
+            description: `A contract proposal between ${client.users.get(contract.users[0])?.tag} and ${client.users.get(contract.users[1])?.tag}`,
             fields: [
                 {
-                    name: `${client.users.get(contractinfo.users[0])?.tag} offer`,
-                    value: `${contractinfo.info.sellingprice} ${contractinfo.info.selling}`,
+                    name: `${client.users.get(contract.users[0])?.tag} offer`,
+                    value: `${contract.info.sellingprice} ${contract.info.selling}`,
                     inline: true
                 },
                 {
                     name: `Price`,
-                    value: `${contractinfo.info.price} ${contractinfo.info.priceresource}`,
+                    value: `${contract.info.price} ${contract.info.priceresource}`,
                     inline: true
                 }
             ],
@@ -92,26 +93,32 @@ export async function viewContract(message: Message, args: string[], client: Cli
             color: parseInt(config.properties.embedColor)
         }
     });
-
-
 }
 
-export async function acceptedContract(message: Message, args: string[]) {
-    let contractid = args[0]
-    let contractinfo = await getContract(contractid);
+export async function acceptedContract(message: Message, args: string[], client: Client) {
+    if(!args[1]) return message.reply("please follow the syntax of `.accept <contractID> <yes | no>`.");
+    let contract = await getContract(args[0]);
 
-    if (["no", "n", "N", "No"].includes(args[1]))
-        return message.channel.send(`Contract between <@${contractinfo.users[0]}> and <@${contractinfo.users[1]}> ${await deleteContract(contractid)}`);
-
-    else if (message.author.id === contractinfo.users[1] && ["yes", "y", "Y", "Yes"].includes(args[1])) {
-        await ContractAccepted(contractid);
-        return message.reply(`<@${contractinfo.users[0]}> contract has been accepted.`);
+    if (args[1]?.[0].toLowerCase() === "n"){
+        await deleteContract(args[0]);
+        client.users.get(contract.users[0])?.send(`${client.users.get(contract.users[1])?.tag} rejected your contract proposal.`);
+        return message.reply(`Contract has been cancelled.`);
     }
 
-    else return message.reply("You can't accept a contract that you proposed!");
+    else if (message.author.id === contract.users[1] && args[1]?.[0].toLowerCase() === "y") {
+        await ContractAccepted(args[0]);
+        client.users.get(contract.users[0])?.send(`${client.users.get(contract.users[1])?.tag} accepted your contract proposal.`);
+        return message.reply(`<@${contract.users[0]}> contract has been accepted.`);
+    }
 
+    else if(!contract.users.includes(message.author.id)) return message.reply("You can't accept a contract that you proposed!");
+
+    else return message.reply("an error occured.");
 }
 
+/**
+ * referenced in ../payouts/daily.ts
+ */
 export async function contractPayout() {
     //user[0] is the buyer <--- gets selling loses price
     //user[1] sells <--- gets price loses selling
@@ -125,16 +132,15 @@ export async function contractPayout() {
         let price = contracts.info.price
         let priceresource = contracts.info.priceresource
 
-        await Promise.all([
+        Promise.all([
             updateValueForUser(u1._id, selling, sellingprice, "$inc"),
-            updateValueForUser(u1._id, priceresource, price, "$inc"),
-            updateValueForUser(u2._id, selling, sellingprice, "$inc"),
+            updateValueForUser(u1._id, priceresource, -price, "$inc"),
+            updateValueForUser(u2._id, selling, -sellingprice, "$inc"),
             updateValueForUser(u2._id, priceresource, price, "$inc")
         ]);
 
-        if (contracts.info.totaltime - 1 > 0) await ContractTime(contracts._id, contracts.info.totaltime - 1)
+        if (contracts.info.totaltime - 1 > 0) ContractTime(contracts._id, contracts.info.totaltime - 1)
 
-        else await deleteContract(contracts._id)
-
+        else deleteContract(contracts._id)
     }
 }

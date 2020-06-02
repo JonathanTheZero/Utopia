@@ -61,18 +61,6 @@ export async function dailyPayout(client: Client) {
             }
         }
     }
-
-    let contractpayoutmsg = await contractPayout()
-
-    payoutChannel.send({
-        embed: {
-            color: 0x00FF00,
-            title: "Contracts",
-            description: (`${contractpayoutmsg}`),
-            timestamp: new Date()
-        }
-    });
-
     const plagueAffected: user[] = users.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, Math.floor(users.length / 100)));
     const names: string = plagueAffected.map<string>(el => el.tag).join(", ");
     for (const p of plagueAffected) {
@@ -86,12 +74,14 @@ export async function dailyPayout(client: Client) {
             );
         } catch { }
     }
+    contractPayout();
     payoutChannel.send({
         embed: {
             color: names ? 0xFF0000 : 0x00FF00,
             title: "The daily reset has been made.",
             description: ((names ? `The Utopias of ${names} have been struck by plagues.` : "No Utopias have been struck by plagues today.") + "\n" +
-                "Your client states gained some more autonomy and produced some goods."),
+                "Your client states gained some more autonomy and produced some goods.\n\n" + 
+                "Contract payouts happened."),
             timestamp: new Date()
         }
     });
