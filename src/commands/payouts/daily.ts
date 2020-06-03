@@ -4,6 +4,7 @@ import { getAllUsers, updateValueForUser, editConfig, editCLSVal } from "../../u
 import { rangeInt, getBaseLog } from "../../utils/utils";
 import * as config from "../../static/config.json";
 import { contractPayout } from "../trade/contracts";
+import { f } from "../client-states";
 
 export async function dailyPayout(client: Client) {
     const users: user[] = await getAllUsers();
@@ -24,7 +25,6 @@ export async function dailyPayout(client: Client) {
                 editCLSVal(u._id, i, "food", -consumption, "$inc");
                 editCLSVal(u._id, i, "population", Math.floor(Math.random() * .1 * c.resources.population), "$inc");
             }
-            const f = (f: number) => Math.log((f + 1) * .01) / 1000;
             if (c.focus) {
                 if (c.focus === "money") {
                     editCLSVal(u._id, i, "money", Math.floor(3 * (c.resources.population * Math.random() * .5) * (c.loyalty + .5)), "$inc");

@@ -61,7 +61,7 @@ import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, 
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -688,6 +688,8 @@ client.on("message", async message => {
     else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
 
     else if (["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
+
+    else if(["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
 
     else if (command === "withdraw") withdraw(message, args);
 });

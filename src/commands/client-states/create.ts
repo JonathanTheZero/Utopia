@@ -31,5 +31,5 @@ export async function createCLS(message: Message, args: string[]) {
     if (user.alliance) updateValueForAlliance(user.alliance, "clientStates", 1, "$inc");
     addToUSB(price);
     addClientState(user._id, cls);
-    message.reply(`you successfully founded the state of ${cls.name}.`);
+    return message.reply(`you successfully founded the state of ${cls.name}.`);
 }

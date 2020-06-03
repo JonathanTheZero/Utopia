@@ -137,10 +137,10 @@ export async function contractPayout() {
             updateValueForUser(u1._id, priceresource, -price, "$inc"),
             updateValueForUser(u2._id, selling, -sellingprice, "$inc"),
             updateValueForUser(u2._id, priceresource, price, "$inc")
-        ]);
+        ]).then(() => {
+            if (contracts.info.totaltime - 1 > 0) ContractTime(contracts._id, contracts.info.totaltime - 1)
 
-        if (contracts.info.totaltime - 1 > 0) ContractTime(contracts._id, contracts.info.totaltime - 1)
-
-        else deleteContract(contracts._id)
+            else deleteContract(contracts._id)
+        });
     }
 }

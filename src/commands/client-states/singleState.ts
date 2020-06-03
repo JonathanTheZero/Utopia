@@ -3,8 +3,10 @@ import { user, clientState } from "../../utils/interfaces";
 import { getUser } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
 import "../../utils/utils";
+import { rates, f } from "./consts";
 
 export async function singleStateOverview(message: Message, args: string[]) {
+    if(!args[0]) return message.reply("please follow the syntax of `.clientstate <name>`.");
     const user: user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet, please use `.create`!");
     const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
@@ -38,7 +40,7 @@ export async function singleStateOverview(message: Message, args: string[]) {
                 },
                 {
                     name: "Population",
-                    value: `This state has a population of ${cls.resources.population.commafy()}`,
+                    value: `This state has a population of ${cls.resources.population.commafy()} (means: up to ${prods[0].commafy()} money/day)`,
                     inline: true
                 },
                 {
@@ -48,17 +50,17 @@ export async function singleStateOverview(message: Message, args: string[]) {
                 },
                 {
                     name: "Steel Mines",
-                    value: `This state owns ${cls.upgrades.mines} mines (up to ${prods[1].commafy()} per day)`,
+                    value: `This state owns ${cls.upgrades.mines} mines (up to ${prods[1].commafy()}/day)`,
                     inline: true
                 },
                 {
                     name: "Oil Rigs",
-                    value: `This state owns ${cls.upgrades.rigs} rigs (up to ${prods[2].commafy()} per day)`,
+                    value: `This state owns ${cls.upgrades.rigs} rigs (up to ${prods[2].commafy()}/day)`,
                     inline: true
                 },
                 {
                     name: "Farms",
-                    value: `This state owns ${cls.upgrades.farms} farms (up to ${prods[3].commafy()} per day)`,
+                    value: `This state owns ${cls.upgrades.farms} farms (up to ${prods[3].commafy()}/day)`,
                     inline: true
                 },
             ],
@@ -73,49 +75,48 @@ export async function singleStateOverview(message: Message, args: string[]) {
  * @returns a tuple having the scheme [money, steel, oil, farms]
  */
 function generateProductionRates(c: clientState): [number, number, number, number] {
-    const f = (f: number) => Math.log((f + 1) * .01) / 1000;
     if (c.focus) {
         if (c.focus === "money") {
             return [
-                Math.floor(3 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.farms) * 1000000) * (c.loyalty + .5)
+                Math.floor(3 * (c.resources.population * rates.money) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms) * (c.loyalty + .5)
             ];
         } else if (c.focus === "food") {
             return [
-                Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(3 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(3 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5))
             ];
         } else if (c.focus === "oil") {
             return [
-                Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(3 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(3 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5))
             ];
         } else if (c.focus === "steel") {
             return [
-                Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(3 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.farms) * 1000000) * (c.loyalty + .5)
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5)),
+                Math.floor(3 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms) * (c.loyalty + .5)
             ];
         } else if (c.focus === "population") {
             return [
-                Math.floor(.5 * (c.resources.population * .5) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.mines) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.rigs) * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-                Math.floor(.5 * (c.upgrades.farms) * 1000000 * (c.loyalty + .5))
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5))
             ];
         }
     }
     return [
-        Math.floor(c.resources.population * .5 * (c.loyalty + .5)),
-        Math.floor(c.upgrades.mines * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-        Math.floor(c.upgrades.rigs * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)),
-        Math.floor(c.upgrades.farms * 1000000 * (c.loyalty + .5))
+        Math.floor(c.resources.population * rates.money * (c.loyalty + .5)),
+        Math.floor(c.upgrades.mines * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+        Math.floor(c.upgrades.rigs * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5)),
+        Math.floor(c.upgrades.farms * rates.farms * (c.loyalty + .5))
     ];
 }
