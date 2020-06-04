@@ -31,8 +31,8 @@ export async function withdraw(message: Message, args: string[]) {
 }
 
 function generateloyaltyLoss(amount: number): number {
-    if (amount < 100000) return Math.random() * .1;
-    if (amount < 1000000) return Math.random() * .15;
+    if (amount < 1000000) return Math.random() * .1;
+    if (amount < 5000000) return Math.random() * .15;
     if (amount < 10000000) return Math.random() * .2;
     if (amount < 50000000) return Math.random() * .25;
     return Math.random() * .3;

@@ -20,8 +20,20 @@ export async function sendToCls(message: Message, args: string[]) {
     if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
     if ((res === "money" && parseInt(args[1]) > user.money) || res !== "money" && parseInt(args[1]) > user.resources[res])
         return message.reply("you can't send more than you own!");
-    Promise.all([
+
+    const l = generateLoyalityIncrease(a);
+    await Promise.all([
         editCLSVal(user._id, index, res!, a,"$inc"),
-        updateValueForUser(user._id, res, -a, "$inc")
-    ]).then(() => message.reply(`succesfully sent ${a.commafy()} ${res} to ${user.clientStates[index].name}`));
+        updateValueForUser(user._id, res, -a, "$inc"),
+        editCLSVal(user._id, index, "loyalty", l, "$inc")
+    ]);
+    message.reply(`succesfully sent ${a.commafy()} ${res} to ${user.clientStates[index].name}.\nThis increased their loyality by ${l.toLocaleString("en", { style: "percent" })}`);
+}
+
+function generateLoyalityIncrease(amount: number): number {
+    if (amount < 1000000) return Math.random() * .1;
+    if (amount < 5000000) return Math.random() * .15;
+    if (amount < 10000000) return Math.random() * .2;
+    if (amount < 50000000) return Math.random() * .25;
+    return Math.random() * .3;
 }
