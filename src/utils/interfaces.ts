@@ -77,9 +77,9 @@ export interface configDB {
     lastMineReset: number;
     lastDailyReset: number;
     totalOffers: number;
+    totalContracts: number;
     centralBalance: number;
     upmsg: string;
-    
 }
 
 export interface giveaway {
@@ -208,7 +208,7 @@ export interface clientState {
     focus: resources | null;
 }
 
-export type clsEdits = "loyalty" | "focus" | clsUpgrades;
+export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades;
 export type clsUpgrades = "mines" | "rigs" | "farms";
 
 export interface contract {

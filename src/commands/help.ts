@@ -379,7 +379,8 @@ export const clsHelp = {
     fields: [
         {
             name: "`.create-cls <name>`.",
-            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance."
+            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance.\n" + 
+                "By now the names can only be one word long."
         },
         {
             name: "`.delete-cls <name>`",
@@ -405,6 +406,10 @@ export const clsHelp = {
             name: "`.setfocus <name> <resource>`",
             value: "Sets a specific production focus: They will receive a boost of 200% in the specific sector but will produce 50% of everything else." +
                 "Use `.setfocus <name> none` to remove the focus of a client-state."
+        },
+        {
+            name: "`.rename-cls <old name> <new name>`",
+            value: "Renames one of your client states."
         },
         {
             name: "`.buy-cls <name> <mine | rig | farm>`",

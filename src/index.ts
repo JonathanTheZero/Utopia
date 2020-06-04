@@ -61,7 +61,7 @@ import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, 
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -223,9 +223,8 @@ client.on("message", async message => {
         const list = client.guilds.get("621044091056029696")!;
         list.members.forEach(member => lister.push(member.id)!);
 
-        for (let i = 0; i < u.length; i++) {
+        for (let i = 0; i < u.length; i++)
             if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
-        }
     }
 
     else if (command === "vote") {
@@ -571,6 +570,7 @@ client.on("message", async message => {
         const o: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
         if (!o) return message.reply("this user hasn't created an account yet.");
+        if(o._id === u._id) return message.reply("you can't start a war against yourself.");
         startWar(message, u, o);
     }
 
@@ -606,21 +606,11 @@ client.on("message", async message => {
     else if (command === "propose")
         propose(message, args, client)
 
+    else if (command === "viewcontract" || command === "view-contract")
+        viewContract(message, args, client)
 
-    else if (command === "viewcontract" || command === "view-contract") {
-        await viewContract(message, args, client)
-    }
-
-    else if (command === "accept") {
-        message.reply("OK")
-        acceptedContract(message, args)
-        // message.reply("OK")
-    }
-
-    // else if(command === "testcontractpayout"){
-    //     message.channel.send(await contractPayout())
-    // }
-
+    else if (command === "accept") 
+        acceptedContract(message, args, client);
 
     else if (command === "market")
         activeOffers(message, args);
@@ -698,6 +688,8 @@ client.on("message", async message => {
     else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
 
     else if (["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
+
+    else if(["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
 
     else if (command === "withdraw") withdraw(message, args);
 });
