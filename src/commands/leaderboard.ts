@@ -36,10 +36,8 @@ export async function leaderboard(message: Message, args: Array<any>) {
 
 async function getLeaderboardList(type: "p" | "f" | "m" | "o" | "s"): Promise<user[]>;
 async function getLeaderboardList(type: "a"): Promise<alliance[]>;
-async function getLeaderboardList(type: "a" | "p" | "f" | "o" | "m" | "s"): Promise<Array<user | alliance>>;
 async function getLeaderboardList(type: "a" | "p" | "f" | "o" | "m" | "s"): Promise<Array<user | alliance>> {
-    let allUsers = await getAllUsers();
-    let allAlliances = await getAllAlliances();
+    let allUsers = await getAllUsers(), allAlliances = await getAllAlliances();
     if (type === "p") return allUsers.sort((a: user, b: user) => b.resources.population - a.resources.population);
     else if (type === "f") return allUsers.sort((a: user, b: user) => (b.resources.food) - (a.resources.food));
     else if (type === "a") return allAlliances.sort((a: alliance, b: alliance) => (b.money) - (a.money));
@@ -83,7 +81,7 @@ async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s",
 function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f" | "o" | "s"): Array<{ name: string; value: string }> {
     var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
     const fields = [];
-    if (type === "a" || type === "m") {
+    if (["a", "m"].includes(type)) {
         for (var i = 0; i < h; ++i)
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + (lb[i + p * 10].name || lb[i + p * 10].tag),

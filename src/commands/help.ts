@@ -360,6 +360,10 @@ export const marketHelp = {
                 "Another new feature are taxes: Once a week every player will be taxed based on their weekly income (you can check your income and tax classes classes with `.taxes`), this money will be given to the USB." +
                 "Basically every time you spend money on buying upgrades, betting, mine digging etc. will be given to the USB.\n" +
                 "You can check the USB balance with `.usb`.\n"
+        },
+        {
+            name: "*New:* Contracts",
+            value: ""
         }
     ],
     timestamp: new Date(),
