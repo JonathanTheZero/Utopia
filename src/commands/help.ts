@@ -380,7 +380,7 @@ export const contractHelp = {
             name: "`.propose <user> <amount> <currency> <price> <price-currency> <time in days>`",
             value: "This allows you to propose a contract to another user. \nAll contracts are limited to a maximum of 14 days." +
             "\nHowever, the other user has to accept the contract\n" +
-            "example: `.propose @Zero 100 steel 100 oil 14`"
+            "For example: `.propose @Zero 100 steel 100 oil 14`"
         },
         {
             name: "`.viewcontract <contract id>`",
@@ -390,7 +390,8 @@ export const contractHelp = {
         {
             name: "`.accept <contractID> <yes | no>`",
             value: "This command allows you to accept any contract if you put in the argument yes. \n" + 
-            "Otherwise, put in the argumne of no if you don't want to accept it.",
+            "Otherwise, put in the argument of no if you don't want to accept it.\n" +
+            "For example: `.accept 10 yes`",
         },
     ],
     timestamp: new Date(),

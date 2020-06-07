@@ -255,10 +255,10 @@ client.on("message", async message => {
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
-        else if (["contracts", "contract", "ct"].includes(args[0]))
+        else if (["contracts", "contract", "cts"].includes(args[0]))
             return message.channel.send({embed: contractHelp});
-        // else if (args[0] === ("clientstate"))
-        //     return message.channel.send({ embed: clsHelp });
+        else if (["clientstate", "clientstates", "c"].includes(args[0]))
+            return message.channel.send({ embed: clsHelp });
         return message.channel.send({ embed: helpMenu });
     }
 
