@@ -16,9 +16,9 @@ export async function upgradeCLS(message: Message, args: string[]) {
         default: return message.reply("this isn't a valid upgrade type!");
     }
     const price = {
-        money: (cls.upgrades.farms + cls.upgrades.mines + cls.upgrades.rigs + 1) * 150000,
-        steel: (cls.upgrades.farms + cls.upgrades.mines + cls.upgrades.rigs + 1) * 50000,
-        oil: (cls.upgrades.farms + cls.upgrades.mines + cls.upgrades.rigs + 1) * 50000
+        money: (cls.upgrades[r] + 1) * 150000,
+        steel: (cls.upgrades[r] + 1) * 50000,
+        oil: (cls.upgrades[r] + 1) * 50000
     };
     if (cls.resources.money < price.money)
         return message.reply(`${args[0]} doesn't have enough money! It needs ${price.money.commafy()} but only got ${cls.resources.money.commafy()}. Consider sending it some money.`);

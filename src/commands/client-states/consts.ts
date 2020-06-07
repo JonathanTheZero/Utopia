@@ -1,5 +1,5 @@
 export const rates = {
-    money: 0.7,
+    money: 35,
     rigs: 100000,
     mines: 100000,
     farms: 1500000
