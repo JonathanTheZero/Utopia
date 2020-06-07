@@ -371,6 +371,33 @@ export const marketHelp = {
     footer: properties.footer
 };
 
+export const contractHelp = {
+    title: "Contract help",
+    description: "This help menu is to help you with all your contract needs",
+
+    fields: [
+        {
+            name: "`.propose <user> <amount> <currency> <price> <price-currency> <time in days>`",
+            value: "This allows you to propose a contract to another user. \nAll contracts are limited to a maximum of 14 days." +
+            "\nHowever, the other user has to accept the contract\n" +
+            "example: `.propose @Zero 100 steel 100 oil 14`"
+        },
+        {
+            name: "`.viewcontract <contract id>`",
+            value: "This command allows you to see a specific contact\n" +
+                "For example: `.viewcontract 10`"
+        },
+        {
+            name: "`.accept <contractID> <yes | no>`",
+            value: "This command allows you to accept any contract if you put in the argument yes. \n" + 
+            "Otherwise, put in the argumne of no if you don't want to accept it.",
+        },
+    ],
+    timestamp: new Date(),
+    color: parseInt(properties.embedColor),
+    footer: properties.footer
+};
+
 export const clsHelp = {
     color: parseInt(properties.embedColor),
     footer: properties.footer,

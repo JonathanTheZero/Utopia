@@ -6,7 +6,7 @@ import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -255,8 +255,10 @@ client.on("message", async message => {
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
-        else if (args[0]?.[0] === "c")
-            return message.channel.send({ embed: clsHelp });
+        else if (["contracts", "contract", "ct"].includes(args[0]))
+            return message.channel.send({embed: contractHelp});
+        // else if (args[0] === ("clientstate"))
+        //     return message.channel.send({ embed: clsHelp });
         return message.channel.send({ embed: helpMenu });
     }
 
