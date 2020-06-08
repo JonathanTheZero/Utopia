@@ -29,7 +29,12 @@ export async function payoutLoop(client: Client) {
 
         if (u.payoutDMs) {
             try {
-                client.users.get(u._id)!.send("You have succesfully gained population from your upgrades!");
+                client.users.get(u._id)!.send({
+                    embed: {
+                        title: "**Alert**",
+                        description: "You have succesfully gained population from your upgrades and food from your alliance"
+                    }
+                });
             } catch (e) { console.log(e + "\n" + u.tag) }
         } if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }
@@ -77,7 +82,6 @@ export async function payoutLoop(client: Client) {
             if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((Math.floor(alliance.upgrades.mf * 500000)) * 1.2 ** alliance.clientStates), "$inc");
         }
     }
-    //payoutChannel.send("You have succesfully gained food from your alliance upgrades!");
     (payoutChannel as TextChannel).send({
         embed: {
             color: 0x00FF00,

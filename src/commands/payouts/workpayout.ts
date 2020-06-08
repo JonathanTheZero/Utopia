@@ -12,7 +12,13 @@ export async function populationWorkLoop(client: Client) {
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop))))) || 0;
         if (consumption > u.resources.food) {
             try {
-                client.users.get(u._id)!.send("**Alert**: Your population will die within in the next hour if you don't buy more food!");
+                client.users.get(u._id)!.send({
+                    embed: {
+                        title: "**Alert**",
+                        description: "Your population will die within in the next hour if you don't buy more food!",
+                        color: 0xFF0000
+                    }
+                });
             } catch (e) { console.log(e + `\n${u.tag}`) }
         }
     }
@@ -37,21 +43,33 @@ export async function populationWorkLoop(client: Client) {
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;
             updateValueForUser(u._id, "food", 0, "$set");
-            try {
-                client.users.get(u._id)?.send("**Alert**: You don't have any food left, your population is dying!");
-            } catch { }
+            client.users.get(u._id)!.send({
+                embed: {
+                    title: "**Alert**",
+                    description: "You don't have any food left, your population is dying",
+                    color: 0xFF0000
+                }
+            }).catch(console.log);
             if (diff > pop) {
                 updateValueForUser(u._id, "population", 0, "$set");
-                try {
-                    client.users.get(u._id)?.send("**Alert**: All of your population died");
-                } catch { }
+                client.users.get(u._id)!.send({
+                    embed: {
+                        title: "**Alert**",
+                        description: "All of your population died",
+                        color: 0xFF0000
+                    }
+                }).catch(console.log);
             } else updateValueForUser(u._id, "population", -diff, "$inc");
         }
         else updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         if (u.payoutDMs) {
-            try {
-                client.users.get(u._id)?.send("You have succesfully gained money through the work of your population!");
-            } catch { }
+            client.users.get(u._id)!.send({
+                embed: {
+                    title: "**Alert**",
+                    description: "Your have successfully gained money through the work of your population",
+                    color: 0xFF0000
+                }
+            }).catch(console.log);
         }
         if (!u.resources.food) updateValueForUser(u._id, "food", 0, "$set");
     }

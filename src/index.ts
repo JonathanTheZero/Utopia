@@ -227,6 +227,15 @@ client.on("message", async message => {
             if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
     }
 
+    else if (command === "testmsg"){
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+        let c: configDB = await getConfig();
+        const users = await getAllUsers();
+        for(const u of users){
+            client.users.get(u._id)?.send(c.upmsg).catch(console.log);
+        }
+    }
+
     else if (command === "vote") {
         let u: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         message.channel.send({
