@@ -111,9 +111,9 @@ export const generalHelpMenu = {
             name: "`.set-prefix`",
             value: "Change the prefix of the bot (only usable by members with 'manage server' permissions)"
         },
-        { 
-            name: "`.time`", 
-            value: "A comprehensive overview over all cooldowns" 
+        {
+            name: "`.time`",
+            value: "A comprehensive overview over all cooldowns"
         }
     ],
     timestamp: new Date(),
@@ -374,13 +374,12 @@ export const marketHelp = {
 export const contractHelp = {
     title: "Contract help",
     description: "This help menu is to help you with all your contract needs",
-
     fields: [
         {
             name: "`.propose <user> <amount> <currency> <price> <price-currency> <time in days>`",
             value: "This allows you to propose a contract to another user. \nAll contracts are limited to a maximum of 14 days." +
-            "\nHowever, the other user has to accept the contract\n" +
-            "For example: `.propose @Zero 100 steel 100 oil 14`"
+                "\nHowever, the other user has to accept the contract\n" +
+                "For example: `.propose @Zero 100 steel 100 oil 14`"
         },
         {
             name: "`.viewcontract <contract id>`",
@@ -389,9 +388,9 @@ export const contractHelp = {
         },
         {
             name: "`.accept <contractID> <yes | no>`",
-            value: "This command allows you to accept any contract if you put in the argument yes. \n" + 
-            "Otherwise, put in the argument of no if you don't want to accept it.\n" +
-            "For example: `.accept 10 yes`",
+            value: "This command allows you to accept any contract if you put in the argument yes. \n" +
+                "Otherwise, put in the argument of no if you don't want to accept it.\n" +
+                "For example: `.accept 10 yes`",
         },
     ],
     timestamp: new Date(),
@@ -411,7 +410,7 @@ export const clsHelp = {
     fields: [
         {
             name: "`.create-cls <name>`.",
-            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance.\n" + 
+            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance.\n" +
                 "By now the names can only be one word long."
         },
         {

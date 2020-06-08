@@ -183,7 +183,8 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             fields: [
                 { 
                     name: "Clientstate",
-                    value: "Founding your first client-state costs 500,000,000 money, the price increases by 500M every time you buy another one",
+                    value: "Founding your first client-state costs 500,000,000 money, the price increases by 500M every time you buy another one. " +
+                        "They are intended as an endgame feature.",
                     inline: false
                 },
                 {
@@ -204,7 +205,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             ],
             timestamp: new Date(),
             footer: config.properties.footer
-        }
+        };
     }
     return {
         color: parseInt(config.properties.embedColor),
@@ -235,5 +236,5 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
         ],
         timestamp: new Date(),
         footer: config.properties.footer,
-    }
+    };
 }
