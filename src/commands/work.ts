@@ -83,8 +83,7 @@ export async function crime(message: Message) {
     if (Math.floor(Math.random() * 99) < 7) {
         var p = Math.floor(oldBalance * Math.random() * 0.03);
         produced = (p > 50000) ? p : 50000;
-    }
-    else produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
+    } else produced = Math.floor(-1 * Math.abs(oldBalance * Math.random() * 0.02));
     addToUSB(Math.floor(-produced * 1.1));
     updateValueForUser(user._id, "lastCrime", Math.floor(Date.now() / 1000));
     if (!alliance) {
@@ -141,7 +140,6 @@ export async function crime(message: Message) {
             message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
         }
     }
-    updateValueForUser(message.author.id, "income", produced, "$inc");
     updateValueForUser(message.author.id, "lastMessage", { channelID: message.channel.id, messageID: message.id, alreadyPinged: false });
     if (user.autoping) reminder(
         message,

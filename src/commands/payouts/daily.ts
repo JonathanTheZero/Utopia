@@ -1,6 +1,6 @@
 import { Client, TextChannel } from "discord.js";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig, editCLSVal } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQuery } from "../../utils/databasehandler";
 import { rangeInt, getBaseLog } from "../../utils/utils";
 import * as config from "../../static/config.json";
 import { contractPayout } from "../trade/contracts";
@@ -10,6 +10,7 @@ export async function dailyPayout(client: Client) {
     const users: user[] = await getAllUsers();
     const payoutChannel = <TextChannel>client.channels.get(config.payoutChannel)!;
     for (const u of users) {
+        updateValueForUser(u._id, "population", Math.floor(Math.random() * u.resources.population * .05), "$inc");
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
@@ -61,18 +62,18 @@ export async function dailyPayout(client: Client) {
             }
         }
     }
-    const plagueAffected: user[] = users.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, Math.floor(users.length / 100)));
+    //selecting all users that have a population that is not 0 => only affect people with population
+    const qU: user[] = await getUsersWithQuery({ "resources.population": { $ne: 0 } });
+    const plagueAffected: user[] = qU.sort(() => 0.5 - Math.random()).slice(0, rangeInt(0, Math.floor(users.length / 100)));
     const names: string = plagueAffected.map<string>(el => el.tag).join(", ");
     for (const p of plagueAffected) {
-        const rate = Math.random() * .5 * (1 - p.upgrades.hospitals / 10);
+        const rate = Math.random() * .4 * (1 - p.upgrades.hospitals / 10);
         updateValueForUser(p._id, "population", -Math.floor(p.resources.population * rate), "$inc");
-        try {
-            client.users.get(p._id)?.send(
-                `A plague broke out in your Utopia, which killed ${rate.toLocaleString("en", { style: "percent" })} of your population ` +
-                `(${Math.floor(p.resources.population * rate).commafy()} people).\n` +
-                `You can lower the impact with buying hospitals in the population store.`
-            );
-        } catch { }
+        client.users.get(p._id)?.send(
+            `A plague broke out in your Utopia, which killed ${rate.toLocaleString("en", { style: "percent" })} of your population ` +
+            `(${Math.floor(p.resources.population * rate).commafy()} people).\n` +
+            `You can lower the impact with buying hospitals in the population store.`
+        ).catch(console.log);
     }
     contractPayout();
     payoutChannel.send({
@@ -80,7 +81,7 @@ export async function dailyPayout(client: Client) {
             color: names ? 0xFF0000 : 0x00FF00,
             title: "The daily reset has been made.",
             description: ((names ? `The Utopias of ${names} have been struck by plagues.` : "No Utopias have been struck by plagues today.") + "\n" +
-                "Your client states gained some more autonomy and produced some goods.\n\n" + 
+                "Your client states gained some more autonomy and produced some goods.\n\n" +
                 "Contract payouts happened."),
             timestamp: new Date()
         }

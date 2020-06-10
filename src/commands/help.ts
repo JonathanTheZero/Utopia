@@ -284,8 +284,9 @@ export const guideEmbed = {
         },
         {
             name: "**Population**",
-            value: "Your population works once every 12 hours, giving you 1 money per 10-20 people and consuming ~2 food per person in the process. " +
-                "You get population by buying upgrades."
+            value: "Your population works once every 12 hours, giving you between 8 and 15 money per citizen and consuming ~2 food per person in the process. " +
+                "You get population by buying upgrades. " +
+                "Additionally they reproduce naturally by up to 5% each day." 
         },
         {
             name: "**Upgrades**",

@@ -148,6 +148,10 @@ export async function getAllUsers(): Promise<user[]> {
     return client.db(dbName).collection("users").find({}).toArray();
 }
 
+export async function getUsersWithQuery(query: mongodb.FilterQuery<any>): Promise<user[]> {
+    return client.db(dbName).collection("users").find(query).toArray();
+}
+
 export async function getAllAlliances(): Promise<alliance[]> {
     return client.db(dbName).collection("alliances").find({}).toArray();
 }
@@ -160,7 +164,7 @@ export async function deleteAlliance(name: string) {
     client.db(dbName).collection("alliances").deleteOne({ name });
 }
 
-export async function customUpdateQuery(collection: string, filter: { [key: string]: any }, update: { [key: string]: any }) {
+export async function customUpdateQuery(collection: "users" | "alliances" | "wars" | "servers", filter: { [key: string]: any }, update: { [key: string]: any }) {
     client.db(dbName).collection(collection).updateMany(filter, update, err => {
         if (err) throw err;
     });
