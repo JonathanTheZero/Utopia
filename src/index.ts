@@ -105,7 +105,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2.2 Confederations out now!`);
+    client.user.setActivity(`.help | v2.3 The Exchange out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -207,13 +207,13 @@ client.on("message", async message => {
     else if (command === "sendupmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig(), output = c.upmsg, u: user[] = await getAllUsers();
-        let channel = <Discord.TextChannel>client.channels.get("630470737664409630"); //Change this to the announcement channel id
+        let channel = <Discord.TextChannel>client.channels.get("624964388557684756"); //Change this to the announcement channel id
 
         if (["everyone", "e", "Everyone", "E"].includes(args[0])) channel.send(`@everyone ${output}`);
 
         else if (["help", "h", "Help", "H"].includes(args[0])) message.reply("Please either `.sendupmsg everyone` to ping everyone or `.sendupmsg` to not ping everyone");
 
-        else channel.send(`${output}`);
+        else channel.send(output);
 
         const lister: string[] = [];
         client.guilds.get("621044091056029696")?.members.forEach(member => lister.push(member.id)!);
