@@ -1,7 +1,6 @@
 declare var require: (path: string) => any;
 
 import * as Discord from "discord.js";
-
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
@@ -107,6 +106,7 @@ console.log("Application has started");
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
     client.user.setActivity(`.help | v2.2 Confederations out now!`);
+
     await connectToDB();
     getServers().then(server => {
         if (server.length < client.guilds.array().length)
