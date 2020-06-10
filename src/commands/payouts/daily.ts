@@ -1,6 +1,6 @@
 import { Client, TextChannel } from "discord.js";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQuery } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQuery, deleteClientState } from "../../utils/databasehandler";
 import { rangeInt, getBaseLog } from "../../utils/utils";
 import * as config from "../../static/config.json";
 import { contractPayout } from "../trade/contracts";
@@ -14,14 +14,51 @@ export async function dailyPayout(client: Client) {
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
-            editCLSVal(u._id, i, "loyalty", -(Math.random() * .07), "$inc");
+            const loyaltyLoss = Math.random() * .07;
+            if (u.clientStates[i].loyalty == 0) {
+                if (Math.random() > 0.5) {
+                    client.users.get(u._id)?.send({
+                        embed: {
+                            title: "**Alert**",
+                            description: `Your left your client state ${c.name} without attention for too long, it declared independence.`,
+                            color: 0xFF0000
+                        }
+                    }).catch(console.log);
+                    deleteClientState(u._id, c.name);
+                    continue;
+                } else {
+                    client.users.get(u._id)?.send({
+                        embed: {
+                            title: "**Alert**",
+                            description: `Your client state ${c.name}'s loyalty sank to 0% they could declare independence!`,
+                            color: 0xFF0000
+                        }
+                    }).catch(console.log);
+                }
+            } else {
+                if (u.clientStates[i].loyalty - loyaltyLoss <= 0) {
+                    editCLSVal(u._id, i, "loyalty", 0, "$set");
+                    client.users.get(u._id)?.send({
+                        embed: {
+                            title: "**Alert**",
+                            description: `Your client state ${c.name}'s loyalty sank to 0% they could declare independence!`,
+                            color: 0xFF0000
+                        }
+                    }).catch(console.log);
+                } else editCLSVal(u._id, i, "loyalty", -loyaltyLoss, "$inc");
+            }
+
             const consumption = Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
-                editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc")
-                try {
-                    client.users.get(u._id)?.send(`Your client state ${c.name} ran out of food, it's population starved to death. This lowered their loyalty to you.`);
-                } catch { }
+                editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc");
+                client.users.get(u._id)?.send({
+                    embed: {
+                        title: "**Alert**",
+                        description: `Your client state ${c.name} ran out of food, it's population starved to death. This lowered their loyalty to you.`,
+                        color: 0xFF0000
+                    }
+                }).catch(console.log);
             } else {
                 editCLSVal(u._id, i, "food", -consumption, "$inc");
                 editCLSVal(u._id, i, "population", Math.floor(Math.random() * .1 * c.resources.population), "$inc");
