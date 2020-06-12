@@ -222,6 +222,20 @@ client.on("message", async message => {
             if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
     }
 
+    else if(command === "mail" || command === "maildevs"){
+        let channel = <Discord.TextChannel>client.channels.get("721062176042778666");
+
+        if(!args) return message.reply("Please attach a message after the command")
+
+        channel.send("@hre\n",{
+            embed: {
+                title: `Message from ${message.author.username}`,
+                description: `${args.join(" ")}`,
+                color: 0xFF0000
+            }
+        })
+    }
+
     else if (command === "testmsg"){
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();

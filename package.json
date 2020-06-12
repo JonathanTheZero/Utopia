@@ -26,7 +26,7 @@
     "webpack": "^4.42.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc && node dist/index.js",
     "start": "node dist/bundle.js"
   },
   "repository": {
