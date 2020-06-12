@@ -227,18 +227,34 @@ client.on("message", async message => {
         }   
     }
 
-    else if(command === "mail" || command === "maildevs"){
-        let channel = <Discord.TextChannel>client.channels.get("721062176042778666");
+    else if(command === "mail"){
+        
 
-        if(!args) return message.reply("Please attach a message after the command")
+        if(!args) return message.reply("The command is .mail <suggestion|mods> `message`")
 
-        channel.send("@hre\n",{
-            embed: {
-                title: `Message from ${message.author.username}`,
-                description: `${args.join(" ")}`,
-                color: 0xFF0000
-            }
-        })
+        if(["s"].includes(args[0])){
+            let channel = <Discord.TextChannel>client.channels.get("621046082859958275");
+            channel.send({
+                embed: {
+                    title: `New Suggestion from ${message.author.username}`,
+                    description: `${message.author.id}\n${args.slice(1).join(" ")}`,
+                    color: 0xFF0000
+                }
+            })
+
+        }
+
+        else if(["m"]){
+            let channel = <Discord.TextChannel>client.channels.get("721062176042778666");
+            channel.send({
+                embed: {
+                    title: `New Message from ${message.author.username}`,
+                    description: `${message.author.id}\n${args.slice(1).join(" ")}`,
+                    color: 0xFF0000
+                }
+            })
+        }
+
     }
 
     else if (command === "testmsg"){
