@@ -15,7 +15,7 @@ export async function dailyPayout(client: Client) {
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
             const loyaltyLoss = Math.random() * .07;
-            if (u.clientStates[i].loyalty == 0) {
+            if (u.clientStates[i].loyalty === 0) {
                 if (Math.random() > 0.5) {
                     client.users.get(u._id)?.send({
                         embed: {
@@ -51,7 +51,9 @@ export async function dailyPayout(client: Client) {
             const consumption = Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
-                editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc");
+                const loss = -(Math.random() * .15);
+                if (u.clientStates[i].loyalty - loss <= 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
+                else editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc");
                 client.users.get(u._id)?.send({
                     embed: {
                         title: "**Alert**",
@@ -97,6 +99,7 @@ export async function dailyPayout(client: Client) {
                 editCLSVal(u._id, i, "oil", Math.floor(c.upgrades.rigs * Math.random() * 50000 * (1 + f(c.resources.population)) * (c.loyalty + .5)), "$inc");
                 editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * 1000000 * (c.loyalty + .5)), "$inc");
             }
+            if (u.clientStates[i].loyalty < 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
         }
     }
     //selecting all users that have a population that is not 0 => only affect people with population

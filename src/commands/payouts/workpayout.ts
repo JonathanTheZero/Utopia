@@ -43,7 +43,7 @@ export async function populationWorkLoop(client: Client) {
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;
             updateValueForUser(u._id, "food", 0, "$set");
-            client.users.get(u._id)!.send({
+            client.users.get(u._id)?.send({
                 embed: {
                     title: "**Alert**",
                     description: "You don't have any food left, your population is dying",
@@ -63,7 +63,7 @@ export async function populationWorkLoop(client: Client) {
         }
         else updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         if (u.payoutDMs) {
-            client.users.get(u._id)!.send({
+            client.users.get(u._id)?.send({
                 embed: {
                     title: "**Alert**",
                     description: "Your have successfully gained money through the work of your population",
