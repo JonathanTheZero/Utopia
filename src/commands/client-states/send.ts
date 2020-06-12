@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import { user, resources } from "../../utils/interfaces";
 import { getUser, updateValueForUser, editCLSVal } from "../../utils/databasehandler";
 import "../../utils/utils";
+import { loyaltyChange } from ".";
 
 export async function sendToCls(message: Message, args: string[]) {
     const user: user = await getUser(message.author.id);
@@ -20,8 +21,13 @@ export async function sendToCls(message: Message, args: string[]) {
     if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
     if ((res === "money" && parseInt(args[1]) > user.money) || res !== "money" && parseInt(args[1]) > user.resources[res])
         return message.reply("you can't send more than you own!");
-    Promise.all([
-        editCLSVal(user._id, index, res!, a,"$inc"),
+
+    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]);
+    if (user.clientStates[index].loyalty >= 1) editCLSVal(user._id, index, "loyalty", 1, "$set");
+    else editCLSVal(user._id, index, "loyalty", l, "$inc");
+    await Promise.all([
+        editCLSVal(user._id, index, res!, a, "$inc"),
         updateValueForUser(user._id, res, -a, "$inc")
-    ]).then(() => message.reply(`succesfully sent ${a.commafy()} ${res} to ${user.clientStates[index].name}`));
+    ]);
+    message.reply(`succesfully sent ${a.commafy()} ${res} to ${user.clientStates[index].name}.\nThis increased their loyalty by ${l.toLocaleString("en", { style: "percent" })}`);
 }

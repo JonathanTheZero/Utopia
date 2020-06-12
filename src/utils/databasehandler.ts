@@ -1,7 +1,6 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract_interface } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
-//import { propose } from "../commands/trade/contracts";
 
 const url: string = db.mongoQuery;
 const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
@@ -15,6 +14,7 @@ const config: configDB = {
     lastMineReset: 0,
     lastDailyReset: 0,
     totalOffers: 0,
+    totalContracts: 0,
     centralBalance: 1000000000,
     upmsg: ""
 };
@@ -89,9 +89,10 @@ export async function deleteClientState(_id: string, name: string): Promise<void
 
 export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "name", val: string): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
-    if (["loyalty", "focus"].includes(type))
+    if (["loyalty", "focus", "name"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
     else if (["mines", "rigs", "farms"].includes(type))
         query = { [mode]: { [`clientStates.${index}.upgrades.${type}`]: val } };
@@ -147,6 +148,10 @@ export async function getAllUsers(): Promise<user[]> {
     return client.db(dbName).collection("users").find({}).toArray();
 }
 
+export async function getUsersWithQuery(query: mongodb.FilterQuery<any>): Promise<user[]> {
+    return client.db(dbName).collection("users").find(query).toArray();
+}
+
 export async function getAllAlliances(): Promise<alliance[]> {
     return client.db(dbName).collection("alliances").find({}).toArray();
 }
@@ -159,7 +164,7 @@ export async function deleteAlliance(name: string) {
     client.db(dbName).collection("alliances").deleteOne({ name });
 }
 
-export async function customUpdateQuery(collection: string, filter: { [key: string]: any }, update: { [key: string]: any }) {
+export async function customUpdateQuery(collection: "users" | "alliances" | "wars" | "servers", filter: { [key: string]: any }, update: { [key: string]: any }) {
     client.db(dbName).collection(collection).updateMany(filter, update, err => {
         if (err) throw err;
     });
@@ -175,7 +180,9 @@ export async function addUpmsg(words: string[]) {
     });
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset", val: number) {
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts", val: number): Promise<void>;
+export async function editConfig(field: "upmsg", val: string): Promise<void>;
+export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts" | "upmsg", val: any) {
     client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
@@ -232,52 +239,32 @@ export async function updatePrefix(_id: string, prefix: string) {
     client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
 }
 
-export async function addContracts(contractid: string, newcontract: contract_interface) {
-    await client.db(dbName).collection("contracts").insertOne({_id: contractid, newcontract})
+export async function addContract(newContract: contract) {
+    await client.db(dbName).collection("contracts").insertOne(newContract);
 }
 
-export async function getContract(contractid: string): Promise<any>{
-    //return 
-    return await client.db(dbName).collection("contracts").findOne( { _id:contractid } )!
+export async function getContract(_id: string): Promise<contract> {
+    return client.db(dbName).collection("contracts").findOne({ _id })!;
 }
 
-export async function getAllContracts(): Promise<any[]> {
-    //console.log(await client.db(dbName).collection("contracts").find({}).toArray());
+export async function getAllContracts(): Promise<contract[]> {
     return client.db(dbName).collection("contracts").find({}).toArray();
 }
 
-
-// export async function getContract_ID(contractid: string){
-//     let contract = await client.db(dbName).collection("contracts").findOne( { contractid } )!
-//     return contract._id
-// }
-
-export async function deleteContract(contractid: string){
-    await await client.db(dbName).collection("contracts").deleteOne( { _id:contractid })
-    return `cancelled`
+export async function deleteContract(_id: string) {
+    return client.db(dbName).collection("contracts").deleteOne({ _id });
 }
 
-//, proposalvalue: boolean
-export async function ContractAccepted(contractid: string){
-    //let query: any = {} 
-    //query = { ["newcontract.proposal"]: false } 
-    // let _id = await getContract_ID(contractid)
-    await client.db(dbName).collection("contracts").updateOne( { _id:contractid }, {$set: {["newcontract.proposal"]: false}})!
-    return "FUCK"
+export async function ContractAccepted(contractid: string) {
+    await client.db(dbName).collection("contracts").updateOne({ _id: contractid }, { $set: { proposal: false } })!;
 }
 
-export async function ContractTime(contractid: string, value: number){
-    //let query: any = {} 
-    //query = { ["newcontract.proposal"]: false } 
-    // let _id = await getContract_ID(contractid)
-    await client.db(dbName).collection("contracts").updateOne( { _id:contractid }, {$set: {["newcontract.info.totaltime"]: value}})!
-    return "FUCK"
+export async function ContractTime(contractid: string, value: number) {
+    await client.db(dbName).collection("contracts").updateOne({ _id: contractid }, { $set: { ["info.totaltime"]: value } })!;
 }
 
 export async function addWar(w: war) {
-    client.db(dbName).collection("wars").insertOne(w, err => {
-        if (err) throw err;
-    });
+    client.db(dbName).collection("wars").insertOne(w, err => { if (err) throw err });
 }
 
 export async function setWarStarted(_id: string) {
@@ -388,6 +375,13 @@ export async function getOfferID(): Promise<number> {
     const conf = await getConfig();
     const id = conf.totalOffers + 1;
     editConfig("totalOffers", id);
+    return id;
+}
+
+export async function getContractID(): Promise<number> {
+    const conf = await getConfig();
+    const id = conf.totalContracts + 1;
+    editConfig("totalContracts", id);
     return id;
 }
 

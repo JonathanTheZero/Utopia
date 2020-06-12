@@ -73,7 +73,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             timestamp: new Date(),
             footer: config.properties.footer,
         };
-    } else if (type == "a") {
+    } else if (type === "a") {
         var user: user = await getUser(message.author.id);
         var alliance = user.alliance;
 
@@ -128,7 +128,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             timestamp: new Date(),
             footer: config.properties.footer,
         };
-    } else if (type == "pf") {
+    } else if (type === "pf") {
         var user: user = await getUser(message.author.id);
         return {
             color: parseInt(config.properties.embedColor),
@@ -181,25 +181,31 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
                 url: message.author.displayAvatarURL,
             },
             fields: [
+                { 
+                    name: "Clientstate",
+                    value: "Founding your first client-state costs 500,000,000 money, the price increases by 500M every time you buy another one. " +
+                        "They are intended as an endgame feature.",
+                    inline: false
+                },
                 {
                     name: "Mines",
-                    value: "A mine boosts the steel production of a state by 50,000 a day",
+                    value: "A mine boosts the steel production of a state by 100,000 a day",
                     inline: true
                 },
                 {
                     name: "Rigs",
-                    value: "A rig boosts the oil production of a state by 50,000 a day",
+                    value: "A rig boosts the oil production of a state by 100,000 a day",
                     inline: true
                 },
                 {
                     name: "Farms",
-                    value: "A farm boosts the food production of a state by 1,000,000 a day",
+                    value: "A farm boosts the food production of a state by 1,500,000 a day",
                     inline: true
                 }
             ],
             timestamp: new Date(),
             footer: config.properties.footer
-        }
+        };
     }
     return {
         color: parseInt(config.properties.embedColor),
@@ -230,5 +236,5 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
         ],
         timestamp: new Date(),
         footer: config.properties.footer,
-    }
+    };
 }

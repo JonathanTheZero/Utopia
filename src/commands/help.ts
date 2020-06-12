@@ -111,9 +111,9 @@ export const generalHelpMenu = {
             name: "`.set-prefix`",
             value: "Change the prefix of the bot (only usable by members with 'manage server' permissions)"
         },
-        { 
-            name: "`.time`", 
-            value: "A comprehensive overview over all cooldowns" 
+        {
+            name: "`.time`",
+            value: "A comprehensive overview over all cooldowns"
         }
     ],
     timestamp: new Date(),
@@ -284,8 +284,9 @@ export const guideEmbed = {
         },
         {
             name: "**Population**",
-            value: "Your population works once every 12 hours, giving you 1 money per 10-20 people and consuming ~2 food per person in the process. " +
-                "You get population by buying upgrades."
+            value: "Your population works once every 12 hours, giving you between 8 and 15 money per citizen and consuming ~2 food per person in the process. " +
+                "You get population by buying upgrades. " +
+                "Additionally they reproduce naturally by up to 5% each day."
         },
         {
             name: "**Upgrades**",
@@ -367,6 +368,36 @@ export const marketHelp = {
     footer: properties.footer
 };
 
+export const contractHelp = {
+    title: "Contract help",
+    description: "This help menu is to help you with all your contract needs.\n" +
+        "Contracts can be made between to player to ensure a regular exchange of resources.",
+    fields: [
+        {
+            name: "`.propose <user> <amount> <currency> <price> <price-currency> <time in days>`",
+            value: "This allows you to propose a contract to another user. " +
+                "All contracts are limited to a maximum of 14 days." +
+                "However, the other user has to accept the contract.\n" +
+                "For example: `.propose @Zero 100 steel 100 oil 14`." +
+                "This would mean that Zero pays the proposer 100 steel in exchange for 100 oil every day for the next two weeks."
+        },
+        {
+            name: "`.viewcontract <contract id>`",
+            value: "This command allows you to see a specific contact\n" +
+                "For example: `.viewcontract 10`"
+        },
+        {
+            name: "`.accept <contractID> <yes | no>`",
+            value: "This command allows you to accept any contract if you put in the argument yes. \n" +
+                "Otherwise, put in the argument of no if you don't want to accept it.\n" +
+                "For example: `.accept 10 yes`",
+        },
+    ],
+    timestamp: new Date(),
+    color: parseInt(properties.embedColor),
+    footer: properties.footer
+};
+
 export const clsHelp = {
     color: parseInt(properties.embedColor),
     footer: properties.footer,
@@ -374,12 +405,13 @@ export const clsHelp = {
     title: "Clientstate help",
     description: "Here you find everything related to the client-state system introduced in v2.2.\n" +
         "Client states are another source of passive income: Each state can have upgrades which boosts their productivity. Each state has its own loyalty factor: " +
-        "Loyalitly affects their productivity. They will receive resources once a day.\n" +
+        "Loyalitly affects their productivity (above 50% gives a bonus, below 50% a malus. On 0% they can declare independence.). They will receive resources once a day.\n" +
         "Client-states also have an own population which they need to feed, it will also grow passively, so investing in their farms is useful.",
     fields: [
         {
             name: "`.create-cls <name>`.",
-            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance."
+            value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance.\n" +
+                "By now the names can only be one word long."
         },
         {
             name: "`.delete-cls <name>`",
@@ -405,6 +437,10 @@ export const clsHelp = {
             name: "`.setfocus <name> <resource>`",
             value: "Sets a specific production focus: They will receive a boost of 200% in the specific sector but will produce 50% of everything else." +
                 "Use `.setfocus <name> none` to remove the focus of a client-state."
+        },
+        {
+            name: "`.rename-cls <old name> <new name>`",
+            value: "Renames one of your client states."
         },
         {
             name: "`.buy-cls <name> <mine | rig | farm>`",
