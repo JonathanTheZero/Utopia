@@ -218,8 +218,13 @@ client.on("message", async message => {
         const lister: string[] = [];
         client.guilds.get("621044091056029696")?.members.forEach(member => lister.push(member.id)!);
 
-        for (let i = 0; i < u.length; i++)
-            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
+        for (let i = 0; i < u.length; i++){
+            if (!lister.includes(u[i]._id)){
+                try{
+                    await client.users.get(u[i]._id)!.send(output);
+                }catch{ }
+            }
+        }   
     }
 
     else if(command === "mail" || command === "maildevs"){
