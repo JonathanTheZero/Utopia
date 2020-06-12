@@ -61,6 +61,7 @@ import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls } from "./commands/client-states";
+import { modmail } from "./commands/modsupport";
 
 const express = require('express');
 const app = express();
@@ -227,34 +228,8 @@ client.on("message", async message => {
         }   
     }
 
-    else if(command === "mail"){
-        
-
-        if(!args) return message.reply("The command is .mail <suggestion|mods> `message`")
-
-        if(["s"].includes(args[0])){
-            let channel = <Discord.TextChannel>client.channels.get("621046082859958275");
-            channel.send({
-                embed: {
-                    title: `New Suggestion from ${message.author.username}`,
-                    description: `${message.author.id}\n${args.slice(1).join(" ")}`,
-                    color: 0xFF0000
-                }
-            })
-
-        }
-
-        else if(["m"]){
-            let channel = <Discord.TextChannel>client.channels.get("721062176042778666");
-            channel.send({
-                embed: {
-                    title: `New Message from ${message.author.username}`,
-                    description: `${message.author.id}\n${args.slice(1).join(" ")}`,
-                    color: 0xFF0000
-                }
-            })
-        }
-
+    else if(command === "mail" || command === "anonmail"){
+        modmail(command, args, client, message)
     }
 
     else if (command === "testmsg"){
