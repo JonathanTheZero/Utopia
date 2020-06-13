@@ -56,7 +56,7 @@ export async function payout(message: Message, args: string[]) {
             fields: [
                 {
                     name: "Population:",
-                    value: userPop.commafy(),
+                    value: `between ${userPop.commafy()} and ${(userPop + Math.floor(user.resources.population * .05)).commafy()}`,
                     inline: true
                 },
                 {

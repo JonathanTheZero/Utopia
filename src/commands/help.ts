@@ -232,6 +232,10 @@ export const miscHelpMenu = {
         {
             name: "`.delete`",
             value: "Delete your account"
+        },
+        {
+            name: "`.calc <expression>`",
+            value: "Returns the result of a calculation"
         }
     ],
     timestamp: new Date(),
