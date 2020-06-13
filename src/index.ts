@@ -222,11 +222,11 @@ client.on("message", async message => {
             if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)?.send(output);
     }
 
-    else if (command === "testmsg"){
+    else if (command === "testmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
         const users = await getAllUsers();
-        for(const u of users){
+        for (const u of users) {
             client.users.get(u._id)?.send(c.upmsg).catch(console.log);
         }
     }
@@ -260,7 +260,7 @@ client.on("message", async message => {
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
         else if (["contracts", "contract", "cts"].includes(args[0]))
-            return message.channel.send({embed: contractHelp});
+            return message.channel.send({ embed: contractHelp });
         else if (["clientstate", "clientstates", "c", "cls"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
         return message.channel.send({ embed: helpMenu });
@@ -576,7 +576,7 @@ client.on("message", async message => {
         const o: user = await getUser(message.mentions?.users?.first()?.id || args[0]);
         if (!u) return message.reply("you haven't created an account yet, please use `.create` to create one.");
         if (!o) return message.reply("this user hasn't created an account yet.");
-        if(o._id === u._id) return message.reply("you can't start a war against yourself.");
+        if (o._id === u._id) return message.reply("you can't start a war against yourself.");
         startWar(message, u, o);
     }
 
@@ -615,7 +615,7 @@ client.on("message", async message => {
     else if (command === "viewcontract" || command === "view-contract")
         viewContract(message, args, client)
 
-    else if (command === "accept") 
+    else if (command === "accept")
         acceptedContract(message, args, client);
 
     else if (command === "market")
@@ -695,11 +695,11 @@ client.on("message", async message => {
 
     else if (["buycls", "buy-cls", "cls-upgrade"].includes(command)) upgradeCLS(message, args);
 
-    else if(["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
+    else if (["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
 
     else if (command === "withdraw") withdraw(message, args);
 
-    else if(["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
+    else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 });
 
 client.login(config.token);

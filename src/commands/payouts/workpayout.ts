@@ -2,7 +2,7 @@ import * as config from "../../static/config.json";
 import { Client, TextChannel, Channel } from "discord.js";
 import { getBaseLog, Sleep, rangeInt } from "../../utils/utils";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig } from "../../utils/databasehandler";
+import { getAllUsers, updateValueForUser, editConfig, getConfig } from "../../utils/databasehandler";
 
 export async function populationWorkLoop(client: Client) {
     let payoutChannel: Channel = client.channels.get(config.payoutChannel)!;
@@ -22,7 +22,7 @@ export async function populationWorkLoop(client: Client) {
             } catch (e) { console.log(e + `\n${u.tag}`) }
         }
     }
-    await Sleep(3600000);
+    await Sleep(43200000 - (await getConfig()).lastPopulationWorkPayout);
 
     users = await getAllUsers();
     for (const u of users) {

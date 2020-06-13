@@ -75,48 +75,49 @@ export async function singleStateOverview(message: Message, args: string[]) {
  * @returns a tuple having the scheme [money, steel, oil, farms]
  */
 function generateProductionRates(c: clientState): [number, number, number, number] {
+    const p = governments[c.government].productivity;
     if (c.focus) {
         if (c.focus === "money") {
             return [
-                Math.floor(3 * (c.resources.population * rates.money) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.farms) * rates.farms) * (c.loyalty + .5)
+                Math.floor(3 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * p * (c.loyalty + .5))
             ];
         } else if (c.focus === "food") {
             return [
-                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(3 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * governments[c.government].productivity)
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(3 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * p)
             ];
         } else if (c.focus === "oil") {
             return [
-                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(3 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * governments[c.government].productivity)
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(3 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * p)
             ];
         } else if (c.focus === "steel") {
             return [
-                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(3 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.farms) * rates.farms * governments[c.government].productivity)
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(3 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * p)
             ];
         } else if (c.focus === "population") {
             return [
-                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * governments[c.government].productivity)
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * p)
             ];
         }
     }
     return [
-        Math.floor(c.resources.population * rates.money * (c.loyalty + .5) * governments[c.government].productivity),
-        Math.floor(c.upgrades.mines * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-        Math.floor(c.upgrades.rigs * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * governments[c.government].productivity),
-        Math.floor(c.upgrades.farms * rates.farms * (c.loyalty + .5) * governments[c.government].productivity)
+        Math.floor(c.resources.population * rates.money * (c.loyalty + .5) * p),
+        Math.floor(c.upgrades.mines * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+        Math.floor(c.upgrades.rigs * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+        Math.floor(c.upgrades.farms * rates.farms * (c.loyalty + .5) * p)
     ];
 }
