@@ -15,3 +15,21 @@ export function loyaltyChange(amount: number, total: number): number {
     if (rate < 40) return Math.random() * .25;
     return Math.random() * .3;
 }
+
+export const governments = {
+    democracy: {
+        loyaltyLoss: 0.8,
+        loyaltyIncrease: 1.2,
+        productivity: 0.9
+    },
+    monarchy: {
+        loyaltyLoss: 1,
+        loyaltyIncrease: 1,
+        productivity: 1,
+    },
+    dictatorship: {
+        loyaltyLoss: 1.2,
+        loyaltyIncrease: 0.8,
+        productivity: 1.1,
+    }
+};

@@ -60,7 +60,7 @@ import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, 
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 
 const express = require('express');
 const app = express();
@@ -219,7 +219,7 @@ client.on("message", async message => {
         client.guilds.get("621044091056029696")?.members.forEach(member => lister.push(member.id)!);
 
         for (let i = 0; i < u.length; i++)
-            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)!.send(output);
+            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)?.send(output);
     }
 
     else if (command === "testmsg"){
@@ -261,7 +261,7 @@ client.on("message", async message => {
             return message.channel.send({ embed: marketHelp });
         else if (["contracts", "contract", "cts"].includes(args[0]))
             return message.channel.send({embed: contractHelp});
-        else if (["clientstate", "clientstates", "c"].includes(args[0]))
+        else if (["clientstate", "clientstates", "c", "cls"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
         return message.channel.send({ embed: helpMenu });
     }
@@ -689,7 +689,7 @@ client.on("message", async message => {
 
     else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
 
-    else if (command === "clientstate" || command === "client-state") singleStateOverview(message, args);
+    else if (command === "clientstate" || command === "client-state" || command === "cls") singleStateOverview(message, args);
 
     else if (["setfocus", "set-focus"].includes(command)) setFocus(message, args);
 
@@ -698,6 +698,8 @@ client.on("message", async message => {
     else if(["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
 
     else if (command === "withdraw") withdraw(message, args);
+
+    else if(["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 });
 
 client.login(config.token);

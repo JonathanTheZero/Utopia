@@ -405,7 +405,7 @@ export const clsHelp = {
     title: "Clientstate help",
     description: "Here you find everything related to the client-state system introduced in v2.2.\n" +
         "Client states are another source of passive income: Each state can have upgrades which boosts their productivity. Each state has its own loyalty factor: " +
-        "Loyalitly affects their productivity (above 50% gives a bonus, below 50% a malus. On 0% they can declare independence.). They will receive resources once a day.\n" +
+        "Loyalty affects their productivity (above 50% gives a bonus, below 50% a malus. On 0% they can declare independence.). They will receive resources once a day.\n" +
         "Client-states also have an own population which they need to feed, it will also grow passively, so investing in their farms is useful.",
     fields: [
         {
@@ -435,7 +435,7 @@ export const clsHelp = {
         },
         {
             name: "`.setfocus <name> <resource>`",
-            value: "Sets a specific production focus: They will receive a boost of 200% in the specific sector but will produce 50% of everything else." +
+            value: "Sets a specific production focus: They will receive a boost of 200% in the specific sector but will produce 50% of everything else. " +
                 "Use `.setfocus <name> none` to remove the focus of a client-state."
         },
         {
@@ -445,6 +445,14 @@ export const clsHelp = {
         {
             name: "`.buy-cls <name> <mine | rig | farm>`",
             value: "Buy an upgrade for your client-state, for more see the client-state shop."
+        },
+        {
+            name: "`.set-government <state> <form>`",
+            value: "Each client state has a government type, there are three types with different effects:\n" + 
+                "-Democracies makes the client state produce less but they will gain loyalty faster and lose it slower.\n" + 
+                "-Monarchies are the median: The production rate is normal but they also don't get any increase on loyalty gain.\n" +
+                "-Dictatorships are the opposite: They produce more but lose loyalty faster and gain it slower.\n" + 
+                "Changing the government form costs you 10% loyalty."
         }
     ]
 };

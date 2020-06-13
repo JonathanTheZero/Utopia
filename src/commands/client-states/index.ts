@@ -8,3 +8,4 @@ export * from "./upgrade";
 export * from "./withdraw";
 export * from "./rename";
 export * from "./consts";
+export * from "./government";

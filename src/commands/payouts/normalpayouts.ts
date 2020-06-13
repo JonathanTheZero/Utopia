@@ -32,7 +32,8 @@ export async function payoutLoop(client: Client) {
                 client.users.get(u._id)!.send({
                     embed: {
                         title: "**Alert**",
-                        description: "You have succesfully gained population from your upgrades and food from your alliance"
+                        description: "You have succesfully gained population from your upgrades and food from your alliance",
+                        color: 0xFF0000
                     }
                 });
             } catch (e) { console.log(e + "\n" + u.tag) }
@@ -82,7 +83,7 @@ export async function payoutLoop(client: Client) {
             if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((Math.floor(alliance.upgrades.mf * 500000)) * 1.2 ** alliance.clientStates), "$inc");
         }
     }
-    (payoutChannel as TextChannel).send({
+    (payoutChannel as TextChannel)?.send({
         embed: {
             color: 0x00FF00,
             title: "You have succesfully gained population from your upgrades!\n" +

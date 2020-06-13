@@ -199,17 +199,19 @@ export interface clientState {
         population: number;
         money: number;
     };
-    loyalty: number;
     upgrades: {
         mines: number;
         rigs: number;
         farms: number;
     };
     focus: resources | null;
+    loyalty: number;
+    government: clsGovernment;
 }
 
-export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades;
+export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades | "government";
 export type clsUpgrades = "mines" | "rigs" | "farms";
+export type clsGovernment = "democracy" | "dictatorship" | "monarchy";
 
 export interface contract {
     _id: string;

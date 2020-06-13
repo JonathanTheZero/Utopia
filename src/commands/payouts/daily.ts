@@ -4,7 +4,7 @@ import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQu
 import { rangeInt, getBaseLog } from "../../utils/utils";
 import * as config from "../../static/config.json";
 import { contractPayout } from "../trade/contracts";
-import { f } from "../client-states";
+import { f, governments } from "../client-states";
 
 export async function dailyPayout(client: Client) {
     const users: user[] = await getAllUsers();
@@ -14,7 +14,7 @@ export async function dailyPayout(client: Client) {
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i];
-            const loyaltyLoss = Math.random() * .07;
+            const loyaltyLoss = Math.random() * .07 * governments[u.clientStates[i].government].loyaltyLoss;
             if (u.clientStates[i].loyalty === 0) {
                 if (Math.random() > 0.5) {
                     client.users.get(u._id)?.send({

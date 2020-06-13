@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract, clsGovernment } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -90,9 +90,10 @@ export async function deleteClientState(_id: string, name: string): Promise<void
 export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "name", val: string): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "government", val: clsGovernment): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
-    if (["loyalty", "focus", "name"].includes(type))
+    if (["loyalty", "focus", "name", "government"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
     else if (["mines", "rigs", "farms"].includes(type))
         query = { [mode]: { [`clientStates.${index}.upgrades.${type}`]: val } };

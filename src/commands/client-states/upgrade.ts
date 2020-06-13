@@ -1,6 +1,7 @@
 import { Message } from "discord.js";
 import { user, clsUpgrades } from "../../utils/interfaces";
 import { getUser, editCLSVal } from "../../utils/databasehandler";
+import { governments } from "./consts";
 
 export async function upgradeCLS(message: Message, args: string[]) {
     const user: user = await getUser(message.author.id);
@@ -30,10 +31,11 @@ export async function upgradeCLS(message: Message, args: string[]) {
     editCLSVal(user._id, index, "money", -price.money, "$inc");
     editCLSVal(user._id, index, "steel", -price.steel, "$inc");
     editCLSVal(user._id, index, "oil", -price.oil, "$inc");
-    if (cls.loyalty < .9) editCLSVal(user._id, index, "loyalty", .1, "$inc");
+    const gain = (.1 * governments[user.clientStates[index].government].loyaltyIncrease);
+    if (cls.loyalty < 1 - gain) editCLSVal(user._id, index, "loyalty", gain, "$inc");
     else editCLSVal(user._id, index, "loyalty", 1, "$set");
     return message.reply(
         `Upgrade bought successfully! ${user.clientStates[index].name} now owns ${cls.upgrades[r] + 1} ${r}.\n` + 
-        "This increased their loyalty by 10%!"
+        `This increased their loyalty by ${gain.toLocaleString("en", { style: "percent"})}!`
     );
 }

@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { user, resources } from "../../utils/interfaces";
 import { getUser, editCLSVal, updateValueForUser } from "../../utils/databasehandler";
-import { loyaltyChange } from ".";
+import { loyaltyChange, governments } from ".";
 
 export async function withdraw(message: Message, args: string[]) {
     if (!args[2]) return message.reply("please follow the syntax of `.withdraw <state> <amount> <currency>`")
@@ -20,7 +20,7 @@ export async function withdraw(message: Message, args: string[]) {
     if (!a || a < 0) return message.reply("that isn't a valid amount");
     if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
     if (parseInt(args[1]) > cls.resources[res]) return message.reply("you can't withdraw more than the state owns!");
-    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]);
+    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]) * governments[user.clientStates[index].government].loyaltyLoss;
     Promise.all([
         editCLSVal(user._id, index, res!, -a, "$inc"),
         updateValueForUser(user._id, res, a, "$inc"),

@@ -3,6 +3,7 @@ import { user, resources } from "../../utils/interfaces";
 import { getUser, updateValueForUser, editCLSVal } from "../../utils/databasehandler";
 import "../../utils/utils";
 import { loyaltyChange } from ".";
+import { governments } from "./consts";
 
 export async function sendToCls(message: Message, args: string[]) {
     const user: user = await getUser(message.author.id);
@@ -22,7 +23,7 @@ export async function sendToCls(message: Message, args: string[]) {
     if ((res === "money" && parseInt(args[1]) > user.money) || res !== "money" && parseInt(args[1]) > user.resources[res])
         return message.reply("you can't send more than you own!");
 
-    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]);
+    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]) * governments[user.clientStates[index].government].loyaltyIncrease;
     if (user.clientStates[index].loyalty >= 1) editCLSVal(user._id, index, "loyalty", 1, "$set");
     else editCLSVal(user._id, index, "loyalty", l, "$inc");
     await Promise.all([

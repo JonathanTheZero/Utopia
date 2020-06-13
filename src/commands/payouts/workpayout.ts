@@ -52,7 +52,7 @@ export async function populationWorkLoop(client: Client) {
             }).catch(console.log);
             if (diff > pop) {
                 updateValueForUser(u._id, "population", 0, "$set");
-                client.users.get(u._id)!.send({
+                client.users.get(u._id)?.send({
                     embed: {
                         title: "**Alert**",
                         description: "All of your population died",
@@ -66,7 +66,7 @@ export async function populationWorkLoop(client: Client) {
             client.users.get(u._id)?.send({
                 embed: {
                     title: "**Alert**",
-                    description: "Your have successfully gained money through the work of your population",
+                    description: "You have successfully gained money through the work of your population",
                     color: 0xFF0000
                 }
             }).catch(console.log);
