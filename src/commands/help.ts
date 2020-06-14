@@ -245,7 +245,7 @@ export const miscHelpMenu = {
 export const modHelpMenu = {
     color: parseInt(properties.embedColor),
     title: "Moderation help and Set-up",
-    description: "The bot role needs to be ranked above the roles of the other users in order for these commands to work.",
+    description: "The bot role needs to be ranked above the roles of the other users in order for most of these commands to work.",
     fields: [
         {
             name: '`.ban <mention/ID>`',
@@ -319,7 +319,7 @@ export const guideEmbed = {
     ],
     timestamp: new Date(),
     footer: {
-        text: properties.footer.text + "  •   Written by Astilimos#6295",
+        text: properties.footer.text + "  •   Written by Astilimos#6295 and Zero#0659",
         icon_url: properties.footer.icon_url
     }
 };

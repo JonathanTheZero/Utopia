@@ -19,12 +19,14 @@ export async function withdraw(message: Message, args: string[]) {
     }
     if (!a || a < 0) return message.reply("that isn't a valid amount");
     if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
-    if (parseInt(args[1]) > cls.resources[res]) return message.reply("you can't withdraw more than the state owns!");
+    if (a > cls.resources[res]) return message.reply("you can't withdraw more than the state owns!");
+    if (cls.loyalty <= 0) return message.reply("you can't take away resources from a state with 0% loyalty.");
     const l: number = loyaltyChange(a, user.clientStates[index].resources[res]) * governments[user.clientStates[index].government].loyaltyLoss;
+    if(cls.loyalty - l <= 0) editCLSVal(user._id, index, "loyalty", 0, "$set");
+    else editCLSVal(user._id, index, "loyalty", -l, "$inc");
     Promise.all([
         editCLSVal(user._id, index, res!, -a, "$inc"),
-        updateValueForUser(user._id, res, a, "$inc"),
-        editCLSVal(user._id, index, "loyalty", -l, "$inc")
+        updateValueForUser(user._id, res, a, "$inc")
     ]).then(() => message.reply(
         `succesfully took ${a.commafy()} ${res} from ${cls.name}.\n` +
         `This lowered their loyalty by ${l.toLocaleString("en", { style: "percent" })}`
