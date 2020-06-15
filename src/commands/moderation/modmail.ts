@@ -6,8 +6,8 @@ export async function modmail(message: Message, args: string[], client: Client) 
         let channel = <TextChannel>client.channels.get("621046082859958275");
         channel.send({
             embed: {
-                title: `New Suggestion from ${message.author.username}`,
-                description: `${message.author.id}\n${args.slice(1).join(" ")}`,
+                title: `New Suggestion from ${message.author.username} - ${message.author.id}`,
+                description: args.slice(1).join(" "),
                 color: 0xFF0000,
                 timestmap: new Date()
             }
@@ -16,8 +16,8 @@ export async function modmail(message: Message, args: string[], client: Client) 
         let channel = <TextChannel>client.channels.get("721062176042778666");
         channel.send({
             embed: {
-                title: `New Message from ${message.author.username}`,
-                description: `${message.author.id}\n${args.slice(1).join(" ")}`,
+                title: `New Message from ${message.author.username} - ${message.author.id}`,
+                description: args.slice(1).join(" "),
                 color: 0xFF0000,
                 timestmap: new Date()
             }
