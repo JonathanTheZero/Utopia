@@ -40,7 +40,7 @@ import { work, crime } from "./commands/work";
 import { Sleep, delayReminder } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
-import { set, add, ban, purge, kick, modmail, anonmail } from "./commands/moderation";
+import { set, add, ban, purge, kick, modmail, anonmail, reply } from "./commands/moderation";
 import {
     joinAlliance,
     leaveAlliance,
@@ -223,9 +223,14 @@ client.on("message", async message => {
         }
     }
 
-    else if (command === "mail") modmail(message, args, client);
+    else if (command === "mail") await modmail(message, args, client);
 
-    else if (command === "anonmail") anonmail(message, args, client);
+    else if (command === "anonmail") await anonmail(message, args, client);
+
+    else if (command === "modreply" || command === "reply"){
+        if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
+        await reply(message, args, client);
+    }
     
     else if (command === "testmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
