@@ -60,7 +60,7 @@ export async function propose(message: Message, args: string[], client: Client) 
 
     addContract(contract);
     try {
-        client.users.get(buyer._id)?.send(`You have been given a contract proposal.\nThe contract id is ${_id.commafy()}`);
+        client.users.cache.get(buyer._id)?.send(`You have been given a contract proposal.\nThe contract id is ${_id.commafy()}`);
     } catch { }
     return message.reply(
         `Your proposal has been sent to ${buyer.tag} for a contract of ${sellingprice} ${selling} everday for the price of ${price} ${priceresource}.\nYour contract id is ${_id.commafy()}`
@@ -75,10 +75,10 @@ export async function viewContract(message: Message, args: string[], client: Cli
     return message.channel.send({
         embed: {
             title: `Contract #${contract._id}`,
-            description: `A contract proposal between ${client.users.get(contract.users[0])?.tag} and ${client.users.get(contract.users[1])?.tag}`,
+            description: `A contract proposal between ${client.users.cache.get(contract.users[0])?.tag} and ${client.users.cache.get(contract.users[1])?.tag}`,
             fields: [
                 {
-                    name: `${client.users.get(contract.users[0])?.tag} offer`,
+                    name: `${client.users.cache.get(contract.users[0])?.tag} offer`,
                     value: `${contract.info.sellingprice} ${contract.info.selling}`,
                     inline: true
                 },
@@ -101,11 +101,11 @@ export async function acceptedContract(message: Message, args: string[], client:
 
     if (args[1]?.[0].toLowerCase() === "n"){
         await deleteContract(args[0]);
-        client.users.get(contract.users[0])?.send(`${client.users.get(contract.users[1])?.tag} rejected your contract proposal.`);
+        client.users.cache.get(contract.users[0])?.send(`${client.users.cache.get(contract.users[1])?.tag} rejected your contract proposal.`);
         return message.reply(`Contract has been cancelled.`);
     } else if (message.author.id === contract.users[1] && args[1]?.[0].toLowerCase() === "y") {
         await ContractAccepted(args[0]);
-        client.users.get(contract.users[0])?.send(`${client.users.get(contract.users[1])?.tag} accepted your contract proposal.`);
+        client.users.cache.get(contract.users[0])?.send(`${client.users.cache.get(contract.users[1])?.tag} accepted your contract proposal.`);
         return message.reply(`<@${contract.users[0]}> contract has been accepted.`);
     }
 

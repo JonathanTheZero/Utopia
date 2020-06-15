@@ -6,8 +6,8 @@ import "../../utils/utils";
 import { rates, f, governments } from "./consts";
 
 export async function singleStateOverview(message: Message, args: string[]) {
-    if (!args[0]) return message.reply("please follow the syntax of `.clientstate <name>`.");
-    const user: user = await getUser(message.author.id);
+    if (!args[0]) return message.reply("please follow the syntax of `.clientstate <name> [user]`.");
+    const user: user = await getUser(message.mentions.users?.first()?.id || args[1] ||message.author.id);
     if (!user) return message.reply("you haven't created an account yet, please use `.create`!");
     const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     if (index === -1) return message.reply("you have no client state called " + args[0]);

@@ -5,13 +5,13 @@ import * as config from "../../static/config.json";
 
 export async function weeklyReset(client: Client) {
     let users: user[] = await getAllUsers();
-    const channel = <TextChannel>client.channels.get(config.payoutChannel);
+    const channel = <TextChannel>client.channels.cache.get(config.payoutChannel);
     for (const u of users) {
         let tax: number, cl: number;
         updateValueForUser(u._id, "minereturn", 1, "$set");
         if (u.payoutDMs) {
             try {
-                client.users.get(u._id)!.send({
+                client.users.cache.get(u._id)!.send({
                     embed: {
                         description: "Your mines have been reset, happy mining!"
                     }
@@ -36,7 +36,7 @@ export async function weeklyReset(client: Client) {
         }
         const payment = Math.floor((tax / 100) * u.income);
         if (payment > u.money) {
-            client.users.get(u._id)?.send({
+            client.users.cache.get(u._id)?.send({
                 embed: {
                     description: `You couldn't pay your income taxes and took out a loan of ${(payment - u.money).commafy()}`
                 }
@@ -51,7 +51,7 @@ export async function weeklyReset(client: Client) {
         //updateValueForUser(u._id, "money", -Math.floor(.02 * u.money), "$inc");
         addToUSB(Math.floor(.02 * u.money));
         if (u.taxDMs) {
-            client.users.get(u._id)?.send({
+            client.users.cache.get(u._id)?.send({
                 embed: {
                     description: `You have payed your weekly income taxes (you are in class ${cl!}: ${tax!}% tax).\n` +
                         "Additionally 2% of your balance has been taxed.\n\n" +

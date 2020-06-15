@@ -21,7 +21,7 @@ export async function buyOffer(message: Message, args: string[], client: Client)
         addToUSB(Math.floor(.02 * offer.price.amount)),
         deleteOffer(offer._id)
     ]).then(() => message.reply("you succesfully bought the offer!"));
-    return client.users.get(offer.seller._id)?.send({
+    return client.users.cache.get(offer.seller._id)?.send({
         embed: {
             title: `Your offer of ${offer.offer.amount.commafy()} ${offer.offer.currency} has been bought.`,
             description: `You gained ${(Math.floor(.98 * offer.price.amount)).commafy()} ${offer.price.currency}`

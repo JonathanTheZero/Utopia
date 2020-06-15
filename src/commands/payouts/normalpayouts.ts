@@ -6,7 +6,7 @@ import * as config from "../../static/config.json";
 export async function payoutLoop(client: Client) {
     let users: user[] = await getAllUsers();
     let alliances: alliance[] = await getAllAlliances();
-    var payoutChannel = client.channels.get(config.payoutChannel)!;
+    var payoutChannel = client.channels.cache.get(config.payoutChannel)!;
     for (const u of users) {
         if (u.upgrades.population.includes("UK"))
             updateValueForUser(u._id, "population", 5000, "$inc");
@@ -29,7 +29,7 @@ export async function payoutLoop(client: Client) {
 
         if (u.payoutDMs) {
             try {
-                client.users.get(u._id)!.send({
+                client.users.cache.get(u._id)!.send({
                     embed: {
                         title: "**Alert**",
                         description: "You have succesfully gained population from your upgrades and food from your alliance",

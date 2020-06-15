@@ -5,14 +5,14 @@ import { user } from "../../utils/interfaces";
 import { getAllUsers, updateValueForUser, editConfig, getConfig } from "../../utils/databasehandler";
 
 export async function populationWorkLoop(client: Client) {
-    let payoutChannel: Channel = client.channels.get(config.payoutChannel)!;
+    let payoutChannel: Channel = client.channels.cache.get(config.payoutChannel)!;
     let users: user[] = await getAllUsers();
     for (const u of users) {
         let pop = u.resources.population;
         const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop))))) || 0;
         if (consumption > u.resources.food) {
             try {
-                client.users.get(u._id)!.send({
+                client.users.cache.get(u._id)!.send({
                     embed: {
                         title: "**Alert**",
                         description: "Your population will die within in the next hour if you don't buy more food!",
@@ -43,7 +43,7 @@ export async function populationWorkLoop(client: Client) {
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;
             updateValueForUser(u._id, "food", 0, "$set");
-            client.users.get(u._id)?.send({
+            client.users.cache.get(u._id)?.send({
                 embed: {
                     title: "**Alert**",
                     description: "You don't have any food left, your population is dying",
@@ -52,7 +52,7 @@ export async function populationWorkLoop(client: Client) {
             }).catch(console.log);
             if (diff > pop) {
                 updateValueForUser(u._id, "population", 0, "$set");
-                client.users.get(u._id)?.send({
+                client.users.cache.get(u._id)?.send({
                     embed: {
                         title: "**Alert**",
                         description: "All of your population died",
@@ -63,7 +63,7 @@ export async function populationWorkLoop(client: Client) {
         }
         else updateValueForUser(u._id, "food", Math.floor(-consumption), "$inc");
         if (u.payoutDMs) {
-            client.users.get(u._id)?.send({
+            client.users.cache.get(u._id)?.send({
                 embed: {
                     title: "**Alert**",
                     description: "You have successfully gained money through the work of your population",

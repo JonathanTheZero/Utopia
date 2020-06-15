@@ -12,7 +12,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             title: 'Population store',
             description: 'These items are currently available in the population store!',
             thumbnail: {
-                url: `${message.author.displayAvatarURL}`,
+                url: `${message.author.displayAvatarURL()}`,
             },
             fields: [
                 {
@@ -92,7 +92,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
                 "Note: only the leader and the Co-Leaders can buy alliance upgrades and they are used immediately. " +
                 "The Leader gets 10% of the alliance income, the Co-Leaders 5% each. The rest is split among the members.",
             thumbnail: {
-                url: `${message.author.displayAvatarURL}`,
+                url: `${message.author.displayAvatarURL()}`,
             },
             fields: [
                 {
@@ -135,7 +135,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             title: 'Personal Farm Store',
             description: 'These items are currently available in the Personal Farm Store!\n(You can own each farm three times, except Nomadic Farming, which can be owned four times)',
             thumbnail: {
-                url: message.author.displayAvatarURL,
+                url: message.author.displayAvatarURL(),
             },
             fields: [
                 {
@@ -178,7 +178,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
                 "\nAll production rates are further boosted by loyalty and the focus set (for more see`.help client-states`.)" + 
                 "Buy an item with `.buy-cls <state> <upgrade>`. This will boost their loyalty.",
             thumbnail: {
-                url: message.author.displayAvatarURL,
+                url: message.author.displayAvatarURL(),
             },
             fields: [
                 { 
@@ -213,7 +213,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
         description: 'Welcome to the store! \n' +
             "Note: All items can only be purchased **once**.",
         thumbnail: {
-            url: `${message.author.displayAvatarURL}`,
+            url: `${message.author.displayAvatarURL()}`,
         },
         fields: [
             {
