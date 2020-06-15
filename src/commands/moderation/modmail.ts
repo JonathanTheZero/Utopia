@@ -54,7 +54,7 @@ export async function anonmail(message: Message, args: string[], client: Client)
 
 export async function reply(message: Message, args: string[], client: Client){
     if (!args[1]) return message.reply("The command is `.reply 'stuff'`");
-    client.users.get(args[0])?.send({
+    client.users.cache.get(args[0])?.send({
         embed: {
             title: `New Message from ${message.author.username}`,
             description: args.slice(1).join(" "),
