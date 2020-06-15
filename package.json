@@ -5,6 +5,7 @@
   "main": "dist/bundle.js",
   "dependencies": {
     "@types/mongodb": "^3.5.5",
+    "@types/ws": "^7.2.5",
     "better-arrays.js": "^1.0.3",
     "dblapi.js": "^2.3.0",
     "discord.io": "^2.5.3",

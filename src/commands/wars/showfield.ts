@@ -1,6 +1,6 @@
 import { PythonShell } from "python-shell";
 import { updateField, findWarByUser } from "../../utils/databasehandler";
-import { Attachment, Message } from "discord.js";
+import { Message, MessageAttachment } from "discord.js";
 import { Sleep } from "../../utils/utils";
 import { war } from "../../utils/interfaces";
 
@@ -12,7 +12,7 @@ export async function showField(_id: string, message: Message) {
     pyshell.on('message', async answer => {
         imgurl = `imageplotting/${answer.toString()}.png`;
 
-        const file = new Attachment(imgurl);
+        const file = new MessageAttachment(imgurl);
 
         message.channel.send({ files: [file] });
 
