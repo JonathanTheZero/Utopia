@@ -74,14 +74,13 @@ const client = new Discord.Client();
 app.get('/', (_request: any, response: any) => {
     response.sendFile(__dirname + "/index.html");
     console.log(Date.now() + " Ping Received");
-    response.sendStatus(200);
 });
 
 const listener = app.listen(process.env.PORT, () => {
     console.log('Your app is listening on port ' + listener.address().port);
 });
 
-setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 280000);
+setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {

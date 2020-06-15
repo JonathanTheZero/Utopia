@@ -21,7 +21,7 @@ export async function buy(message: Message, args: string[]) {
         return message.reply(await buyItem("MS", message.author.id, 10000000));
     else if (args[0] == "us" || (args[0] == "invade") && args[1] == "the" && args[2] == "us")
         return message.reply(await buyItem("US", message.author.id, 50000000));
-    else if (args[0].startsWith("hospital"))
+    else if (args[0]?.startsWith("hospital"))
         return message.reply(await buyHospital(message.author.id));
     else if (args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food") {
         let amount;
