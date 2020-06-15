@@ -8,7 +8,7 @@ import { f, governments, rates } from "../client-states";
 
 export async function dailyPayout(client: Client) {
     const users: user[] = await getAllUsers();
-    const payoutChannel = <TextChannel>client.channels.get(config.payoutChannel)!;
+    const payoutChannel = <TextChannel>client.channels.cache.get(config.payoutChannel)!;
     for (const u of users) {
         updateValueForUser(u._id, "population", Math.floor(Math.random() * u.resources.population * .05), "$inc");
         if (!u.clientStates.length) continue;
@@ -17,7 +17,7 @@ export async function dailyPayout(client: Client) {
             const loyaltyLoss = Math.random() * .07 * governments[u.clientStates[i].government].loyaltyLoss;
             if (u.clientStates[i].loyalty === 0) {
                 if (Math.random() > 0.5) {
-                    client.users.get(u._id)?.send({
+                    client.users.cache.get(u._id)?.send({
                         embed: {
                             title: "**Alert**",
                             description: `Your left your client state ${c.name} without attention for too long, it declared independence.`,
@@ -27,7 +27,7 @@ export async function dailyPayout(client: Client) {
                     deleteClientState(u._id, c.name);
                     continue;
                 } else {
-                    client.users.get(u._id)?.send({
+                    client.users.cache.get(u._id)?.send({
                         embed: {
                             title: "**Alert**",
                             description: `Your client state ${c.name}'s loyalty sank to 0% they could declare independence!`,
@@ -38,7 +38,7 @@ export async function dailyPayout(client: Client) {
             } else {
                 if (u.clientStates[i].loyalty - loyaltyLoss <= 0) {
                     editCLSVal(u._id, i, "loyalty", 0, "$set");
-                    client.users.get(u._id)?.send({
+                    client.users.cache.get(u._id)?.send({
                         embed: {
                             title: "**Alert**",
                             description: `Your client state ${c.name}'s loyalty sank to 0% they could declare independence!`,
@@ -54,7 +54,7 @@ export async function dailyPayout(client: Client) {
                 const loss = -(Math.random() * .15);
                 if (u.clientStates[i].loyalty - loss <= 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
                 else editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc");
-                client.users.get(u._id)?.send({
+                client.users.cache.get(u._id)?.send({
                     embed: {
                         title: "**Alert**",
                         description: `Your client state ${c.name} ran out of food, it's population starved to death. This lowered their loyalty to you.`,
@@ -110,7 +110,7 @@ export async function dailyPayout(client: Client) {
     for (const p of plagueAffected) {
         const rate = Math.random() * .4 * (1 - p.upgrades.hospitals / 10);
         updateValueForUser(p._id, "population", -Math.floor(p.resources.population * rate), "$inc");
-        client.users.get(p._id)?.send(
+        client.users.cache.get(p._id)?.send(
             `A plague broke out in your Utopia, which killed ${rate.toLocaleString("en", { style: "percent" })} of your population ` +
             `(${Math.floor(p.resources.population * rate).commafy()} people).\n` +
             `You can lower the impact with buying hospitals in the population store.`

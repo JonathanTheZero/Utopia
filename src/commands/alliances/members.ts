@@ -8,11 +8,11 @@ export async function allianceMembers(message: Message, args: string[], client: 
     var user: user, url: string;
     if (typeof args[0] === "undefined") {
         user = await getUser(message.author.id);
-        url = `${message.author.displayAvatarURL}`;
+        url = `${message.author.displayAvatarURL()}`;
     }
     else {
         user = await getUser(message.mentions?.users?.first()?.id || args[0]);
-        url = client.users.get(user._id)?.displayAvatarURL as string;
+        url = client.users.cache.get(user._id)?.displayAvatarURL() as string;
     }
 
     let alliance: alliance = await getAlliance(!user ? args.join(" "): user.alliance as string) as alliance;

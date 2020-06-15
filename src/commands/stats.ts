@@ -13,7 +13,7 @@ import "../utils/utils";
  */
 export async function statsEmbed(message: Message, args: string[], client: Client): Promise<any | void> {
     const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
-    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
+    const url = client.users.cache.get(user?._id.toString())?.displayAvatarURL();
 
     if (!user) {
         if (!args[0]) return message.reply("you haven't created an account yet, please use `.create` first");
@@ -122,7 +122,7 @@ export async function time(message: Message, args: string[], client: Client): Pr
             color: parseInt(properties.embedColor),
             title: `Time data for ${user.tag}`,
             thumbnail: {
-                url: client?.users?.get(user?._id.toString())?.displayAvatarURL,
+                url: client.users.cache.get(user?._id.toString())?.displayAvatarURL(),
             },
             fields: [
                 {

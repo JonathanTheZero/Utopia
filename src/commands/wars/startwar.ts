@@ -1,5 +1,5 @@
 import { user, war } from "../../utils/interfaces";
-import { Message, Attachment } from "discord.js";
+import { Message, MessageAttachment } from "discord.js";
 import * as config from "../../static/config.json";
 import { addWar, findWarByUser } from "../../utils/databasehandler";
 import { PythonShell } from "python-shell";
@@ -93,16 +93,14 @@ export async function startWar(message: Message, author: user, opponent: user) {
         imgurl = `imageplotting/${answer.toString()}.png`;
 
         message.channel.send("This is your battle field:").then(() => message.channel.send({
-            files: [new Attachment(imgurl)]
+            files: [new MessageAttachment(imgurl)]
         }));
 
         await Sleep(5000);
 
         new PythonShell('dist/deleteImage.py', { mode: "text" })
             .send(imgurl)
-            .end(err => {
-                if (err) throw err;
-            });
+            .end(err => { if (err) throw err });
     });
 
     pyshell.end(err => {

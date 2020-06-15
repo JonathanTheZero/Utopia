@@ -423,11 +423,11 @@ export const clsHelp = {
             value: "Delete the client-state with the given name."
         },
         {
-            name: "`.clientstates`",
+            name: "`.clientstates [user]`",
             value: "View a comprehensive list of all your client-states."
         },
         {
-            name: "`.clientstate <name>`",
+            name: "`.clientstate <name> [user]`",
             value: "View a detailed overview over a specific client-state."
         },
         {

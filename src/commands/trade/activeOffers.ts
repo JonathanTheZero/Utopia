@@ -48,11 +48,11 @@ export async function activeOffers(message: Message, args: string[]) {
     const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });
 
     backwards.on('collect', async () => {
-        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.reactions.cache.forEach(reaction => reaction.users.remove(message.author.id));
         m.edit({ embed: await marketEmbed(query, --page, func) });
     });
     forwards.on('collect', async () => {
-        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.reactions.cache.forEach(reaction => reaction.users.remove(message.author.id));
         m.edit({ embed: await marketEmbed(query, ++page, func) });
     });
 }

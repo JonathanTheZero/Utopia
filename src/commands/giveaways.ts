@@ -67,7 +67,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
         }
 
         await addGiveaway(giveaway);
-        let msg = await message.channel.fetchMessage(giveaway!.embedId);
+        let msg = await message.channel.messages.fetch(giveaway!.embedId);
         msg.react("🎉");
         giveawayCheck(giveaway!._id, client);
     });
@@ -76,19 +76,19 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
 export async function giveawayCheck(_id: string, client: Client) {
     let giveaway: giveaway = await getGiveaway(_id);
     if (!giveaway) return;
-    const channel = <TextChannel>client.channels.get(giveaway.channelid)!;
+    const channel = <TextChannel>client.channels.cache.get(giveaway.channelid)!;
     var voteCollection: Collection<string, MessageReaction>;
 
     await Sleep(giveaway.endingAt - Date.now());
 
-    await channel.fetchMessage(giveaway.embedId).then(msg => {
-        voteCollection = msg.reactions;
+    await channel.messages.fetch(giveaway.embedId).then(msg => {
+        voteCollection = msg.reactions.cache;
     });
 
-    giveaway.users = voteCollection!.first().users.array();
+    giveaway.users = voteCollection!.first()!.users.cache.array();
     giveaway.users.shift();
     if (giveaway.users.length === 0) {
-        let y: User[] = (await voteCollection!.first().fetchUsers()).array();
+        let y: User[] = (await voteCollection!.first()!.users.fetch()).array();
         y.pop();
         giveaway.users = y;
     }
