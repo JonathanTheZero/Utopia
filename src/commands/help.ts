@@ -202,16 +202,12 @@ export const miscHelpMenu = {
             value: "Enable/Disable DMs when the payouts are given out. (Disabled by default)",
         },
         {
-            name: "`.taxdms",
+            name: "`.taxdms`",
             value: "Enabled/Disable DMs whent taxes happen. (Enabled by default)."
         },
         {
             name: "`.invitelink`",
             value: "Grab an invite link to add me to your server!",
-        },
-        {
-            name: "`.donate`",
-            value: "Support the bot on Patreon or on PayPal!",
         },
         {
             name: "`.server`",
@@ -236,6 +232,11 @@ export const miscHelpMenu = {
         {
             name: "`.calc <expression>`",
             value: "Returns the result of a calculation"
+        },
+        {
+            name: "`.mail <sugggestion | mods> <...message>`",
+            value: "Send a message with either a suggestion to the developers or a request to the moderators. "+
+                "If you prefer to stay anonymous, use `.anonmail` instead of `.mail`." 
         }
     ],
     timestamp: new Date(),
