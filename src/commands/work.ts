@@ -13,8 +13,8 @@ export async function work(message: Message, client: Client) {
     if (Math.floor(Date.now() / 1000) - user.lastWorked < 1800)
         return message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8));
 
-    if (client.users.get(user._id.toString())?.tag && client.users.get(user._id.toString())!.tag !== user.tag)
-        updateValueForUser(user._id, "tag", client.users.get(user._id.toString())!.tag as string);
+    if (client.users.cache.get(user._id.toString())?.tag && client.users.cache.get(user._id.toString())!.tag !== user.tag)
+        updateValueForUser(user._id, "tag", client.users.cache.get(user._id.toString())!.tag as string);
 
     let produced = Math.floor(Math.random() * (10000 + user.resources.population / 1000));
     addToUSB(Math.floor(-produced * 1.1));

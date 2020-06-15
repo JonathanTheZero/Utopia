@@ -1,10 +1,10 @@
 import { Message } from "discord.js";
 
 export async function ban(message: Message, args: string[]) {
-    if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'], false, true, true))
+    if (!message.member!.permissions.has(['KICK_MEMBERS', 'BAN_MEMBERS'], true))
         return message.reply("this command can only be used by Members who have Kick and Ban permissions");
 
-    let member = message.mentions.members.first();
+    let member = message.mentions.members!.first();
     if (!member)
         return message.reply("Please mention/ID a valid member of this server");
 
@@ -14,8 +14,8 @@ export async function ban(message: Message, args: string[]) {
     let reason = args.slice(1).join(' ');
     if (!reason) reason = "No reason provided";
 
-    await member.ban(reason)
+    await message.guild!.members.ban(member, { reason })
         .catch(error => message.reply(`Sorry ${message.author} I couldn't ban because of : ${error}`));
 
-    message.reply(`${member.user.tag} has been banned by ${message.author.tag} because: ${reason}`);
+    return message.reply(`${member.user.tag} has been banned by ${message.author.tag} because: ${reason}`);
 }

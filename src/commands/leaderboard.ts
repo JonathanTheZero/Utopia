@@ -25,11 +25,11 @@ export async function leaderboard(message: Message, args: Array<any>) {
     const forwards = m.createReactionCollector(forwardsFilter, { time: 100000 });
 
     backwards.on('collect', async () => {
-        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.reactions.cache.forEach(reaction => reaction.users.remove(message.author.id));
         m.edit({ embed: await generateLeaderboardEmbed(symbol, --page, message) });
     });
     forwards.on('collect', async () => {
-        m.reactions.forEach(reaction => reaction.remove(message.author.id));
+        m.reactions.cache.forEach(reaction => reaction.users.remove(message.author.id));
         m.edit({ embed: await generateLeaderboardEmbed(symbol, ++page, message) });
     });
 }

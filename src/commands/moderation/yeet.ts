@@ -1,10 +1,10 @@
 import { Message } from "discord.js";
 
 export async function kick(message: Message, args: string[]) {
-    if (!message.member.hasPermission(['KICK_MEMBERS'], false, true, true)) {
+    if (!message.member!.permissions.has(['KICK_MEMBERS'], true)) {
         return message.reply("this command can only be used by Members who have Kick permissions");
     }
-    let member = message.mentions.members.first() || message.guild.members.get(args[0]);
+    let member = message.mentions.members!.first() || message.guild!.members.cache.get(args[0]);
     
     if (!member)
         return message.reply("Please mention/ID a valid member of this server");

@@ -104,13 +104,13 @@ if (config.dbl) {
 console.log("Application has started");
 
 client.on("ready", async () => {
-    console.log(`Bot has started, with ${client.users.size.commafy()} users, in ${client.channels.size.commafy()} channels of ${client.guilds.size.commafy()} guilds.`);
-    client.user.setActivity(`.help | v2.3 The Exchange out now!`);
+    console.log(`Bot has started, with ${client.users.cache.size.commafy()} users, in ${client.channels.cache.size.commafy()} channels of ${client.guilds.cache.size.commafy()} guilds.`);
+    client!.user!.setActivity(`.help | v2.3 The Exchange out now!`);
 
     await connectToDB();
     getServers().then(server => {
-        if (server.length < client.guilds.array().length)
-            client.guilds.array().forEach(async (el) => {
+        if (server.length < client.guilds.cache.array().length)
+            client.guilds.cache.array().forEach(async (el) => {
                 updateServer({
                     _id: el.id,
                     name: el.name,
@@ -134,7 +134,7 @@ client.on("ready", async () => {
     const users: user[] = await getAllUsers();
     for (const u of users) {
         if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage.alreadyPinged) continue;
-        const msg = await (<Discord.TextChannel>client.channels.get(u.lastMessage.channelID)).fetchMessage(u.lastMessage.messageID)!;
+        const msg = await (<Discord.TextChannel>client.channels.cache.get(u.lastMessage.channelID)).messages.fetch(u.lastMessage.messageID)!;
         const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
             crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
             mineTime = (3600 - (Math.floor(Date.now() / 1000) - u.lastMine)) * 1000,
@@ -151,7 +151,7 @@ client.on("ready", async () => {
 
 client.on("guildCreate", guild => {
     console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
-    client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+    client.user!.setActivity(`.help | ${client.users.cache.size} users on ${client.guilds.cache.size} servers`);
     if (connected) addServer({
         _id: guild.id,
         name: guild.name,
@@ -163,13 +163,13 @@ client.on("guildCreate", guild => {
 
 client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild?.name} (id: ${guild?.id})`);
-    client.user.setActivity(`.help | ${client.users.size} users on ${client.guilds.size} servers`);
+    client.user!.setActivity(`.help | ${client.users.cache.size} users on ${client.guilds.cache.size} servers`);
     if (connected) deleteServer(guild?.id);
 });
 
 
 client.on("message", async message => {
-    const prefix = (await getServer(message.guild?.id))?.prefix;
+    const prefix = (await getServer(message.guild?.id!))?.prefix;
     if (!prefix) return;
     if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
 
@@ -182,7 +182,7 @@ client.on("message", async message => {
 
     if (command === "ping") {
         const m: Discord.Message = await message.channel.send("Ping?") as Discord.Message;
-        m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
+        m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ws.ping)}ms`);
     }
 
     else if (command === "say") {
@@ -207,7 +207,7 @@ client.on("message", async message => {
     else if (command === "sendupmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig(), output = c.upmsg, u: user[] = await getAllUsers();
-        let channel = <Discord.TextChannel>client.channels.get("624964388557684756"); //Change this to the announcement channel id
+        let channel = <Discord.TextChannel>client.channels.cache.get("624964388557684756"); //Change this to the announcement channel id
 
         if (["everyone", "e", "Everyone", "E"].includes(args[0])) channel.send(`@everyone ${output}`);
 
@@ -216,10 +216,10 @@ client.on("message", async message => {
         else channel.send(output);
 
         const lister: string[] = [];
-        client.guilds.get("621044091056029696")?.members.forEach(member => lister.push(member.id)!);
+        client.guilds.cache.get("621044091056029696")?.members.cache.forEach(member => lister.push(member.id)!);
 
         for (let i = 0; i < u.length; i++) {
-            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)?.send(output).catch(console.log);
+            if (!lister.includes(u[i]._id)) client.users.cache.get(u[i]._id)?.send(output).catch(console.log);
         }
     }
 
@@ -232,7 +232,7 @@ client.on("message", async message => {
         let c: configDB = await getConfig();
         const users = await getAllUsers();
         for (const u of users) {
-            client.users.get(u._id)?.send(c.upmsg).catch(console.log);
+            client.users.cache.get(u._id)?.send(c.upmsg).catch(console.log);
         }
     }
 
@@ -512,11 +512,11 @@ client.on("message", async message => {
                 fields: [
                     {
                         name: "Servers:",
-                        value: `Currently I am active on ${client.guilds.size.commafy()} servers`
+                        value: `Currently I am active on ${client.guilds.cache.size.commafy()} servers`
                     },
                     {
                         name: "Users:",
-                        value: `Currently I have ${client.users.size.commafy()} users.`
+                        value: `Currently I have ${client.users.cache.size.commafy()} users.`
                     },
                     {
                         name: "Commands run:",
@@ -543,14 +543,14 @@ client.on("message", async message => {
         var sendString: string = (user.upgrades.pf.nf + user.upgrades.pf.sf + user.upgrades.pf.sef + user.upgrades.pf.if) + "#" +
             user.upgrades.population.length + "#" +
             user.resources.population + "#" +
-            client.users.get(user._id)?.username;
+            client.users.cache.get(user._id)?.username;
 
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
             imgurl = `imageplotting/${answer.toString()}.png`;
 
-            message.channel.send({ files: [new Discord.Attachment(imgurl)] });
+            message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
             new PythonShell('dist/deleteImage.py', { mode: "text" })
@@ -569,10 +569,10 @@ client.on("message", async message => {
         startGiveaway(message, args, client);
 
     else if (["set-prefix", "setprefix", "prefix"].includes(command)) {
-        if (!message.member.hasPermission(["ADMINISTRATOR", "MANAGE_GUILD"], false, true, true))
+        if (!message.member!.permissions.has(["ADMINISTRATOR", "MANAGE_GUILD"], true))
             return message.reply("you need manage server permissions to change the prefix!");
         if (!args[0]) return message.reply("please follow the syntax of `.set-prefix <new prefix>`");
-        updatePrefix(message.guild.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
+        updatePrefix(message.guild!.id, args[0]).then(() => message.reply("the prefix has been updated successfully"));
     }
 
     else if (command === "start-war" || command === "startwar") {

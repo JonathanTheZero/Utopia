@@ -6,7 +6,7 @@ import "../../utils/utils";
 
 export async function allianceOverview(message: Message, args: string[], client: Client) {
     const user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
-    const url = client?.users?.get(user?._id.toString())?.displayAvatarURL;
+    const url = client.users.cache.get(user?._id.toString())?.displayAvatarURL();
 
     let alliance: alliance = await getAlliance(!user ? args.join(" ") : user.alliance as string) as alliance;
     if (!alliance) {
