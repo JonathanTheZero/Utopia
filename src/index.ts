@@ -40,7 +40,7 @@ import { work, crime } from "./commands/work";
 import { Sleep, delayReminder } from "./utils/utils";
 import { storeEmbed } from "./commands/store";
 import { startGiveaway, giveawayCheck } from "./commands/giveaways";
-import { set, add, ban, purge, kick } from "./commands/moderation";
+import { set, add, ban, purge, kick, modmail, anonmail } from "./commands/moderation";
 import {
     joinAlliance,
     leaveAlliance,
@@ -218,10 +218,15 @@ client.on("message", async message => {
         const lister: string[] = [];
         client.guilds.get("621044091056029696")?.members.forEach(member => lister.push(member.id)!);
 
-        for (let i = 0; i < u.length; i++)
-            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)?.send(output);
+        for (let i = 0; i < u.length; i++) {
+            if (!lister.includes(u[i]._id)) client.users.get(u[i]._id)?.send(output).catch(console.log);
+        }
     }
 
+    else if (command === "mail") modmail(message, args, client);
+
+    else if (command === "anonmail") anonmail(message, args, client);
+    
     else if (command === "testmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
@@ -701,7 +706,7 @@ client.on("message", async message => {
 
     else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 
-    else if(command === "calc") calc(message, args.join(" "));
+    else if (command === "calc") calc(message, args.join(" "));
 });
 
 client.login(config.token);
