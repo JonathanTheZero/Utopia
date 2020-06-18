@@ -53,7 +53,7 @@ export async function anonmail(message: Message, args: string[], client: Client)
 }
 
 export async function reply(message: Message, args: string[], client: Client){
-    if (!args[1]) return message.reply("The command is `.reply 'stuff'`");
+    if (!args[1]) return message.reply("The command is `.reply <id> <message>`");
     client.users.cache.get(args[0])?.send({
         embed: {
             title: `New Message from ${message.author.username}`,
@@ -61,6 +61,6 @@ export async function reply(message: Message, args: string[], client: Client){
             color: 0xFF0000,
             timestmap: new Date()
         }
-    })
-    return message.reply("Reply has been sent!")
+    }).catch(console.log);
+    return message.reply("Reply has been sent!");
 }
