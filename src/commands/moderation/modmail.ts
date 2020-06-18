@@ -51,3 +51,16 @@ export async function anonmail(message: Message, args: string[], client: Client)
         return message.reply("succesfull sent your message to the mods.");
     } else return message.reply("this is not a valid type!");
 }
+
+export async function reply(message: Message, args: string[], client: Client){
+    if (!args[1]) return message.reply("The command is `.reply 'stuff'`");
+    client.users.cache.get(args[0])?.send({
+        embed: {
+            title: `New Message from ${message.author.username}`,
+            description: args.slice(1).join(" "),
+            color: 0xFF0000,
+            timestmap: new Date()
+        }
+    })
+    return message.reply("Reply has been sent!")
+}
