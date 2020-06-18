@@ -6,7 +6,7 @@ import { war } from "../../utils/interfaces";
 
 export async function showField(_id: string, message: Message) {
     var imgurl: string = "-1";
-    const pyshell = new PythonShell('dist/war.py', { mode: "text" });
+    const pyshell = new PythonShell('war.py', { mode: "text" });
     var sendString = JSON.stringify(await updateField(_id));
     pyshell.send(sendString);
     pyshell.on('message', async answer => {
@@ -18,7 +18,7 @@ export async function showField(_id: string, message: Message) {
 
         await Sleep(5000);
 
-        const del = new PythonShell('dist/deleteImage.py', { mode: "text" });
+        const del = new PythonShell('deleteImage.py', { mode: "text" });
         del.send(imgurl);
         del.end(err => { if (err) throw err });
     });

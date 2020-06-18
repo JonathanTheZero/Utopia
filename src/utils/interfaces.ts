@@ -217,11 +217,19 @@ export interface contract {
     _id: string;
     proposal: boolean;
     users: [string, string];
-    info: { 
+    info: {
         totaltime: number;
         selling: resources;
         sellingprice: number;
         priceresource: resources;
         price: number;
+    }
+}
+
+export interface trait {
+    name: string;
+    effect: {
+        type: clsEdits;
+        value: 0.9 | 1.1;
     }
 }
