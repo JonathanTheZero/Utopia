@@ -223,15 +223,15 @@ client.on("message", async message => {
         }
     }
 
-    else if (command === "mail") await modmail(message, args, client);
+    else if (command === "mail") modmail(message, args, client);
 
-    else if (command === "anonmail") await anonmail(message, args, client);
+    else if (command === "anonmail") anonmail(message, args, client);
 
-    else if (command === "modreply" || command === "reply"){
+    else if (command === "modreply" || command === "reply") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
-        await reply(message, args, client);
+        reply(message, args, client);
     }
-    
+
     else if (command === "testmsg") {
         if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
         let c: configDB = await getConfig();
@@ -329,29 +329,21 @@ client.on("message", async message => {
     else if (command === "server")
         return message.reply("join the official Utopia server for special giveaways, support, bug reporting and more here: " + config.serverInvite);
 
-    else if (command === "buy")
-        buy(message, args);
+    else if (command === "buy") buy(message, args);
 
-    else if (command === "payout")
-        payout(message, args);
+    else if (command === "payout") payout(message, args);
 
-    else if (command === "alliancepayout")
-        alliancePayout(message, args);
+    else if (command === "alliancepayout") alliancePayout(message, args);
 
-    else if (command === "kill")
-        kill(message, args);
+    else if (command === "kill") kill(message, args);
 
-    else if (command === "add")
-        add(message, args);
+    else if (command === "add") add(message, args);
 
-    else if (command === "set")
-        set(message, args);
+    else if (command === "set") set(message, args);
 
-    else if (command === "send")
-        send(message, args);
+    else if (command === "send") send(message, args);
 
-    else if (command === "deposit")
-        deposit(message, args);
+    else if (command === "deposit") deposit(message, args);
 
     else if (command === "delete") {
         const user: user = await getUser(message.author.id);
@@ -540,7 +532,7 @@ client.on("message", async message => {
 
     else if (command === "utopia") {
         var imgurl: string = "-1";
-        const pyshell = new PythonShell('dist/plotImage.py', { mode: "text" });
+        const pyshell = new PythonShell('plotImage.py', { mode: "text" });
         const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         if (!user)
             return message.reply(args[0] ? "this user hasn't created an account yet." : "You haven't created an account yet, please use `.create` first.");
@@ -553,12 +545,12 @@ client.on("message", async message => {
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
-            imgurl = `imageplotting/${answer.toString()}.png`;
+            imgurl = `${answer.toString()}.png`;
 
             message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
-            new PythonShell('dist/deleteImage.py', { mode: "text" })
+            new PythonShell('deleteImage.py', { mode: "text" })
                 .send(imgurl)
                 .end(err => { if (err) throw err });
         });

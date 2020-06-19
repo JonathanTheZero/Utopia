@@ -43,7 +43,7 @@ def plotWar(args):
                 else:
                     base.paste(hexa, (1 + (j * 76), 1 + (i * 67) - i), mask=hexa)
 
-    base.save("./imageplotting/" + name + ".png", "PNG",
+    base.save(name + ".png", "PNG",
               quality=100, optimize=True, progressive=True)
 
     print(name)

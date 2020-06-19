@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { user, clsUpgrades } from "../../utils/interfaces";
-import { getUser, editCLSVal } from "../../utils/databasehandler";
+import { getUser, editCLSVal, addToUSB } from "../../utils/databasehandler";
 import { governments } from "./consts";
 
 export async function upgradeCLS(message: Message, args: string[]) {
@@ -31,6 +31,7 @@ export async function upgradeCLS(message: Message, args: string[]) {
     editCLSVal(user._id, index, "money", -price.money, "$inc");
     editCLSVal(user._id, index, "steel", -price.steel, "$inc");
     editCLSVal(user._id, index, "oil", -price.oil, "$inc");
+    addToUSB(price.money);
     const gain = (.1 * governments[user.clientStates[index].government].loyaltyIncrease);
     if (cls.loyalty < 1 - gain) editCLSVal(user._id, index, "loyalty", gain, "$inc");
     else editCLSVal(user._id, index, "loyalty", 1, "$set");

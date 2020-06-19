@@ -261,7 +261,7 @@ def plotImage(args):
             
     author_name = args[3] + "'s Utopia"
     draw_text(author_name, base, black_bg)
-    base.save("./imageplotting/" + name + ".png", "PNG",
+    base.save(name + ".png", "PNG",
               quality=100, optimize=True, progressive=True)
     print(name)  # return value to node module
 
