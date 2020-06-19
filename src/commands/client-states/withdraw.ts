@@ -32,3 +32,20 @@ export async function withdraw(message: Message, args: string[]) {
         `This lowered their loyalty by ${l.toLocaleString("en", { style: "percent" })}`
     ));
 }
+
+export async function clskill(message: Message, args: string[]){
+    if (!args[0]) return message.reply("please follow the syntax of `.clskill <state> <amount>`")
+    const user: user = await getUser(message.author.id);
+    if (!user) return message.reply("you haven't created an account yet, please use `.create`.");
+    let a = parseInt(args[1]), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
+    const cls = user.clientStates[index];
+    if (!a || a < 0) return message.reply("that isn't a valid amount");
+    if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
+    
+    Promise.all([
+        editCLSVal(user._id, index, "population"!, -a, "$inc"),
+    ]).then(() => message.reply(
+        `succesfully killed ${a.commafy()} population from ${cls.name}.\n`
+    ));
+
+}
