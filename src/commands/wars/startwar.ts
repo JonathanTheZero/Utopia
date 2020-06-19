@@ -85,12 +85,12 @@ export async function startWar(message: Message, author: user, opponent: user) {
     await addWar(newWar);
 
     var imgurl: string = "-1";
-    const pyshell = new PythonShell('dist/war.py', { mode: "text" });
+    const pyshell = new PythonShell('war.py', { mode: "text" });
 
     pyshell.send(JSON.stringify(newWar.field));
 
     pyshell.on('message', async answer => {
-        imgurl = `imageplotting/${answer.toString()}.png`;
+        imgurl = `${answer.toString()}.png`;
 
         message.channel.send("This is your battle field:").then(() => message.channel.send({
             files: [new MessageAttachment(imgurl)]
@@ -98,7 +98,7 @@ export async function startWar(message: Message, author: user, opponent: user) {
 
         await Sleep(5000);
 
-        new PythonShell('dist/deleteImage.py', { mode: "text" })
+        new PythonShell('deleteImage.py', { mode: "text" })
             .send(imgurl)
             .end(err => { if (err) throw err });
     });

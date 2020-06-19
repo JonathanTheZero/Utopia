@@ -7,18 +7,6 @@ export const rates = {
 
 export const f = (f: number) => Math.log((f + 1) * .01) / 500;
 
-/*
-export function loyaltyChange(amount: number, total: number): number {
-    const rate = amount / total;
-    if (rate < 10) return Math.random() * .1;
-    if (rate < 20) return Math.random() * .15;
-    if (rate < 30) return Math.random() * .2;
-    if (rate < 40) return Math.random() * .25;
-    return Math.random() * .3;
-    return Math.min(3 * Math.random() * (amount / total), .9) || .9;
-}
-*/
-
 export const loyaltyChange = (amount: number, total: number) => Math.min(3 * Math.random() * (amount / total), .9) || .9;
 
 export const governments = {

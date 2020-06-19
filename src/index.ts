@@ -532,7 +532,7 @@ client.on("message", async message => {
 
     else if (command === "utopia") {
         var imgurl: string = "-1";
-        const pyshell = new PythonShell('dist/plotImage.py', { mode: "text" });
+        const pyshell = new PythonShell('plotImage.py', { mode: "text" });
         const user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
         if (!user)
             return message.reply(args[0] ? "this user hasn't created an account yet." : "You haven't created an account yet, please use `.create` first.");
@@ -545,12 +545,12 @@ client.on("message", async message => {
         pyshell.send(sendString);
 
         pyshell.on('message', async answer => {
-            imgurl = `imageplotting/${answer.toString()}.png`;
+            imgurl = `${answer.toString()}.png`;
 
             message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
-            new PythonShell('dist/deleteImage.py', { mode: "text" })
+            new PythonShell('deleteImage.py', { mode: "text" })
                 .send(imgurl)
                 .end(err => { if (err) throw err });
         });
