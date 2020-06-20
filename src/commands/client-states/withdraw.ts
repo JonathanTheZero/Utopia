@@ -9,7 +9,7 @@ export async function withdraw(message: Message, args: string[]) {
     if (!user) return message.reply("you haven't created an account yet, please use `.create`.");
     let res: resources, a = parseInt(args[1]), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     const cls = user.clientStates[index];
-    switch (args[2][0]) {
+    switch (args[2][0].toLowerCase()) {
         case "f": res = "food"; break;
         case "o": res = "oil"; break;
         case "p": res = "population"; break;

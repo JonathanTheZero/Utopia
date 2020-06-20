@@ -10,7 +10,7 @@ export async function sendToCls(message: Message, args: string[]) {
     if (!user) return message.reply("you haven't created an account yet, please use `.create` before");
     if (!args[2]) return message.reply("please follow the syntax of `.send-to-cls <name> <amount> <currency>`");
     let res: resources, a = parseInt(args[1]), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
-    switch (args[2][0]) {
+    switch (args[2][0].toLowerCase()) {
         case "f": res = "food"; break;
         case "o": res = "oil"; break;
         case "p": res = "population"; break;
