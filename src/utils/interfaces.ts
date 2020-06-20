@@ -228,8 +228,8 @@ export interface contract {
 
 export interface trait {
     name: string;
-    effect: {
-        type: clsEdits;
+    effects: {
+        type: clsEdits | resources;
         value: 0.9 | 1.1;
-    }
+    }[]
 }

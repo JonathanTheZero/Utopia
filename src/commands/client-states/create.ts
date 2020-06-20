@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import { clientState, user } from "../../utils/interfaces";
 import { getUser, addClientState, updateValueForUser, addToUSB, updateValueForAlliance } from "../../utils/databasehandler";
 import "../../utils/utils";
+import Governor from "./governors";
 
 export async function createCLS(message: Message, args: string[]) {
     const user: user = await getUser(message.author.id);
@@ -32,5 +33,8 @@ export async function createCLS(message: Message, args: string[]) {
     if (user.alliance) updateValueForAlliance(user.alliance, "clientStates", 1, "$inc");
     addToUSB(price);
     addClientState(user._id, cls);
+    message.channel.send(`\`\`\`ts
+        ${JSON.stringify(new Governor(), null, 2)}
+    \`\`\``);
     return message.reply(`you successfully founded the state of ${cls.name}. It is a monarchy!`);
 }

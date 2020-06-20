@@ -1,3 +1,5 @@
+import { trait } from "../../utils/interfaces";
+
 export const rates = {
     money: .9,
     rigs: 100000,
@@ -27,8 +29,33 @@ export const governments = {
     }
 };
 
-export const traits = [
+export const traits: trait[] = [
     {
-
+        name: "Just",
+        effects: [
+            { type: "money", value: 1.1 },
+            { type: "farms", value: 1.1 }
+        ]
+    },
+    {
+        name: "Brutal",
+        effects: [
+            { type: "money", value: 0.9 },
+            { type: "farms", value: 0.9 }
+        ]
+    },
+    {
+        name: "Industrialist",
+        effects: [
+            { type: "mines", value: 1.1 },
+            { type: "rigs", value: 1.1 }
+        ]
+    },
+    {
+        name: "Greedy",
+        effects: [
+            { type: "mines", value: 0.9 },
+            { type: "rigs", value: 0.9 }
+        ]
     }
 ]
