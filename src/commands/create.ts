@@ -1,5 +1,6 @@
 import { user, alliance } from "../utils/interfaces";
 import { Message } from "discord.js";
+import { getUser } from "../utils/databasehandler";
 
 export function createUser(message: Message): user {
     return {
@@ -51,7 +52,7 @@ export function createUser(message: Message): user {
     }
 }
 
-export function createAlliance(name: string, message: Message): alliance {
+export async function createAlliance(name: string, message: Message): Promise<alliance> {
     return {
         name: name,
         level: 1,
@@ -70,6 +71,6 @@ export function createAlliance(name: string, message: Message): alliance {
             mf: 0
         },
         invitedUsers: [],
-        clientStates: 0
+        clientStates: (await getUser(message.author.id)).clientStates.length
     }
 }
