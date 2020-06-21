@@ -71,7 +71,7 @@ export async function allianceOverview(message: Message, args: string[], client:
                 },
                 {
                     name: "Client states:",
-                    value: `This alliance has ${alliance.clientStates} in it, which boost the payout by ${((1.2 ** alliance.clientStates) - 1).toLocaleString("en", { style: "percent" })}`,
+                    value: `This alliance has ${alliance.clientStates} in it, which boost the payout by ${(Math.min(1.2 ** alliance.clientStates, 10) - 1).toLocaleString("en", { style: "percent" })}`,
                     inline: true
                 }
             ],

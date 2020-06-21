@@ -23,22 +23,23 @@ export async function payout(message: Message, args: string[]) {
     var userFood = 0;
     if (user.alliance != null) {
         let alliance: alliance = await getAlliance(user.alliance) as alliance;
+        const clsFactor = Math.min(1.2 ** alliance.clientStates, 10);
         if (user.allianceRank == "L") {
             userFood = Math.floor((alliance.upgrades.af * 15000 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.pf * 100000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
+                alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
             if (alliance.coLeaders.length == 0)
-                userFood += Math.floor((alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000) * 1.2 ** alliance.clientStates);
+                userFood += Math.floor((alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000) * clsFactor);
         }
         else if (user.allianceRank == "C") {
             userFood = Math.floor((alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
+                alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
         }
         else if (user.allianceRank == "M") {
             userFood = Math.floor((Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
-                Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * 1.2 ** alliance.clientStates);
+                Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
         }
     }
 
