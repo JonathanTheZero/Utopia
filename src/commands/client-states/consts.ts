@@ -7,7 +7,8 @@ export const rates = {
 
 export const f = (f: number) => Math.log((f + 1) * .01) / 500;
 
-export const loyaltyChange = (amount: number, total: number) => Math.min(3 * Math.random() * (amount / total), .9) || .9;
+//export const loyaltyChange = (amount: number, total: number) => Math.min(3 * Math.random() * (amount / total), .9) || .9;
+export const loyaltyChange = (amount: number, total: number) => Math.min((2.4 * amount) / (total * 12), .2) || .2;
 
 export const governments = {
     democracy: {

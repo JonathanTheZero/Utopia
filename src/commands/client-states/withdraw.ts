@@ -9,7 +9,7 @@ export async function withdraw(message: Message, args: string[]) {
     if (!user) return message.reply("you haven't created an account yet, please use `.create`.");
     let res: resources, a = parseInt(args[1]), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     const cls = user.clientStates[index];
-    switch (args[2][0]) {
+    switch (args[2][0].toLowerCase()) {
         case "f": res = "food"; break;
         case "o": res = "oil"; break;
         case "p": res = "population"; break;
@@ -21,7 +21,7 @@ export async function withdraw(message: Message, args: string[]) {
     if (index === -1) return message.reply(`you have no Client State that is named ${args[0]}`);
     if (a > cls.resources[res]) return message.reply("you can't withdraw more than the state owns!");
     if (cls.loyalty <= 0) return message.reply("you can't take away resources from a state with 0% loyalty.");
-    const l: number = loyaltyChange(a, user.clientStates[index].resources[res]) * governments[user.clientStates[index].government].loyaltyLoss;
+    const l: number = 3 * loyaltyChange(a, user.clientStates[index].resources[res]) * governments[user.clientStates[index].government].loyaltyLoss;
     if(cls.loyalty - l <= 0) editCLSVal(user._id, index, "loyalty", 0, "$set");
     else editCLSVal(user._id, index, "loyalty", -l, "$inc");
     Promise.all([

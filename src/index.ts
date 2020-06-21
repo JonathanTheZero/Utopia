@@ -309,7 +309,7 @@ client.on("message", async message => {
         if (user.money < 250000)
             return message.reply("It costs 250,000 money to create an alliance, you don't have so much!");
 
-        await addAlliance(createAlliance(args.join(" "), message));
+        await addAlliance(await createAlliance(args.join(" "), message));
         updateValueForUser(message.author.id, "alliance", args.join(" "));
         updateValueForUser(message.author.id, "allianceRank", "L");
         updateValueForUser(message.author.id, "money", -250000, "$inc");

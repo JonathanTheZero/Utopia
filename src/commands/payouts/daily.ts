@@ -51,9 +51,13 @@ export async function dailyPayout(client: Client) {
             const consumption = Math.floor(c.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, c.resources.population))))) || 0;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
-                const loss = -(Math.random() * .15);
+                const loss = -(Math.random() * .8);
                 if (u.clientStates[i].loyalty - loss <= 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
-                else editCLSVal(u._id, i, "loyalty", -(Math.random() * .15), "$inc");
+                else editCLSVal(u._id, i, "loyalty", loss, "$inc");
+                editCLSVal(u._id, i, "food", 0, "$set");
+                const diff = consumption - u.resources.food;
+                if(diff > c.resources.population) editCLSVal(u._id, i, "population", 0, "$set");
+                else editCLSVal(u._id, i, "population", -diff, "$inc");
                 client.users.cache.get(u._id)?.send({
                     embed: {
                         title: "**Alert**",

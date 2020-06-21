@@ -10,7 +10,7 @@ export async function upgradeCLS(message: Message, args: string[]) {
     if (index === -1) return message.reply("you have no client state called " + args[0]);
     const cls = user.clientStates[index];
     let r: clsUpgrades;
-    switch (args[1][0]) {
+    switch (args[1][0].toLowerCase()) {
         case "f": r = "farms"; break;
         case "r": r = "rigs"; break;
         case "m": r = "mines"; break;
