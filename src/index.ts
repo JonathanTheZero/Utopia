@@ -685,9 +685,9 @@ client.on("message", async message => {
 
     else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
 
-    else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
+    else if (command === "cls-overview" || command === "clientstates" || command === "client-states" || command === "clss") clsOverview(message, args);
 
-    else if (command === "send-to-cls") sendToCls(message, args);
+    else if (command === "send-to-cls" || command === "sendtocls" || command === "stc") sendToCls(message, args);
 
     else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
 
@@ -701,7 +701,7 @@ client.on("message", async message => {
 
     else if (command === "withdraw") withdraw(message, args);
 
-    else if (command === "clskill") clskill(message, args)
+    // else if (command === "clskill") clskill(message, args)
 
     else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 

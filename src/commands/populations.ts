@@ -11,7 +11,7 @@ export async function kill(message: Message, args: string[]) {
     if (!user)
         return message.reply("you haven't created an account yet, please use the `.create` command first.");
 
-    const a = (args[0] === "a") ? user.resources.population : parseInt(args[0]);
+    const a = (args[0] === "a") ? user.resources.population : parseInt(args[0].replace(/[,]/g, ''));
     if (a > user.resources.population)
         return message.reply("you can't kill more population than you own!");
 
