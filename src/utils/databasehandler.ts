@@ -3,7 +3,7 @@ import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
 const url: string = db.mongoQuery;
-const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
+const client = new mongodb.MongoClient(url, { useNewUrlParser: true, connectWithNoPrimary: false, useUnifiedTopology: true });
 const dbName = db.name;
 
 const config: configDB = {

@@ -13,9 +13,8 @@ export async function dailyPayout(client: Client) {
         updateValueForUser(u._id, "population", Math.floor(Math.random() * u.resources.population * .05), "$inc");
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
-            const c = u.clientStates[i];
-            const loyaltyLoss = Math.random() * .07 * governments[u.clientStates[i].government].loyaltyLoss;
-            if (u.clientStates[i].loyalty === 0) {
+            const c = u.clientStates[i], loyaltyLoss = Math.random() * .07 * governments[u.clientStates[i].government].loyaltyLoss;
+            if (u.clientStates[i].loyalty <= 0) {
                 if (Math.random() > 0.5) {
                     client.users.cache.get(u._id)?.send({
                         embed: {
@@ -56,7 +55,7 @@ export async function dailyPayout(client: Client) {
                 else editCLSVal(u._id, i, "loyalty", loss, "$inc");
                 editCLSVal(u._id, i, "food", 0, "$set");
                 const diff = consumption - u.resources.food;
-                if(diff > c.resources.population) editCLSVal(u._id, i, "population", 0, "$set");
+                if (diff > c.resources.population) editCLSVal(u._id, i, "population", 0, "$set");
                 else editCLSVal(u._id, i, "population", -diff, "$inc");
                 client.users.cache.get(u._id)?.send({
                     embed: {
@@ -69,46 +68,48 @@ export async function dailyPayout(client: Client) {
                 editCLSVal(u._id, i, "food", -consumption, "$inc");
                 editCLSVal(u._id, i, "population", Math.floor(Math.random() * .1 * c.resources.population), "$inc");
             }
-            const p = governments[u.clientStates[i].government].productivity;
+
+            const p = governments[u.clientStates[i].government].productivity,
+                money = c.resources.population * Math.random() * rates.money;
             if (c.focus) {
                 if (c.focus === "money") {
-                    editCLSVal(u._id, i, "money", Math.floor(3 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(3 * money * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                    addToUSB(-Math.floor(3 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                    addToUSB(-Math.floor(3 * money * (c.loyalty + .5) * p));
                 } else if (c.focus === "steel") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * money * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "steel", Math.floor(3 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                    addToUSB(-Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                    addToUSB(-Math.floor(.5 * money * (c.loyalty + .5) * p));
                 } else if (c.focus === "oil") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * money * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "oil", Math.floor(3 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                    addToUSB(-Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                    addToUSB(-Math.floor(.5 * money * (c.loyalty + .5) * p));
                 } else if (c.focus === "food") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * money * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(3 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                    addToUSB(-Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                    addToUSB(-Math.floor(.5 * money * (c.loyalty + .5) * p));
                 } else if (c.focus === "population") {
-                    editCLSVal(u._id, i, "money", Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * money * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "steel", Math.floor(.5 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                    editCLSVal(u._id, i, "population", 2 * Math.floor(Math.random() * .1 * c.resources.population * (c.loyalty + .5) * p), "$inc");
-                    addToUSB(-Math.floor(.5 * (c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                    editCLSVal(u._id, i, "population", 2 * Math.floor(Math.random() * .1 * c.resources.population), "$inc");
+                    addToUSB(-Math.floor(.5 * money * (c.loyalty + .5) * p));
                 }
             } else {
                 editCLSVal(u._id, i, "money", Math.floor(c.resources.population * Math.random() * rates.money * p), "$inc");
                 editCLSVal(u._id, i, "steel", Math.floor(c.upgrades.mines * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                 editCLSVal(u._id, i, "oil", Math.floor(c.upgrades.rigs * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
                 editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
-                addToUSB(-Math.floor((c.resources.population * Math.random() * rates.money) * (c.loyalty + .5) * p));
+                addToUSB(-Math.floor(money * (c.loyalty + .5) * p));
             }
             if (u.clientStates[i].loyalty < 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
         }

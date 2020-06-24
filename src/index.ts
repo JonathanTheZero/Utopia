@@ -133,8 +133,9 @@ client.on("ready", async () => {
     for (const g of giveaways) giveawayCheck(g._id, client);
     const users: user[] = await getAllUsers();
     for (const u of users) {
-        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage.alreadyPinged) continue;
-        const msg = await (<Discord.TextChannel>client.channels.cache.get(u.lastMessage.channelID)).messages.fetch(u.lastMessage.messageID)!;
+        if (!u.autoping || !u.lastMessage?.channelID || !u.lastMessage?.messageID || u.lastMessage?.alreadyPinged) continue;
+        const msg = await (<Discord.TextChannel>client.channels.cache.get(u.lastMessage.channelID)).messages.fetch(u.lastMessage.messageID);
+        if (!msg) continue;
         const workTime = (1800 - (Math.floor(Date.now() / 1000) - u.lastWorked)) * 1000,
             crimeTime = (14400 - (Math.floor(Date.now() / 1000) - u.lastCrime)) * 1000,
             mineTime = (3600 - (Math.floor(Date.now() / 1000) - u.lastMine)) * 1000,
@@ -706,4 +707,4 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 });
 
-client.login(config.token);
+client.login(config.token).catch(console.log);
