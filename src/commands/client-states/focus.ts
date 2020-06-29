@@ -7,15 +7,23 @@ export async function setFocus(message: Message, args: string[]) {
     const user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet please use `.create`.");
     if (!args[1]) return message.reply("please follow the syntax of `.set-focus <state> <type>`.");
-    switch (args[1][0]) {
-        case "f": res = "food"; break;
-        case "m": res = "money"; break;
-        case "o": res = "oil"; break;
-        case "s": res = "steel"; break;
-        case "p": res = "population"; break;
-        case "n": res = null; break;
-        default: return message.reply("this isn't a valid resource!");
+    
+    if(!args.includes("resources")){
+        switch (args[1][0]) {
+            case "f": res = "food"; break;
+            case "m": res = "money"; break;
+            case "o": res = "oil"; break;
+            case "s": res = "steel"; break;
+            case "p": res = "population"; break;
+            case "n": res = null; break;
+            default: return message.reply("this isn't a valid resource!");
+        }
     }
+    
+    else{
+        res = "resources"
+    }
+
     const index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     if (index === -1) return message.reply("you have no client state called " + args[0]);
     editCLSVal(user._id, index, "focus", res);

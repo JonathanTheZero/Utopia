@@ -112,6 +112,14 @@ function generateProductionRates(c: clientState): [number, number, number, numbe
                 Math.floor(.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
                 Math.floor(.5 * (c.upgrades.farms) * rates.farms * (c.loyalty + .5) * p)
             ];
+        }else if (c.focus === "resources") {
+            return [
+                Math.floor(.5 * (c.resources.population * rates.money) * (c.loyalty + .5) * p),
+                Math.floor(2.5 * (c.upgrades.mines) * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(2.5 * (c.upgrades.rigs) * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p),
+                Math.floor(.5 * (c.upgrades.farms) * rates.farms * p)
+            ];
+
         }
     }
     return [

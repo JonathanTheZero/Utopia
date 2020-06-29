@@ -188,7 +188,7 @@ export interface marketOffer {
     };
 }
 
-export type resources = "money" | "food" | "oil" | "steel" | "population";
+export type resources = "money" | "food" | "oil" | "steel" | "population" | "resources";
 
 export interface clientState {
     name: string;
