@@ -106,9 +106,14 @@ export async function dailyPayout(client: Client) {
                     editCLSVal(u._id, i, "oil", Math.floor(.5 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(pop)) * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
                     editCLSVal(u._id, i, "population", 2 * Math.floor(Math.random() * .1 * pop), "$inc");
+                } else if (c.focus === "resources") {
+                    editCLSVal(u._id, i, "money", Math.floor(.5 * money * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "steel", Math.floor(2 * (c.upgrades.mines) * Math.random() * rates.mines * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "oil", Math.floor(2 * (c.upgrades.rigs) * Math.random() * rates.rigs * (1 + f(c.resources.population)) * (c.loyalty + .5) * p), "$inc");
+                    editCLSVal(u._id, i, "food", Math.floor(.5 * (c.upgrades.farms) * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
                 }
             } else {
-                editCLSVal(u._id, i, "money", Math.floor(pop * Math.random() * rates.money * p), "$inc");
+                editCLSVal(u._id, i, "money", Math.floor(money * p), "$inc");
                 editCLSVal(u._id, i, "steel", Math.floor(c.upgrades.mines * Math.random() * rates.mines * (1 + f(pop)) * (c.loyalty + .5) * p), "$inc");
                 editCLSVal(u._id, i, "oil", Math.floor(c.upgrades.rigs * Math.random() * rates.rigs * (1 + f(pop)) * (c.loyalty + .5) * p), "$inc");
                 editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");

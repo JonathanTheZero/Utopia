@@ -7,7 +7,7 @@ export async function send(message: Message, args: string[]) {
     let author: user = await getUser(message.author.id);
     let user: user = await getUser(message.mentions.members?.first()?.id || args[0]);
 
-    let a = (args[1].toLowerCase() == "a") ? author.money : parseInt(args[1]);
+    let a = (args[1].toLowerCase() == "a") ? author.money : parseInt(args[1].replace(/[,]/g, ''));
     if (typeof args[1] === "undefined" || isNaN(a)) return message.reply("please supply valid parameters following the syntax `.send <mention/ID> <amount>`.");
     if (!author) return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if (!user) return message.reply("this user hasn't created an account yet.");
@@ -22,7 +22,7 @@ export async function send(message: Message, args: string[]) {
 
 export async function deposit(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
-    let a = (args[0] == "a") ? user.money : parseInt(args[0]);
+    let a = (args[0] == "a") ? user.money : parseInt(args[0].replace(/[,]/g, ''));
     if (typeof args[0] === "undefined" || isNaN(a)) return message.reply("please supply valid parameters following the syntax `.deposit <amount>`.");
     if (!user || JSON.stringify(user) === "{}") return message.reply("you haven't created an account yet, please use `.create` to create one.");
     if (!user.alliance) return message.reply("you haven't joined an alliance yet!");

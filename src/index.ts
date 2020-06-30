@@ -60,7 +60,7 @@ import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, 
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment} from "./commands/client-states";
 import { calc } from "./commands/misc";
 
 const express = require('express');
@@ -686,7 +686,7 @@ client.on("message", async message => {
 
     else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
 
-    else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
+    else if (command === "cls-overview" || command === "clientstates" || command === "client-states" || command === "clss") clsOverview(message, args);
 
     else if (["send-to-cls", "sendtocls", "stc"].includes(command)) sendToCls(message, args);
 
@@ -701,6 +701,8 @@ client.on("message", async message => {
     else if (["rename-cls", "renamecls"].includes(command)) renameCls(message, args);
 
     else if (command === "withdraw") withdraw(message, args);
+
+    // else if (command === "clskill") clskill(message, args)
 
     else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 

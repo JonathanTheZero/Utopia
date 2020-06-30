@@ -10,8 +10,8 @@ export async function propose(message: Message, args: string[], client: Client) 
     let priceresource: resources, selling: resources;
 
     let u: user = await getUser(message.author.id)
-    sellingprice = parseInt(args[1]);
-    price = parseInt(args[3]);
+    sellingprice = parseInt(args[1].replace(/[,]/g, ''));
+    price = parseInt(args[3].replace(/[,]/g, ''));
 
     switch (args[2][0]) {
         case "p": selling = "population"; break;
