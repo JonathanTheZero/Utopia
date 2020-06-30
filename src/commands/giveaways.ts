@@ -96,7 +96,7 @@ export async function giveawayCheck(_id: string, client: Client) {
     let winnerMentions = `<@${x[0].id}>`;
     for (let i = 1; i < x.length; i++) winnerMentions += `, <@${x[i].id}>`;
 
-    channel.send(winnerMentions).then((msg: any) => msg.delete());
+    channel.send(winnerMentions).then((msg: Message) => msg.delete());
 
     channel.send({
         embed: {
