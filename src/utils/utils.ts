@@ -16,6 +16,10 @@ export function getBaseLog(x: number, y: number) {
     return Math.log(y) / Math.log(x);
 }
 
+export function absBaseLog(x: number, y: number) {
+    return Math.abs(Math.log(y) / Math.log(x));
+}
+
 export function Sleep(milliseconds: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }

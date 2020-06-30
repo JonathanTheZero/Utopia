@@ -1,9 +1,9 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, resources, clsEdits, contract, clsGovernment } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
 const url: string = db.mongoQuery;
-const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
+const client = new mongodb.MongoClient(url, { useNewUrlParser: true, connectWithNoPrimary: false, useUnifiedTopology: true });
 const dbName = db.name;
 
 const config: configDB = {
@@ -87,11 +87,11 @@ export async function deleteClientState(_id: string, name: string): Promise<void
     client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
-export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | resources, val: number, mode: "$inc" | "$set"): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: "focus", val: resources | null): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | clsResources, val: number, mode: "$inc" | "$set"): Promise<void>;
+export async function editCLSVal(_id: string, index: number, type: "focus", val: clsResources | null): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "name", val: string): Promise<void>;
 export async function editCLSVal(_id: string, index: number, type: "government", val: clsGovernment): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: clsEdits | resources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
+export async function editCLSVal(_id: string, index: number, type: clsEdits | clsResources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
     if (["loyalty", "focus", "name", "government"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };

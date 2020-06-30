@@ -188,7 +188,7 @@ export interface marketOffer {
     };
 }
 
-export type resources = "money" | "food" | "oil" | "steel" | "population" | "resources";
+export type resources = "money" | "food" | "oil" | "steel" | "population";
 
 export interface clientState {
     name: string;
@@ -210,6 +210,7 @@ export interface clientState {
 }
 
 export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades | "government";
+export type clsResources = resources | "resources";
 export type clsUpgrades = "mines" | "rigs" | "farms";
 export type clsGovernment = "democracy" | "dictatorship" | "monarchy";
 
