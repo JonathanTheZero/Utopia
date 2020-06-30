@@ -702,8 +702,6 @@ client.on("message", async message => {
 
     else if (command === "withdraw") withdraw(message, args);
 
-    // else if (command === "clskill") clskill(message, args)
-
     else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 
     else if (command === "calc") calc(message, args.join(" "));
