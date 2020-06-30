@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { getBaseLog, secondsToDhms } from "../../utils/utils";
+import { secondsToDhms, absBaseLog } from "../../utils/utils";
 import "../../utils/utils";
 import { getUser, getAlliance, getConfig } from "../../utils/databasehandler";
 import { user, alliance, configDB } from "../../utils/interfaces";
@@ -72,7 +72,7 @@ export async function payout(message: Message, args: string[]) {
                 },
                 {
                     name: "How much will your population consume next payout?",
-                    value: Math.floor(user.resources.population * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, user.resources.population))))).commafy() || 0,
+                    value: Math.floor(user.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, user.resources.population))))).commafy() || 0,
                     inline: false
                 },
                 {

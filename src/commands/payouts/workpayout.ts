@@ -1,6 +1,6 @@
 import * as config from "../../static/config.json";
 import { Client, TextChannel, Channel } from "discord.js";
-import { getBaseLog, Sleep, rangeInt } from "../../utils/utils";
+import { absBaseLog, Sleep, rangeInt } from "../../utils/utils";
 import { user } from "../../utils/interfaces";
 import { getAllUsers, updateValueForUser, editConfig, getConfig } from "../../utils/databasehandler";
 
@@ -9,7 +9,7 @@ export async function populationWorkLoop(client: Client) {
     let users: user[] = await getAllUsers();
     for (const u of users) {
         let pop = u.resources.population;
-        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop))))) || 0;
+        const consumption = Math.floor(pop * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, pop))))) || 0;
         if (consumption > u.resources.food) {
             try {
                 client.users.cache.get(u._id)!.send({
@@ -38,7 +38,7 @@ export async function populationWorkLoop(client: Client) {
             updateValueForUser(u._id, "money", money, "$inc");
             updateValueForUser(u._id, "income", money, "$inc");
         }
-        const consumption = Math.floor(pop * (2 + getBaseLog(10, getBaseLog(10, getBaseLog(3, pop)))));
+        const consumption = Math.floor(pop * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, pop)))));
         if (!consumption) continue;
         if (consumption > u.resources.food) {
             const diff = consumption - u.resources.food;

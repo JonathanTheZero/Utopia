@@ -688,7 +688,7 @@ client.on("message", async message => {
 
     else if (command === "cls-overview" || command === "clientstates" || command === "client-states") clsOverview(message, args);
 
-    else if (command === "send-to-cls") sendToCls(message, args);
+    else if (["send-to-cls", "sendtocls", "stc"].includes(command)) sendToCls(message, args);
 
     else if (command === "delete-cls" || command === "deletecls") deleteCLS(message, args);
 
