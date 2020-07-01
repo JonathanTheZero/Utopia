@@ -52,10 +52,10 @@ export async function dailyPayout(client: Client) {
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
                 const loss = -(Math.random() * .8);
-                if (u.clientStates[i].loyalty - loss <= 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
+                if (u.clientStates[i].loyalty + loss <= 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
                 else editCLSVal(u._id, i, "loyalty", loss, "$inc");
                 editCLSVal(u._id, i, "food", 0, "$set");
-                const diff = consumption - u.resources.food;
+                const diff = consumption - c.resources.food;
                 if (diff > c.resources.population) {
                     editCLSVal(u._id, i, "population", 0, "$set");
                     pop = 0;
