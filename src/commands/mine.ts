@@ -67,12 +67,16 @@ export async function mine(message: Message, args: string[]) {
         let x = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "steel", x, "$inc");
         message.reply(`Your steel mines produced ${x.commafy()} steel, you now have ${(x + user.resources.steel).commafy()} steel.`);
-    } else if (args[0][0] == "o") {
+    } 
+    
+    else if (args[0][0] == "o") {
         if (!user.resources.oilrig) return message.reply("you don't have any oil rigs.");
         let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         updateValueForUser(user._id, "oil", x, "$inc");
         message.reply(`Your oil rigs produced ${x.commafy()} barrels, you now have ${(x + user.resources.oil).commafy()} barrels of oil.`);
-    } else if (args[0][0] == "a") {
+    } 
+    
+    else if (args[0][0] == "a") {
         if (!user.resources.oilrig && !user.resources.steelmine) return message.reply("you don't have any mines and oil rigs.");
         let x = Math.floor(user.resources.oilrig * getRandomRange(400, 10000) * user.resources.minereturn);
         let y = Math.floor(user.resources.steelmine * getRandomRange(400, 10000) * user.resources.minereturn);
@@ -84,8 +88,17 @@ export async function mine(message: Message, args: string[]) {
 
         message.reply(`Your oil rigs produced ${oil.commafy()} barrels, you now have ${(oil + user.resources.oil).commafy()} barrels of oil\nYour steel mines produced ${steel.commafy()} steel, you now have ${(steel + user.resources.steel).commafy()} steel.`);
     }
+    var x:number;
 
-    const x = user.resources.minereturn + (user.resources.minereturn - (user.resources.minereturn * getRandomRange(10, user.resources.minereturn / 2))) / 100;
+    //FUCK ONE LINERS BECAUSE
+    if (args[0][0] === "a"){
+        x = user.resources.minereturn + (user.resources.minereturn - (user.resources.minereturn * getRandomRange(1, 10))) / 100;
+    }
+
+    else{
+        x = user.resources.minereturn + (user.resources.minereturn - (user.resources.minereturn * getRandomRange(1, 15))) / 100;
+    }
+
     updateValueForUser(user._id, "minereturn", x <= 0 ? 0 : x, "$set");
 
     if (user.minereset == 0)
