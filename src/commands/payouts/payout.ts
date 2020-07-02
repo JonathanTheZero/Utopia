@@ -67,7 +67,7 @@ export async function payout(message: Message, args: string[]) {
                 },
                 {
                     name: "Food:",
-                    value: userFood.commafy() + "food every 4 hours",
+                    value: userFood.commafy() + " food every 4 hours",
                     inline: true
                 },
                 {
