@@ -237,6 +237,10 @@ export const miscHelpMenu = {
             name: "`.mail <sugggestion | mods> <...message>`",
             value: "Send a message with either a suggestion to the developers or a request to the moderators. "+
                 "If you prefer to stay anonymous, use `.anonmail` instead of `.mail`." 
+        },
+        {
+            name: "`.consumption <number>`",
+            value: "View the food consumption for a certain amount of population"
         }
     ],
     timestamp: new Date(),

@@ -60,8 +60,8 @@ import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, 
 import { mine, digmine, mineStats } from "./commands/mine";
 import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
-import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment} from "./commands/client-states";
-import { calc } from "./commands/misc";
+import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
+import { calc, consumption } from "./commands/misc";
 
 const express = require('express');
 const app = express();
@@ -705,6 +705,8 @@ client.on("message", async message => {
     else if (["setgovernment", "set-government"].includes(command)) setGovernment(message, args);
 
     else if (command === "calc") calc(message, args.join(" "));
+
+    else if (command === "consumption") consumption(message, args);
 });
 
 client.login(config.token).catch(console.log);
