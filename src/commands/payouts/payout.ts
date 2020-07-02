@@ -67,12 +67,12 @@ export async function payout(message: Message, args: string[]) {
                 },
                 {
                     name: "Food:",
-                    value: userFood.commafy() + "food every 4 hours",
+                    value: userFood.commafy() + " every 4 hours",
                     inline: true
                 },
                 {
                     name: "How much will your population consume next payout?",
-                    value: Math.floor(user.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, user.resources.population))))).commafy() || 0,
+                    value: Math.floor(user.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, user.resources.population + 1))))).commafy() || 0,
                     inline: false
                 },
                 {

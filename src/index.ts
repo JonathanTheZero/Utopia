@@ -348,6 +348,7 @@ client.on("message", async message => {
 
     else if (command === "delete") {
         const user: user = await getUser(message.author.id);
+        if (!args[0] || args[0].toLowerCase() !== "yes") return message.reply("please confirm with `.delete yes`.")
         if (user.alliance != null) return message.reply("You are still member of an alliance, please leave it before deleting your account");
         deleteUser(message.author.id);
         return message.reply("you have successfully deleted your account!");
@@ -432,20 +433,11 @@ client.on("message", async message => {
     else if (command === "alliancemembers")
         return allianceMembers(message, args, client);
 
-    else if (command === "guide")
-        return message.channel.send({
-            embed: guideEmbed
-        });
+    else if (command === "guide") return message.channel.send({ embed: guideEmbed });
 
-    else if (command === "warguide")
-        return message.channel.send({
-            embed: warGuide
-        });
+    else if (command === "warguide") return message.channel.send({ embed: warGuide });
 
-    else if (command === "troopstats")
-        return message.channel.send({
-            embed: troopStats
-        });
+    else if (command === "troopstats") return message.channel.send({ embed: troopStats });
 
     else if (command === "shop" || command === "store") {
         if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });

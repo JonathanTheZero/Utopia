@@ -24,11 +24,11 @@ export async function makeOffer(message: Message, args: string[]) {
     }
 
     const user: user = await getUser(message.author.id);
-    if (parseInt(args[0].replace(/[,]/g, '')) < 0 || parseInt(args[2].replace(/[,]/g, '')) < 0 ||
-        isNaN(parseInt(args[0].replace(/[,]/g, ''))) || isNaN(parseInt(args[2].replace(/[,]/g, ''))))
+    if (parseInt(args[0]) < 0 || parseInt(args[2]) < 0 ||
+        isNaN(parseInt(args[0])) || isNaN(parseInt(args[2])))
         return message.reply("this is an invalid amount!");
 
-    if ((oc === "money" && parseInt(args[0].replace(/[,]/g, '')) > user.money) || oc !== "money" && parseInt(args[0].replace(/[,]/g, '')) > user.resources[oc])
+    if ((oc === "money" && parseInt(args[0]) > user.money) || oc !== "money" && parseInt(args[0]) > user.resources[oc])
         return message.reply("you can't offer more than you own!");
 
     const offer: marketOffer = {
@@ -38,7 +38,7 @@ export async function makeOffer(message: Message, args: string[]) {
             tag: message.author.tag
         },
         offer: {
-            amount: parseInt(args[0].replace(/[,]/g, '')),
+            amount: parseInt(args[0]),
             currency: oc
         },
         price: {

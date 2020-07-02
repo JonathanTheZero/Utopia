@@ -47,7 +47,7 @@ export async function dailyPayout(client: Client) {
                 } else editCLSVal(u._id, i, "loyalty", -loyaltyLoss, "$inc");
             }
 
-            const consumption = Math.floor(c.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, c.resources.population))))) || 0;
+            const consumption = Math.floor(c.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, c.resources.population + 1))))) || 0;
             let pop = c.resources.population;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");

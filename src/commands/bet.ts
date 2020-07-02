@@ -7,7 +7,7 @@ export async function bet(message: Message, args: string[]) {
     let user: user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet, please use `.create` first");
 
-    let money = (args[0].toLowerCase() == "a") ? user.money : parseInt(args[0].replace(/[,]/g, ''));
+    let money = (args[0].toLowerCase() == "a") ? user.money : parseInt(args[0]);
     if(args[0].match(/\d{1,2}%/)) money = Math.floor((Number(args[0]!.match(/\d{1,2}%/)![0].match(/\d+/)![0]) / 100) * user.money);
 
     if (user.money === 0) return message.reply("you don't have any money left!");

@@ -10,7 +10,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     //.start-giveaway <amount> <currency> <winners> <ending>
     if (!config.botAdmins.includes(message.author.id)) return message.reply("only selected users can use this command. If any problem occured, DM <@393137628083388430>.");
     const endstr = args.slice(3).join(" ");
-    if (args.length < 4 || parseInt(args[3]) < 1 || parseInt(args[0].replace(/[,]/g, '')) < 1) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
+    if (args.length < 4 || parseInt(args[3]) < 1 || parseInt(args[0]) < 1) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
 
     let currency: string;
     if (args[1].startsWith("p") || args[1].startsWith("P"))
@@ -44,7 +44,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     await message.channel.send({
         embed: {
             color: parseInt(config.properties.embedColor),
-            title: `Giveaway for ${args[0].replace(/[,]/g, '').commafy()}x${currency}`,
+            title: `Giveaway for ${args[0].commafy()}x${currency}`,
             description: `React to the message to participate in the giveaway. There will be ${args[2]} winners.`,
             footer: {
                 text: `${config.properties.footer.text}  •  Ends at: `,
@@ -59,7 +59,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
             winners: parseInt(args[2]),
             startedAt: Date.now(),
             endingISO: ending,
-            priceAm: args[0].replace(/[,]/g, ''),
+            priceAm: args[0],
             priceCur: currency,
             endingAt: new Date(ending).getTime(),
             embedId: (sent as Message).id,

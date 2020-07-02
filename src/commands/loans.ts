@@ -28,8 +28,8 @@ export async function loancalc(message: Message, args: string[], user: user) {
                 timestamp: new Date()
             }
         });
-    } else if (!isNaN(<any>args[0].replace(/[,]/g, ''))) {
-        maxloan = parseInt(args[0].replace(/[,]/g, ''))
+    } else if (!isNaN(<any>args[0])) {
+        maxloan = parseInt(args[0])
         repayment = maxloan + Math.floor(maxloan * 0.25)
         return message.channel.send({
             embed: {
@@ -55,7 +55,7 @@ export async function loancalc(message: Message, args: string[], user: user) {
 }
 
 export async function loan(message: Message, args: string[], user: user) {
-    var userloan = parseInt(args[0].replace(/[,]/g, ''));
+    var userloan = parseInt(args[0]);
 
     if (!user.loan) {
         let maxloan = lc(user.resources.population);
@@ -82,7 +82,7 @@ export async function payback(message: Message, args: string[], user: user) {
         return message.reply("you haven't created an account yet, please use `.create` first");
 
     if (user.loan) {
-        var userpayment = (args[0] === "a") ? user.money : parseInt(args[0].replace(/[,]/g, ''));
+        var userpayment = (args[0] === "a") ? user.money : parseInt(args[0]);
         if (userpayment > user.money) return message.reply("you don't own that much money");
         updateValueForUser(message.author.id, "money", user.money + (-1 * userpayment));
         if (user.loan <= userpayment) {
