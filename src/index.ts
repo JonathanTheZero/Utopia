@@ -512,9 +512,13 @@ client.on("message", async message => {
                         name: "Servers:",
                         value: `Currently I am active on ${client.guilds.cache.size.commafy()} servers`
                     },
+                    // {
+                    //     name: "Users:",
+                    //     value: `Currently I have ${client.users.cache.size.commafy()} users.`
+                    // },
                     {
                         name: "Users:",
-                        value: `Currently I have ${client.users.cache.size.commafy()} users.`
+                        value: `Currently I have ${client.users.cache.size.commafy()} users and ${await (await getAllUsers()).length} active users.`
                     },
                     {
                         name: "Commands run:",
