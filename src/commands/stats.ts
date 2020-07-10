@@ -97,6 +97,16 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                     name: "Hospitals",
                     value: args[0] ? `${user.tag} owns ${user.upgrades.hospitals} Hospitals` : `You own ${user.upgrades.hospitals} hospitals`,
                     inline: true
+                },
+                {
+                    name: "Client states",
+                    value: args[0] ? `${user.tag} owns ${user.clientStates.length} client states` : `You own ${user.clientStates.length} client states`,
+                    inline: true
+                },
+                {
+                    name: "Voting streak",
+                    value: args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}` : `Your highest streak is ${user.highestVotingStreak}`,
+                    inline: true
                 }
             ],
             timestamp: new Date(),

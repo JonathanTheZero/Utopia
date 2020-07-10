@@ -92,11 +92,12 @@ if (config.dbl) {
 
     dbl.webhook.on('vote', async (vote: { user: string }) => {
         let user: user = await getUser(vote.user);
-        updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 86400 ? "$inc" : "$set");
+        updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 172800 ? "$inc" : "$set");
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         user = await getUser(vote.user);
         updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
         updateValueForUser(user._id, "income", user.votingStreak * 15000, "$inc");
+        if (user.votingStreak > user.highestVotingStreak) updateValueForUser(user._id, "highestVotingStreak", user.votingStreak, "$set");
         addToUSB(-(user.votingStreak * 20000));
     });
 }
@@ -699,6 +700,14 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 
     else if (command === "consumption") consumption(message, args);
+
+    else if (command === "updatedb") {
+        if (message.author.id !== "393137628083388430") return;
+        const us = await getAllUsers(), p: Promise<any>[] = [];
+        for (const u of us) p.push(updateValueForUser(u._id, "highestVotingStreak", u.votingStreak, "$set"));
+        await Promise.all(p);
+        message.reply("done");
+    }
 });
 
 client.login(config.token).catch(console.log);

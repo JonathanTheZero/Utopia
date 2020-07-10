@@ -38,6 +38,7 @@ export interface user {
     loan: number;
     inventory: Array<string>;
     votingStreak: number;
+    highestVotingStreak: number;
     lastVoted: number;
     income: number;
     clientStates: Array<clientState>;
@@ -126,7 +127,8 @@ export type updateUserQuery = "tag"
     | "income"
     | "taxDMs"
     | "hospitals"
-    | "lastMessage";
+    | "lastMessage"
+    | "highestVotingStreak";
 
 export type updateAllianceQuery = "name"
     | "level"
