@@ -44,7 +44,7 @@ async function getLeaderboardList(type: "a" | "p" | "f" | "o" | "m" | "s" | "v")
     else if (type === "a") return allAlliances.sort((a: alliance, b: alliance) => (b.money) - (a.money));
     else if (type === "o") return allUsers.sort((a, b) => b.resources.oil - a.resources.oil);
     else if (type === "s") return allUsers.sort((a, b) => b.resources.steel - a.resources.steel);
-    else if(type === "v") return allUsers.sort((a,b) => a.highestVotingStreak - b.highestVotingStreak);
+    else if (type === "v") return allUsers.sort((a, b) => b.highestVotingStreak - a.highestVotingStreak);
     else return allUsers.sort((a: user, b: user) => (b.money) - (a.money));
 }
 
@@ -90,6 +90,12 @@ function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + (lb[i + p * 10].name || lb[i + p * 10].tag),
                 value: lb[i + p * 10].money.commafy() + " coins",
             });
+    } else if (type === "v") {
+        for (var i = 0; i < h; ++i)
+            fields.push({
+                name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
+                value: (<user[]>lb)[i + p * 10].highestVotingStreak?.commafy() + ` votes`
+            });
     } else {
         let res: string;
         switch (type) {
@@ -97,7 +103,6 @@ function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f
             case "o": res = "oil"; break;
             case "f": res = "food"; break;
             case "s": res = "steel"; break;
-            case "v": res = "votes"; break;
         }
         for (var i = 0; i < h; ++i)
             fields.push({

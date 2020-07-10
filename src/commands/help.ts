@@ -71,7 +71,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.lb` or `.leaderboard [type] [page]`",
-            value: "View the global leaderboard. Allowed types are 'alliance', 'money', 'food' and 'population'.",
+            value: "View the global leaderboard. Allowed types are 'alliance', 'money', 'food', 'votes' and 'population'.",
         },
         {
             name: "`.shop` or `.store [category]`",
