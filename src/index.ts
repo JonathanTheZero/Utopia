@@ -248,10 +248,10 @@ client.on("message", async message => {
         message.channel.send({
             embed: {
                 color: parseInt(config.properties.embedColor),
-                title: `Your voting streak: ${u.votingStreak}`,
+                title: `Voting streak: ${u.votingStreak}`,
                 description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" +
                     "You can increase your voting streak every 12h." +
-                    "If you don't vote for more than 24h, you will lose your streak.\n\n" +
+                    "If you don't vote for more than 2 days, you will lose your streak.\n\n" +
                     `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
                     `You can vote again ${(u.lastVoted === 0 || Date.now() - u.lastVoted * 1000 > 43200000) ? "**now**" : "in " + new Date((43200 - (Math.floor(Date.now() / 1000) - u.lastVoted)) * 1000).toISOString().substr(11, 8)}`
             }
@@ -700,14 +700,6 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 
     else if (command === "consumption") consumption(message, args);
-
-    else if (command === "updatedb") {
-        if (message.author.id !== "393137628083388430") return;
-        const us = await getAllUsers(), p: Promise<any>[] = [];
-        for (const u of us) p.push(updateValueForUser(u._id, "highestVotingStreak", u.votingStreak, "$set"));
-        await Promise.all(p);
-        message.reply("done");
-    }
 });
 
 client.login(config.token).catch(console.log);

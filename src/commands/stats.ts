@@ -105,7 +105,8 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                 },
                 {
                     name: "Voting streak",
-                    value: args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}` : `Your highest streak is ${user.highestVotingStreak}`,
+                    value: (args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}.` : `Your highest streak is ${user.highestVotingStreak}.`) + 
+                        "Use `.vote` to grab a link to improve your voting streak.",
                     inline: true
                 }
             ],
