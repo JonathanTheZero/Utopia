@@ -2,7 +2,7 @@ export const rates = {
     money: .8,
     rigs: 100000,
     mines: 100000,
-    farms: 1500000
+    farms: 5000000
 };
 
 export const f = (f: number) => Math.log((f + 1) * .01) / 500;

@@ -215,7 +215,8 @@ export const miscHelpMenu = {
         },
         {
             name: "`.vote`",
-            value: "You can vote every 12h for Utopia on top.gg to get money for free!"
+            value: "You can vote every 12h for Utopia on top.gg to get money for free!" + 
+                "You will find further information there."
         },
         {
             name: "`.statistics`",

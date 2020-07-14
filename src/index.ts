@@ -95,10 +95,11 @@ if (config.dbl) {
         updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 172800 ? "$inc" : "$set");
         updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
         user = await getUser(vote.user);
-        updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
-        updateValueForUser(user._id, "income", user.votingStreak * 15000, "$inc");
+        let money = user.votingStreak * Math.floor(.01 * user.income);
+        updateValueForUser(user._id, "money", money, "$inc");
+        updateValueForUser(user._id, "income", money, "$inc");
         if (user.votingStreak > user.highestVotingStreak) updateValueForUser(user._id, "highestVotingStreak", user.votingStreak, "$set");
-        addToUSB(-(user.votingStreak * 20000));
+        addToUSB(-money);
     });
 }
 
@@ -249,7 +250,7 @@ client.on("message", async message => {
             embed: {
                 color: parseInt(config.properties.embedColor),
                 title: `Voting streak: ${u.votingStreak}`,
-                description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" +
+                description: "As a reward for voting you will get your streak% of your income as free money!\n" +
                     "You can increase your voting streak every 12h." +
                     "If you don't vote for more than 2 days, you will lose your streak.\n\n" +
                     `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
@@ -258,16 +259,16 @@ client.on("message", async message => {
         });
     }
 
-    else if (command === "bet" || command === "coinflip") bet(message, args);
+    else if (["bet", "coinflip", "cf"].includes(command)) bet(message, args);
 
     else if (command === "help") {
         if (["general", "g"].includes(args[0]))
             return message.channel.send({ embed: generalHelpMenu });
         else if (["alliance", "alliances", "a"].includes(args[0]))
             return message.channel.send({ embed: allianceHelpMenu });
-        else if (args[0] == "misc")
+        else if (args[0] === "misc")
             return message.channel.send({ embed: miscHelpMenu });
-        else if (args[0] == "mod")
+        else if (args[0] === "mod")
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });

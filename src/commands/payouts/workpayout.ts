@@ -33,7 +33,7 @@ export async function populationWorkLoop(client: Client) {
             if (diff < 0) {
                 updateValueForUser(u._id, "loan", 0, "$set");
                 updateValueForUser(u._id, "money", -diff, "$inc");
-            } else updateValueForUser(u._id, "loan", -diff, "$inc");
+            } else updateValueForUser(u._id, "loan", diff, "$set");
         } else {
             updateValueForUser(u._id, "money", money, "$inc");
             updateValueForUser(u._id, "income", money, "$inc");
