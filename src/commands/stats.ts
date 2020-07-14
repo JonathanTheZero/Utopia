@@ -163,19 +163,19 @@ export async function time(message: Message, args: string[], client: Client): Pr
                     inline: true
                 },
                 {
-                    name: "Next work payout",
+                    name: "Next work payout:",
                     value: secondsToDhms((14400 * 3) + (c.lastPopulationWorkPayout - Math.floor(Date.now() / 1000))) ||
                         "During the next hour",
                     inline: true
                 },
                 {
-                    name: "Next mine reset:",
-                    value: "The next mine reset will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    name: "Next tax and mine reset:",
+                    value: "In " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
                     inline: true
                 },
                 {
-                    name: "Next Tax:",
-                    value: "The next  taxation will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    name: "Next contract and client state payout:",
+                    value: "In " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
                     inline: true
                 },
                 {
