@@ -167,7 +167,7 @@ client.on("guildCreate", guild => {
 client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild?.name} (id: ${guild?.id})`);
     client.user!.setActivity(`.help | ${client.users.cache.size} users on ${client.guilds.cache.size} servers`);
-    if (connected) deleteServer(guild?.id);
+    if (connected && guild) deleteServer(guild.id);
 });
 
 
@@ -180,7 +180,6 @@ client.on("message", async message => {
     if (!args || args.length === 0) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
     if (!command) return;
-
     addCR(); //increase commands run count by one
 
     if (command === "ping") {
@@ -190,7 +189,7 @@ client.on("message", async message => {
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
-        if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
+        if (sayMessage.match(/@(everyone|here)/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
         message.delete().catch(console.log);
         message.channel.send(sayMessage);
     }
@@ -553,8 +552,7 @@ client.on("message", async message => {
         pyshell.end(err => { if (err) throw err });
     }
 
-    else if (command === "settax")
-        settax(message, args);
+    else if (command === "settax") settax(message, args);
 
     //.start-giveaway <amount> <currency> <winners> <ending>
     else if (command === "start-giveaway")
@@ -595,37 +593,27 @@ client.on("message", async message => {
 
     else if (command === "mine") mine(message, args);
 
-    else if (command === "digmine" || command === "detroitbecomedwarf")
-        digmine(message);
+    else if (command === "digmine" || command === "detroitbecomedwarf") digmine(message);
 
-    else if (command === "minestats")
-        mineStats(message, args);
+    else if (command === "minestats") mineStats(message, args);
 
-    else if (["make-offer", "makeoffer"].includes(command))
-        makeOffer(message, args);
+    else if (["make-offer", "makeoffer"].includes(command)) makeOffer(message, args);
 
     else if (command === "offer") offer(message, args);
 
-    else if (command === "propose")
-        propose(message, args, client)
+    else if (command === "propose") propose(message, args, client)
 
-    else if (command === "viewcontract" || command === "view-contract")
-        viewContract(message, args, client)
+    else if (command === "viewcontract" || command === "view-contract") viewContract(message, args, client)
 
-    else if (command === "accept")
-        acceptedContract(message, args, client);
+    else if (command === "accept") acceptedContract(message, args, client);
 
-    else if (command === "market")
-        activeOffers(message, args);
+    else if (command === "market") activeOffers(message, args);
 
-    else if (command === "buy-offer" || command === "buyoffer")
-        buyOffer(message, args, client);
+    else if (command === "buy-offer" || command === "buyoffer") buyOffer(message, args, client);
 
-    else if (["my-offers", "myoffers"].includes(command))
-        myOffers(message, args);
+    else if (["my-offers", "myoffers"].includes(command)) myOffers(message, args);
 
-    else if (["cancel-offer", "canceloffer", "deleteoffer", "delete-offer"].includes(command))
-        deleteOffer(message, args);
+    else if (["cancel-offer", "canceloffer", "deleteoffer", "delete-offer"].includes(command)) deleteOffer(message, args);
 
     else if (command === "usb" || command === "central-bank")
         return message.channel.send({

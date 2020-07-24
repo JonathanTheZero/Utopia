@@ -23,7 +23,7 @@ export async function dailyPayout(client: Client) {
                             color: 0xFF0000
                         }
                     }).catch(console.log);
-                    deleteClientState(u._id, c.name);
+                    await deleteClientState(u._id, c.name);
                     continue;
                 } else {
                     client.users.cache.get(u._id)?.send({
