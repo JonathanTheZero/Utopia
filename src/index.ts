@@ -177,7 +177,7 @@ client.on("message", async message => {
     if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
 
     var args: Array<string> = message.content.slice(prefix.length).trim().split(/ +/g);
-    if (!args || args.length === 0) return;
+    if (!args || !args.length) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
     if (!command) return;
     addCR(); //increase commands run count by one
