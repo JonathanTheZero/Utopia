@@ -56,7 +56,7 @@ export async function reminder(message: Message, duration: number, preText: stri
     message.reply(postText);
 }
 
-export async function delayReminder(message: Message, duration: number, text: string){
+export async function delayReminder(message: Message, duration: number, text: string) {
     await Sleep(duration);
     message.reply(text).catch(console.log);
 }
@@ -75,4 +75,12 @@ export function secondsToDhms(seconds: number) {
 }
 
 export const backwardsFilter = (reaction: { emoji: { name: string; }; }, user: User) => reaction.emoji.name === '⬅' && !user.bot;
-export const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: User) => reaction.emoji.name === '➡'  && !user.bot;
+export const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: User) => reaction.emoji.name === '➡' && !user.bot;
+
+export function shuffle<T>(a: Array<T>): Array<T> {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * ++i);
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}

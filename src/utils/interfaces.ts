@@ -227,4 +227,15 @@ export interface contract {
         priceresource: resources;
         price: number;
     }
+};
+
+export interface unoGame {
+    _id: string;
+    players: Array<{
+        _id: string;
+        hand: string[];
+    }>;
+    stack: string[]
+    openStack: string[],
+    fee: number;
 }

@@ -1,10 +1,10 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources } from "./interfaces";
+import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources, unoGame } from "./interfaces";
 import * as mongodb from "mongodb";
-import { db } from "../static/config.json";
+import { db as idb } from "../static/config.json";
 
-const url: string = db.mongoQuery;
+const url: string = idb.mongoQuery;
 const client = new mongodb.MongoClient(url, { useNewUrlParser: true, connectWithNoPrimary: false, useUnifiedTopology: true });
-const dbName = db.name;
+const db = client.db(idb.name);
 
 const config: configDB = {
     _id: 1,
@@ -23,16 +23,16 @@ export let connected: boolean = false;
 
 export async function addUsers(newUsers: user[]): Promise<void> {
     if (!newUsers || newUsers.length === 0) return;
-    let result = await client.db(dbName).collection("users").insertMany(newUsers);
+    let result = await db.collection("users").insertMany(newUsers);
     if (result) console.log("Successfully added " + newUsers[0].tag);
 }
 
 export async function getUser(_id: string): Promise<user> {
-    return client.db(dbName).collection("users").findOne({ _id })!;
+    return db.collection("users").findOne({ _id })!;
 }
 
 export async function getAlliance(name: string): Promise<alliance | null> {
-    return await client.db(dbName).collection("alliances").findOne({ name });
+    return await db.collection("alliances").findOne({ name });
 }
 
 export async function updateValueForUser(
@@ -75,17 +75,17 @@ export async function updateValueForUser(_id: string, mode: updateUserQuery, new
         newQuery = { [updateMode]: { ["upgrades.hospitals"]: <number>newValue } };
     else throw new Error("Invalid parameter passed");
 
-    client.db(dbName).collection("users").updateOne({ _id }, newQuery, err => {
+    db.collection("users").updateOne({ _id }, newQuery, err => {
         if (err) throw err;
     });
 }
 
 export async function addClientState(_id: string, cls: clientState): Promise<void> {
-    client.db(dbName).collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
+    db.collection("users").updateOne({ _id }, { $push: { clientStates: cls } }, err => { if (err) throw err });
 }
 
 export async function deleteClientState(_id: string, name: string): Promise<void> {
-    client.db(dbName).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
+    db.collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
 export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | clsResources, val: number, mode: "$inc" | "$set"): Promise<void>;
@@ -101,7 +101,7 @@ export async function editCLSVal(_id: string, index: number, type: clsEdits | cl
     else if (["steel", "oil", "food", "population", "money"].includes(type))
         query = { [mode]: { ["clientStates." + index + ".resources." + type]: val } };
 
-    client.db(dbName).collection("users").updateOne({ _id }, query!, err => { if (err) throw err });
+    db.collection("users").updateOne({ _id }, query!, err => { if (err) throw err });
 }
 
 export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax" | "clientStates", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
@@ -115,69 +115,69 @@ export async function updateValueForAlliance(name: string, mode: updateAllianceQ
     else if (mode === "leader")
         newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
 
-    client.db(dbName).collection("alliances").updateOne({ name }, newQuery, err => { if (err) throw err });
+    db.collection("alliances").updateOne({ name }, newQuery, err => { if (err) throw err });
 }
 
 export async function addUpgrade(_id: string, upgrade: string, type: "population" | "misc"): Promise<void> {
     let userUpgrades: user["upgrades"] = (await getUser(_id)).upgrades;
     userUpgrades[type].push(upgrade);
-    client.db(dbName).collection("users").updateOne({ _id }, { $set: { upgrades: userUpgrades } });
+    db.collection("users").updateOne({ _id }, { $set: { upgrades: userUpgrades } });
 }
 
 export async function addPF(_id: string, upgrade: "nf" | "sf" | "sef" | "if"): Promise<void> {
     let pfs: user["upgrades"]["pf"] = (await getUser(_id)).upgrades.pf;
     pfs[upgrade] += 1;
-    client.db(dbName).collection("users").updateOne({ _id }, { $set: { "upgrades.pf": pfs } });
+    db.collection("users").updateOne({ _id }, { $set: { "upgrades.pf": pfs } });
 }
 
 export async function addAlliance(alliance: alliance): Promise<void> {
     if (!alliance) return;
-    let result = await client.db(dbName).collection("alliances").insertOne(alliance);
+    let result = await db.collection("alliances").insertOne(alliance);
     if (result) console.log(`Successfully added ${alliance.name}`);
 }
 
 export async function addAllianceUpgrade(name: string, upgrade: "af" | "pf" | "mf"): Promise<void> {
     let upgrades: alliance["upgrades"] = (await getAlliance(name) as alliance)?.upgrades;
     upgrades[upgrade] += 1;
-    client.db(dbName).collection("alliances").updateOne({ name }, { $set: { upgrades } });
+    db.collection("alliances").updateOne({ name }, { $set: { upgrades } });
 }
 
 export async function editAllianceArray(name: string, array: "members" | "coLeaders" | "invitedUsers", operation: "$push" | "$pull" = "$push", value: string) {
-    client.db(dbName).collection("alliances").updateOne({ name }, { [operation]: { [array]: value } });
+    db.collection("alliances").updateOne({ name }, { [operation]: { [array]: value } });
 }
 
 export async function getAllUsers(): Promise<user[]> {
-    return client.db(dbName).collection("users").find({}).toArray();
+    return db.collection("users").find({}).toArray();
 }
 
 export async function getUsersWithQuery(query: mongodb.FilterQuery<any>): Promise<user[]> {
-    return client.db(dbName).collection("users").find(query).toArray();
+    return db.collection("users").find(query).toArray();
 }
 
 export async function getAllAlliances(): Promise<alliance[]> {
-    return client.db(dbName).collection("alliances").find({}).toArray();
+    return db.collection("alliances").find({}).toArray();
 }
 
 export async function deleteUser(_id: string) {
-    client.db(dbName).collection("users").deleteOne({ _id });
+    db.collection("users").deleteOne({ _id });
 }
 
 export async function deleteAlliance(name: string) {
-    client.db(dbName).collection("alliances").deleteOne({ name });
+    db.collection("alliances").deleteOne({ name });
 }
 
 export async function customUpdateQuery(collection: "users" | "alliances" | "wars" | "servers", filter: { [key: string]: any }, update: { [key: string]: any }) {
-    client.db(dbName).collection(collection).updateMany(filter, update, err => {
+    db.collection(collection).updateMany(filter, update, err => {
         if (err) throw err;
     });
 }
 
 export async function getConfig(): Promise<configDB> {
-    return client.db(dbName)?.collection("config")?.findOne({ _id: 1 })!;
+    return db?.collection("config")?.findOne({ _id: 1 })!;
 }
 
 export async function addUpmsg(words: string[]) {
-    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { upmsg: words } }, err => {
+    db.collection("config").updateOne({ _id: 1 }, { $set: { upmsg: words } }, err => {
         if (err) throw err;
     });
 }
@@ -185,104 +185,104 @@ export async function addUpmsg(words: string[]) {
 export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts", val: number): Promise<void>;
 export async function editConfig(field: "upmsg", val: string): Promise<void>;
 export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts" | "upmsg", val: any) {
-    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
+    db.collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
 }
 
 export async function addToUSB(amount: number) {
-    return client.db(dbName).collection("config").updateOne({ _id: 1 }, { $inc: { centralBalance: amount } });
+    return db.collection("config").updateOne({ _id: 1 }, { $inc: { centralBalance: amount } });
 }
 
 export async function getGiveaways(): Promise<giveaway[]> {
-    return client.db(dbName).collection("giveaways").find({}).toArray();
+    return db.collection("giveaways").find({}).toArray();
 }
 
 export async function addGiveaway(giveaway: giveaway) {
-    return client.db(dbName).collection("giveaways").insertOne(giveaway);
+    return db.collection("giveaways").insertOne(giveaway);
 }
 
 export async function getGiveaway(_id: string): Promise<giveaway> {
-    let result = await client.db(dbName).collection("giveaways").findOne({ _id });
+    let result = await db.collection("giveaways").findOne({ _id });
     return result;
 }
 
 export async function deleteGiveaway(_id: string) {
-    client.db(dbName).collection("giveaways").deleteOne({ _id });
+    db.collection("giveaways").deleteOne({ _id });
 }
 
 export async function addCR(): Promise<void> {
-    client.db(dbName).collection("config").updateOne({ _id: 1 }, { $inc: { commandsRun: 1 } }, err => {
+    db.collection("config").updateOne({ _id: 1 }, { $inc: { commandsRun: 1 } }, err => {
         if (err) throw err;
     });
 }
 
 export async function getServers(): Promise<Array<server>> {
-    return client.db(dbName).collection("servers").find({}).toArray();
+    return db.collection("servers").find({}).toArray();
 }
 
 export async function getServer(_id: string): Promise<server> {
-    return client.db(dbName).collection("servers").findOne({ _id })!;
+    return db.collection("servers").findOne({ _id })!;
 }
 
 export async function addServer(server: server) {
-    client.db(dbName).collection("servers").insertOne(server);
+    db.collection("servers").insertOne(server);
 }
 
 export async function updateServer(server: server, upsert: boolean) {
-    client.db(dbName).collection("servers").updateOne({ _id: server._id }, { $set: server }, { upsert });
+    db.collection("servers").updateOne({ _id: server._id }, { $set: server }, { upsert });
 }
 
 export async function deleteServer(_id: string) {
-    client.db(dbName).collection("servers").deleteOne({ _id });
+    db.collection("servers").deleteOne({ _id });
 }
 
 export async function updatePrefix(_id: string, prefix: string) {
-    client.db(dbName).collection("servers").updateOne({ _id }, { $set: { prefix } });
+    db.collection("servers").updateOne({ _id }, { $set: { prefix } });
 }
 
 export async function addContract(newContract: contract) {
-    await client.db(dbName).collection("contracts").insertOne(newContract);
+    await db.collection("contracts").insertOne(newContract);
 }
 
 export async function getContract(_id: string): Promise<contract> {
-    return client.db(dbName).collection("contracts").findOne({ _id })!;
+    return db.collection("contracts").findOne({ _id })!;
 }
 
 export async function getAllContracts(): Promise<contract[]> {
-    return client.db(dbName).collection("contracts").find({}).toArray();
+    return db.collection("contracts").find({}).toArray();
 }
 
 export async function deleteContract(_id: string) {
-    return client.db(dbName).collection("contracts").deleteOne({ _id });
+    return db.collection("contracts").deleteOne({ _id });
 }
 
 export async function ContractAccepted(contractid: string) {
-    await client.db(dbName).collection("contracts").updateOne({ _id: contractid }, { $set: { proposal: false } })!;
+    await db.collection("contracts").updateOne({ _id: contractid }, { $set: { proposal: false } })!;
 }
 
 export async function ContractTime(contractid: string, value: number) {
-    await client.db(dbName).collection("contracts").updateOne({ _id: contractid }, { $set: { ["info.totaltime"]: value } })!;
+    await db.collection("contracts").updateOne({ _id: contractid }, { $set: { ["info.totaltime"]: value } })!;
 }
 
 export async function addWar(w: war) {
-    client.db(dbName).collection("wars").insertOne(w, err => { if (err) throw err });
+    db.collection("wars").insertOne(w, err => { if (err) throw err });
 }
 
 export async function setWarStarted(_id: string) {
-    client.db(dbName).collection("wars").updateOne({ _id }, { $set: { started: true } });
+    db.collection("wars").updateOne({ _id }, { $set: { started: true } });
 }
 
 export async function getWar(_id: string): Promise<war> {
-    return client.db(dbName).collection("wars").findOne({ _id })!;
+    return db.collection("wars").findOne({ _id })!;
 }
 
 export async function deleteWar(_id: string) {
-    client.db(dbName).collection("wars").deleteOne({ _id });
+    db.collection("wars").deleteOne({ _id });
 }
 
 export async function findWarByUser(_id: string): Promise<war | null> {
-    return client.db(dbName).collection("wars").findOne({
+    return db.collection("wars").findOne({
         $or: [
             { "p1._id": _id },
             { "p2._id": _id }
@@ -291,21 +291,21 @@ export async function findWarByUser(_id: string): Promise<war | null> {
 }
 
 export async function updateReady(_id: string, p1: boolean, newReady = true): Promise<void> {
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $set: { [(p1 ? "p1.ready" : "p2.ready")]: newReady }
     }, err => { if (err) throw err });
 }
 
 export async function addArmy(_id: string, army: army, p1: boolean) {
     const str = p1 ? "p1.armies" : "p2.armies";
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $push: { [str]: army }
     });
 }
 
 export async function moveArmy(_id: string, p1: boolean, army: number, newField: [number, number]) {
     const str = p1 ? `p1.armies.${army}` : `p2.armies.${army}`;
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $set: {
             [str + ".field"]: newField,
             [str + ".moved"]: true
@@ -315,7 +315,7 @@ export async function moveArmy(_id: string, p1: boolean, army: number, newField:
 }
 
 export async function updateField(_id: string): Promise<Array<Array<number | string>>> {
-    let war: war = await client.db(dbName).collection("wars").findOne({ _id })!;
+    let war: war = await db.collection("wars").findOne({ _id })!;
     let arr: (number | string)[][] = JSON.parse(JSON.stringify((Array(15).fill(new Array(15).fill(0)))));
     for (let i = 0; i < war.p1.armies.length; ++i) {
         if (war.p1.armies[i].field)
@@ -325,19 +325,19 @@ export async function updateField(_id: string): Promise<Array<Array<number | str
         if (war.p2.armies[i].field)
             arr[war.p2.armies[i].field![0]][war.p2.armies[i].field![1]] = "2#" + i;
     }
-    await client.db(dbName).collection("wars").updateOne({ _id }, { $set: { field: arr } });
+    await db.collection("wars").updateOne({ _id }, { $set: { field: arr } });
     return arr;
 }
 
 export async function updateCosts(_id: string, mode: "money" | "food" | "population" | "oil" | "steel", p1: boolean, amount: number) {
     const str = p1 ? "p1.resources." + mode + ".consumed" : "p2.resources." + mode + ".consumed";
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $inc: { [str]: amount }
     }, err => { if (err) throw err });
 }
 
 export async function markAllArmies(_id: string, newVal: boolean) {
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $set: {
             "p1.armies.$[].moved": newVal,
             "p2.armies.$[].moved": newVal
@@ -346,7 +346,7 @@ export async function markAllArmies(_id: string, newVal: boolean) {
 }
 
 export async function replaceArmy(_id: string, p1: boolean, index: number, army: army) {
-    client.db(dbName).collection("wars").updateOne({ _id }, {
+    db.collection("wars").updateOne({ _id }, {
         $set: {
             [(p1 ? "p1" : "p2") + `.armies.${index}`]: army
         }
@@ -354,23 +354,23 @@ export async function replaceArmy(_id: string, p1: boolean, index: number, army:
 }
 
 export async function getOffer(_id: string): Promise<marketOffer> {
-    return client.db(dbName).collection("market").findOne({ _id })!;
+    return db.collection("market").findOne({ _id })!;
 }
 
 export async function getAllOffers(): Promise<Array<marketOffer>> {
-    return client.db(dbName).collection("market").find().toArray();
+    return db.collection("market").find().toArray();
 }
 
 export async function addOffer(offer: marketOffer): Promise<void> {
-    client.db(dbName).collection("market").insertOne(offer);
+    db.collection("market").insertOne(offer);
 }
 
 export async function findOffer(query: { [key: string]: any }): Promise<marketOffer[]> {
-    return client.db(dbName).collection("market").find(query).toArray();
+    return db.collection("market").find(query).toArray();
 }
 
 export async function deleteOffer(_id: string) {
-    client.db(dbName).collection("market").deleteOne({ _id });
+    db.collection("market").deleteOne({ _id });
 }
 
 export async function getOfferID(): Promise<number> {
@@ -387,20 +387,33 @@ export async function getContractID(): Promise<number> {
     return id;
 }
 
+export async function getUnoGame(_id: string): Promise<unoGame> {
+    return db.collection("uno").findOne({ _id })!;
+}
+
+export async function addUnoGame(game: unoGame): Promise<void> {
+    db.collection("uno").insertOne(game);
+}
+
+export async function deleteUnoGame(_id: string): Promise<void> {
+    db.collection("uno").deleteOne({ _id });
+}
+
 export async function connectToDB(): Promise<void> {
     return new Promise(resolve => {
         client.connect(async err => {
             if (err) throw err;
             console.log("Successfully connected");
-            client.db(dbName).createCollection("users");
-            client.db(dbName).createCollection("alliances");
-            client.db(dbName).createCollection("giveaways");
-            client.db(dbName).createCollection("servers");
-            client.db(dbName).createCollection("wars");
-            client.db(dbName).createCollection("market");
-            client.db(dbName).createCollection("trades");
-            if (!(await client.db(dbName).collection("config").findOne({ _id: 1 }))) {
-                client.db(dbName).collection("config").insertOne(config);
+            db.createCollection("users");
+            db.createCollection("alliances");
+            db.createCollection("giveaways");
+            db.createCollection("servers");
+            db.createCollection("wars");
+            db.createCollection("market");
+            db.createCollection("trades");
+            db.createCollection("uno");
+            if (!(await db.collection("config").findOne({ _id: 1 }))) {
+                db.collection("config").insertOne(config);
             }
             connected = true;
             resolve();
