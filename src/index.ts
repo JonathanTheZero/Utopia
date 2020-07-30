@@ -62,6 +62,7 @@ import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from 
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 import { calc, consumption } from "./commands/misc";
+import { startGame, joinGame } from "./commands/uno";
 
 const express = require('express');
 const app = express();
@@ -689,6 +690,10 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 
     else if (command === "consumption") consumption(message, args);
+
+    else if(["start-game", "startgame"].includes(command)) startGame(message, args);
+
+    else if(["join-game", "joingame"].includes(command)) joinGame(message, args);
 });
 
 client.login(config.token).catch(console.log);

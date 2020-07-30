@@ -79,6 +79,7 @@ export interface configDB {
     lastDailyReset: number;
     totalOffers: number;
     totalContracts: number;
+    totalGames: number;
     centralBalance: number;
     upmsg: string;
 }
