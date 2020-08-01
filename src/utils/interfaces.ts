@@ -236,7 +236,9 @@ export interface unoGame {
         _id: string;
         hand: string[];
     }>;
+    channel: string;
     stack: string[]
     openStack: string[],
     fee: number;
+    started: boolean;
 }
