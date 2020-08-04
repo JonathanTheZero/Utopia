@@ -241,4 +241,6 @@ export interface unoGame {
     openStack: string[],
     fee: number;
     started: boolean;
+    currentPlayer: number;
+    drawCount: number;
 }

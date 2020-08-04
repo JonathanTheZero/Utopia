@@ -695,7 +695,7 @@ client.on("message", async message => {
 
     else if(["join-game", "joingame"].includes(command)) joinGame(message, args, client);
 
-    else if(["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args);
+    else if(["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
 });
 
 client.login(config.token).catch(console.log);

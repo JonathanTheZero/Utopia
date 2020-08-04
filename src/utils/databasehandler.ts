@@ -408,20 +408,17 @@ export async function removePlayer(_id: string, pid: string): Promise<void> {
     client.db(dbn).collection("uno").updateOne({ _id }, { $pull: { players: { _id: pid } } });
 }
 
-export async function setGameStarted(_id: string, started: boolean = true): Promise<void> {
-    client.db(dbn).collection("uno").updateOne({ _id }, { $set: { started } });
-}
-
 export async function setPlayerHand(_id: string, i: number, hand: string[]): Promise<void> {
     client.db(dbn).collection("uno").updateOne({ _id }, { $set: { [`players.${i}.hand`]: hand } });
 }
 
-export async function setStack(_id: string, stack: string[]): Promise<void> {
-    client.db(dbn).collection("uno").updateOne({ _id }, { $set: { stack } });
-}
-
-export async function setOpenStack(_id: string, openStack: string[]): Promise<void> {
-    client.db(dbn).collection("uno").updateOne({ _id }, { $set: { openStack } });
+export async function updateGame(_id: string, field: "stack" | "openStack", value: string[]): Promise<void>;
+export async function updateGame(_id: string, field: "started", value: boolean): Promise<void>;
+export async function updateGame(_id: string, field: "stack" | "openStack" | "started", value: string[] | boolean): Promise<void> {
+    let query: Object;
+    if (["stack", "openStack"].includes(field)) query = { $set: { [field]: <string[]>value } };
+    else if (field === "started") query = { $set: { started: <boolean>value } };
+    client.db(dbn).collection("uno").updateOne({ _id }, query!);
 }
 
 export async function getGameID(): Promise<number> {

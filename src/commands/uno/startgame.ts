@@ -1,9 +1,10 @@
-import { Message } from "discord.js";
+import { Message, TextChannel, Client } from "discord.js";
 import { unoGame } from "../../utils/interfaces";
-import { getUnoGame, setPlayerHand, setStack, setGameStarted } from "../../utils/databasehandler";
-//import * as config from "../../static/config.json";
+import { getUnoGame, setPlayerHand, updateGame } from "../../utils/databasehandler";
+import * as config from "../../static/config.json";
+import { displayCard } from "./consts";
 
-export async function startGame(message: Message, args: string[]) {
+export async function startGame(message: Message, args: string[], client: Client) {
     if (!args[0]) return message.reply("please follow the syntax of `.start-uno <gameID>`.\nOnly the game initiliazer can start the game.");
     const game: unoGame = await getUnoGame(args[0]);
     if (!game) return message.reply(`there is no game with the ID ${args[0].commafy()}`);
@@ -19,7 +20,19 @@ export async function startGame(message: Message, args: string[]) {
             game.stack.shift()!
         ]);
     }
-    setStack(game._id, game.stack);
-    setGameStarted(game._id, true);
+    game.openStack.unshift(game.stack.shift()!);
+    updateGame(game._id, "stack", game.stack);
+    updateGame(game._id, "openStack", game.stack);
+    updateGame(game._id, "started", true);
     message.reply(JSON.stringify(await getUnoGame(args[0])));
+    message.reply((await getUnoGame(args[0])).stack.length);
+    (<TextChannel>client.channels.cache.get(game.channel)).send({
+        embed: {
+            title: `${message.author.tag} started the game, it's their first turn`,
+            description: `The open card is a ${displayCard(game.openStack[0], client)}`,
+            color: 0x00FF00,
+            footer: config.properties.footer,
+            timestamp: new Date()
+        }
+    });
 }
