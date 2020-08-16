@@ -230,11 +230,13 @@ export interface contract {
     }
 };
 
+export type unoCard = string;
+
 export interface unoGame {
     _id: string;
     players: Array<{
         _id: string;
-        hand: string[];
+        hand: unoCard[];
     }>;
     channel: string;
     stack: string[]

@@ -1,5 +1,5 @@
 import { unoGame } from "../../utils/interfaces";
-import { Client, Message, Emoji, User, MessageReaction } from "discord.js";
+import { Client, Message, Emoji, User, MessageReaction, TextChannel } from "discord.js";
 import { displayCard } from "./consts";
 
 export async function gameRound(game: unoGame, client: Client) {
@@ -14,13 +14,19 @@ export async function gameRound(game: unoGame, client: Client) {
         }
     });
 
+    player.hand.forEach(el => msg.react((<Emoji>displayCard(el, client)).id!));
     const r = msg.createReactionCollector(
-        (reaction: { emoji: Emoji; }, user: User) => player.hand.includes(reaction.emoji.id!) && !user.bot, 
+        (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot, 
         { time: 120000 }
     );
-    player.hand.forEach(el => msg.react((<Emoji>displayCard(el, client)).id!));
     r.on("collect", async (reaction: MessageReaction) => {
+        console.log("Reacted");
+        console.log(reaction.emoji.id);
+        console.log(player.hand);
+        const card: string = displayCard(client.emojis.cache.get(reaction.emoji.id!)!, client);
+        if(!player.hand.includes(card)) return;
+        (<TextChannel>client.channels.cache.get(game.channel)).send(card);
+        player.hand.splice(player.hand.indexOf(card, 1));
         r.stop();
-        player.hand.splice(player.hand.indexOf(reaction), 1);
     });
 }

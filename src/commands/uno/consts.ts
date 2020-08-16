@@ -1,6 +1,7 @@
 import { Emoji, Client } from "discord.js";
+import { unoCard } from "../../utils/interfaces";
 
-export const stack: string[] = [
+export const stack: unoCard[] = [
     'r0', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9', 'rs', 'r+', 'rr',
     'g0', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9', 'gs', 'g+', 'gr',
     'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'bs', 'b+', 'br',

@@ -3,6 +3,7 @@ import { unoGame } from "../../utils/interfaces";
 import { getUnoGame, setPlayerHand, updateGame } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
 import { displayCard } from "./consts";
+import { gameRound } from "./gameRound";
 
 export async function startGame(message: Message, args: string[], client: Client) {
     if (!args[0]) return message.reply("please follow the syntax of `.start-uno <gameID>`.\nOnly the game initiliazer can start the game.");
@@ -35,4 +36,5 @@ export async function startGame(message: Message, args: string[], client: Client
             timestamp: new Date()
         }
     });
+    gameRound(await getUnoGame(game._id), client);
 }
