@@ -119,7 +119,7 @@ export async function dailyPayout(client: Client) {
                 editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
             }
             if (u.clientStates[i].loyalty < 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
-            addToUSB(-Math.floor(money * (c.loyalty + .5) * p));
+            addToUSB(-Math.floor(1.1 * money * (c.loyalty + .5) * p));
         }
     }
     //selecting all users that have a population that is not 0 => only affect people with population

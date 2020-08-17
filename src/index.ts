@@ -76,11 +76,9 @@ app.get('/', (_request: any, response: any) => {
     console.log(Date.now() + " Ping Received");
 });
 
-const listener = app.listen(process.env.PORT, () => {
-    console.log('Your app is listening on port ' + listener.address().port);
-});
+const listener = app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + listener.address().port));
 
-setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
+if(process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
@@ -92,8 +90,10 @@ if (config.dbl) {
 
     dbl.webhook.on('vote', async (vote: { user: string }) => {
         let user: user = await getUser(vote.user);
-        updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 172800 ? "$inc" : "$set");
-        updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
+        await Promise.all([
+            updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 172800 ? "$inc" : "$set"),
+            updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000))
+        ]);
         user = await getUser(vote.user);
         let money = user.votingStreak * Math.floor(.01 * user.income);
         updateValueForUser(user._id, "money", money, "$inc");
