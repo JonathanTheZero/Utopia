@@ -73,9 +73,9 @@ export function displayCard(card: Emoji | string, client: Client): Emoji | strin
         if (card === "y7") return client.emojis.cache.get("739600628892041240")!;
         if (card === "y8") return client.emojis.cache.get("739600629021933579")!;
         if (card === "y9") return client.emojis.cache.get("739600628866744500")!;
-        if (card === "yr") return client.emojis.cache.get("739600628707230000")!;
-        if (card === "y+") return client.emojis.cache.get("739600628413759550")!;
-        if (card === "ys") return client.emojis.cache.get("739600628799766609")!;
+        if (card === "yr") return client.emojis.cache.get("739600628413759550")!;
+        if (card === "y+") return client.emojis.cache.get("739600628799766609")!;
+        if (card === "ys") return client.emojis.cache.get("739600628707230000")!;
 
         if (card === "s0") return client.emojis.cache.get("739608229755224125")!;
         return client.emojis.cache.get("739608229612355591")!; //s4
@@ -132,9 +132,9 @@ export function displayCard(card: Emoji | string, client: Client): Emoji | strin
         if (card.id === "739600628892041240") return "y7";
         if (card.id === "739600629021933579") return "y8";
         if (card.id === "739600628866744500") return "y9";
-        if (card.id === "739600628707230000") return "yr";
-        if (card.id === "739600628413759550") return "y+";
-        if (card.id === "739600628799766609") return "ys";
+        if (card.id === "739600628413759550") return "yr";
+        if (card.id === "739600628799766609") return "y+";
+        if (card.id === "739600628707230000") return "ys";
 
         if (card.id === "739608229755224125") return "s0";
         return "s4";

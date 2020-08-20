@@ -23,7 +23,7 @@ export async function startGame(message: Message, args: string[], client: Client
     }
     game.openStack.unshift(game.stack.shift()!);
     updateGame(game._id, "stack", game.stack);
-    updateGame(game._id, "openStack", game.stack);
+    updateGame(game._id, "openStack", game.openStack);
     updateGame(game._id, "started", true);
     message.reply(JSON.stringify(await getUnoGame(args[0])));
     message.reply((await getUnoGame(args[0])).stack.length);

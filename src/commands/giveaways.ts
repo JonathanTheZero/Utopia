@@ -13,33 +13,25 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     if (args.length < 4 || parseInt(args[3]) < 1 || parseInt(args[0]) < 1) return message.reply("please follow the syntax `.start-giveaway <amount> <currency> <winners> <ending>`");
 
     let currency: string;
-    if (args[1].startsWith("p") || args[1].startsWith("P"))
-        currency = "Population";
-    else if (args[1].startsWith("f") || args[1].startsWith("F"))
-        currency = "Food";
-    else if (args[1].startsWith("m") || args[1].startsWith("M"))
-        currency = "Money";
-    else
-        return message.reply("the only valid currencies are food, population and money!");
+    if (args[1].startsWith("p") || args[1].startsWith("P")) currency = "Population";
+    else if (args[1].startsWith("f") || args[1].startsWith("F")) currency = "Food";
+    else if (args[1].startsWith("m") || args[1].startsWith("M")) currency = "Money";
+    else return message.reply("the only valid currencies are food, population and money!");
 
     var ending: Date;
     var addTime = -1;
     if (endstr.match(/[in]?[ ]?\d{1,}[ ]?m/ig)) {//x minutes
         addTime = Math.floor(endstr.match(/\d+/g)!.map(Number)[0]) * 60 * 1000;
         ending = new Date(Date.now() + addTime);
-    }
-    else if (endstr.match(/[in]?[ ]?\d{1,}[ ]?h/ig)) {//x hours
+    } else if (endstr.match(/[in]?[ ]?\d{1,}[ ]?h/ig)) {//x hours
         addTime = Math.floor(endstr.match(/\d+/g)!.map(Number)[0]) * 3600 * 1000;
         ending = new Date(Date.now() + addTime);
-    }
-    else if (endstr.match(/[in]?[ ]?\d{1,}[ ]?d/ig)) {//x days
+    } else if (endstr.match(/[in]?[ ]?\d{1,}[ ]?d/ig)) {//x days
         addTime = Math.floor(endstr.match(/\d+/g)!.map(Number)[0]) * 24 * 3600 * 1000;
         ending = new Date(Date.now() + addTime);
     }
-    if (addTime == -1)
-        return message.reply("please specifiy a valid time.")
-    if (addTime > 172800000)
-        return message.reply("You can't start a giveaway that lasts longer than two days!");
+    if (addTime == -1) return message.reply("please specifiy a valid time.")
+    if (addTime > 172800000) return message.reply("You can't start a giveaway that lasts longer than two days!");
     var giveaway: giveaway;
     await message.channel.send({
         embed: {
@@ -81,9 +73,7 @@ export async function giveawayCheck(_id: string, client: Client) {
 
     await Sleep(giveaway.endingAt - Date.now());
 
-    await channel.messages.fetch(giveaway.embedId).then(msg => {
-        voteCollection = msg.reactions.cache;
-    });
+    await channel.messages.fetch(giveaway.embedId).then(msg => voteCollection = msg.reactions.cache);
 
     giveaway.users = voteCollection!.first()!.users.cache.array();
     giveaway.users.shift();

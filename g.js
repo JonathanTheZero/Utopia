@@ -2,7 +2,7 @@
 for(let a of ["r", "g", "b", "y"]){
     for(let i = 0; i < 10; i++) f.push(a+i)
 } 
-console.log(f)*/
+console.log(f)*
 const fs = require("fs");
 
 let a = `if (card === "r0") return client.emojis.cache.get("739599286769156168")!;
@@ -63,6 +63,6 @@ if (card === "ys") return client.emojis.cache.get("739600628799766609")!;
 
 if (card === "s0") return client.emojis.cache.get("739608229755224125")!;
 if (card === "b4") return client.emojis.cache.get("739608229612355591")!;`;
-for(const e of a.split()){
-    
-}
+for(const e of a.split("\n")){
+    fs.writeFileSync
+}*/
