@@ -245,4 +245,5 @@ export interface unoGame {
     started: boolean;
     currentPlayer: number;
     drawCount: number;
+    color: null | "g" | "y" | "b" | "r";
 }
