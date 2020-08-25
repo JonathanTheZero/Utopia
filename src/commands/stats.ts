@@ -97,6 +97,17 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                     name: "Hospitals",
                     value: args[0] ? `${user.tag} owns ${user.upgrades.hospitals} Hospitals` : `You own ${user.upgrades.hospitals} hospitals`,
                     inline: true
+                },
+                {
+                    name: "Client states",
+                    value: args[0] ? `${user.tag} owns ${user.clientStates.length} client states` : `You own ${user.clientStates.length} client states`,
+                    inline: true
+                },
+                {
+                    name: "Voting streak",
+                    value: (args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}.` : `Your highest streak is ${user.highestVotingStreak}.`) + 
+                        " Use `.vote` to grab a link to improve your voting streak.",
+                    inline: true
                 }
             ],
             timestamp: new Date(),
@@ -152,19 +163,19 @@ export async function time(message: Message, args: string[], client: Client): Pr
                     inline: true
                 },
                 {
-                    name: "Next work payout",
+                    name: "Next work payout:",
                     value: secondsToDhms((14400 * 3) + (c.lastPopulationWorkPayout - Math.floor(Date.now() / 1000))) ||
                         "During the next hour",
                     inline: true
                 },
                 {
-                    name: "Next mine reset:",
-                    value: "The next mine reset will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    name: "Next tax and mine reset:",
+                    value: "In " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
                     inline: true
                 },
                 {
-                    name: "Next Tax:",
-                    value: "The next  taxation will be in " + secondsToDhms(604800 + Math.floor((c.lastMineReset - Date.now()) / 1000)),
+                    name: "Next contract and client state payout:",
+                    value: "In " + secondsToDhms(86400 + Math.floor((c.lastDailyReset - Date.now()) / 1000)),
                     inline: true
                 },
                 {

@@ -37,8 +37,7 @@ export async function work(message: Message, client: Client) {
             updateValueForUser(user._id, "money", produced, "$inc");
             message.reply("You successfully worked and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
         }
-    }
-    else {
+    } else {
         var taxed = Math.floor((alliance.tax / 100) * produced);
         produced -= taxed;
         updateValueForAlliance(alliance.name, "money", taxed, "$inc");

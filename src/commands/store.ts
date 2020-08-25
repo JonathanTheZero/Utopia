@@ -3,6 +3,7 @@ import * as config from "../static/config.json";
 import "../utils/utils";
 import { user, alliance } from "../utils/interfaces";
 import { getUser, getAlliance } from "../utils/databasehandler";
+import { rates } from "./client-states";
 
 export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" | "pf"): Promise<Object> {
     if (type === "p") {
@@ -175,7 +176,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             color: parseInt(config.properties.embedColor),
             title: "Client state store",
             description: "The prices vary in each client state's, due to the different amount of buildings there.\nYou can theoretically buy each upgrade infinite times for your client states." +
-                "\nAll production rates are further boosted by loyalty and the focus set (for more see`.help client-states`.)" + 
+                "\nAll production rates are further boosted by loyalty and the focus set (for more see`.help cls`.) " + 
                 "Buy an item with `.buy-cls <state> <upgrade>`. This will boost their loyalty.",
             thumbnail: {
                 url: message.author.displayAvatarURL(),
@@ -189,17 +190,17 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
                 },
                 {
                     name: "Mines",
-                    value: "A mine boosts the steel production of a state by 100,000 a day",
+                    value: `A mine boosts the steel production of a state by ${rates.mines.commafy()} a day`,
                     inline: true
                 },
                 {
                     name: "Rigs",
-                    value: "A rig boosts the oil production of a state by 100,000 a day",
+                    value: `A rig boosts the oil production of a state by ${rates.rigs.commafy()} a day`,
                     inline: true
                 },
                 {
                     name: "Farms",
-                    value: "A farm boosts the food production of a state by 1,500,000 a day",
+                    value: `A farm boosts the food production of a state by ${rates.farms.commafy()} a day`,
                     inline: true
                 }
             ],

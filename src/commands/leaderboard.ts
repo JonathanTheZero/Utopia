@@ -6,13 +6,14 @@ import "../utils/utils";
 import { backwardsFilter, forwardsFilter } from "../utils/utils";
 
 export async function leaderboard(message: Message, args: Array<any>) {
-    let symbol: "m" | "p" | "f" | "a" | "o" | "s" = "m", page: number = typeof args[1] === "undefined" ? isNaN(parseInt(args[0])) ? 1 : parseInt(args[0]) : args[1];;
+    let symbol: "m" | "p" | "f" | "a" | "o" | "s" | "v" = "m", page: number = typeof args[1] === "undefined" ? isNaN(parseInt(args[0])) ? 1 : parseInt(args[0]) : args[1];;
     switch (args[0]?.[0]) {
         case "p": symbol = "p"; break;
         case "f": symbol = "f"; break;
         case "a": symbol = "a"; break;
         case "o": symbol = "o"; break;
         case "s": symbol = "s"; break;
+        case "v": symbol = "v"; break;
         default: symbol = "m";
     }
     if (page > Math.floor((await getLeaderboardList("m")).length / 10) + 1 || isNaN(page) && typeof page !== "undefined")
@@ -34,19 +35,20 @@ export async function leaderboard(message: Message, args: Array<any>) {
     });
 }
 
-async function getLeaderboardList(type: "p" | "f" | "m" | "o" | "s"): Promise<user[]>;
+async function getLeaderboardList(type: "p" | "f" | "m" | "o" | "s" | "v"): Promise<user[]>;
 async function getLeaderboardList(type: "a"): Promise<alliance[]>;
-async function getLeaderboardList(type: "a" | "p" | "f" | "o" | "m" | "s"): Promise<Array<user | alliance>> {
+async function getLeaderboardList(type: "a" | "p" | "f" | "o" | "m" | "s" | "v"): Promise<Array<user | alliance>> {
     let allUsers = await getAllUsers(), allAlliances = await getAllAlliances();
     if (type === "p") return allUsers.sort((a: user, b: user) => b.resources.population - a.resources.population);
     else if (type === "f") return allUsers.sort((a: user, b: user) => (b.resources.food) - (a.resources.food));
     else if (type === "a") return allAlliances.sort((a: alliance, b: alliance) => (b.money) - (a.money));
     else if (type === "o") return allUsers.sort((a, b) => b.resources.oil - a.resources.oil);
     else if (type === "s") return allUsers.sort((a, b) => b.resources.steel - a.resources.steel);
+    else if (type === "v") return allUsers.sort((a, b) => b.highestVotingStreak - a.highestVotingStreak);
     else return allUsers.sort((a: user, b: user) => (b.money) - (a.money));
 }
 
-async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s", page: number, message: Message): Promise<object> {
+async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s" | "v", page: number, message: Message): Promise<object> {
     let p = page - 1,
         lb = [],
         index,
@@ -61,6 +63,7 @@ async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s",
         else if (type === "f") title = `Leaderboard sorted by food, ${page} of ${(Math.floor(lb.length / 10) + 1)}`;
         else if (type === "s") title = `Leaderboard sorted by steel, ${page} of ${(Math.floor(lb.length / 10) + 1)}`;
         else if (type === "o") title = `Leaderboard sorted by oil, ${page} of ${(Math.floor(lb.length / 10) + 1)}`;
+        else if (type === "v") title = `Leaderboard sorted by voting streaks, ${page} of ${(Math.floor(lb.length / 10) + 1)}`;
     } else {
         lb = await getLeaderboardList("a");
         let u: user = await getUser(message.author.id);
@@ -78,7 +81,7 @@ async function generateLeaderboardEmbed(type: "a" | "p" | "f" | "o" | "m" | "s",
     };
 }
 
-function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f" | "o" | "s"): Array<{ name: string; value: string }> {
+function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f" | "o" | "s" | "v"): Array<{ name: string; value: string }> {
     var h = ((lb.length - p * 10) > 10) ? 10 : lb.length - p * 10;
     const fields = [];
     if (["a", "m"].includes(type)) {
@@ -86,6 +89,12 @@ function leaderBoardEmbedFields(p: number, lb: any[], type: "p" | "a" | "m" | "f
             fields.push({
                 name: "`#" + ((i + 1) + (p * 10)) + "` " + (lb[i + p * 10].name || lb[i + p * 10].tag),
                 value: lb[i + p * 10].money.commafy() + " coins",
+            });
+    } else if (type === "v") {
+        for (var i = 0; i < h; ++i)
+            fields.push({
+                name: "`#" + ((i + 1) + (p * 10)) + "` - " + lb[i + p * 10].tag,
+                value: (<user[]>lb)[i + p * 10].highestVotingStreak?.commafy() + ` votes`
             });
     } else {
         let res: string;

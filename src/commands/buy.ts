@@ -25,8 +25,8 @@ export async function buy(message: Message, args: string[]) {
         return message.reply(await buyHospital(message.author.id));
     else if (args[0] == "food" || args[0] == "a" && args[1] == "pack" && args[2] == "of" && args[3] == "food") {
         let amount;
-        if (typeof args[1] != "undefined" && !isNaN(parseInt(args[1]))) amount = parseInt(args[1]);
-        if (typeof args[1] != "undefined" && !isNaN(parseInt(args[4]))) amount = parseInt(args[4]);
+        if (typeof args[1] != "undefined" && !isNaN(parseInt(args[1].replace(/[,]/g, '')))) amount = parseInt(args[1].replace(/[,]/g, ''));
+        if (typeof args[1] != "undefined" && !isNaN(parseInt(args[4].replace(/[,]/g, '')))) amount = parseInt(args[4].replace(/[,]/g, ''));
         if (isNaN(<any>amount) || typeof amount == "undefined") amount = 1;
         if (user.money >= amount * 20000) {
             updateValueForUser(message.author.id, "money", -20000 * amount, "$inc");

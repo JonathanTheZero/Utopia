@@ -71,7 +71,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.lb` or `.leaderboard [type] [page]`",
-            value: "View the global leaderboard. Allowed types are 'alliance', 'money', 'food' and 'population'.",
+            value: "View the global leaderboard. Allowed types are 'alliance', 'money', 'food', 'votes' and 'population'.",
         },
         {
             name: "`.shop` or `.store [category]`",
@@ -215,7 +215,8 @@ export const miscHelpMenu = {
         },
         {
             name: "`.vote`",
-            value: "You can vote every 12h for Utopia on top.gg to get 15k money for free!"
+            value: "You can vote every 12h for Utopia on top.gg to get money for free!" + 
+                "You will find further information there."
         },
         {
             name: "`.statistics`",

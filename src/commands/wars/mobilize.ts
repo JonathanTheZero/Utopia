@@ -15,10 +15,10 @@ export async function mobilize(message: Message, args: string[]) {
     if (a.length === 3) return message.reply("you can only have 3 armies.")
 
     const army: army = {
-        if: parseInt(args[0]),
-        art: parseInt(args[1]),
-        tnk: parseInt(args[2]),
-        jet: parseInt(args[3]),
+        if: parseInt(args[0].replace(/[,]/g, '')),
+        art: parseInt(args[1].replace(/[,]/g, '')),
+        tnk: parseInt(args[2].replace(/[,]/g, '')),
+        jet: parseInt(args[3].replace(/[,]/g, '')),
         field: null,
         moved: true,
     };

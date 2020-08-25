@@ -42,7 +42,7 @@ export async function makeOffer(message: Message, args: string[]) {
             currency: oc
         },
         price: {
-            amount: parseInt(args[2]),
+            amount: parseInt(args[2].replace(/[,]/g, '')),
             currency: pc
         }
     };

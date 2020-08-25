@@ -7,7 +7,7 @@ export async function withdraw(message: Message, args: string[]) {
     if (!args[2]) return message.reply("please follow the syntax of `.withdraw <state> <amount> <currency>`")
     const user: user = await getUser(message.author.id);
     if (!user) return message.reply("you haven't created an account yet, please use `.create`.");
-    let res: resources, a = parseInt(args[1].replace(/[,]/g, '')), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
+    let res: resources, a = parseInt(args[1]), index = user.clientStates.findIndex(el => el.name.toLowerCase() === args[0].toLowerCase());
     const cls = user.clientStates[index];
     switch (args[2][0].toLowerCase()) {
         case "f": res = "food"; break;

@@ -76,11 +76,9 @@ app.get('/', (_request: any, response: any) => {
     console.log(Date.now() + " Ping Received");
 });
 
-const listener = app.listen(process.env.PORT, () => {
-    console.log('Your app is listening on port ' + listener.address().port);
-});
+const listener = app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + listener.address().port));
 
-setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
+if(process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
@@ -92,12 +90,16 @@ if (config.dbl) {
 
     dbl.webhook.on('vote', async (vote: { user: string }) => {
         let user: user = await getUser(vote.user);
-        updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 86400 ? "$inc" : "$set");
-        updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000));
+        await Promise.all([
+            updateValueForUser(user._id, "votingStreak", 1, (Date.now() / 1000 - user.lastVoted) <= 172800 ? "$inc" : "$set"),
+            updateValueForUser(user._id, "lastVoted", Math.floor(Date.now() / 1000))
+        ]);
         user = await getUser(vote.user);
-        updateValueForUser(user._id, "money", user.votingStreak * 15000, "$inc");
-        updateValueForUser(user._id, "income", user.votingStreak * 15000, "$inc");
-        addToUSB(-(user.votingStreak * 20000));
+        let money = user.votingStreak * Math.floor(.01 * user.income);
+        updateValueForUser(user._id, "money", money, "$inc");
+        updateValueForUser(user._id, "income", money, "$inc");
+        if (user.votingStreak > user.highestVotingStreak) updateValueForUser(user._id, "highestVotingStreak", user.votingStreak, "$set");
+        addToUSB(-money);
     });
 }
 
@@ -165,7 +167,7 @@ client.on("guildCreate", guild => {
 client.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild?.name} (id: ${guild?.id})`);
     client.user!.setActivity(`.help | ${client.users.cache.size} users on ${client.guilds.cache.size} servers`);
-    if (connected) deleteServer(guild?.id);
+    if (connected && guild) deleteServer(guild.id);
 });
 
 
@@ -175,10 +177,9 @@ client.on("message", async message => {
     if (message.content.indexOf(prefix) !== 0 || message.author.bot) return;
 
     var args: Array<string> = message.content.slice(prefix.length).trim().split(/ +/g);
-    if (!args || args.length === 0) return;
+    if (!args || !args.length) return;
     const command: string | undefined = args?.shift()?.toLowerCase();
     if (!command) return;
-
     addCR(); //increase commands run count by one
 
     if (command === "ping") {
@@ -188,7 +189,7 @@ client.on("message", async message => {
 
     else if (command === "say") {
         const sayMessage = args.join(" ");
-        if (sayMessage.match(/@everyone/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
+        if (sayMessage.match(/@(everyone|here)/) && !config.botAdmins.includes(message.author.id)) return message.reply("no.");
         message.delete().catch(console.log);
         message.channel.send(sayMessage);
     }
@@ -247,26 +248,26 @@ client.on("message", async message => {
         message.channel.send({
             embed: {
                 color: parseInt(config.properties.embedColor),
-                title: `Your voting streak: ${u.votingStreak}`,
-                description: "As a reward for voting you will get your streak mulitplied with 15000 as money!\n" +
+                title: `Voting streak: ${u.votingStreak}`,
+                description: "As a reward for voting you will get your streak% of your income as free money!\n" +
                     "You can increase your voting streak every 12h." +
-                    "If you don't vote for more than 24h, you will lose your streak.\n\n" +
+                    "If you don't vote for more than 2 days, you will lose your streak.\n\n" +
                     `Click [here](https://top.gg/bot/619909215997394955/vote) to vote\n` +
                     `You can vote again ${(u.lastVoted === 0 || Date.now() - u.lastVoted * 1000 > 43200000) ? "**now**" : "in " + new Date((43200 - (Math.floor(Date.now() / 1000) - u.lastVoted)) * 1000).toISOString().substr(11, 8)}`
             }
         });
     }
 
-    else if (command === "bet" || command === "coinflip") bet(message, args);
+    else if (["bet", "coinflip", "cf"].includes(command)) bet(message, args);
 
     else if (command === "help") {
         if (["general", "g"].includes(args[0]))
             return message.channel.send({ embed: generalHelpMenu });
         else if (["alliance", "alliances", "a"].includes(args[0]))
             return message.channel.send({ embed: allianceHelpMenu });
-        else if (args[0] == "misc")
+        else if (args[0] === "misc")
             return message.channel.send({ embed: miscHelpMenu });
-        else if (args[0] == "mod")
+        else if (args[0] === "mod")
             return message.channel.send({ embed: modHelpMenu });
         else if (["market", "m"].includes(args[0]))
             return message.channel.send({ embed: marketHelp });
@@ -348,6 +349,7 @@ client.on("message", async message => {
 
     else if (command === "delete") {
         const user: user = await getUser(message.author.id);
+        if (!args[0] || args[0].toLowerCase() !== "yes") return message.reply("please confirm with `.delete yes`.")
         if (user.alliance != null) return message.reply("You are still member of an alliance, please leave it before deleting your account");
         deleteUser(message.author.id);
         return message.reply("you have successfully deleted your account!");
@@ -432,20 +434,11 @@ client.on("message", async message => {
     else if (command === "alliancemembers")
         return allianceMembers(message, args, client);
 
-    else if (command === "guide")
-        return message.channel.send({
-            embed: guideEmbed
-        });
+    else if (command === "guide") return message.channel.send({ embed: guideEmbed });
 
-    else if (command === "warguide")
-        return message.channel.send({
-            embed: warGuide
-        });
+    else if (command === "warguide") return message.channel.send({ embed: warGuide });
 
-    else if (command === "troopstats")
-        return message.channel.send({
-            embed: troopStats
-        });
+    else if (command === "troopstats") return message.channel.send({ embed: troopStats });
 
     else if (command === "shop" || command === "store") {
         if (args[0] == "population" || args[0] == "p") return message.channel.send({ embed: await storeEmbed!(message, "p") });
@@ -512,13 +505,9 @@ client.on("message", async message => {
                         name: "Servers:",
                         value: `Currently I am active on ${client.guilds.cache.size.commafy()} servers`
                     },
-                    // {
-                    //     name: "Users:",
-                    //     value: `Currently I have ${client.users.cache.size.commafy()} users.`
-                    // },
                     {
                         name: "Users:",
-                        value: `Currently I have ${client.users.cache.size.commafy()} users and ${await (await getAllUsers()).length} active users.`
+                        value: `Currently I have ${client.users.cache.size.commafy()} users.`
                     },
                     {
                         name: "Commands run:",
@@ -563,8 +552,7 @@ client.on("message", async message => {
         pyshell.end(err => { if (err) throw err });
     }
 
-    else if (command === "settax")
-        settax(message, args);
+    else if (command === "settax") settax(message, args);
 
     //.start-giveaway <amount> <currency> <winners> <ending>
     else if (command === "start-giveaway")
@@ -605,37 +593,27 @@ client.on("message", async message => {
 
     else if (command === "mine") mine(message, args);
 
-    else if (command === "digmine" || command === "detroitbecomedwarf")
-        digmine(message);
+    else if (command === "digmine" || command === "detroitbecomedwarf") digmine(message);
 
-    else if (command === "minestats")
-        mineStats(message, args);
+    else if (command === "minestats") mineStats(message, args);
 
-    else if (["make-offer", "makeoffer"].includes(command))
-        makeOffer(message, args);
+    else if (["make-offer", "makeoffer"].includes(command)) makeOffer(message, args);
 
     else if (command === "offer") offer(message, args);
 
-    else if (command === "propose")
-        propose(message, args, client)
+    else if (command === "propose") propose(message, args, client)
 
-    else if (command === "viewcontract" || command === "view-contract")
-        viewContract(message, args, client)
+    else if (command === "viewcontract" || command === "view-contract") viewContract(message, args, client)
 
-    else if (command === "accept")
-        acceptedContract(message, args, client);
+    else if (command === "accept") acceptedContract(message, args, client);
 
-    else if (command === "market")
-        activeOffers(message, args);
+    else if (command === "market") activeOffers(message, args);
 
-    else if (command === "buy-offer" || command === "buyoffer")
-        buyOffer(message, args, client);
+    else if (command === "buy-offer" || command === "buyoffer") buyOffer(message, args, client);
 
-    else if (["my-offers", "myoffers"].includes(command))
-        myOffers(message, args);
+    else if (["my-offers", "myoffers"].includes(command)) myOffers(message, args);
 
-    else if (["cancel-offer", "canceloffer", "deleteoffer", "delete-offer"].includes(command))
-        deleteOffer(message, args);
+    else if (["cancel-offer", "canceloffer", "deleteoffer", "delete-offer"].includes(command)) deleteOffer(message, args);
 
     else if (command === "usb" || command === "central-bank")
         return message.channel.send({

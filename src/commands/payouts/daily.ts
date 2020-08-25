@@ -23,7 +23,7 @@ export async function dailyPayout(client: Client) {
                             color: 0xFF0000
                         }
                     }).catch(console.log);
-                    deleteClientState(u._id, c.name);
+                    await deleteClientState(u._id, c.name);
                     continue;
                 } else {
                     client.users.cache.get(u._id)?.send({
@@ -47,7 +47,7 @@ export async function dailyPayout(client: Client) {
                 } else editCLSVal(u._id, i, "loyalty", -loyaltyLoss, "$inc");
             }
 
-            const consumption = Math.floor(c.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, c.resources.population))))) || 0;
+            const consumption = Math.floor(c.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, c.resources.population + 1))))) || 0;
             let pop = c.resources.population;
             if (consumption > c.resources.food) {
                 editCLSVal(u._id, i, "food", 0, "$set");
@@ -119,7 +119,7 @@ export async function dailyPayout(client: Client) {
                 editCLSVal(u._id, i, "food", Math.floor(c.upgrades.farms * Math.random() * rates.farms * (c.loyalty + .5) * p), "$inc");
             }
             if (u.clientStates[i].loyalty < 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
-            addToUSB(-Math.floor(money * (c.loyalty + .5) * p));
+            addToUSB(-Math.floor(1.1 * money * (c.loyalty + .5) * p));
         }
     }
     //selecting all users that have a population that is not 0 => only affect people with population
