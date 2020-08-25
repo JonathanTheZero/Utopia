@@ -12,7 +12,7 @@ export async function modmail(message: Message, args: string[], client: Client) 
                 timestmap: new Date()
             }
         });
-        return message.reply("succesfull sent your message to the suggestion channel.");
+        return message.reply("succesfully sent your message to the suggestion channel.");
     } else if (args[0]?.[0] === "m") {
         let channel = <TextChannel>client.channels.cache.get("721062176042778666");
         channel.send({
@@ -23,7 +23,7 @@ export async function modmail(message: Message, args: string[], client: Client) 
                 timestmap: new Date()
             }
         });
-        return message.reply("succesfull sent your message to the mods.");
+        return message.reply("succesfully sent your message to the mods.");
     } else return message.reply("this is not a valid type!");
 }
 
@@ -38,7 +38,7 @@ export async function anonmail(message: Message, args: string[], client: Client)
                 color: 0xFF0000
             }
         });
-        return message.reply("succesfull sent your message to the suggestion channel.");
+        return message.reply("succesfully sent your message to the suggestion channel.");
     } else if (args[0]?.[0] === "m") {
         let channel = <TextChannel>client.channels.cache.get("721062176042778666");
         channel.send({
@@ -48,7 +48,7 @@ export async function anonmail(message: Message, args: string[], client: Client)
                 color: 0xFF0000
             }
         });
-        return message.reply("succesfull sent your message to the mods.");
+        return message.reply("succesfully sent your message to the mods.");
     } else return message.reply("this is not a valid type!");
 }
 
