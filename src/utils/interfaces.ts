@@ -103,34 +103,6 @@ export interface server {
     prefix: string;
 }
 
-export type updateUserQuery = "tag"
-    | "money"
-    | "autoping"
-    | "payoutDMs"
-    | "alliance"
-    | "allianceRank"
-    | "food"
-    | "population"
-    | "loan"
-    | "lastWorked"
-    | "lastCrime"
-    | "lastVoted"
-    | "votingStreak"
-    | "steel"
-    | "oil"
-    | "lastDig"
-    | "lastMine"
-    | "totaldigs"
-    | "steelmine"
-    | "oilrig"
-    | "minereturn"
-    | "minereset"
-    | "income"
-    | "taxDMs"
-    | "hospitals"
-    | "lastMessage"
-    | "highestVotingStreak";
-
 export interface war {
     _id: string;
     p1: battlePlayer;
@@ -237,5 +209,6 @@ export interface unoGame {
     started: boolean;
     currentPlayer: number;
     drawCount: number;
+    reverseOrder: boolean;
     color: null | "g" | "y" | "b" | "r";
 }

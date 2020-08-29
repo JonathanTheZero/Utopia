@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources, unoGame } from "./interfaces";
+import { user, alliance, configDB, giveaway, server, war, army, marketOffer, clientState, contract, unoGame, clsResources, clsUpgrades } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -36,36 +36,10 @@ export async function getAlliance(name: string): Promise<alliance | null> {
     return await client.db(dbn).collection("alliances").findOne({ name });
 }
 
-export async function updateValueForUser(
-    _id: string,
-    mode:
-        | "money"
-        | "food"
-        | "population"
-        | "votingStreak"
-        | "loan"
-        | "steel"
-        | "oil"
-        | "lastDig"
-        | "lastMine"
-        | "totaldigs"
-        | "steelmine"
-        | "minereset"
-        | "minereturn"
-        | "oilrig"
-        | "income"
-        | "hospitals"
-        | "highestVotingStreak",
-    newValue: number,
-    updateMode?: "$inc" | "$set"
-): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "lastCrime" | "lastWorked" | "lastVoted", newValue: number): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "alliance", newValue: string | null): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "tag", newValue: string): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "allianceRank", newValue: "M" | "C" | "L" | null): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "autoping" | "payoutDMs" | "taxDMs", newValue: boolean): Promise<void>;
-export async function updateValueForUser(_id: string, mode: "lastMessage", newValue: { channelID: string; messageID: string; alreadyPinged: boolean }): Promise<void>
-export async function updateValueForUser(_id: string, mode: updateUserQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
+export async function updateValueForUser<
+    K extends keyof user,
+    R extends keyof user["resources"]
+>(_id: string, mode: K | R | "hospitals", newValue: user[K] | user["resources"][], updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
         "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs", "lastMessage", "highestVotingStreak"].includes(mode))
@@ -89,11 +63,7 @@ export async function deleteClientState(_id: string, name: string): Promise<void
     client.db(dbn).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
-export async function editCLSVal(_id: string, index: number, type: "loyalty" | "mines" | "rigs" | "farms" | clsResources, val: number, mode: "$inc" | "$set"): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: "focus", val: clsResources | null): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: "name", val: string): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: "government", val: clsGovernment): Promise<void>;
-export async function editCLSVal(_id: string, index: number, type: clsEdits | clsResources, val: any, mode: "$inc" | "$set" = "$set"): Promise<void> {
+export async function editCLSVal<K extends keyof clientState>(_id: string, index: number, type: K | clsResources | clsUpgrades, val: clientState[K] | "resources", mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
     if (["loyalty", "focus", "name", "government"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
@@ -110,7 +80,7 @@ export async function updateValueForAlliance<K extends keyof alliance>(name: str
     if (["money", "level", "public", "name", "tax", "clientStates"].includes(mode))
         newQuery = { [updateMode || "$set"]: { [mode]: newValue } };
     else if (mode === "leader")
-        newQuery = { $set: { leader: newValue} };
+        newQuery = { $set: { leader: newValue } };
 
     client.db(dbn).collection("alliances").updateOne({ name }, newQuery, err => { if (err) throw err });
 }
@@ -369,15 +339,13 @@ export async function deleteOffer(_id: string) {
 }
 
 export async function getOfferID(): Promise<number> {
-    const conf = await getConfig();
-    const id = conf.totalOffers + 1;
+    const conf = await getConfig(), id = conf.totalOffers + 1;
     editConfig("totalOffers", id);
     return id;
 }
 
 export async function getContractID(): Promise<number> {
-    const conf = await getConfig();
-    const id = conf.totalContracts + 1;
+    const conf = await getConfig(), id = conf.totalContracts + 1;
     editConfig("totalContracts", id);
     return id;
 }

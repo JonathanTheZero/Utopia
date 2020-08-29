@@ -26,7 +26,8 @@ export async function uno(message: Message, args: string[]) {
         started: false,
         currentPlayer: 0,
         drawCount: 0,
-        color: null
+        color: null,
+        reverseOrder: false
     };
     await addUnoGame(game).catch(console.log);
     message.channel.send({
