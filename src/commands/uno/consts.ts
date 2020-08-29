@@ -13,7 +13,7 @@ export const stack: unoCard[] = [
     's0', 's0', 's0', 's0', 's4', 's4', 's4', 's4'
 ];
 
-export function isValidMove(n: string, o: string, color: string | null): boolean {
+export function isValidMove(n: unoCard, o: unoCard, color: string | null): boolean {
     return n[0] === o[0] || n[1] === o[1] || n[0] === "s" || n[0] === color;
 }
 

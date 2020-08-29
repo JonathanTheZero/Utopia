@@ -131,14 +131,6 @@ export type updateUserQuery = "tag"
     | "lastMessage"
     | "highestVotingStreak";
 
-export type updateAllianceQuery = "name"
-    | "level"
-    | "public"
-    | "leader"
-    | "money"
-    | "tax"
-    | "clientStates";
-
 export interface war {
     _id: string;
     p1: battlePlayer;

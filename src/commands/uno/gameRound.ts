@@ -1,6 +1,7 @@
 import { unoGame, unoCard } from "../../utils/interfaces";
 import { Client, Message, Emoji, User, MessageReaction, TextChannel } from "discord.js";
 import { displayCard, isValidMove } from "./consts";
+import { updateGame } from "../../utils/databasehandler";
 
 export async function gameRound(game: unoGame, client: Client) {
     let player = game.players[game.currentPlayer];
@@ -26,15 +27,31 @@ export async function gameRound(game: unoGame, client: Client) {
         (<TextChannel>client.channels.cache.get(game.channel)).send(card);
         player.hand.splice(player.hand.indexOf(card, 1));
         if (card[0] === "s") {
+            const reactions = ["🔴", "🔵", "🟢", "🟡"];
             const m = await msg.channel.send({
                 embed: pickANewCard(card[1] === "4")
             });
             await Promise.all([
-                m.react("🔴"),
-                m.react("🔵"),
-                m.react("🟢"),
-                m.react("🟡")
+                m.react(reactions[0]),
+                m.react(reactions[1]),
+                m.react(reactions[2]),
+                m.react(reactions[3])
             ]);
+            const rm = m.createReactionCollector(
+                (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
+                { time: 120000 }
+            );
+            rm.on("collect", async (re: MessageReaction) => {
+                if (!reactions.includes(re.emoji.name)) return;
+                let col: "g" | "y" | "b" | "r";
+                switch (re.emoji.name) {
+                    case "🔴": col = "r"; break;
+                    case "🔵": col = "b"; break;
+                    case "🟢": col = "g"; break;
+                    default: col = "y";
+                }
+                updateGame(game._id, "color", col);
+            });
         }
         r.stop();
     });

@@ -1,4 +1,4 @@
-import { user, alliance, updateUserQuery, updateAllianceQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources, unoGame } from "./interfaces";
+import { user, alliance, updateUserQuery, configDB, giveaway, server, war, army, marketOffer, clientState, clsEdits, contract, clsGovernment, clsResources, unoGame } from "./interfaces";
 import * as mongodb from "mongodb";
 import { db } from "../static/config.json";
 
@@ -105,16 +105,12 @@ export async function editCLSVal(_id: string, index: number, type: clsEdits | cl
     client.db(dbn).collection("users").updateOne({ _id }, query!, err => { if (err) throw err });
 }
 
-export async function updateValueForAlliance(name: string, mode: "money" | "level" | "tax" | "clientStates", newValue: number, updateMode?: "$inc" | "$set"): Promise<void>;
-export async function updateValueForAlliance(name: string, mode: "leader", newValue: { _id: string, tag: string }): Promise<void>;
-export async function updateValueForAlliance(name: string, mode: "public", newValue: boolean): Promise<void>;
-export async function updateValueForAlliance(name: string, mode: "name", newValue: string): Promise<void>;
-export async function updateValueForAlliance(name: string, mode: updateAllianceQuery, newValue: any, updateMode: "$inc" | "$set" = "$set") {
+export async function updateValueForAlliance<K extends keyof alliance>(name: string, mode: K, newValue: alliance[K], updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "level", "public", "name", "tax", "clientStates"].includes(mode))
         newQuery = { [updateMode || "$set"]: { [mode]: newValue } };
     else if (mode === "leader")
-        newQuery = { $set: { leader: { _id: newValue._id, tag: newValue.tag } } };
+        newQuery = { $set: { leader: newValue} };
 
     client.db(dbn).collection("alliances").updateOne({ name }, newQuery, err => { if (err) throw err });
 }
@@ -183,9 +179,7 @@ export async function addUpmsg(words: string[]) {
     });
 }
 
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts" | "totalGames", val: number): Promise<void>;
-export async function editConfig(field: "upmsg", val: string): Promise<void>;
-export async function editConfig(field: "lastPayout" | "lastPopulationWorkPayout" | "lastMineReset" | "totalOffers" | "lastDailyReset" | "totalContracts" | "upmsg" | "totalGames", val: any) {
+export async function editConfig<K extends keyof configDB>(field: K, val: configDB[K]) {
     client.db(dbn).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
         if (err) throw err;
     });
@@ -412,12 +406,9 @@ export async function setPlayerHand(_id: string, i: number, hand: string[]): Pro
     client.db(dbn).collection("uno").updateOne({ _id }, { $set: { [`players.${i}.hand`]: hand } });
 }
 
-export async function updateGame(_id: string, field: "stack" | "openStack", value: string[]): Promise<void>;
-export async function updateGame(_id: string, field: "started", value: boolean): Promise<void>;
-export async function updateGame(_id: string, field: "stack" | "openStack" | "started", value: string[] | boolean): Promise<void> {
-    let query: Object;
-    if (["stack", "openStack"].includes(field)) query = { $set: { [field]: <string[]>value } };
-    else if (field === "started") query = { $set: { started: <boolean>value } };
+export async function updateGame<K extends keyof unoGame>(_id: string, field: K, value: unoGame[K]): Promise<void> {
+    let query = { $set: { [field]: value } };
+
     client.db(dbn).collection("uno").updateOne({ _id }, query!);
 }
 
