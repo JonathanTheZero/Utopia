@@ -48,7 +48,7 @@ export const generalHelpMenu = {
         },
         {
             name: '`.me` or `.stats [mention/ID]`',
-            value: "View your stats or these of other players.",
+            value: "View your stats or those of other players.",
         },
         {
             name: "`.work`",
@@ -61,9 +61,9 @@ export const generalHelpMenu = {
         {
             name: "`.digmine`, `.minestats` and `.mine <oil | steel | all>`",
             value: "Every 4 hours you can dig and search for a mine. " +
-                "If you are succesful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
-                "But be carful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!\n" +
-                "For a more comprehensive overview over your stats, use `.minestats`"
+                "If you are successful, you find either a steel mine or an oil rig, you can claim your resources from those every hour using `.mine <oil | steel>`. " +
+                "But be careful: Your mines will dry out slowly, to the point where they do not generate new resources, this factor is reset once a week!\n" +
+                "For a more comprehensive overview of your stats, use `.minestats`"
         },
         {
             name: "`.utopia [mention/ID]`",
@@ -105,7 +105,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.payout [mention]`",
-            value: "See how many ressources you or another user will receive during the next payout"
+            value: "See how many resources you or another user will receive during the next payout"
         },
         {
             name: "`.set-prefix`",
@@ -113,7 +113,7 @@ export const generalHelpMenu = {
         },
         {
             name: "`.time`",
-            value: "A comprehensive overview over all cooldowns"
+            value: "A comprehensive overview of all cooldowns"
         }
     ],
     timestamp: new Date(),
@@ -235,7 +235,7 @@ export const miscHelpMenu = {
             value: "Returns the result of a calculation"
         },
         {
-            name: "`.mail <sugggestion | mods> <...message>`",
+            name: "`.mail <suggestion | mods> <...message>`",
             value: "Send a message with either a suggestion to the developers or a request to the moderators. "+
                 "If you prefer to stay anonymous, use `.anonmail` instead of `.mail`." 
         },
