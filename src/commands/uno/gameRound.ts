@@ -1,8 +1,9 @@
 import { unoGame, unoCard } from "../../utils/interfaces";
 import { Client, Message, Emoji, User, MessageReaction, TextChannel } from "discord.js";
 import { displayCard, isValidMove } from "./consts";
-import { updateGame } from "../../utils/databasehandler";
+import { updateGame, updateValueForUser, deleteUnoGame, setPlayerHand } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
+import { shuffle, Sleep } from "../../utils/utils";
 
 export async function gameRound(game: unoGame, client: Client) {
     let player = game.players[game.currentPlayer];
@@ -16,20 +17,32 @@ export async function gameRound(game: unoGame, client: Client) {
             footer: config.properties.footer
         }
     });
-    player.hand.forEach(async el => isValidMove(el, game.color ? "" : game.openStack[0], game.color) && await msg.react((<Emoji>displayCard(el, client)).id!));
+    player.hand.forEach(async el => isValidMove(el, game.openStack[0], game.color) && await msg.react((<Emoji>displayCard(el, client)).id!));
     msg = await msg.channel.messages.fetch(msg.id);
     const r = msg.createReactionCollector(
         (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
         { time: 120000 }
     );
     let nextPlayer: { _id: string; hand: unoCard[]; };
-    if (game.currentPlayer - 1 == game.players.length) {
-        nextPlayer = game.players[0];
-        updateGame(game._id, "currentPlayer", 0);
+    if (game.reverseOrder) {
+        if (game.currentPlayer == 0) {
+            nextPlayer = game.players[game.players.length - 1];
+            updateGame(game._id, "currentPlayer", game.players.length - 1);
+        } else {
+            nextPlayer = game.players[game.currentPlayer - 1];
+            updateGame(game._id, "currentPlayer", game.currentPlayer - 1);
+        }
     } else {
-        nextPlayer = game.players[game.currentPlayer + 1];
-        updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
+        if (game.currentPlayer + 1 == game.players.length) {
+            nextPlayer = game.players[0];
+            updateGame(game._id, "currentPlayer", 0);
+        } else {
+            nextPlayer = game.players[game.currentPlayer + 1];
+            updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
+        }
     }
+
+    let description: string;
     r.on("collect", async (reaction: MessageReaction) => {
         console.log("Reacted");
         const card: unoCard = displayCard(client.emojis.cache.get(reaction.emoji.id!)!, client);
@@ -37,19 +50,54 @@ export async function gameRound(game: unoGame, client: Client) {
         player.hand.splice(player.hand.indexOf(card, 1));
         game.openStack.unshift(card);
         await updateGame(game._id, "openStack", game.openStack);
-        let description = `The open card is a ${displayCard(game.openStack[0], client)}.`;
-        if (card[1] === "s") {
-            if (game.currentPlayer - 1 == game.players.length) {
-                nextPlayer = game.players[0];
-                updateGame(game._id, "currentPlayer", 0);
-            } else {
-                nextPlayer = game.players[game.currentPlayer + 1];
-                updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
+        description = `The open card is a ${displayCard(game.openStack[0], client)}.`;
+        if (game.drawCount && card[1] !== "+") {
+            msg.channel.send({
+                embed: {
+                    title: `You need to draw ${game.drawCount} cards`
+                }
+            });
+            for (let i = 0; i < game.drawCount; ++i) {
+                let card = game.stack.shift();
+                if (!card){
+                    const o = game.openStack[0];
+                    game.stack = shuffle(game.openStack);
+                    game.openStack = [o];
+                    card = game.stack.shift()!;
+                }
+                player.hand.push(card);
+                await Promise.all([
+                    updateGame(game._id, "openStack", game.openStack),
+                    updateGame(game._id, "stack", game.stack),
+                    setPlayerHand(game._id, game.currentPlayer, player.hand)
+                ])
             }
+        }
+        if (card[1] === "s") {
+            if (game.reverseOrder) {
+                if (game.currentPlayer == 0) {
+                    nextPlayer = game.players[game.players.length - 1];
+                    updateGame(game._id, "currentPlayer", game.players.length - 1);
+                } else {
+                    nextPlayer = game.players[game.currentPlayer - 1];
+                    updateGame(game._id, "currentPlayer", game.currentPlayer - 1);
+                }
+            } else {
+                if (game.currentPlayer + 1 == game.players.length) {
+                    nextPlayer = game.players[0];
+                    updateGame(game._id, "currentPlayer", 0);
+                } else {
+                    nextPlayer = game.players[game.currentPlayer + 1];
+                    updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
+                }
+            }
+            r.stop();
         } else if (card[1] === "+") {
             updateGame(game._id, "drawCount", game.drawCount + 2);
-        } else if (card[1] === "+") {
+            r.stop();
+        } else if (card[1] === "r") {
             updateGame(game._id, "reverseOrder", !game.reverseOrder);
+            r.stop();
         } else if (card[0] === "s") {
             const reactions = ["🔴", "🔵", "🟢", "🟡"];
             const m = await msg.channel.send({ embed: pickANewCard(card[1] === "4") });
@@ -76,8 +124,28 @@ export async function gameRound(game: unoGame, client: Client) {
                 await updateGame(game._id, "color", col);
                 description += `\n The open color is ${re.emoji.name}`;
                 rm.stop();
+                r.stop();
             });
+        } else {
+            r.stop();
         }
+        if (player.hand.length == 0) {
+            (<TextChannel>client.channels.cache.get(game.channel)).send({
+                embed: {
+                    title: `${client.users.cache.get(player._id)?.tag} won the round!`,
+                    description: `The price is ${(game.players.length * game.fee).commafy()} money`,
+                    color: 0x00FF00,
+                    footer: config.properties.footer,
+                    timestamp: new Date()
+                }
+            });
+            await Sleep(2000);
+            updateValueForUser(player._id, "money", game.players.length * game.fee, "$inc");
+            deleteUnoGame(game._id);
+            return;
+        }
+    });
+    r.on("end", async () => {
         (<TextChannel>client.channels.cache.get(game.channel)).send({
             embed: {
                 title: `It's ${client.users.cache.get(nextPlayer._id)?.tag}'s turn`,
@@ -87,7 +155,7 @@ export async function gameRound(game: unoGame, client: Client) {
                 timestamp: new Date()
             }
         });
-        r.stop();
+        gameRound(game, client);
     });
 }
 
@@ -95,6 +163,8 @@ function pickANewCard(plus4: boolean = false) {
     return {
         color: 0x00FF00,
         title: "Pick a new color",
-        description: plus4
+        description: plus4,
+        timestamp: new Date(),
+        footer: config.properties.footer
     };
 }

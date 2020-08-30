@@ -9,7 +9,7 @@
     "better-arrays.js": "^1.0.3",
     "dblapi.js": "^2.3.0",
     "discord.io": "^2.5.3",
-    "discord.js": "^12.2.0",
+    "discord.js": "^12.3.1",
     "express": "^4.17.1",
     "http": "0.0.0",
     "mongodb": "^3.5.5",
@@ -23,7 +23,7 @@
     "babel-loader": "^8.1.0",
     "babel-preset-es2015": "^6.24.1",
     "ts-loader": "^6.2.2",
-    "typescript": "^4.0.0-beta",
+    "typescript": "^4.0.2",
     "webpack": "^4.42.1"
   },
   "scripts": {

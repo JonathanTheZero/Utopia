@@ -33,13 +33,14 @@ export async function getUser(_id: string): Promise<user> {
 }
 
 export async function getAlliance(name: string): Promise<alliance | null> {
-    return await client.db(dbn).collection("alliances").findOne({ name });
+    return client.db(dbn).collection("alliances").findOne({ name });
 }
 
 export async function updateValueForUser<
     K extends keyof user,
-    R extends keyof user["resources"]
->(_id: string, mode: K | R | "hospitals", newValue: user[K] | user["resources"][], updateMode: "$inc" | "$set" = "$set") {
+    R extends keyof user["resources"],
+    H extends keyof { hospitals: number }
+>(_id: string, mode: K | R | H, newValue: user[K] | user["resources"][], updateMode: "$inc" | "$set" = "$set") {
     let newQuery = {};
     if (["money", "allianceRank", "alliance", "autoping", "loan", "tag", "payoutDMs", "lastCrime", "lastVoted",
         "lastWorked", "votingStreak", "lastDig", "lastMine", "minereset", "income", "taxDMs", "lastMessage", "highestVotingStreak"].includes(mode))
@@ -98,7 +99,6 @@ export async function addPF(_id: string, upgrade: "nf" | "sf" | "sef" | "if"): P
 }
 
 export async function addAlliance(alliance: alliance): Promise<void> {
-    if (!alliance) return;
     let result = await client.db(dbn).collection("alliances").insertOne(alliance);
     if (result) console.log(`Successfully added ${alliance.name}`);
 }
@@ -312,9 +312,7 @@ export async function markAllArmies(_id: string, newVal: boolean) {
 
 export async function replaceArmy(_id: string, p1: boolean, index: number, army: army) {
     client.db(dbn).collection("wars").updateOne({ _id }, {
-        $set: {
-            [(p1 ? "p1" : "p2") + `.armies.${index}`]: army
-        }
+        $set: { [(p1 ? "p1" : "p2") + `.armies.${index}`]: army }
     }, err => { if (err) throw err });
 }
 
@@ -375,14 +373,11 @@ export async function setPlayerHand(_id: string, i: number, hand: string[]): Pro
 }
 
 export async function updateGame<K extends keyof unoGame>(_id: string, field: K, value: unoGame[K]): Promise<void> {
-    let query = { $set: { [field]: value } };
-
-    client.db(dbn).collection("uno").updateOne({ _id }, query!);
+    client.db(dbn).collection("uno").updateOne({ _id }, { $set: { [field]: value } });
 }
 
 export async function getGameID(): Promise<number> {
-    const conf = await getConfig();
-    const id = conf.totalGames + 1;
+    const conf = await getConfig(), id = conf.totalGames + 1;
     editConfig("totalGames", id);
     return id;
 }
@@ -400,9 +395,8 @@ export async function connectToDB(): Promise<void> {
             client.db(dbn).createCollection("market");
             client.db(dbn).createCollection("trades");
             client.db(dbn).createCollection("uno");
-            if (!(await client.db(dbn).collection("config").findOne({ _id: 1 }))) {
+            if (!(await client.db(dbn).collection("config").findOne({ _id: 1 })))
                 client.db(dbn).collection("config").insertOne(config);
-            }
             connected = true;
             resolve();
         });
