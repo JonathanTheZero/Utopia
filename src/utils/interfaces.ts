@@ -176,7 +176,6 @@ export interface clientState {
     government: clsGovernment;
 }
 
-export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades | "government";
 export type clsResources = resources | "resources";
 export type clsUpgrades = "mines" | "rigs" | "farms";
 export type clsGovernment = "democracy" | "dictatorship" | "monarchy";
@@ -211,4 +210,5 @@ export interface unoGame {
     drawCount: number;
     reverseOrder: boolean;
     color: null | "g" | "y" | "b" | "r";
+    alreadyDrawed: boolean;
 }
