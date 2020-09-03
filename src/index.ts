@@ -5,7 +5,7 @@ import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp, unoHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -62,7 +62,7 @@ import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from 
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 import { calc, consumption } from "./commands/misc";
-import { startGame, joinGame, uno } from "./commands/uno";
+import { startGame, joinGame, uno, continueGame } from "./commands/uno";
 
 const express = require('express');
 const app = express();
@@ -276,6 +276,8 @@ client.on("message", async message => {
             return message.channel.send({ embed: contractHelp });
         else if (["clientstate", "clientstates", "c", "cls", "client-state", "client-states"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
+        else if (args[0] === "u")
+            return message.channel.send({ embed: unoHelp });
         return message.channel.send({ embed: helpMenu });
     }
 
@@ -297,7 +299,7 @@ client.on("message", async message => {
 
     else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
-    else if (command === "me" || command === "stats")statsEmbed(message, args, client);
+    else if (command === "me" || command === "stats") statsEmbed(message, args, client);
 
     else if (command === "time" || command === "timestats") time(message, args, client);
 
@@ -689,6 +691,8 @@ client.on("message", async message => {
     else if (["join-game", "joingame"].includes(command)) joinGame(message, args, client);
 
     else if (["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
+
+    else if (["continue", "continuegame", "continue-game"].includes(command)) continueGame(message, args, client);
 });
 
 client.login(config.token).catch(console.log);

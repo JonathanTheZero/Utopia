@@ -90,20 +90,20 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
         }
         if (card[1] === "s") {
             nextPlayer = await moveRound(game);
-            r.stop();
+            r.stop("Done");
         } else if (card[1] === "+") {
             updateGame(game._id, "drawCount", game.drawCount + 2);
-            r.stop();
+            r.stop("Done");
         } else if (card[1] === "r") {
             updateGame(game._id, "reverseOrder", !game.reverseOrder);
-            r.stop();
+            r.stop("Done");
         } else if (card[0] === "s") {
             const m = await msg.channel.send({ embed: pickANewCard(card[1] === "4") });
             await Promise.all(reactions.map(m.react));
             if (card[1] === "4") updateGame(game._id, "drawCount", game.drawCount + 4);
             const rm = m.createReactionCollector(
                 (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
-                { time: 120000 }
+                { time: 300000 }
             );
             rm.on("collect", async (re: MessageReaction) => {
                 if (!reactions.includes(re.emoji.name)) return;
@@ -116,10 +116,30 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 }
                 await updateGame(game._id, "color", col);
                 description += `\nThe open color is ${re.emoji.name}`;
-                rm.stop();
-                r.stop();
+                rm.stop("Done");
+                await Sleep(5000);
+                r.stop("Done");
             });
-        } else { r.stop() }
+            rm.on("end", async (_collected, reason) => {
+                if (reason === "Done") return;
+                const co = reactions[Math.floor(Math.random() * reactions.length)];
+                msg.channel.send({
+                    embed: { 
+                        title: "You did not react in time, the game automatically chose a color for you.",
+                        description: `It chose ${co}`,
+                        timestamp: new Date()
+                    }
+                });
+                let col: "g" | "y" | "b" | "r";
+                switch (co) {
+                    case "🔴": col = "r"; break;
+                    case "🔵": col = "b"; break;
+                    case "🟢": col = "g"; break;
+                    default: col = "y";
+                }
+                await updateGame(game._id, "color", col);
+            });
+        } else { r.stop("Done") }
         if (player.hand.length == 0) {
             (<TextChannel>client.channels.cache.get(game.channel)).send({
                 embed: {
@@ -138,7 +158,8 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             return;
         }
     });
-    r.on("end", async () => {
+    r.on("end", async (_collected, reason) => {
+        if (reason !== "Done") return;
         (<TextChannel>client.channels.cache.get(game.channel)).send({
             embed: {
                 title: `It's ${client.users.cache.get(nextPlayer._id)?.tag}'s turn`,
