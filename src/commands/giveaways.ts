@@ -18,8 +18,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     else if (args[1].startsWith("m") || args[1].startsWith("M")) currency = "Money";
     else return message.reply("the only valid currencies are food, population and money!");
 
-    var ending: Date;
-    var addTime = -1;
+    let ending: Date, addTime = -1;
     if (endstr.match(/[in]?[ ]?\d{1,}[ ]?m/ig)) {//x minutes
         addTime = Math.floor(endstr.match(/\d+/g)!.map(Number)[0]) * 60 * 1000;
         ending = new Date(Date.now() + addTime);
@@ -32,7 +31,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
     }
     if (addTime == -1) return message.reply("please specifiy a valid time.")
     if (addTime > 172800000) return message.reply("You can't start a giveaway that lasts longer than two days!");
-    var giveaway: giveaway;
+    let giveaway: giveaway;
     await message.channel.send({
         embed: {
             color: parseInt(config.properties.embedColor),

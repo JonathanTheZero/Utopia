@@ -1,4 +1,4 @@
-declare var require: (path: string) => any;
+declare const require: (path: string) => any;
 
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
