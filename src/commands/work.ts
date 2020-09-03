@@ -1,9 +1,9 @@
-import { Message, Client } from "discord.js";
+import { Message } from "discord.js";
 import { user, alliance } from "../utils/interfaces";
 import { getUser, getAlliance, updateValueForUser, updateValueForAlliance, addToUSB } from "../utils/databasehandler";
 import { reminder } from "../utils/utils";
 
-export async function work(message: Message, client: Client) {
+export async function work(message: Message) {
     let user: user = await getUser(message.author.id);
     let alliance: alliance = await getAlliance(user.alliance as string) as alliance;
 
@@ -13,8 +13,7 @@ export async function work(message: Message, client: Client) {
     if (Math.floor(Date.now() / 1000) - user.lastWorked < 1800)
         return message.reply("You can work again in " + new Date((1800 - (Math.floor(Date.now() / 1000) - user.lastWorked)) * 1000).toISOString().substr(11, 8));
 
-    if (client.users.cache.get(user._id.toString())?.tag && client.users.cache.get(user._id.toString())!.tag !== user.tag)
-        updateValueForUser(user._id, "tag", client.users.cache.get(user._id.toString())!.tag as string);
+    if (message.author.tag && message.author.tag !== user.tag) updateValueForUser(user._id, "tag", message.author.tag);
 
     let produced = Math.floor(Math.random() * (10000 + user.resources.population / 1000));
     addToUSB(Math.floor(-produced * 1.1));
@@ -108,8 +107,7 @@ export async function crime(message: Message) {
                 updateValueForUser(user._id, "money", produced, "$inc");
                 message.reply("You successfully commited a crime and gained " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
             }
-        }
-        else message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
+        } else message.reply("You were unsuccesful and lost " + produced.commafy() + " coins. Your new balance is " + (user.money + produced).commafy() + " coins.");
     } else {
         if (produced > 1) {
             var taxed = Math.floor((alliance.tax / 100) * produced);

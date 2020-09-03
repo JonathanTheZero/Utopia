@@ -7,18 +7,19 @@ import { shuffle, Sleep } from "../../utils/utils";
 
 export async function gameRound(game: unoGame, client: Client): Promise<void> {
     let player = game.players[game.currentPlayer],
-        playerAsUser = client.users.cache.get(player._id)!;
-    let msg: Message = await playerAsUser.send({
-        embed: {
-            title: "It's your turn, this is your hand:",
-            description: "React to chose a card: \n" +
-                `${player.hand.map(el => displayCard(el, client)).join(", ")}`,
-            color: 0x00FF00,
-            timestamp: new Date(),
-            footer: config.properties.footer
-        }
-    });
-    player.hand.forEach(async el => isValidMove(el, game.openStack[0], game.color) && await msg.react((<Emoji>displayCard(el, client)).id!));
+        msg: Message = await client.users.cache.get(player._id)!.send({
+            embed: {
+                title: "It's your turn, this is your hand:",
+                description: "React to chose a card: \n" +
+                    `${player.hand.map(el => displayCard(el, client)).join(", ")}`,
+                color: 0x00FF00,
+                timestamp: new Date(),
+                footer: config.properties.footer
+            }
+        });
+    player.hand.forEach(
+        async el => isValidMove(el, game.openStack[0], game.color) && await msg.react((<Emoji>displayCard(el, client)).id!)
+    );
     msg = await msg.channel.messages.fetch(msg.id);
     const r = msg.createReactionCollector(
         (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
@@ -57,8 +58,8 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             return gameRound(await getUnoGame(game._id), client);
         }
     }
-    let nextPlayer: { _id: string; hand: unoCard[]; } = await moveRound(game);
-    let description: string = "";
+    let nextPlayer: { _id: string; hand: unoCard[]; } = await moveRound(game),
+        description: string = "";
     r.on("collect", async (reaction: MessageReaction) => {
         console.log("Reacted");
         const card: unoCard = displayCard(client.emojis.cache.get(reaction.emoji.id!)!, client);
@@ -114,7 +115,7 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                     default: col = "y";
                 }
                 await updateGame(game._id, "color", col);
-                description += `\n The open color is ${re.emoji.name}`;
+                description += `\nThe open color is ${re.emoji.name}`;
                 rm.stop();
                 r.stop();
             });
@@ -130,8 +131,10 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 }
             });
             await Sleep(2000);
-            updateValueForUser(player._id, "money", game.players.length * game.fee, "$inc");
-            deleteUnoGame(game._id);
+            await Promise.all([
+                updateValueForUser(player._id, "money", game.players.length * game.fee, "$inc"),
+                deleteUnoGame(game._id)
+            ]);
             return;
         }
     });
@@ -164,17 +167,14 @@ async function moveRound(game: unoGame) {
         if (game.currentPlayer == 0) {
             await updateGame(game._id, "currentPlayer", game.players.length - 1);
             return game.players[game.players.length - 1];
-        } else {
-            await updateGame(game._id, "currentPlayer", game.currentPlayer - 1);
-            return game.players[game.currentPlayer - 1];
         }
-    } else {
-        if (game.currentPlayer + 1 == game.players.length) {
-            await updateGame(game._id, "currentPlayer", 0);
-            return game.players[0];
-        } else {
-            await updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
-            return game.players[game.currentPlayer + 1];
-        }
+        await updateGame(game._id, "currentPlayer", game.currentPlayer - 1);
+        return game.players[game.currentPlayer - 1];
     }
+    if (game.currentPlayer + 1 == game.players.length) {
+        await updateGame(game._id, "currentPlayer", 0);
+        return game.players[0];
+    }
+    await updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
+    return game.players[game.currentPlayer + 1];
 }

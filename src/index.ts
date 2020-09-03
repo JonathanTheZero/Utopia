@@ -297,8 +297,7 @@ client.on("message", async message => {
 
     else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
-    else if (command === "me" || command === "stats")
-        statsEmbed(message, args, client);
+    else if (command === "me" || command === "stats")statsEmbed(message, args, client);
 
     else if (command === "time" || command === "timestats") time(message, args, client);
 
@@ -323,8 +322,7 @@ client.on("message", async message => {
 
     else if (command === "leavealliance" || command === "leave") leaveAlliance(message, args);
 
-    else if (command === "lb" || command === "leaderboard")
-        leaderboard(message, args);
+    else if (command === "lb" || command === "leaderboard") leaderboard(message, args);
 
     else if (command === "invitelink")
         return message.reply("Add me to your server using this link: " + config.properties.inviteLink);
@@ -429,11 +427,9 @@ client.on("message", async message => {
         return renameAlliance(message, args);
     }
 
-    else if (command === "alliance")
-        return allianceOverview(message, args, client);
+    else if (command === "alliance") allianceOverview(message, args, client);
 
-    else if (command === "alliancemembers")
-        return allianceMembers(message, args, client);
+    else if (command === "alliancemembers") allianceMembers(message, args, client);
 
     else if (command === "guide") return message.channel.send({ embed: guideEmbed });
 
@@ -489,11 +485,9 @@ client.on("message", async message => {
         updateValueForUser(user._id, "taxDMs", !user.taxDMs);
     }
 
-    else if (command === "work")
-        work(message, client);
+    else if (command === "work") work(message);
 
-    else if (command === "crime")
-        crime(message);
+    else if (command === "crime") crime(message);
 
     else if (command === "statistics") {
         const conf: configDB = await getConfig();
@@ -541,7 +535,6 @@ client.on("message", async message => {
 
         pyshell.on('message', async answer => {
             imgurl = `${answer.toString()}.png`;
-
             message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
@@ -691,11 +684,11 @@ client.on("message", async message => {
 
     else if (command === "consumption") consumption(message, args);
 
-    else if(["uno", "uno"].includes(command)) uno(message, args);
+    else if (["uno", "uno"].includes(command)) uno(message, args);
 
-    else if(["join-game", "joingame"].includes(command)) joinGame(message, args, client);
+    else if (["join-game", "joingame"].includes(command)) joinGame(message, args, client);
 
-    else if(["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
+    else if (["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
 });
 
 client.login(config.token).catch(console.log);
