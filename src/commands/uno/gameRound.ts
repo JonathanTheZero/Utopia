@@ -88,7 +88,7 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
         console.log("Reacted");
         const card: unoCard = displayCard(client.emojis.cache.get(reaction.emoji.id!)!, client);
         if (!player.hand.includes(card)) return;
-        player.hand = player.hand.filter(el => el !== card);
+        player.hand.splice(player.hand.indexOf(card), 1);
         game.openStack.unshift(card);
         await Promise.all([
             updateGame(game._id, "openStack", game.openStack),

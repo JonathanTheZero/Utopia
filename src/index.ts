@@ -108,7 +108,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.cache.size.commafy()} users, in ${client.channels.cache.size.commafy()} channels of ${client.guilds.cache.size.commafy()} guilds.`);
-    client!.user!.setActivity(`.help | v2.3 The Exchange out now!`);
+    client!.user!.setActivity(`.help | v2.4 The Game out now!`);
 
     await connectToDB();
     getServers().then(server => {
