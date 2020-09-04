@@ -26,6 +26,10 @@ export const helpMenu = {
             value: "Type `.help client-states` to view all commands related to client-states"
         },
         {
+            name: "Uno help",
+            value: "Type `.help uno` to view all commands related to the Utopia-integrated uno feature"
+        },
+        {
             name: "Miscellaneous help:",
             value: "Type `.help misc` to view the help menu for everything else",
         },
@@ -421,7 +425,7 @@ export const clsHelp = {
         {
             name: "`.create-cls <name>`.",
             value: "Create a new client-state with the given name. Each client-state boosts the amount of food one gets from his alliance.\n" +
-                "By now the names can only be one word long."
+                "By now the names can only be one word long, use underscores instead of spaces for multi-word names."
         },
         {
             name: "`.delete-cls <name>`",
@@ -463,6 +467,29 @@ export const clsHelp = {
                 "-Monarchies are the median: The production rate is normal but they also don't get any increase on loyalty gain.\n" +
                 "-Dictatorships are the opposite: They produce more but lose loyalty faster and gain it slower.\n" + 
                 "Changing the government form costs you 10% loyalty."
+        }
+    ]
+};
+
+export const unoHelp = {
+    color: parseInt(properties.embedColor),
+    footer: properties.footer,
+    timestamp: new Date(),
+    title: "Clientstate help",
+    description: "Since v2.4, Utopia has an integrated version of the Uno game, which allows you to play games with up to 10 players max.",
+    fields: [
+        {
+            name: "`.uno <fee>`.",
+            value: "Initilaizes a new Gno game. " +
+            "Everyone who wants to participate has to pay the appointed fee, this money goes into a price pool which the winner will receive."
+        },
+        {
+            name: "`.startgame <gameID>`",
+            value: "Actually starts the game; this command can be used by the initializer after some people joined the game (minimum is 2)."
+        },
+        {
+            name: "`.continue <gameID>`",
+            value: "If some player timed out or the bot went down during the playphase, you can use this command to continue later.",
         }
     ]
 };

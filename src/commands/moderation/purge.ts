@@ -1,9 +1,8 @@
-import { Message } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 
 export async function purge(message: Message, args: string[]) {
-    if (!message!.member!.permissions.has(['MANAGE_MESSAGES'], true)) {
-        return message.reply("sorry, this command requires the manage message permission.")
-    }
+    if (!message!.member!.permissions.has(['MANAGE_MESSAGES'], true))
+        return message.reply("sorry, this command requires the manage message permission.");
 
     const deleteCount = parseInt(args[0], 10) + 1;
 
@@ -12,6 +11,6 @@ export async function purge(message: Message, args: string[]) {
 
     const fetched = await message.channel.messages.fetch({ limit: deleteCount });
 
-    message.channel.bulkDelete(fetched)
+    (<TextChannel>message.channel).bulkDelete(fetched)
         .catch(error => message.reply(`Couldn't delete messages because of: ${error}`));
 }

@@ -21,15 +21,12 @@ export async function digmine(message: Message) {
     updateValueForUser(user._id, "lastDig", Math.floor(Date.now() / 1000), "$set");
 
     if (minetype == 0) message.reply("Your digging has returned no new mines");
-
-    if (minetype == 1) {
+    else if (minetype == 1) {
         updateValueForUser(user._id, "steelmine", 1, "$inc");
         updateValueForUser(user._id, "steel", 100, "$inc");
         updateValueForUser(user._id, "totaldigs", 1, "$inc");
         message.reply("Your digging is successful. You got a new steel mine, and has given a initial return of 100 steel")
-    }
-
-    if (minetype == 2) {
+    } else if (minetype == 2) {
         updateValueForUser(user._id, "oilrig", 1, "$inc");
         updateValueForUser(user._id, "oil", 100, "$inc");
         updateValueForUser(user._id, "totaldigs", 1, "$inc");

@@ -1,11 +1,11 @@
-declare var require: (path: string) => any;
+declare const require: (path: string) => any;
 
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp } from "./commands/help";
+import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp, unoHelp } from "./commands/help";
 import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
@@ -62,6 +62,7 @@ import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from 
 import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 import { calc, consumption } from "./commands/misc";
+import { startGame, joinGame, uno, continueGame } from "./commands/uno";
 
 const express = require('express');
 const app = express();
@@ -275,6 +276,8 @@ client.on("message", async message => {
             return message.channel.send({ embed: contractHelp });
         else if (["clientstate", "clientstates", "c", "cls", "client-state", "client-states"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
+        else if (args[0][0] === "u")
+            return message.channel.send({ embed: unoHelp });
         return message.channel.send({ embed: helpMenu });
     }
 
@@ -296,8 +299,7 @@ client.on("message", async message => {
 
     else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
-    else if (command === "me" || command === "stats")
-        statsEmbed(message, args, client);
+    else if (command === "me" || command === "stats") statsEmbed(message, args, client);
 
     else if (command === "time" || command === "timestats") time(message, args, client);
 
@@ -322,8 +324,7 @@ client.on("message", async message => {
 
     else if (command === "leavealliance" || command === "leave") leaveAlliance(message, args);
 
-    else if (command === "lb" || command === "leaderboard")
-        leaderboard(message, args);
+    else if (command === "lb" || command === "leaderboard") leaderboard(message, args);
 
     else if (command === "invitelink")
         return message.reply("Add me to your server using this link: " + config.properties.inviteLink);
@@ -428,11 +429,9 @@ client.on("message", async message => {
         return renameAlliance(message, args);
     }
 
-    else if (command === "alliance")
-        return allianceOverview(message, args, client);
+    else if (command === "alliance") allianceOverview(message, args, client);
 
-    else if (command === "alliancemembers")
-        return allianceMembers(message, args, client);
+    else if (command === "alliancemembers") allianceMembers(message, args, client);
 
     else if (command === "guide") return message.channel.send({ embed: guideEmbed });
 
@@ -488,11 +487,9 @@ client.on("message", async message => {
         updateValueForUser(user._id, "taxDMs", !user.taxDMs);
     }
 
-    else if (command === "work")
-        work(message, client);
+    else if (command === "work") work(message);
 
-    else if (command === "crime")
-        crime(message);
+    else if (command === "crime") crime(message);
 
     else if (command === "statistics") {
         const conf: configDB = await getConfig();
@@ -540,7 +537,6 @@ client.on("message", async message => {
 
         pyshell.on('message', async answer => {
             imgurl = `${answer.toString()}.png`;
-
             message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
@@ -689,6 +685,14 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 
     else if (command === "consumption") consumption(message, args);
+
+    else if (["uno", "uno"].includes(command)) uno(message, args);
+
+    else if (["join-game", "joingame"].includes(command)) joinGame(message, args, client);
+
+    else if (["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
+
+    else if (["continue", "continuegame", "continue-game"].includes(command)) continueGame(message, args, client);
 });
 
 client.login(config.token).catch(console.log);

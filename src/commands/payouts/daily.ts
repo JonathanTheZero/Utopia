@@ -14,7 +14,11 @@ export async function dailyPayout(client: Client) {
         if (!u.clientStates.length) continue;
         for (let i = 0; i < u.clientStates.length; i++) {
             const c = u.clientStates[i], loyaltyLoss = Math.random() * .07 * governments[u.clientStates[i].government].loyaltyLoss;
-            if (u.clientStates[i].loyalty <= 0) {
+            if (!c.government) {
+                await deleteClientState(u._id, c.name);
+                continue;
+            }
+            if (c.loyalty <= 0) {
                 if (Math.random() > 0.5) {
                     client.users.cache.get(u._id)?.send({
                         embed: {
@@ -35,7 +39,7 @@ export async function dailyPayout(client: Client) {
                     }).catch(console.log);
                 }
             } else {
-                if (u.clientStates[i].loyalty - loyaltyLoss <= 0) {
+                if (c.loyalty - loyaltyLoss <= 0) {
                     editCLSVal(u._id, i, "loyalty", 0, "$set");
                     client.users.cache.get(u._id)?.send({
                         embed: {

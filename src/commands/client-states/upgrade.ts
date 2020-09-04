@@ -21,12 +21,16 @@ export async function upgradeCLS(message: Message, args: string[]) {
         steel: (cls.upgrades[r] + 1) * 50000,
         oil: (cls.upgrades[r] + 1) * 50000
     };
-    if (cls.resources.money < price.money)
-        return message.reply(`${args[0]} doesn't have enough money! It needs ${price.money.commafy()} but only got ${cls.resources.money.commafy()}. Consider sending it some money.`);
-    if (cls.resources.steel < price.steel)
-        return message.reply(`${args[0]} doesn't have enough steel! It needs ${price.steel.commafy()} but only got ${cls.resources.steel.commafy()}. Consider sending it some steel.`);
-    if (cls.resources.oil < price.oil)
-        return message.reply(`${args[0]} doesn't have enough oil! It needs ${price.oil.commafy()} but only got ${cls.resources.oil.commafy()}. Consider sending it some oil.`);
+    if (cls.resources.money < price.money || cls.resources.steel < price.steel || cls.resources.oil < price.oil) {
+        let str: string = "";
+        if (cls.resources.money < price.money)
+            str += `${args[0]} doesn't have enough money! It needs ${price.money.commafy()} but only got ${cls.resources.money.commafy()}. Consider sending it some money.\n`;
+        if (cls.resources.steel < price.steel)
+            str += `${args[0]} doesn't have enough steel! It needs ${price.steel.commafy()} but only got ${cls.resources.steel.commafy()}. Consider sending it some steel.\n`;
+        if (cls.resources.oil < price.oil)
+            str += `${args[0]} doesn't have enough oil! It needs ${price.oil.commafy()} but only got ${cls.resources.oil.commafy()}. Consider sending it some oil.\n`;
+        return message.reply(str);
+    }
     editCLSVal(user._id, index, r, 1, "$inc");
     editCLSVal(user._id, index, "money", -price.money, "$inc");
     editCLSVal(user._id, index, "steel", -price.steel, "$inc");
@@ -36,7 +40,7 @@ export async function upgradeCLS(message: Message, args: string[]) {
     if (cls.loyalty < 1 - gain) editCLSVal(user._id, index, "loyalty", gain, "$inc");
     else editCLSVal(user._id, index, "loyalty", 1, "$set");
     return message.reply(
-        `Upgrade bought successfully! ${user.clientStates[index].name} now owns ${cls.upgrades[r] + 1} ${r}.\n` + 
-        `This increased their loyalty by ${gain.toLocaleString("en", { style: "percent"})}!`
+        `Upgrade bought successfully! ${user.clientStates[index].name} now owns ${cls.upgrades[r] + 1} ${r}.\n` +
+        `This increased their loyalty by ${gain.toLocaleString("en", { style: "percent" })}!`
     );
 }

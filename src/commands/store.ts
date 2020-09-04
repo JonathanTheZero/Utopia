@@ -1,13 +1,13 @@
 import { Message } from "discord.js";
 import * as config from "../static/config.json";
 import "../utils/utils";
-import { user, alliance } from "../utils/interfaces";
+import { user } from "../utils/interfaces";
 import { getUser, getAlliance } from "../utils/databasehandler";
 import { rates } from "./client-states";
 
 export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" | "pf"): Promise<Object> {
     if (type === "p") {
-        var user: user = await getUser(message.author.id);
+        let user: user = await getUser(message.author.id);
         return {
             color: parseInt(config.properties.embedColor),
             title: 'Population store',
@@ -75,17 +75,15 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             footer: config.properties.footer,
         };
     } else if (type === "a") {
-        var user: user = await getUser(message.author.id);
-        var alliance = user.alliance;
+        let user: user = await getUser(message.author.id), alliance = user.alliance;
 
-        if (alliance == null) alliance = "You haven't joined an alliance yet.";
-
+        if (!alliance) alliance = "You haven't joined an alliance yet.";
         if (user.allianceRank == "M") alliance = "Member of " + alliance;
         else if (user.allianceRank == "C") alliance = "Co-leader of " + alliance;
         else if (user.allianceRank == "L") alliance = "Leader of " + alliance;
-        let alMoney: string = (user.alliance == null) ?
+        let alMoney: string = (!user.alliance) ?
             "You haven't joined an alliance yet" :
-            (await (getAlliance(user.alliance as string) as Promise<alliance>))?.money.commafy() || "You haven't joined an alliance yet.";
+            (await (getAlliance(user.alliance as string)))!.money.commafy() || "You haven't joined an alliance yet.";
         return {
             color: parseInt(config.properties.embedColor),
             title: 'Alliance store',
@@ -130,7 +128,7 @@ export async function storeEmbed(message: Message, type: "p" | "s" | "a" | "c" |
             footer: config.properties.footer,
         };
     } else if (type === "pf") {
-        var user: user = await getUser(message.author.id);
+        let user: user = await getUser(message.author.id);
         return {
             color: parseInt(config.properties.embedColor),
             title: 'Personal Farm Store',
