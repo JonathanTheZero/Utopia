@@ -1,6 +1,6 @@
 import { unoGame, unoCard } from "../../utils/interfaces";
 import { Client, Message, Emoji, User, MessageReaction, TextChannel } from "discord.js";
-import { displayCard, isValidMove, reactions } from "./consts";
+import { displayCard, isValidMove, reactions, unoEmbedColor } from "./consts";
 import { updateGame, updateValueForUser, deleteUnoGame, setPlayerHand, getUnoGame } from "../../utils/databasehandler";
 import * as config from "../../static/config.json";
 import { shuffle, Sleep } from "../../utils/utils";
@@ -9,18 +9,19 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
     //stack.filter((val, i, self) => self.indexOf(val) === i).forEach(e => console.log(displayCard(e, client).name));
     game = await getUnoGame(game._id);
     let player = game.players[game.currentPlayer],
-        enterDesc = `The current open card is a ${displayCard(game.openStack[0], client)}.`  +
+        enterDesc = `The current open card is a ${displayCard(game.openStack[0], client)}.` +
             "React to chose a card: \n" +
             `${player.hand.map(el => displayCard(el, client)).join(", ")}\n`;
     if (game.drawCount)
         enterDesc += `**If you can't respond with a +2 or a +4 card, you'll need to draw ${game.drawCount} cards.**\n`;
-    enterDesc += `If your reaction didn't work try to react again or contact the developer`;
+    enterDesc += `If your reaction didn't work try to react again or contact the developer.\n\n` +
+        `Your match is in <#${game.channel}>`;
 
     let msg: Message = await client.users.cache.get(player._id)!.send({
         embed: {
             title: "It's your turn, this is your hand:",
             description: enterDesc,
-            color: 0x00FF00,
+            color: unoEmbedColor(game.openStack[0]),
             timestamp: new Date(),
             footer: config.properties.footer
         }
@@ -34,7 +35,7 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
         (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
         { time: 120000 }
     );
-    if (msg.reactions.cache.size == 0) {
+    if (msg.reactions.cache.size === 0) {
         if (game.alreadyDrawed) {
             msg.channel.send({
                 embed: {
@@ -81,7 +82,7 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             return gameRound(await getUnoGame(game._id), client);
         }
     }
-    let nextPlayer: { _id: string; hand: unoCard[]; } = await moveRound(game),
+    let nextPlayer: { _id: string; hand: unoCard[]; },
         description: string = "";
     r.on("collect", async (reaction: MessageReaction) => {
         console.log("Reacted");
@@ -91,7 +92,9 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
         game.openStack.unshift(card);
         await Promise.all([
             updateGame(game._id, "openStack", game.openStack),
-            setPlayerHand(game._id, game.currentPlayer, player.hand)
+            setPlayerHand(game._id, game.currentPlayer, player.hand),
+            updateGame(game._id, "color", null),
+            updateGame(game._id, "alreadyDrawed", false)
         ]);
         description = `The open card is a ${displayCard(game.openStack[0], client)}.`;
         if (game.drawCount && !(card[1] === "+" || card === "s4")) {
@@ -111,7 +114,8 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                     updateGame(game._id, "openStack", game.openStack),
                     updateGame(game._id, "stack", game.stack),
                     setPlayerHand(game._id, game.currentPlayer, player.hand),
-                    updateGame(game._id, "drawCount", 0)
+                    updateGame(game._id, "drawCount", 0),
+                    updateGame(game._id, "alreadyDrawed", false)
                 ]);
             }
         }
@@ -170,22 +174,22 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 }
                 await updateGame(game._id, "color", col);
             });
-        } else { 
-            r.stop("Done"); 
+        } else {
+            r.stop("Done");
         }
     });
     r.on("end", async (_collected, reason) => {
         if (reason !== "Done") return;
         if (player.hand.length == 0) {
-            (<TextChannel>client.channels.cache.get(game.channel)).send({
-                embed: {
-                    title: `${client.users.cache.get(player._id)?.tag} won the round!`,
-                    description: `The price is ${(game.players.length * game.fee).commafy()} money`,
-                    color: 0x00FF00,
-                    footer: config.properties.footer,
-                    timestamp: new Date()
-                }
-            });
+            const embed = {
+                title: `${client.users.cache.get(player._id)?.tag} won the round!`,
+                description: `The price is ${(game.players.length * game.fee).commafy()} money`,
+                color: 0x00FF00,
+                footer: config.properties.footer,
+                timestamp: new Date()
+            };
+            (<TextChannel>client.channels.cache.get(game.channel)).send({embed});
+            game.players.forEach(val => client.users.cache.get(val._id)?.send({embed}));
             await Sleep(2000);
             await Promise.all([
                 updateValueForUser(player._id, "money", game.players.length * game.fee, "$inc"),
@@ -193,16 +197,17 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             ]);
             return;
         }
+        nextPlayer = await moveRound(game);
         (<TextChannel>client.channels.cache.get(game.channel)).send({
             embed: {
                 title: `It's ${client.users.cache.get(nextPlayer._id)?.tag}'s turn`,
                 description,
-                color: 0x00FF00,
+                color: unoEmbedColor(game.openStack[0]),
                 footer: config.properties.footer,
                 timestamp: new Date()
             }
         });
-        gameRound(game, client);
+        gameRound(await getUnoGame(game._id), client);
     });
 }
 
@@ -217,18 +222,21 @@ function pickANewCard(plus4: boolean = false) {
 }
 
 async function moveRound(game: unoGame) {
+    let index;
     if (game.reverseOrder) {
         if (game.currentPlayer == 0) {
-            await updateGame(game._id, "currentPlayer", game.players.length - 1);
-            return game.players[game.players.length - 1];
+            index = game.players.length - 1;
+        } else{
+            index = game.currentPlayer - 1;
         }
-        await updateGame(game._id, "currentPlayer", game.currentPlayer - 1);
-        return game.players[game.currentPlayer - 1];
+    } else {
+        if (game.currentPlayer == game.players.length - 1) {
+            index = 0;
+        } else {
+            index = game.currentPlayer + 1;
+        }
     }
-    if (game.currentPlayer + 1 == game.players.length) {
-        await updateGame(game._id, "currentPlayer", 0);
-        return game.players[0];
-    }
-    await updateGame(game._id, "currentPlayer", game.currentPlayer + 1);
-    return game.players[game.currentPlayer + 1];
+    game.currentPlayer = index;
+    await updateGame(game._id, "currentPlayer", index);
+    return game.players[index];
 }

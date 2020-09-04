@@ -15,7 +15,7 @@ export const stack: unoCard[] = [
 
 export const reactions = ["🔴", "🔵", "🟢", "🟡"];
 
-export function isValidMove(n: unoCard, o: unoCard, color: string | null): boolean {
+export function isValidMove(n: unoCard, o: unoCard, color: "r" | "g" | "y" | "b" | null): boolean {
     return n[0] === color || n[0] === o[0] || (n[1] === o[1] && o[0] !== "s") || n[0] === "s";
 }
 
@@ -140,4 +140,14 @@ export function displayCard(card: Emoji | unoCard, client: Client): Emoji | unoC
 
     if (card.id === "739608229755224125") return "s0";
     return "s4";
+}
+
+export function unoEmbedColor(card: string): number {
+    switch(card[0]){
+        case "b": return 0x143599;
+        case "y": return 0xEEDE20;
+        case "r": return 0xE80E19;
+        case "g": return 0x149914;
+        default: return 0x222222;
+    }
 }
