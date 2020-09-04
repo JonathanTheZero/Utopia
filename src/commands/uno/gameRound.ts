@@ -6,21 +6,30 @@ import * as config from "../../static/config.json";
 import { shuffle, Sleep } from "../../utils/utils";
 
 export async function gameRound(game: unoGame, client: Client): Promise<void> {
+    //stack.filter((val, i, self) => self.indexOf(val) === i).forEach(e => console.log(displayCard(e, client).name));
+    game = await getUnoGame(game._id);
     let player = game.players[game.currentPlayer],
-        msg: Message = await client.users.cache.get(player._id)!.send({
-            embed: {
-                title: "It's your turn, this is your hand:",
-                description: "React to chose a card: \n" +
-                    `${player.hand.map(el => displayCard(el, client)).join(", ")}`,
-                color: 0x00FF00,
-                timestamp: new Date(),
-                footer: config.properties.footer
-            }
-        });
+        enterDesc = `The current open card is a ${displayCard(game.openStack[0], client)}.`  +
+            "React to chose a card: \n" +
+            `${player.hand.map(el => displayCard(el, client)).join(", ")}\n`;
+    if (game.drawCount)
+        enterDesc += `**If you can't respond with a +2 or a +4 card, you'll need to draw ${game.drawCount} cards.**\n`;
+    enterDesc += `If your reaction didn't work try to react again or contact the developer`;
+
+    let msg: Message = await client.users.cache.get(player._id)!.send({
+        embed: {
+            title: "It's your turn, this is your hand:",
+            description: enterDesc,
+            color: 0x00FF00,
+            timestamp: new Date(),
+            footer: config.properties.footer
+        }
+    });
     player.hand.forEach(
         async el => isValidMove(el, game.openStack[0], game.color) && await msg.react((<Emoji>displayCard(el, client)).id!)
     );
     msg = await msg.channel.messages.fetch(msg.id);
+    await Sleep(2000);
     const r = msg.createReactionCollector(
         (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
         { time: 120000 }
@@ -33,7 +42,11 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                     description: "As you already got an extra card, you will be skipped this round."
                 }
             });
-            moveRound(game);
+            await Promise.all([
+                moveRound(game),
+                updateGame(game._id, "alreadyDrawed", false)
+            ]);
+            return gameRound(await getUnoGame(game._id), client);
         } else {
             msg.channel.send({
                 embed: {
@@ -43,12 +56,22 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             });
             let card = game.stack.shift();
             if (!card) {
-                const o = game.openStack[0];
+                const o = game.openStack.shift()!;
                 game.stack = shuffle(game.openStack);
                 game.openStack = [o];
                 card = game.stack.shift()!;
             }
             player.hand.push(card);
+            for (let i = 0; i < game.drawCount; ++i) {
+                let card = game.stack.shift();
+                if (!card) {
+                    const o = game.openStack[0];
+                    game.stack = shuffle(game.openStack);
+                    game.openStack = [o];
+                    card = game.stack.shift()!;
+                }
+                player.hand.push(card);
+            }
             await Promise.all([
                 updateGame(game._id, "alreadyDrawed", true),
                 updateGame(game._id, "openStack", game.openStack),
@@ -64,11 +87,14 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
         console.log("Reacted");
         const card: unoCard = displayCard(client.emojis.cache.get(reaction.emoji.id!)!, client);
         if (!player.hand.includes(card)) return;
-        player.hand.splice(player.hand.indexOf(card, 1));
+        player.hand = player.hand.filter(el => el !== card);
         game.openStack.unshift(card);
-        await updateGame(game._id, "openStack", game.openStack);
+        await Promise.all([
+            updateGame(game._id, "openStack", game.openStack),
+            setPlayerHand(game._id, game.currentPlayer, player.hand)
+        ]);
         description = `The open card is a ${displayCard(game.openStack[0], client)}.`;
-        if (game.drawCount && card[1] !== "+") {
+        if (game.drawCount && !(card[1] === "+" || card === "s4")) {
             msg.channel.send({
                 embed: { title: `You need to draw ${game.drawCount} cards` }
             });
@@ -84,22 +110,27 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 await Promise.all([
                     updateGame(game._id, "openStack", game.openStack),
                     updateGame(game._id, "stack", game.stack),
-                    setPlayerHand(game._id, game.currentPlayer, player.hand)
+                    setPlayerHand(game._id, game.currentPlayer, player.hand),
+                    updateGame(game._id, "drawCount", 0)
                 ]);
             }
         }
         if (card[1] === "s") {
+            console.log("Skip");
             nextPlayer = await moveRound(game);
             r.stop("Done");
         } else if (card[1] === "+") {
+            console.log("Plus2");
             updateGame(game._id, "drawCount", game.drawCount + 2);
             r.stop("Done");
         } else if (card[1] === "r") {
+            console.log("Reverse");
             updateGame(game._id, "reverseOrder", !game.reverseOrder);
             r.stop("Done");
         } else if (card[0] === "s") {
+            console.log("Pick color");
             const m = await msg.channel.send({ embed: pickANewCard(card[1] === "4") });
-            await Promise.all(reactions.map(m.react));
+            await Promise.all(reactions.map(e => m.react(e)));
             if (card[1] === "4") updateGame(game._id, "drawCount", game.drawCount + 4);
             const rm = m.createReactionCollector(
                 (_reaction: MessageReaction, user: User) => user.id === player._id && !user.bot,
@@ -124,7 +155,7 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 if (reason === "Done") return;
                 const co = reactions[Math.floor(Math.random() * reactions.length)];
                 msg.channel.send({
-                    embed: { 
+                    embed: {
                         title: "You did not react in time, the game automatically chose a color for you.",
                         description: `It chose ${co}`,
                         timestamp: new Date()
@@ -139,7 +170,12 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
                 }
                 await updateGame(game._id, "color", col);
             });
-        } else { r.stop("Done") }
+        } else { 
+            r.stop("Done"); 
+        }
+    });
+    r.on("end", async (_collected, reason) => {
+        if (reason !== "Done") return;
         if (player.hand.length == 0) {
             (<TextChannel>client.channels.cache.get(game.channel)).send({
                 embed: {
@@ -157,9 +193,6 @@ export async function gameRound(game: unoGame, client: Client): Promise<void> {
             ]);
             return;
         }
-    });
-    r.on("end", async (_collected, reason) => {
-        if (reason !== "Done") return;
         (<TextChannel>client.channels.cache.get(game.channel)).send({
             embed: {
                 title: `It's ${client.users.cache.get(nextPlayer._id)?.tag}'s turn`,

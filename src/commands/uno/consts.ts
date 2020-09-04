@@ -16,7 +16,7 @@ export const stack: unoCard[] = [
 export const reactions = ["🔴", "🔵", "🟢", "🟡"];
 
 export function isValidMove(n: unoCard, o: unoCard, color: string | null): boolean {
-    return  n[0] === color || n[0] === o[0] || n[1] === o[1] && o[0] !== "s" || n[0] === "s";
+    return n[0] === color || n[0] === o[0] || (n[1] === o[1] && o[0] !== "s") || n[0] === "s";
 }
 
 export function displayCard(card: unoCard, client: Client): Emoji;
