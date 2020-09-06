@@ -475,21 +475,24 @@ export const unoHelp = {
     color: parseInt(properties.embedColor),
     footer: properties.footer,
     timestamp: new Date(),
-    title: "Clientstate help",
+    title: "Uno help",
     description: "Since v2.4, Utopia has an integrated version of the Uno game, which allows you to play games with up to 10 players max.",
     fields: [
         {
             name: "`.uno <fee>`.",
-            value: "Initilaizes a new Gno game. " +
-            "Everyone who wants to participate has to pay the appointed fee, this money goes into a price pool which the winner will receive."
+            value: "Initializes a new Gno game. " +
+            "Everyone who wants to participate has to pay the appointed fee, this money goes into a price pool which the winner will receive. " + 
+                "If you want to play just for fun, you can set a fee of 1."
         },
         {
             name: "`.startgame <gameID>`",
-            value: "Actually starts the game; this command can be used by the initializer after some people joined the game (minimum is 2)."
+            value: "Actually starts the game; this command can only be used by the initializer after some people joined the game (minimum is 2)."
         },
         {
             name: "`.continue <gameID>`",
-            value: "If some player timed out or the bot went down during the playphase, you can use this command to continue later.",
+            value: "If some player timed out or the bot went down during the playphase, you can use this command at a later point to continue the game.\n" + 
+                "**Do not use this command when the game is still going, only when the game timed out.** " + 
+                "To be save: At least 5 to 10 minutes after the last move was made.",
         }
     ]
 };

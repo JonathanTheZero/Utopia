@@ -12,6 +12,7 @@ export async function startGame(message: Message, args: string[], client: Client
     if (!game) return message.reply(`there is no game with the ID ${args[0].commafy()}`);
     if (game.started) return message.reply("this game already started!");
     if (game.players[0]._id !== message.author.id) return message.reply("you are not the initliazer of the game, you are not allowed to start it.");
+    if (game.players.length <= 1) return message.reply("you can't play a game with only yourself!");
     for (let i = 0; i < game.players.length; ++i) {
         setPlayerHand(game._id, i, [
             game.stack.shift()!,
