@@ -16,7 +16,7 @@ export async function bet(message: Message, args: string[]) {
         || typeof args[0] === "undefined" || <number><unknown>args[0] < 1)
         return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
 
-    let won: boolean = (Math.random() > 0.5);
+    let won: boolean = Math.random() > 0.5;
 
     if (args[0].toLowerCase() == "half" || args[0].toLowerCase().startsWith("h"))
         money = Math.floor((user.money) / 2);

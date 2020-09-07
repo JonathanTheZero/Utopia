@@ -79,7 +79,7 @@ app.get('/', (_request: any, response: any) => {
 
 const listener = app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + listener.address().port));
 
-if(process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
+if (process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {

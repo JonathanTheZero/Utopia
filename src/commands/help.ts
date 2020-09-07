@@ -219,7 +219,7 @@ export const miscHelpMenu = {
         },
         {
             name: "`.vote`",
-            value: "You can vote every 12h for Utopia on top.gg to get money for free!" + 
+            value: "You can vote every 12h for Utopia on top.gg to get money for free!" +
                 "You will find further information there."
         },
         {
@@ -240,8 +240,8 @@ export const miscHelpMenu = {
         },
         {
             name: "`.mail <suggestion | mods> <...message>`",
-            value: "Send a message with either a suggestion to the developers or a request to the moderators. "+
-                "If you prefer to stay anonymous, use `.anonmail` instead of `.mail`." 
+            value: "Send a message with either a suggestion to the developers or a request to the moderators. " +
+                "If you prefer to stay anonymous, use `.anonmail` instead of `.mail`."
         },
         {
             name: "`.consumption <number>`",
@@ -462,10 +462,10 @@ export const clsHelp = {
         },
         {
             name: "`.set-government <state> <form>`",
-            value: "Each client state has a government type, there are three types with different effects:\n" + 
-                "-Democracies makes the client state produce less but they will gain loyalty faster and lose it slower.\n" + 
+            value: "Each client state has a government type, there are three types with different effects:\n" +
+                "-Democracies makes the client state produce less but they will gain loyalty faster and lose it slower.\n" +
                 "-Monarchies are the median: The production rate is normal but they also don't get any increase on loyalty gain.\n" +
-                "-Dictatorships are the opposite: They produce more but lose loyalty faster and gain it slower.\n" + 
+                "-Dictatorships are the opposite: They produce more but lose loyalty faster and gain it slower.\n" +
                 "Changing the government form costs you 10% loyalty."
         }
     ]
@@ -480,8 +480,8 @@ export const unoHelp = {
     fields: [
         {
             name: "`.uno <fee>`.",
-            value: "Initializes a new Gno game. " +
-            "Everyone who wants to participate has to pay the appointed fee, this money goes into a price pool which the winner will receive. " + 
+            value: "Initializes a new Uno game. " +
+                "Everyone who wants to participate has to pay the appointed fee, this money goes into a price pool which the winner will receive. " +
                 "If you want to play just for fun, you can set a fee of 1."
         },
         {
@@ -490,8 +490,8 @@ export const unoHelp = {
         },
         {
             name: "`.continue <gameID>`",
-            value: "If some player timed out or the bot went down during the playphase, you can use this command at a later point to continue the game.\n" + 
-                "**Do not use this command when the game is still going, only when the game timed out.** " + 
+            value: "If some player timed out or the bot went down during the playphase, you can use this command at a later point to continue the game.\n" +
+                "**Do not use this command when the game is still going, only when the game timed out.**\n" +
                 "To be save: At least 5 to 10 minutes after the last move was made.",
         }
     ]
