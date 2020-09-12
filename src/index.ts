@@ -276,7 +276,7 @@ client.on("message", async message => {
             return message.channel.send({ embed: contractHelp });
         else if (["clientstate", "clientstates", "c", "cls", "client-state", "client-states"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
-        else if (args[0][0] === "u")
+        else if (args[0]?.[0] === "u")
             return message.channel.send({ embed: unoHelp });
         return message.channel.send({ embed: helpMenu });
     }
