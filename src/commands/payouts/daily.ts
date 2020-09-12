@@ -1,7 +1,7 @@
 import { Client, TextChannel } from "discord.js";
 import { user } from "../../utils/interfaces";
-import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQuery, deleteClientState, addToUSB } from "../../utils/databasehandler";
-import { rangeInt, absBaseLog } from "../../utils/utils";
+import { getAllUsers, updateValueForUser, editConfig, editCLSVal, getUsersWithQuery, deleteClientState, addToUSB, getUser } from "../../utils/databasehandler";
+import { rangeInt, absBaseLog, Sleep } from "../../utils/utils";
 import * as config from "../../static/config.json";
 import { contractPayout } from "../trade/contracts";
 import { f, governments, rates } from "../client-states";
@@ -124,6 +124,19 @@ export async function dailyPayout(client: Client) {
             }
             if (u.clientStates[i].loyalty < 0) editCLSVal(u._id, i, "loyalty", 0, "$set");
             addToUSB(-Math.floor(1.1 * money * (c.loyalty + .5) * p));
+            Sleep(5000).then(async () => {
+                const clsRe = (await getUser(u._id)).clientStates[i],
+                    newConsump = Math.floor(clsRe.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, clsRe.resources.population + 1))))) || 0;
+                if (newConsump > clsRe.resources.food) {
+                    client.users.cache.get(u._id)?.send({
+                        embed: {
+                            title: "**Alert**",
+                            description: `Your client state ${clsRe.name} will run out of food tomrrow, consider sending it some food.`,
+                            color: 0xFF0000
+                        }
+                    }).catch(console.log);
+                }
+            });
         }
     }
     //selecting all users that have a population that is not 0 => only affect people with population

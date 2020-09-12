@@ -9,7 +9,7 @@ export async function payout(message: Message, args: string[]) {
     let user: user = await getUser(message.mentions.users?.first()?.id || args[0] || message.author.id);
     const c: configDB = await getConfig();
 
-    var userPop = 0;
+    let userPop = 0;
     if (user.upgrades.population.length != 0) {
         if (user.upgrades.population.includes("UK")) userPop += 5000;
         if (user.upgrades.population.includes("AE")) userPop += 10000;
@@ -20,7 +20,7 @@ export async function payout(message: Message, args: string[]) {
         if (user.upgrades.population.includes("US")) userPop += 750000;
     }
 
-    var userFood = 0;
+    let userFood = 0;
     if (user.alliance != null) {
         let alliance: alliance = await getAlliance(user.alliance) as alliance;
         const clsFactor = Math.min(1.2 ** alliance.clientStates, 10);
@@ -30,20 +30,18 @@ export async function payout(message: Message, args: string[]) {
                 alliance.upgrades.mf * 500000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
             if (alliance.coLeaders.length == 0)
                 userFood += Math.floor((alliance.upgrades.af * 15000 + alliance.upgrades.pf * 100000 + alliance.upgrades.mf * 500000) * clsFactor);
-        }
-        else if (user.allianceRank == "C") {
+        } else if (user.allianceRank == "C") {
             userFood = Math.floor((alliance.upgrades.af * 7500 + Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.mf * 250000 + Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 alliance.upgrades.pf * 50000 + Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
-        }
-        else if (user.allianceRank == "M") {
+        } else if (user.allianceRank == "M") {
             userFood = Math.floor((Math.floor(((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 Math.floor(((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) +
                 Math.floor(((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1)))) * clsFactor);
         }
     }
 
-    var u: number = 0;
+    let u: number = 0;
     if (user.upgrades.pf.nf > 0) u += (user.upgrades.pf.nf * 500000);
     if (user.upgrades.pf.sf > 0) u += (user.upgrades.pf.sf * 1000000);
     if (user.upgrades.pf.sef > 0) u += (user.upgrades.pf.sef * 5000000);
@@ -95,12 +93,11 @@ export async function payout(message: Message, args: string[]) {
 }
 
 export async function alliancePayout(message: Message, args: string[]) {
-    var total = [0, 0, 0]; //leader at 0, cos at 1, members at 2
-    let user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
+    let total = [0, 0, 0], //leader at 0, cos at 1, members at 2
+        user: user = await getUser(message.mentions?.users?.first()?.id || args[0] || message.author.id);
 
-    if (!user)
-        return message.reply((!args[0]) ? "you haven't created an account yet, please use `.create` first" : "this user hasn't created an account yet!")
-    var alliance: alliance | null = await getAlliance(<string>user.alliance);
+    if (!user) return message.reply((!args[0]) ? "you haven't created an account yet, please use `.create` first" : "this user hasn't created an account yet!")
+    let alliance: alliance | null = await getAlliance(<string>user.alliance);
     if (!alliance) return message.reply((!args[0]) ? "you haven't joined an alliance yet" : "this user hasn't joined an alliance yet");
 
     const clsFactor = Math.min(1.2 ** alliance.clientStates, 10);
@@ -120,9 +117,7 @@ export async function alliancePayout(message: Message, args: string[]) {
             alliance.upgrades.mf * 500000) * clsFactor);
         total[1] = 0;
     }
-
-    if (alliance.members.length === 0)
-        total[2] = 0;
+    if (alliance.members.length === 0) total[2] = 0;
 
     return message.channel.send({
         embed: {
