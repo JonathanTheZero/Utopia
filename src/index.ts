@@ -1,12 +1,8 @@
-declare const require: (path: string) => any;
-
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp, unoHelp } from "./commands/help";
-import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
     getUser,
@@ -28,18 +24,8 @@ import {
     addToUSB,
     editConfig
 } from "./utils/databasehandler";
-import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
-import { bet } from "./commands/bet";
-import { loancalc, loan, payback } from "./commands/loans";
-import { leaderboard } from "./commands/leaderboard";
-import { buy } from "./commands/buy";
-import { kill } from "./commands/populations";
-import { send, deposit } from "./commands/send";
-import { work, crime } from "./commands/work";
 import { Sleep, delayReminder } from "./utils/utils";
-import { storeEmbed } from "./commands/store";
-import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick, modmail, anonmail, reply } from "./commands/moderation";
 import {
     joinAlliance,
@@ -57,12 +43,12 @@ import {
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
-import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
-import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer, acceptedContract, propose, viewContract } from "./commands/trade";
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 import { calc, consumption } from "./commands/misc";
 import { startGame, joinGame, uno, continueGame } from "./commands/uno";
+import { giveawayCheck, bet, createUser, loancalc, loan, payback, statsEmbed, time, createAlliance, leaderboard, buy, kill, send, deposit, storeEmbed, work, crime, startGiveaway, mine, digmine, mineStats } from "./commands";
+import { generalHelpMenu, allianceHelpMenu, miscHelpMenu, modHelpMenu, marketHelp, contractHelp, clsHelp, unoHelp, helpMenu, guideEmbed } from "./commands/help";
 
 const express = require('express');
 const app = express();
@@ -664,7 +650,7 @@ client.on("message", async message => {
 
     else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
 
-    else if (command === "cls-overview" || command === "clientstates" || command === "client-states" || command === "clss") clsOverview(message, args);
+    else if (["cls-overview", "clientstates", "client-states", "clss"].includes(command)) clsOverview(message, args);
 
     else if (["send-to-cls", "sendtocls", "stc"].includes(command)) sendToCls(message, args);
 

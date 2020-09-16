@@ -173,7 +173,7 @@ export async function time(message: Message, args: string[], client: Client): Pr
                 },
                 {
                     name: "Next contract and client state payout:",
-                    value: "In " + secondsToDhms(86400 + Math.floor(c.lastDailyReset / 1000) - Date.now()),
+                    value: "In " + secondsToDhms(86400 + (c.lastDailyReset - Math.floor(Date.now() / 1000))),
                     inline: true
                 },
                 {

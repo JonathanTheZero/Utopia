@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { unoGame, user } from "../../utils/interfaces";
-import { getGameID, addUnoGame, getUser, updateValueForUser } from "../../utils/databasehandler";
+import { getID, addUnoGame, getUser, updateValueForUser } from "../../utils/databasehandler";
 import { shuffle } from "../../utils/utils";
 import { stack } from "./consts";
 import * as config from "../../static/config.json";
@@ -14,7 +14,7 @@ export async function uno(message: Message, args: string[]) {
     if (fee > u.money) return message.reply("you can't set a fee that's higher than your current balance!");
     updateValueForUser(u._id, "money", -fee, "$inc");
     const game: unoGame = {
-        _id: (await getGameID()).toString(),
+        _id: (await getID("totalGames")).toString(),
         players: [{
             _id: message.author.id,
             hand: []

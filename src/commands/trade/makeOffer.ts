@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { marketOffer, resources, user } from "../../utils/interfaces";
-import { addOffer, updateValueForUser, getUser, getOfferID } from "../../utils/databasehandler";
+import { addOffer, updateValueForUser, getUser, getID } from "../../utils/databasehandler";
 
 //.make-offer <amount> <currency> <price> <price-currency>
 export async function makeOffer(message: Message, args: string[]) {
@@ -32,7 +32,7 @@ export async function makeOffer(message: Message, args: string[]) {
         return message.reply("you can't offer more than you own!");
 
     const offer: marketOffer = {
-        _id: (await getOfferID()).toString(),
+        _id: (await getID("totalOffers")).toString(),
         seller: {
             _id: message.author.id,
             tag: message.author.tag

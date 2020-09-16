@@ -6,8 +6,7 @@ export async function renameAlliance(message: Message, args: string[]) {
     if(!args[0]) return message.reply("you need to add a name!")
     let user: user = await getUser(message.author.id);
 
-    const old = (' ' + user.alliance).slice(1);
-    const newName = args.join(" ");
+    const old = (' ' + user.alliance).slice(1), newName = args.join(" ");
 
     if ((await getAlliance(newName)))
         return message.reply("error: there is already another alliance with that name!");

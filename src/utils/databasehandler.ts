@@ -134,9 +134,7 @@ export async function deleteAlliance(name: string) {
 }
 
 export async function customUpdateQuery(collection: "users" | "alliances" | "wars" | "servers", filter: { [key: string]: any }, update: { [key: string]: any }) {
-    client.db(dbn).collection(collection).updateMany(filter, update, err => {
-        if (err) throw err;
-    });
+    client.db(dbn).collection(collection).updateMany(filter, update, err => { if (err) throw err; });
 }
 
 export async function getConfig(): Promise<configDB> {
@@ -144,15 +142,11 @@ export async function getConfig(): Promise<configDB> {
 }
 
 export async function addUpmsg(words: string[]) {
-    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $set: { upmsg: words } }, err => {
-        if (err) throw err;
-    });
+    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $set: { upmsg: words } }, err => { if (err) throw err; });
 }
 
 export async function editConfig<K extends keyof configDB>(field: K, val: configDB[K]) {
-    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => {
-        if (err) throw err;
-    });
+    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $set: { [field]: val } }, err => { if (err) throw err; });
 }
 
 export async function addToUSB(amount: number) {
@@ -177,9 +171,7 @@ export async function deleteGiveaway(_id: string) {
 }
 
 export async function addCR(): Promise<void> {
-    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $inc: { commandsRun: 1 } }, err => {
-        if (err) throw err;
-    });
+    client.db(dbn).collection("config").updateOne({ _id: 1 }, { $inc: { commandsRun: 1 } });
 }
 
 export async function getServers(): Promise<Array<server>> {
@@ -336,15 +328,9 @@ export async function deleteOffer(_id: string) {
     client.db(dbn).collection("market").deleteOne({ _id });
 }
 
-export async function getOfferID(): Promise<number> {
-    const conf = await getConfig(), id = conf.totalOffers + 1;
-    editConfig("totalOffers", id);
-    return id;
-}
-
-export async function getContractID(): Promise<number> {
-    const conf = await getConfig(), id = conf.totalContracts + 1;
-    editConfig("totalContracts", id);
+export async function getID(type: "totalOffers" | "totalContracts" | "totalGames"): Promise<number> {
+    const conf = await getConfig(), id = conf[type] + 1;
+    editConfig(type, id);
     return id;
 }
 
@@ -374,12 +360,6 @@ export async function setPlayerHand(_id: string, i: number, hand: string[]): Pro
 
 export async function updateGame<K extends keyof unoGame>(_id: string, field: K, value: unoGame[K]): Promise<void> {
     client.db(dbn).collection("uno").updateOne({ _id }, { $set: { [field]: value } });
-}
-
-export async function getGameID(): Promise<number> {
-    const conf = await getConfig(), id = conf.totalGames + 1;
-    editConfig("totalGames", id);
-    return id;
 }
 
 export async function connectToDB(): Promise<void> {

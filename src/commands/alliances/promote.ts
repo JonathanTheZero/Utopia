@@ -15,8 +15,7 @@ export async function promote(author: user, member: user): Promise<string> {
             return `Succesfully promoted ${member.tag} from Member to **Co-Leader**`;
         }
         return "an alliance can't have more than two Co-Leaders at the same time."
-    }
-    else {
+    } else {
         updateValueForUser(member._id, "allianceRank", "L");
         updateValueForUser(author._id, "allianceRank", "C");
         updateValueForAlliance(alliance.name, "leader", { _id: member._id, tag: member.tag});
