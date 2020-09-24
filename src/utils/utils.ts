@@ -67,17 +67,17 @@ export function secondsToDhms(seconds: number) {
         m = Math.floor(seconds % 3600 / 60),
         s = Math.floor(seconds % 60);
 
-    let dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "";
-    let hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
-    let mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
-    let sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
+    let dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "",
+        hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "",
+        mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "",
+        sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
     return dDisplay + hDisplay + mDisplay + sDisplay;
 }
 
 export const backwardsFilter = (reaction: { emoji: { name: string; }; }, user: User) => reaction.emoji.name === '⬅' && !user.bot;
 export const forwardsFilter = (reaction: { emoji: { name: string; }; }, user: User) => reaction.emoji.name === '➡' && !user.bot;
 
-export function shuffle<T>(a: Array<T>): Array<T> {
+export function shuffle<T>(a: T[]): T[] {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];

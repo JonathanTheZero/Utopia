@@ -51,9 +51,7 @@ export async function updateValueForUser<
         newQuery = { [updateMode]: { ["upgrades.hospitals"]: <number>newValue } };
     else throw new Error("Invalid parameter passed");
 
-    client.db(dbn).collection("users").updateOne({ _id }, newQuery, err => {
-        if (err) throw err;
-    });
+    client.db(dbn).collection("users").updateOne({ _id }, newQuery, err => { if (err) throw err; });
 }
 
 export async function addClientState(_id: string, cls: clientState): Promise<void> {
@@ -64,7 +62,9 @@ export async function deleteClientState(_id: string, name: string): Promise<void
     client.db(dbn).collection("users").updateOne({ _id }, { $pull: { clientStates: { name } } }, err => { if (err) throw err });
 }
 
-export async function editCLSVal<K extends keyof clientState>(_id: string, index: number, type: K | clsResources | clsUpgrades, val: clientState[K] | "resources", mode: "$inc" | "$set" = "$set"): Promise<void> {
+export async function editCLSVal<
+    K extends keyof clientState
+>(_id: string, index: number, type: K | clsResources | clsUpgrades, val: clientState[K] | "resources", mode: "$inc" | "$set" = "$set"): Promise<void> {
     let query: { [x: string]: { [x: string]: any; } | { [x: string]: any; }; };
     if (["loyalty", "focus", "name", "government"].includes(type))
         query = { [mode]: { [`clientStates.${index}.${type}`]: val } };
@@ -367,14 +367,8 @@ export async function connectToDB(): Promise<void> {
         client.connect(async err => {
             if (err) throw err;
             console.log("Successfully connected");
-            client.db(dbn).createCollection("users");
-            client.db(dbn).createCollection("alliances");
-            client.db(dbn).createCollection("giveaways");
-            client.db(dbn).createCollection("servers");
-            client.db(dbn).createCollection("wars");
-            client.db(dbn).createCollection("market");
-            client.db(dbn).createCollection("trades");
-            client.db(dbn).createCollection("uno");
+            ["users", "alliances", "giveaways", "servers", "wars", "market", "trades", "uno"]
+                .forEach(el => client.db(dbn).createCollection(el));
             if (!(await client.db(dbn).collection("config").findOne({ _id: 1 })))
                 client.db(dbn).collection("config").insertOne(config);
             connected = true;
