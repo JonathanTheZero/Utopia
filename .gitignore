@@ -4,3 +4,4 @@ config.prod.json
 /dist
 /Assets
 *.png
+settings.json

@@ -13,10 +13,10 @@ export async function bet(message: Message, args: string[]) {
     if (user.money === 0) return message.reply("you don't have any money left!");
 
     else if ((isNaN(<any>money) && args[0] != "a" && !args[0].toLowerCase().startsWith("h") && !args[0].toLowerCase().startsWith("q"))
-        || typeof args[0] === "undefined" || <number><unknown>args[0] < 1)
+        || typeof args[0] === "undefined" || <any>args[0] < 1)
         return message.reply("please enter a valid amount using `.bet <amount>` or `.bet a` to bet all your money.");
 
-    let won: boolean = (Math.random() > 0.5);
+    let won: boolean = Math.random() > 0.5;
 
     if (args[0].toLowerCase() == "half" || args[0].toLowerCase().startsWith("h"))
         money = Math.floor((user.money) / 2);

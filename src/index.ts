@@ -1,12 +1,8 @@
-declare var require: (path: string) => any;
-
 import * as Discord from "discord.js";
 import * as config from "./static/config.json";
 import { PythonShell } from "python-shell";
 const DBL = require("dblapi.js");
 import "./utils/utils";
-import { allianceHelpMenu, miscHelpMenu, helpMenu, generalHelpMenu, modHelpMenu, guideEmbed, marketHelp, clsHelp, contractHelp } from "./commands/help";
-import { createUser, createAlliance } from "./commands/create";
 import {
     addUsers,
     getUser,
@@ -28,18 +24,8 @@ import {
     addToUSB,
     editConfig
 } from "./utils/databasehandler";
-import { statsEmbed, time } from "./commands/stats";
 import { user, configDB, giveaway } from "./utils/interfaces";
-import { bet } from "./commands/bet";
-import { loancalc, loan, payback } from "./commands/loans";
-import { leaderboard } from "./commands/leaderboard";
-import { buy } from "./commands/buy";
-import { kill } from "./commands/populations";
-import { send, deposit } from "./commands/send";
-import { work, crime } from "./commands/work";
 import { Sleep, delayReminder } from "./utils/utils";
-import { storeEmbed } from "./commands/store";
-import { startGiveaway, giveawayCheck } from "./commands/giveaways";
 import { set, add, ban, purge, kick, modmail, anonmail, reply } from "./commands/moderation";
 import {
     joinAlliance,
@@ -57,11 +43,12 @@ import {
 } from "./commands/alliances";
 import { payoutLoop, populationWorkLoop, payout, alliancePayout, weeklyReset, dailyPayout } from "./commands/payouts";
 import { startWar, mobilize, ready, cancelWar, armies, setPosition, showFieldM, move, attack, warGuide, troopStats } from "./commands/wars";
-import { mine, digmine, mineStats } from "./commands/mine";
-import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer } from "./commands/trade";
-import { propose, viewContract, acceptedContract } from "./commands/trade/contracts"
+import { makeOffer, activeOffers, buyOffer, myOffers, deleteOffer, offer, acceptedContract, propose, viewContract } from "./commands/trade";
 import { createCLS, clsOverview, sendToCls, deleteCLS, singleStateOverview, setFocus, upgradeCLS, withdraw, renameCls, setGovernment } from "./commands/client-states";
 import { calc, consumption } from "./commands/misc";
+import { startGame, joinGame, uno, continueGame } from "./commands/uno";
+import { giveawayCheck, bet, createUser, loancalc, loan, payback, statsEmbed, time, createAlliance, leaderboard, buy, kill, send, deposit, storeEmbed, work, crime, startGiveaway, mine, digmine, mineStats } from "./commands";
+import { generalHelpMenu, allianceHelpMenu, miscHelpMenu, modHelpMenu, marketHelp, contractHelp, clsHelp, unoHelp, helpMenu, guideEmbed } from "./commands/help";
 
 const express = require('express');
 const app = express();
@@ -78,7 +65,7 @@ app.get('/', (_request: any, response: any) => {
 
 const listener = app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + listener.address().port));
 
-if(process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
+if (process.env.PROJECT_DOMAIN) setInterval(() => http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`), 250000);
 
 if (config.dbl) {
     const dbl = new DBL(config.dbl.token, {
@@ -107,7 +94,7 @@ console.log("Application has started");
 
 client.on("ready", async () => {
     console.log(`Bot has started, with ${client.users.cache.size.commafy()} users, in ${client.channels.cache.size.commafy()} channels of ${client.guilds.cache.size.commafy()} guilds.`);
-    client!.user!.setActivity(`.help | v2.3 The Exchange out now!`);
+    client!.user!.setActivity(`.help | v2.4 The Game out now!`);
 
     await connectToDB();
     getServers().then(server => {
@@ -275,6 +262,8 @@ client.on("message", async message => {
             return message.channel.send({ embed: contractHelp });
         else if (["clientstate", "clientstates", "c", "cls", "client-state", "client-states"].includes(args[0]))
             return message.channel.send({ embed: clsHelp });
+        else if (args[0]?.[0] === "u")
+            return message.channel.send({ embed: unoHelp });
         return message.channel.send({ embed: helpMenu });
     }
 
@@ -296,8 +285,7 @@ client.on("message", async message => {
 
     else if (command === "payback") payback(message, args, await getUser(message.author.id));
 
-    else if (command === "me" || command === "stats")
-        statsEmbed(message, args, client);
+    else if (command === "me" || command === "stats") statsEmbed(message, args, client);
 
     else if (command === "time" || command === "timestats") time(message, args, client);
 
@@ -322,8 +310,7 @@ client.on("message", async message => {
 
     else if (command === "leavealliance" || command === "leave") leaveAlliance(message, args);
 
-    else if (command === "lb" || command === "leaderboard")
-        leaderboard(message, args);
+    else if (command === "lb" || command === "leaderboard") leaderboard(message, args);
 
     else if (command === "invitelink")
         return message.reply("Add me to your server using this link: " + config.properties.inviteLink);
@@ -428,11 +415,9 @@ client.on("message", async message => {
         return renameAlliance(message, args);
     }
 
-    else if (command === "alliance")
-        return allianceOverview(message, args, client);
+    else if (command === "alliance") allianceOverview(message, args, client);
 
-    else if (command === "alliancemembers")
-        return allianceMembers(message, args, client);
+    else if (command === "alliancemembers") allianceMembers(message, args, client);
 
     else if (command === "guide") return message.channel.send({ embed: guideEmbed });
 
@@ -488,11 +473,9 @@ client.on("message", async message => {
         updateValueForUser(user._id, "taxDMs", !user.taxDMs);
     }
 
-    else if (command === "work")
-        work(message, client);
+    else if (command === "work") work(message);
 
-    else if (command === "crime")
-        crime(message);
+    else if (command === "crime") crime(message);
 
     else if (command === "statistics") {
         const conf: configDB = await getConfig();
@@ -540,7 +523,6 @@ client.on("message", async message => {
 
         pyshell.on('message', async answer => {
             imgurl = `${answer.toString()}.png`;
-
             message.channel.send({ files: [new Discord.MessageAttachment(imgurl)] });
 
             await Sleep(5000);
@@ -668,7 +650,7 @@ client.on("message", async message => {
 
     else if (["create-cls", "createcls"].includes(command)) createCLS(message, args);
 
-    else if (command === "cls-overview" || command === "clientstates" || command === "client-states" || command === "clss") clsOverview(message, args);
+    else if (["cls-overview", "clientstates", "client-states", "clss"].includes(command)) clsOverview(message, args);
 
     else if (["send-to-cls", "sendtocls", "stc"].includes(command)) sendToCls(message, args);
 
@@ -689,6 +671,14 @@ client.on("message", async message => {
     else if (command === "calc") calc(message, args.join(" "));
 
     else if (command === "consumption") consumption(message, args);
+
+    else if (["uno", "uno"].includes(command)) uno(message, args);
+
+    else if (["join-game", "joingame"].includes(command)) joinGame(message, args, client);
+
+    else if (["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
+
+    else if (["continue", "continuegame", "continue-game"].includes(command)) continueGame(message, args, client);
 });
 
 client.login(config.token).catch(console.log);

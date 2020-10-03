@@ -44,34 +44,40 @@ export async function payoutLoop(client: Client) {
         if (alliance.upgrades.af > 0) {
             for (const m of alliance.members) {
                 updateValueForUser(m, "food",
-                    Math.floor((Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                    Math.floor((Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                    "$inc");
             }
             for (const c of alliance.coLeaders) {
                 updateValueForUser(c, "food",
-                    Math.floor((alliance.upgrades.af * 7500 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                    Math.floor((alliance.upgrades.af * 7500 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                    "$inc");
             }
             updateValueForUser(alliance.leader._id, "food",
-                Math.floor((alliance.upgrades.af * 15000 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                Math.floor((alliance.upgrades.af * 15000 + Math.floor((alliance.upgrades.af * 120000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                "$inc");
             if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((alliance.upgrades.af * 15000) * clsFactor), "$inc");
         }
         if (alliance.upgrades.pf > 0) {
             for (const m of alliance.members) {
                 updateValueForUser(m, "food",
-                    Math.floor((Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                    Math.floor((Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                    "$inc");
             }
             for (const c of alliance.coLeaders) {
                 updateValueForUser(c, "food",
-                    Math.floor((alliance.upgrades.pf * 50000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor)
-                    , "$inc");
+                    Math.floor((alliance.upgrades.pf * 50000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                    "$inc");
             }
             updateValueForUser(alliance.leader._id, "food",
-                Math.floor((alliance.upgrades.pf * 100000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                Math.floor((alliance.upgrades.pf * 100000 + Math.floor((alliance.upgrades.pf * 800000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                "$inc");
             if (alliance.coLeaders.length === 0) updateValueForUser(alliance.leader._id, "food", Math.floor((alliance.upgrades.pf * 100000) * clsFactor), "$inc");
         }
         if (alliance.upgrades.mf > 0) {
             for (const m of alliance.members) {
                 updateValueForUser(m, "food",
-                    Math.floor((Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor), "$inc");
+                    Math.floor((Math.floor((alliance.upgrades.mf * 4000000) / (alliance.members.length + alliance.coLeaders.length + 1))) * clsFactor),
+                    "$inc");
             }
             for (const c of alliance.coLeaders) {
                 updateValueForUser(c, "food",

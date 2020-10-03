@@ -7,7 +7,7 @@ import { updateValueForUser } from "../utils/databasehandler";
 export async function loancalc(message: Message, args: string[], user: user) {
     let maxloan = lc(user.resources.population);
     let repayment = Math.floor(maxloan * 1.25);
-    if (typeof args[0] === "undefined") {
+    if (!args[0]) {
         return message.channel.send({
             embed: {
                 color: parseInt(config.properties.embedColor),
@@ -29,8 +29,8 @@ export async function loancalc(message: Message, args: string[], user: user) {
             }
         });
     } else if (!isNaN(<any>args[0])) {
-        maxloan = parseInt(args[0])
-        repayment = maxloan + Math.floor(maxloan * 0.25)
+        maxloan = parseInt(args[0]);
+        repayment = maxloan + Math.floor(maxloan * 0.25);
         return message.channel.send({
             embed: {
                 color: parseInt(config.properties.embedColor),

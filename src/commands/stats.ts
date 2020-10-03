@@ -105,7 +105,7 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
                 },
                 {
                     name: "Voting streak",
-                    value: (args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}.` : `Your highest streak is ${user.highestVotingStreak}.`) + 
+                    value: (args[0] ? `${user.tag}'s highest streak is ${user.highestVotingStreak}.` : `Your highest streak is ${user.highestVotingStreak}.`) +
                         " Use `.vote` to grab a link to improve your voting streak.",
                     inline: true
                 }
@@ -118,14 +118,12 @@ export async function statsEmbed(message: Message, args: string[], client: Clien
 
 
 export async function time(message: Message, args: string[], client: Client): Promise<any | void> {
-    let user: user = await getUser(message.mentions.users?.first()?.id || args[0] || message.author.id);
+    const user: user = await getUser(message.mentions.users?.first()?.id || args[0] || message.author.id);
     const c: configDB = await getConfig();
 
     if (!user) {
-        if (!args[0])
-            return message.reply("you haven't created an account yet, please use `.create` first");
-        else
-            return message.reply("this user hasn't created an account yet!");
+        if (!args[0]) return message.reply("you haven't created an account yet, please use `.create` first");
+        else return message.reply("this user hasn't created an account yet!");
     }
 
     message.channel.send({
@@ -175,7 +173,7 @@ export async function time(message: Message, args: string[], client: Client): Pr
                 },
                 {
                     name: "Next contract and client state payout:",
-                    value: "In " + secondsToDhms(86400 + Math.floor((c.lastDailyReset - Date.now()) / 1000)),
+                    value: "In " + secondsToDhms(14400 * 6 + (c.lastDailyReset - Math.floor(Date.now() / 1000))),
                     inline: true
                 },
                 {

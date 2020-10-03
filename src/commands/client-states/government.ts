@@ -3,7 +3,8 @@ import { getUser, editCLSVal } from "../../utils/databasehandler";
 import { user, clsGovernment } from "../../utils/interfaces";
 
 export async function setGovernment(message: Message, args: string[]) {
-    if (!args[1]) return message.reply("please follow the syntax of `.set-government <name> <type>`.");
+    if (!args[1]) 
+        return message.reply("please follow the syntax of `.set-government <name> <type>`.");
     if (!["democracy", "dictatorship", "monarchy"].includes(args[1]))
         return message.reply("the only valid government forms are \"democracy\", \"dictatorship\" and \"monarchy\"");
 

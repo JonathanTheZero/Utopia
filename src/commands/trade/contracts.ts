@@ -1,7 +1,7 @@
 import { Client, Message } from "discord.js";
 import * as config from "../../static/config.json";
 import { resources, contract, user } from "../../utils/interfaces";
-import { getUser, addContract, getContract, deleteContract, getAllContracts, updateValueForUser, ContractTime, ContractAccepted, getContractID } from "../../utils/databasehandler";
+import { getUser, addContract, getContract, deleteContract, getAllContracts, updateValueForUser, ContractTime, ContractAccepted, getID } from "../../utils/databasehandler";
 
 //This is to make a contract
 export async function propose(message: Message, args: string[], client: Client) {
@@ -43,7 +43,7 @@ export async function propose(message: Message, args: string[], client: Client) 
     if (selling !== "money" && u.resources[selling] < sellingprice || sellingprice <= 0)
         return message.reply("You can't sell more than you own");
     
-    const _id: string = (await getContractID()).toString();
+    const _id: string = (await getID("totalContracts")).toString();
 
     const contract: contract = {
         _id,

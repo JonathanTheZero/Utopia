@@ -22,7 +22,8 @@ export async function populationWorkLoop(client: Client) {
             } catch (e) { console.log(e + `\n${u.tag}`) }
         }
     }
-    await Sleep(43200000 - (await getConfig()).lastPopulationWorkPayout);
+    
+    await Sleep(43200000 - ((await getConfig()).lastPopulationWorkPayout * 1000));
 
     users = await getAllUsers();
     for (const u of users) {

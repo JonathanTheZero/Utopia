@@ -1,4 +1,4 @@
-#urls for .utopia
+# urls for .utopia
 L1_BACKDROP = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-backdrop.png?v=1577192506945"
 L1_BLACKSMITH = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-blacksmith.png?v=1577192617388"
 L1_CHURCH = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2Flevel1-church.png?v=1577192620571"
@@ -31,7 +31,7 @@ L4_L3 = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2flvl3-lvl4
 FONT = "https://cdn.glitch.com/7524a6e3-818c-4d01-b81c-f637e7f10632%2FVampire-Wars.ttf?v=1577192931151"
 
 
-#urls for war
+# urls for war
 BASE_WAR = "https://i.imgur.com/BGDhGB9.png"
 
 HEX_BLUE1 = "https://i.imgur.com/YP90xEA.png"

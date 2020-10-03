@@ -107,21 +107,17 @@ async function buyItemAlliance(itemShort: "AF" | "PF" | "MF", id: string, price:
             if (alliance.upgrades.af >= alliance.level)
                 return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
             addAllianceUpgrade(alliance.name, "af");
-        }
-        else if (itemShort == "PF") {
+        } else if (itemShort == "PF") {
             if (alliance.upgrades.pf >= alliance.level)
                 return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
             addAllianceUpgrade(alliance.name, "pf");
-        }
-        else if (itemShort == "MF") {
+        } else if (itemShort == "MF") {
             if (alliance.upgrades.mf >= alliance.level)
                 return "sorry, your alliance level isn't high enough to buy this upgrade another time. Use `.upgradealliance` to increase your alliance level."
             addAllianceUpgrade(alliance.name, "mf");
-        }
-        else return "sorry, an error occured."
+        } else return "sorry, an error occured."
         updateValueForAlliance(alliance.name, "money", -1 * price, "$inc");
-    }
-    else return "your alliance doesn't have enough money to buy that item.";
+    } else return "your alliance doesn't have enough money to buy that item.";
     switch (itemShort) {
         case "AF": return "you successfully bought the arable farming upgrade for your alliance.";
         case "PF": return "you successfully bought the pastoral farming upgrade for your alliance.";

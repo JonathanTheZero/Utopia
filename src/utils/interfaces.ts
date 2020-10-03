@@ -79,6 +79,7 @@ export interface configDB {
     lastDailyReset: number;
     totalOffers: number;
     totalContracts: number;
+    totalGames: number;
     centralBalance: number;
     upmsg: string;
 }
@@ -101,42 +102,6 @@ export interface server {
     name: string;
     prefix: string;
 }
-
-export type updateUserQuery = "tag"
-    | "money"
-    | "autoping"
-    | "payoutDMs"
-    | "alliance"
-    | "allianceRank"
-    | "food"
-    | "population"
-    | "loan"
-    | "lastWorked"
-    | "lastCrime"
-    | "lastVoted"
-    | "votingStreak"
-    | "steel"
-    | "oil"
-    | "lastDig"
-    | "lastMine"
-    | "totaldigs"
-    | "steelmine"
-    | "oilrig"
-    | "minereturn"
-    | "minereset"
-    | "income"
-    | "taxDMs"
-    | "hospitals"
-    | "lastMessage"
-    | "highestVotingStreak";
-
-export type updateAllianceQuery = "name"
-    | "level"
-    | "public"
-    | "leader"
-    | "money"
-    | "tax"
-    | "clientStates";
 
 export interface war {
     _id: string;
@@ -211,7 +176,6 @@ export interface clientState {
     government: clsGovernment;
 }
 
-export type clsEdits = "loyalty" | "focus" | "name" | clsUpgrades | "government";
 export type clsResources = resources | "resources";
 export type clsUpgrades = "mines" | "rigs" | "farms";
 export type clsGovernment = "democracy" | "dictatorship" | "monarchy";
@@ -227,4 +191,24 @@ export interface contract {
         priceresource: resources;
         price: number;
     }
+};
+
+export type unoCard = string;
+
+export interface unoGame {
+    _id: string;
+    players: Array<{
+        _id: string;
+        hand: unoCard[];
+    }>;
+    channel: string;
+    stack: string[]
+    openStack: string[],
+    fee: number;
+    started: boolean;
+    currentPlayer: number;
+    drawCount: number;
+    reverseOrder: boolean;
+    color: null | "g" | "y" | "b" | "r";
+    alreadyDrawed: boolean;
 }
