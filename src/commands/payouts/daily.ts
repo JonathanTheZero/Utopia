@@ -164,5 +164,15 @@ export async function dailyPayout(client: Client) {
         }
     });
     editConfig("lastDailyReset", Math.floor(Date.now() / 1000));
+    setTimeout(async () => {
+        const users: user[] = await getUsersWithQuery({ "clientStates": { $elemMatch: { "government": { $exists: false } } } });
+        for (const u of users) {
+            for (let i = 0; i < u.clientStates.length; i++) {
+                const c = u.clientStates[i];
+                if (!c.government)
+                    await deleteClientState(u._id, c.name);
+            }
+        }
+    }, 300000);
     setTimeout(() => dailyPayout(client), 86400000);
 }

@@ -84,7 +84,7 @@ if (config.dbl) {
         user = await getUser(vote.user);
         let money = user.votingStreak * Math.floor(.01 * user.income);
         updateValueForUser(user._id, "money", money, "$inc");
-        updateValueForUser(user._id, "income", money, "$inc");
+        //updateValueForUser(user._id, "income", money, "$inc");
         if (user.votingStreak > user.highestVotingStreak) updateValueForUser(user._id, "highestVotingStreak", user.votingStreak, "$set");
         addToUSB(-money);
     });
