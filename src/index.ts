@@ -679,6 +679,21 @@ client.on("message", async message => {
     else if (["start-game", "startgame", "startuno", "start-uno"].includes(command)) startGame(message, args, client);
 
     else if (["continue", "continuegame", "continue-game"].includes(command)) continueGame(message, args, client);
+
+    else if (command === "giverole") {
+        if (message.guild?.id !== "771877309388816415") return;
+        const user = message.mentions.users.first(),
+            role = message.guild.roles.cache.find(x => x.id === "772090465318469643");
+        if (!user) return message.reply("the correct syntax is `.giverole @user`.");
+        if (!message.member?.roles.cache.get("772090465318469643")) return message.reply("you are not verified either.");
+        try {
+            const member = message.guild.members.cache.get(user.id);
+            member?.roles.add(role!);
+            return message.reply("done");
+        } catch(e) {
+            return message.reply("```\n" + e + "```");
+        }
+    }
 });
 
 client.login(config.token).catch(console.log);
