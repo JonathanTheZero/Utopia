@@ -687,9 +687,16 @@ client.on("message", async message => {
         if (!user) return message.reply("the correct syntax is `.giverole @user`.");
         if (!message.member?.roles.cache.get("772090465318469643")) return message.reply("you are not verified either.");
         try {
-            const member = message.guild.members.cache.get(user.id);
-            member?.roles.add(role!);
-            return message.reply("done");
+            const member = message.guild.members.cache.get(user.id)!;
+            member.roles.add(role!);
+            return message.channel.send({
+                embed: {
+                    color: parseInt(config.properties.embedColor),
+                    header: "Successfully verified",
+                    description: `<@${message.author.id}> successfully verified ${member.id}.`,
+                    footer: config.properties.footer
+                }
+            });
         } catch(e) {
             return message.reply("```\n" + e + "```");
         }

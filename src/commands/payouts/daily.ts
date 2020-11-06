@@ -128,10 +128,11 @@ export async function dailyPayout(client: Client) {
                 const clsRe = (await getUser(u._id)).clientStates[i],
                     newConsump = Math.floor(clsRe.resources.population * (2 + absBaseLog(10, absBaseLog(10, absBaseLog(3, clsRe.resources.population + 1))))) || 0;
                 if (newConsump > clsRe.resources.food) {
+                    if(!clsRe.name) return;
                     client.users.cache.get(u._id)?.send({
                         embed: {
                             title: "**Alert**",
-                            description: `Your client state ${clsRe.name} will run out of food tomrrow, consider sending it some food.`,
+                            description: `Your client state ${clsRe.name} will run out of food tomorrow, consider sending it some food.`,
                             color: 0xFF0000
                         }
                     }).catch(console.log);
