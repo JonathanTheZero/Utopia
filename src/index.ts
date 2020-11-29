@@ -50,6 +50,7 @@ import { startGame, joinGame, uno, continueGame } from "./commands/uno";
 import { giveawayCheck, bet, createUser, loancalc, loan, payback, statsEmbed, time, createAlliance, leaderboard, buy, kill, send, deposit, storeEmbed, work, crime, startGiveaway, mine, digmine, mineStats } from "./commands";
 import { generalHelpMenu, allianceHelpMenu, miscHelpMenu, modHelpMenu, marketHelp, contractHelp, clsHelp, unoHelp, helpMenu, guideEmbed } from "./commands/help";
 
+
 const express = require('express');
 const app = express();
 app.use(express.static('public'));
