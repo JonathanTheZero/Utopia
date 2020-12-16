@@ -30,7 +30,7 @@ export async function startGiveaway(message: Message, args: string[], client: Cl
         ending = new Date(Date.now() + addTime);
     }
     if (addTime == -1) return message.reply("please specifiy a valid time.")
-    if (addTime > 172800000) return message.reply("You can't start a giveaway that lasts longer than two days!");
+    if (addTime > (20160*60000)) return message.reply("You can't start a giveaway that lasts longer than two days!");
     let giveaway: giveaway;
     await message.channel.send({
         embed: {
