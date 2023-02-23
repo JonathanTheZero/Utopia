@@ -16,7 +16,7 @@
     "package-lock.json": "^1.0.0",
     "package.json": "^2.0.1",
     "python-shell": "^1.0.8",
-    "sequelize": "^5.21.1"
+    "sequelize": "^6.28.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
